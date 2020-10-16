@@ -1,0 +1,15 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: nellygateway
+
+zuul:
+  ignoredPatterns: /auth/**
+  routes:
+    upstream:
+      path: /**
+
+ribbon:
+  eureka:
+    enabled: false
