@@ -33,6 +33,10 @@ public class RewriteFilter extends ZuulFilter {
 
         RequestContext context = RequestContext.getCurrentContext();
 
+        HttpServletRequest request = context.getRequest();
+
+
+
         try {
             context.setRouteHost(new URL("http://localhost:9000/sampleApp/"));
         } catch (MalformedURLException e) {
