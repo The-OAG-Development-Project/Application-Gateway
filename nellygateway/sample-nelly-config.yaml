@@ -1,0 +1,10 @@
+hostUri: http://localhost:8080
+
+authProviders:
+  google:
+    authEndpoint: https://accounts.google.com/o/oauth2/auth
+    tokenEndpoint: https://oauth2.googleapis.com/token
+    clientId: 372143946338-48et57uhmcumku7am3ocvva0idc7u0td.apps.googleusercontent.com
+    clientSecret: Iktp3ll8sxmm-HlqU5KIw6KZ
+    sessionDuration: 300
+    redirectSuccess: http://localhost:8080/auth/whoami/
