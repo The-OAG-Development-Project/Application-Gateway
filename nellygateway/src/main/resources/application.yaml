@@ -4,12 +4,6 @@ spring:
   application:
     name: nellygateway
 
-zuul:
-  ignoredPatterns: /auth/**, /error
-  ***REMOVED***
-    upstream:
-  ***REMOVED***
-
 ribbon:
   eureka:
     enabled: false

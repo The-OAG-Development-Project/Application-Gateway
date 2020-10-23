@@ -2,7 +2,6 @@ package ch.gianlucafrei.nellygateway;
 
 import ch.gianlucafrei.nellygateway.config.NellyConfig;
 import ch.gianlucafrei.nellygateway.filters.AuthenticationFilter;
-import ch.gianlucafrei.nellygateway.filters.RewriteFilter;
 import ch.gianlucafrei.nellygateway.filters.SimpleFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,14 +38,13 @@ public class NellygatewayApplication {
         return new SimpleFilter();
     }
 
-    @Bean
+    /*@Bean
     public RewriteFilter rewriteFilterFilter() {
         return new RewriteFilter();
-    }
+    }*/
 
     @Bean
     public AuthenticationFilter authenticationFilterFilter() {
         return new AuthenticationFilter();
     }
-
 }
