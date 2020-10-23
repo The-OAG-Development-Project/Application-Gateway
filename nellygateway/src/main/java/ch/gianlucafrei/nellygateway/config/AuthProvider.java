@@ -7,6 +7,7 @@ public class AuthProvider {
     private String clientId;
     private String clientSecret;
     private int sessionDuration;
+
     private String redirectSuccess;
 
     public String getTokenEndpoint() {
@@ -56,4 +57,5 @@ public class AuthProvider {
     public void setRedirectSuccess(String redirectSuccess) {
         this.redirectSuccess = redirectSuccess;
     }
+
 }

@@ -36,8 +36,6 @@ public class SessionCookie {
             // TODO log
             return null;
         }
-
-
     }
 
     public Cookie getEncryptedHttpCookie(JWEGenerator jweGenerator, int maxAge)

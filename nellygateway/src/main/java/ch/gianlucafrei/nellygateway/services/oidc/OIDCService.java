@@ -85,7 +85,7 @@ public class OIDCService {
         try {
             result.subject = tokenResult.idToken.getJWTClaimsSet().getSubject();
             result.issuer = tokenResult.idToken.getJWTClaimsSet().getIssuer();
-            result.originalToken = tokenResult.idToken.toString();
+            result.originalToken = tokenResult.idToken.getParsedString();
         } catch (java.text.ParseException e) {
             e.printStackTrace();
         }

@@ -13,3 +13,14 @@ zuul:
 ribbon:
   eureka:
     enabled: false
+
+org:
+  springframework:
+    web:
+      filter:
+        CommonsRequestLoggingFilter: DEBUG
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG

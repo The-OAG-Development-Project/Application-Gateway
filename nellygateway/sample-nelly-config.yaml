@@ -1,4 +1,5 @@
 hostUri: http://localhost:8080
+nellyApiKey: abc123
 
 authProviders:
   google:

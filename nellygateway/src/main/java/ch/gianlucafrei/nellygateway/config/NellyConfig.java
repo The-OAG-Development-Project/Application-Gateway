@@ -12,6 +12,7 @@ public class NellyConfig {
 
     public Map<String, AuthProvider> authProviders;
     public String hostUri;
+    public String nellyApiKey;
 
     public NellyConfig(){
 
