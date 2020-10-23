@@ -4,12 +4,6 @@ spring:
   application:
     name: nellygateway
 
-zuul:
-  ignoredPatterns: /auth/**, /error
-  routes:
-    upstream:
-      path: /**
-
 ribbon:
   eureka:
     enabled: false

@@ -1,6 +1,11 @@
 hostUri: http://localhost:8080
 nellyApiKey: abc123
 
+routes:
+  backend1:
+    path: /**
+    url: http://localhost:9000/
+
 authProviders:
   google:
     authEndpoint: https://accounts.google.com/o/oauth2/auth
