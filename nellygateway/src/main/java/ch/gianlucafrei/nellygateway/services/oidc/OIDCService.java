@@ -1,6 +1,5 @@
 package ch.gianlucafrei.nellygateway.services.oidc;
 
-import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.AuthProvider;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.*;
@@ -28,8 +27,7 @@ public class OIDCService {
 
     private static Logger log = LoggerFactory.getLogger(OIDCService.class);
 
-    public OIDCLoginStepResult getRedirectUri(AuthProvider providerSettings, String callbackUri)
-    {
+    public OIDCLoginStepResult getRedirectUri(AuthProvider providerSettings, String callbackUri) {
         OIDCLoginStepResult result = new OIDCLoginStepResult();
 
         // The client ID provisioned by the OpenID provider when
@@ -67,13 +65,11 @@ public class OIDCService {
         return result;
     }
 
-    public OIDCCallbackResult processCallback(AuthProvider providerSettings, String codeStr, String callbackUri)
-    {
+    public OIDCCallbackResult processCallback(AuthProvider providerSettings, String codeStr, String callbackUri) {
         OIDCCallbackResult result = new OIDCCallbackResult();
         OIDCLoadTokenResult tokenResult = loadTokens(providerSettings, codeStr, callbackUri);
 
-        if(! tokenResult.success)
-        {
+        if (!tokenResult.success) {
             result.success = false;
             return result;
         }
@@ -95,8 +91,7 @@ public class OIDCService {
         return result;
     }
 
-    private OIDCLoadTokenResult loadTokens(AuthProvider providerSettings, String codeStr, String callbackUri)
-    {
+    private OIDCLoadTokenResult loadTokens(AuthProvider providerSettings, String codeStr, String callbackUri) {
         OIDCLoadTokenResult result = new OIDCLoadTokenResult();
 
         // Construct the code grant from the code obtained from the authz endpoint
@@ -135,15 +130,13 @@ public class OIDCService {
             tokenHttpRequest.setAccept("application/json");
             tokenHttpResponse = tokenHttpRequest.send();
             tokenResponse = OIDCTokenResponseParser.parse(tokenHttpResponse);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Token response io error");
-        }
-        catch (ParseException e) {
+        } catch (ParseException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Token response parse error");
         }
 
-        if (! tokenResponse.indicatesSuccess()) {
+        if (!tokenResponse.indicatesSuccess()) {
 
             // We got an error response...
             TokenErrorResponse errorResponse = tokenResponse.toErrorResponse();
@@ -155,7 +148,7 @@ public class OIDCService {
         }
 
         log.info("Successfull token response");
-        OIDCTokenResponse successResponse = (OIDCTokenResponse)tokenResponse.toSuccessResponse();
+        OIDCTokenResponse successResponse = (OIDCTokenResponse) tokenResponse.toSuccessResponse();
 
         // Get the ID and access token, the server may also return a refresh token
         result.idToken = successResponse.getOIDCTokens().getIDToken();
@@ -165,8 +158,7 @@ public class OIDCService {
         return result;
     }
 
-    private void validateToken(AuthProvider providerSetting, JWT idToken)
-    {
+    private void validateToken(AuthProvider providerSetting, JWT idToken) {
         // TODO implement
     }
 }
