@@ -3,7 +3,8 @@ package ch.gianlucafrei.nellygateway.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.*;
+import com.nimbusds.jose.crypto.DirectDecrypter;
+import com.nimbusds.jose.crypto.DirectEncrypter;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -16,12 +17,12 @@ public class JWEGenerator {
 
     private SecretKey secretKey;
 
-    public JWEGenerator(){
+    public JWEGenerator() {
 
         secretKey = loadKey();
     }
 
-    protected SecretKey loadKey(){
+    protected SecretKey loadKey() {
 
         String key = System.getenv("NELLY-KEY");
         // decode the base64 encoded string
@@ -30,7 +31,7 @@ public class JWEGenerator {
         return new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
     }
 
-    private String generateKey(){
+    private String generateKey() {
 
         try {
             // Generate symmetric 128 bit AES key
@@ -43,8 +44,7 @@ public class JWEGenerator {
         }
     }
 
-    public String encryptObject(Object payload)
-    {
+    public String encryptObject(Object payload) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String payloadString = objectMapper.writeValueAsString(payload);
@@ -55,7 +55,7 @@ public class JWEGenerator {
         }
     }
 
-    private String encrypt(String payload){
+    private String encrypt(String payload) {
 
         try {
             // Create JWT
@@ -66,14 +66,14 @@ public class JWEGenerator {
 
             // Serialise to compact JOSE form
             String jweString = jweObject.serialize();
-            return  jweString;
+            return jweString;
 
         } catch (JOSEException e) {
             throw new RuntimeException("JWE could not be encrypted", e);
         }
     }
 
-    public <T> T decryptObject(String jwe, Class<T> clazz){
+    public <T> T decryptObject(String jwe, Class<T> clazz) {
         String payload = decrypt(jwe);
 
 
@@ -87,7 +87,7 @@ public class JWEGenerator {
     }
 
     private String decrypt(String jwe) {
-        try{
+        try {
             // Parse into JWE object again...
             JWEObject jweObject = JWEObject.parse(jwe);
 
@@ -97,8 +97,7 @@ public class JWEGenerator {
             // Get the plain text
             Payload payload = jweObject.getPayload();
             return payload.toString();
-        }
-        catch (JOSEException | ParseException e) {
+        } catch (JOSEException | ParseException e) {
             throw new RuntimeException("JWE could not be decrypted", e);
         }
     }

@@ -1,9 +1,7 @@
 package ch.gianlucafrei.nellygateway.cookies;
 
 
-import javax.servlet.http.Cookie;
-
-public class OidcStateCookie{
+public class OidcStateCookie {
 
     public static final String NAME = "oidc-state";
 
@@ -11,7 +9,7 @@ public class OidcStateCookie{
     private String sate;
     private String nonce;
 
-    public OidcStateCookie(){
+    public OidcStateCookie() {
 
     }
 

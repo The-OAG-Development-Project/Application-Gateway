@@ -5,7 +5,6 @@ import ch.gianlucafrei.nellygateway.utils.JWEGenerator;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
 
 public class SessionCookie {
 
@@ -23,23 +22,19 @@ public class SessionCookie {
 
         Cookie cookie = CookieUtils.getCookieOrNull(NAME, request);
 
-        if(cookie == null)
+        if (cookie == null)
             return null;
 
-        try
-        {
+        try {
             SessionCookie sessionCookie = jweGenerator.decryptObject(cookie.getValue(), SessionCookie.class);
             return sessionCookie;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             // TODO log
             return null;
         }
     }
 
-    public Cookie getEncryptedHttpCookie(JWEGenerator jweGenerator, int maxAge)
-    {
+    public Cookie getEncryptedHttpCookie(JWEGenerator jweGenerator, int maxAge) {
         String encryptedSessionCookie = jweGenerator.encryptObject(this);
         Cookie cookie = new Cookie("session", encryptedSessionCookie);
         cookie.setSecure(false); // TODO only for debugging via http only

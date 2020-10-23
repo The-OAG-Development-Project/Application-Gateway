@@ -8,15 +8,12 @@ import com.netflix.zuul.context.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
 
 public class AuthenticationFilter extends ZuulFilter {
 
-    JWEGenerator jweGenerator = new JWEGenerator();
-
     private static Logger log = LoggerFactory.getLogger(SimpleFilter.class);
+    JWEGenerator jweGenerator = new JWEGenerator();
 
     @Override
     public String filterType() {
@@ -43,12 +40,9 @@ public class AuthenticationFilter extends ZuulFilter {
 
         SessionCookie sessionCookie = SessionCookie.loadFromRequest(request, jweGenerator);
 
-        if(sessionCookie == null)
-        {
+        if (sessionCookie == null) {
             ctx.addZuulRequestHeader("X-NELLY-Status", "Anonymous");
-        }
-        else
-        {
+        } else {
             ctx.addZuulRequestHeader("X-NELLY-Status", "Authenticated");
             ctx.addZuulRequestHeader("X-NELLY-User", sessionCookie.getSubject());
             ctx.addZuulRequestHeader("X-NELLY-Provider", sessionCookie.getProvider());

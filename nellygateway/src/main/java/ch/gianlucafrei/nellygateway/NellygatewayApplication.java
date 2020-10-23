@@ -11,16 +11,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;
 
-import java.io.Console;
 import java.io.IOException;
 
 @EnableZuulProxy
 @SpringBootApplication
 public class NellygatewayApplication {
 
-    private static Logger log = LoggerFactory.getLogger(NellygatewayApplication.class);
-
     public static NellyConfig config;
+    private static Logger log = LoggerFactory.getLogger(NellygatewayApplication.class);
 
     public static void main(String[] args) {
 
