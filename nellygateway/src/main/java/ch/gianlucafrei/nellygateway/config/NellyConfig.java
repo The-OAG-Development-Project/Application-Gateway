@@ -16,6 +16,7 @@ public class NellyConfig {
     public Map<String, NellyRoute> routes;
     public String hostUri;
     public String nellyApiKey;
+    public String logoutRedirectUri;
 
     public NellyConfig() {
 

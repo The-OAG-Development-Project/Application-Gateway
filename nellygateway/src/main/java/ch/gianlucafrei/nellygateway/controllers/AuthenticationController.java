@@ -109,4 +109,19 @@ public class AuthenticationController {
         response.setHeader("Location", providerSettings.getRedirectSuccess());
         response.setStatus(302);
     }
+
+    @GetMapping("/logout")
+    public void logout(
+            HttpServletResponse response,
+            HttpServletRequest request) {
+
+        // Override session cookie with new cookie that has max-age = 0
+        SessionCookie sessionCookie = new SessionCookie();
+        Cookie cookie = sessionCookie.getEncryptedHttpCookie(jweGenerator, 0);
+        response.addCookie(cookie);
+
+        // Redirect the user
+        response.setHeader("Location", NellygatewayApplication.config.logoutRedirectUri);
+        response.setStatus(302);
+    }
 }
