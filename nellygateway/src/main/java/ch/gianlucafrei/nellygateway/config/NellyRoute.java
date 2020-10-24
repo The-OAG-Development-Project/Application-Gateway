@@ -4,4 +4,5 @@ public class NellyRoute {
 
     public String path;
     public String url;
+    public String type;
 }

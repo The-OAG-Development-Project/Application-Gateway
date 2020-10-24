@@ -14,6 +14,7 @@ public class NellyConfig {
 
     public Map<String, AuthProvider> authProviders;
     public Map<String, NellyRoute> routes;
+    public Map<String, SecurityProfile> securityProfiles;
     public String hostUri;
     public String nellyApiKey;
     public String logoutRedirectUri;

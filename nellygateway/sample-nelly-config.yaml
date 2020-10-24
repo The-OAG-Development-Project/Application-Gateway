@@ -4,10 +4,16 @@ logoutRedirectUri: http://localhost:8080
 
 routes:
   backend1:
+    type: webapplication
     path: /**
     url: http://localhost:9000/
   gianluca:
+    type: static
     path: /gianluca/**
+    url: https://gianlucafrei.ch
+  api:
+    type: api
+    path: /api/**
     url: https://gianlucafrei.ch
 
 authProviders:
@@ -18,3 +24,16 @@ authProviders:
     clientSecret: Iktp3ll8sxmm-HlqU5KIw6KZ
     sessionDuration: 300
     redirectSuccess: http://localhost:8080/
+
+securityProfiles:
+    webapplication:
+      headers:
+        Server: <<remove>>
+        X-Powered-By: <<remove>>
+        X-XSS-Protection: 1;mode=block;
+        X-Frame-Options: SAMEORIGIN
+        X-Content-Type-Options: nosniff
+        Referrer-Policy: strict-origin-when-cross-origin
+        Content-Security-Policy: upgrade-insecure-requests;base-uri 'self';object-src 'self'
+        Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
+        Strict-Transport-Security: max-age=31536000; includeSubDomains
