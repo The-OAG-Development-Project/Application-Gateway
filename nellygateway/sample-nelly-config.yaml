@@ -1,10 +1,14 @@
 hostUri: http://localhost:8080
 nellyApiKey: abc123
+logoutRedirectUri: http://localhost:8080
 
 routes:
   backend1:
     path: /**
     url: http://localhost:9000/
+  gianluca:
+    path: /gianluca/**
+    url: https://gianlucafrei.ch
 
 authProviders:
   google:
@@ -13,4 +17,4 @@ authProviders:
     clientId: 372143946338-48et57uhmcumku7am3ocvva0idc7u0td.apps.googleusercontent.com
     clientSecret: Iktp3ll8sxmm-HlqU5KIw6KZ
     sessionDuration: 300
-    redirectSuccess: http://localhost:8080/auth/whoami/
+    redirectSuccess: http://localhost:8080/
