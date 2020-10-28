@@ -14,7 +14,7 @@ Implementing secure logins and session management became much more complicated w
 
 ### Stateless
 
-Wherever possible, Nelly is possible. All session information is stored within encrypted cookies on the clients. Stateless session management makes it a lot easier to deploy Nelly on multiple nodes.
+Wherever possible, Nelly is stateless. All session information is stored within encrypted cookies on the clients. Stateless session management makes it a lot easier to deploy Nelly on multiple nodes.
 
 ### Configuration based
 
