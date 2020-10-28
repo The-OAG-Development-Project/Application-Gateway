@@ -1,5 +1,6 @@
 package ch.gianlucafrei.nellygateway.config;
 
+import ch.gianlucafrei.nellygateway.utils.MapTreeUpdater;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
@@ -8,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class NellyConfig {
@@ -25,21 +27,24 @@ public class NellyConfig {
 
     public static NellyConfig load(String path, String secretsPath) throws IOException {
 
-        File file = new File(path);
-
         // Instantiating a new ObjectMapper as a YAMLFactory
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
 
-        // Mapping the employee from the YAML file to the NellyConfig class
-        NellyConfig config = om.readValue(file, NellyConfig.class);
+        File file = new File(path);
+        LinkedHashMap<String, Object> configMap = om.readValue(file, LinkedHashMap.class);
 
         if (secretsPath != null)
         {
             File secretFile = new File(secretsPath);
+            LinkedHashMap<String, Object> secretConfigMap = om.readValue(secretFile, LinkedHashMap.class);
 
+            configMap = MapTreeUpdater.updateMap(configMap, secretConfigMap);
             // Update object with the secrets
-            config = om.readerForUpdating(config).readValue(secretFile);
+            //config = om.readerForUpdating(config).readValue(secretFile);
         }
+
+        String configWithSecretAsString = om.writeValueAsString(configMap);
+        NellyConfig config = om.readValue(configWithSecretAsString, NellyConfig.class);
 
         return config;
     }
