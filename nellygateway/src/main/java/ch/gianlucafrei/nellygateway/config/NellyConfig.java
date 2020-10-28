@@ -23,7 +23,7 @@ public class NellyConfig {
 
     }
 
-    public static NellyConfig load(String path) throws IOException {
+    public static NellyConfig load(String path, String secretsPath) throws IOException {
 
         File file = new File(path);
 
@@ -32,6 +32,14 @@ public class NellyConfig {
 
         // Mapping the employee from the YAML file to the NellyConfig class
         NellyConfig config = om.readValue(file, NellyConfig.class);
+
+        if (secretsPath != null)
+        {
+            File secretFile = new File(secretsPath);
+
+            // Update object with the secrets
+            config = om.readerForUpdating(config).readValue(secretFile);
+        }
 
         return config;
     }

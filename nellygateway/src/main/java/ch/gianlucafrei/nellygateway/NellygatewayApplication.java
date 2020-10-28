@@ -22,8 +22,12 @@ public class NellygatewayApplication {
 
     public static void main(String[] args) {
 
+        log.debug(String.format("Nell starting... Working directory %s", System.getProperty("user.dir")));
+
         try {
-            config = NellyConfig.load("/Users/gifr/nellygateway/nellygateway/sample-nelly-config.yaml");
+            config = NellyConfig.load(
+                    "sample-nelly-config.yaml",
+                    "sample-nelly-config-secret.yaml");
         } catch (IOException e) {
             log.error("Could not load nelly configuration", e);
             return;

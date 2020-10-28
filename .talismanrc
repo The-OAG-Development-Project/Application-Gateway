@@ -1,0 +1,3 @@
+fileignoreconfig:
+- filename: nellygateway/src/main/java/ch/gianlucafrei/nellygateway/config/NellyConfig.java
+  checksum: 42ec57f3a9bf8a7e6521346ec8826ad6f66a0ce5ee5d18b025f934563aa4d728

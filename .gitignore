@@ -1,4 +1,5 @@
 HELP.md
+nellygateway/sample-nelly-config-secret.yaml
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
