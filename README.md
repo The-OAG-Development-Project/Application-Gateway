@@ -3,11 +3,12 @@ An elephant strong web application gateway that handles oauth2 authentication an
 
 🏗️ **Nellygateway is work-in-progress. No productive version has been released yet.**
 
-<img src="https://github.com/gianlucafrei/nellygateway/blob/main/doc/overview.png?raw=true" data-canonical-src="https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png" width="500" />
 
 ## What is Nelly?
 
 Nellygateway is an HTTP reverse proxy that sits between your web application and the client and handles Oauth2 login and session management. For you, as a developer, Nelly removes the hassle to implement complicated oauth2 logic in the backend and frontend so you can focus totally on your application.
+
+<img src="https://github.com/gianlucafrei/nellygateway/blob/main/doc/overview.png?raw=true" data-canonical-src="https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png" width="500" />
 
 ## What are the design principles for Nelly?
 
