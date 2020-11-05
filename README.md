@@ -3,7 +3,7 @@ An elephant strong web application gateway that handles oauth2 authentication an
 
 🏗️ **Nellygateway is work-in-progress. No productive version has been released yet.**
 
-![overviewDiagram](https://github.com/gianlucafrei/nellygateway/blob/main/doc/overview.png?raw=true =500x)
+![overviewDiagram](https://github.com/gianlucafrei/nellygateway/blob/main/doc/overview.png?raw=true | width=500)
 
 ## What is Nelly?
 
