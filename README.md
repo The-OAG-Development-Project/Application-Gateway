@@ -1,4 +1,7 @@
 # Nellygateway
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/5eaa206a103e4b28be9da2ba857d1653)](https://app.codacy.com/gh/gianlucafrei/nellygateway?utm_source=github.com&utm_medium=referral&utm_content=gianlucafrei/nellygateway&utm_campaign=Badge_Grade)
+
 An elephant strong web application gateway that handles oauth2 authentication and session management.
 
 🏗️ **Nellygateway is work-in-progress. No productive version has been released yet.**
