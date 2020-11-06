@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 public class SessionCookie {
 
     public static final String NAME = "session";
+    public static final String SAMESITE = "lax";
 
     private long sessionExp;
     private String provider;
@@ -35,12 +36,14 @@ public class SessionCookie {
     }
 
     public Cookie getEncryptedHttpCookie(JWEGenerator jweGenerator, int maxAge) {
+
         String encryptedSessionCookie = jweGenerator.encryptObject(this);
-        Cookie cookie = new Cookie("session", encryptedSessionCookie);
+        Cookie cookie = new Cookie(NAME, encryptedSessionCookie);
         cookie.setSecure(false); // TODO only for debugging via http only
         cookie.setHttpOnly(true);
         cookie.setMaxAge(maxAge);
         cookie.setPath("/");
+
         return cookie;
     }
 

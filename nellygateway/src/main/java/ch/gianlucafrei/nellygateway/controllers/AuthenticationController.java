@@ -36,7 +36,7 @@ public class AuthenticationController {
 
     @GetMapping("{providerKey}/login")
     public void login(@PathVariable(value = "providerKey") String providerKey, HttpServletResponse httpServletResponse) throws URISyntaxException {
-        log.info(String.format("auth login request"));
+        log.trace(String.format("auth login request"));
 
         // Load auth provider settings
         AuthProvider providerSettings = NellygatewayApplication.config.authProviders.getOrDefault(providerKey, null);
@@ -68,8 +68,7 @@ public class AuthenticationController {
             @RequestParam("state") String stateStr,
             HttpServletResponse response,
             HttpServletRequest request) {
-        log.info(String.format("auth callback request"));
-
+        log.trace(String.format("auth callback request"));
 
         // Load oidc state from cookie
         Cookie oidcCookie = CookieUtils.getCookieOrNull("oidc-state", request);
@@ -103,7 +102,7 @@ public class AuthenticationController {
         sessionCookie.setSessionExp(sessionExpireTime);
 
         Cookie cookie = sessionCookie.getEncryptedHttpCookie(jweGenerator, providerSettings.getSessionDuration());
-        response.addCookie(cookie);
+        CookieUtils.addSameSiteCookie(cookie, SessionCookie.SAMESITE, response);
 
         // Redirect the user
         response.setHeader("Location", providerSettings.getRedirectSuccess());
@@ -114,11 +113,14 @@ public class AuthenticationController {
     public void logout(
             HttpServletResponse response,
             HttpServletRequest request) {
+        log.trace(String.format("logout request"));
+
+        //TODO Logout CSRF Protection
 
         // Override session cookie with new cookie that has max-age = 0
         SessionCookie sessionCookie = new SessionCookie();
         Cookie cookie = sessionCookie.getEncryptedHttpCookie(jweGenerator, 0);
-        response.addCookie(cookie);
+        CookieUtils.removeSameSiteCookie(cookie, SessionCookie.SAMESITE, response);
 
         // Redirect the user
         response.setHeader("Location", NellygatewayApplication.config.logoutRedirectUri);
