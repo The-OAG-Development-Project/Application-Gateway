@@ -5,3 +5,5 @@ fileignoreconfig:
   checksum: 6b44ee25f88799c6734aa5a64f1470fffdb75897093630f01119e9bacf906d0c
 - filename: nellygateway/src/main/java/ch/gianlucafrei/nellygateway/NellygatewayApplication.java
   checksum: 2bb0083a74a59364a1ad9186377d29505f5164c81ce25f5f640f38c250db0108
+- filename: nellygateway/sample-nelly-config.yaml
+  checksum: 7379dcbe5ac76860757c80064353f288c2362e85e28fe98e168fa600b5d794f1

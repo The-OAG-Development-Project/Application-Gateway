@@ -1,7 +1,9 @@
 package ch.gianlucafrei.nellygateway.config;
 
+import ch.gianlucafrei.nellygateway.config.customDeserializer.StringEnvironmentVariableDeserializer;
 import ch.gianlucafrei.nellygateway.utils.MapTreeUpdater;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 
@@ -29,6 +31,10 @@ public class NellyConfig {
 
         // Instantiating a new ObjectMapper as a YAMLFactory
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
+
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(String.class, new StringEnvironmentVariableDeserializer());
+        om.registerModule(module);
 
         File file = new File(path);
         LinkedHashMap<String, Object> configMap = om.readValue(file, LinkedHashMap.class);
