@@ -1,7 +1,8 @@
-package ch.gianlucafrei.nellygateway.utils;
+package ch.gianlucafrei.nellygateway.services.crypto;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.Files;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.DirectDecrypter;
 import com.nimbusds.jose.crypto.DirectEncrypter;
@@ -9,26 +10,65 @@ import com.nimbusds.jose.crypto.DirectEncrypter;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.File;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Base64;
 
-public class JWEGenerator {
+public class JweEncrypter implements CookieEncryptor {
 
     private SecretKey secretKey;
 
-    public JWEGenerator() {
+    private JweEncrypter(byte[] keyBytes) {
 
-        secretKey = loadKey();
+        this.secretKey = new SecretKeySpec(keyBytes, 0, keyBytes.length, "AES");
     }
 
-    protected SecretKey loadKey() {
+    public static JweEncrypter loadFromFileOrCreateAndStoreNewKey(String filename) throws IOException {
 
-        String key = System.getenv("NELLY-KEY");
+        if(filename == null)
+            throw new IllegalArgumentException("Filename must not be null");
+
+        File keyFile = new File(filename);
+        byte[] keyBytes;
+
+        if(keyFile.exists())
+        {
+            // Read key from file
+            keyBytes = Files.toByteArray(keyFile);
+        }
+        else{
+            // Create new secret key and store it in file
+
+            KeyGenerator keyGen = null;
+            try {
+                keyGen = KeyGenerator.getInstance("AES");
+                keyGen.init(128); // for example
+                SecretKey secretKey = keyGen.generateKey();
+
+                // Store key om file
+                keyBytes = secretKey.getEncoded();
+                Files.write(keyBytes, keyFile);
+
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException("Cloud not create AES key", e);
+            }
+        }
+
+        return new JweEncrypter(keyBytes);
+    }
+
+    public static JweEncrypter loadFromEnvironmentVariable(String variableName) {
+
+        String key = System.getenv(variableName);
+
+        if(key == null)
+            throw new IllegalStateException("NELLY-KEY is not defined");
+
         // decode the base64 encoded string
         byte[] decodedKey = Base64.getDecoder().decode(key);
-        // rebuild key using SecretKeySpec
-        return new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+        return new JweEncrypter(decodedKey);
     }
 
     private String generateKey() {
@@ -44,6 +84,7 @@ public class JWEGenerator {
         }
     }
 
+    @Override
     public String encryptObject(Object payload) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -73,6 +114,7 @@ public class JWEGenerator {
         }
     }
 
+    @Override
     public <T> T decryptObject(String jwe, Class<T> clazz) {
         String payload = decrypt(jwe);
 
