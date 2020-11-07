@@ -1,7 +1,8 @@
 package ch.gianlucafrei.nellygateway.controllers;
 
 import ch.gianlucafrei.nellygateway.cookies.SessionCookie;
-import ch.gianlucafrei.nellygateway.utils.JWEGenerator;
+import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,12 +14,13 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/auth")
 public class DebugController {
 
-    private JWEGenerator jweGenerator = new JWEGenerator();
+    @Autowired
+    private CookieEncryptor cookieEncryptor;
 
     @GetMapping("whoami")
     public String whoami(HttpServletResponse response,
                          HttpServletRequest request) {
-        SessionCookie cookie = SessionCookie.loadFromRequest(request, jweGenerator);
+        SessionCookie cookie = SessionCookie.loadFromRequest(request, cookieEncryptor);
 
         if (cookie == null)
             return "Anonymous";

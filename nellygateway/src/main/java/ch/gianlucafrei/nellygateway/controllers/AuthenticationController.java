@@ -4,13 +4,14 @@ import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.AuthProvider;
 import ch.gianlucafrei.nellygateway.cookies.OidcStateCookie;
 import ch.gianlucafrei.nellygateway.cookies.SessionCookie;
+import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
 import ch.gianlucafrei.nellygateway.services.oidc.OIDCCallbackResult;
 import ch.gianlucafrei.nellygateway.services.oidc.OIDCLoginStepResult;
 import ch.gianlucafrei.nellygateway.services.oidc.OIDCService;
 import ch.gianlucafrei.nellygateway.utils.CookieUtils;
-import ch.gianlucafrei.nellygateway.utils.JWEGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,8 +27,10 @@ import java.net.URISyntaxException;
 public class AuthenticationController {
 
     private static Logger log = LoggerFactory.getLogger(AuthenticationController.class);
-    private JWEGenerator jweGenerator = new JWEGenerator();
     private OIDCService oidcService = new OIDCService();
+
+    @Autowired
+    private CookieEncryptor cookieEncryptor;
 
     @GetMapping("nelly")
     public String index() {
@@ -52,7 +55,7 @@ public class AuthenticationController {
 
         // Store state and nonce as a encrypted JEW in cookie on the client
         OidcStateCookie oidcState = new OidcStateCookie(providerKey, result.state, result.nonce);
-        String encryptedState = jweGenerator.encryptObject(oidcState);
+        String encryptedState = cookieEncryptor.encryptObject(oidcState);
         Cookie oidcStateCookie = new Cookie("oidc-state", encryptedState);
         httpServletResponse.addCookie(oidcStateCookie);
 
@@ -72,7 +75,7 @@ public class AuthenticationController {
 
         // Load oidc state from cookie
         Cookie oidcCookie = CookieUtils.getCookieOrNull("oidc-state", request);
-        OidcStateCookie oidcState = jweGenerator.decryptObject(oidcCookie.getValue(), OidcStateCookie.class);
+        OidcStateCookie oidcState = cookieEncryptor.decryptObject(oidcCookie.getValue(), OidcStateCookie.class);
 
         if (!providerKey.equals(oidcState.getProvider())) {
             throw new ResponseStatusException(
@@ -101,7 +104,7 @@ public class AuthenticationController {
         sessionCookie.setSubject(result.subject);
         sessionCookie.setSessionExp(sessionExpireTime);
 
-        Cookie cookie = sessionCookie.getEncryptedHttpCookie(jweGenerator, providerSettings.getSessionDuration());
+        Cookie cookie = sessionCookie.getEncryptedHttpCookie(cookieEncryptor, providerSettings.getSessionDuration());
         CookieUtils.addSameSiteCookie(cookie, SessionCookie.SAMESITE, response);
 
         // Redirect the user
@@ -119,7 +122,7 @@ public class AuthenticationController {
 
         // Override session cookie with new cookie that has max-age = 0
         SessionCookie sessionCookie = new SessionCookie();
-        Cookie cookie = sessionCookie.getEncryptedHttpCookie(jweGenerator, 0);
+        Cookie cookie = sessionCookie.getEncryptedHttpCookie(cookieEncryptor, 0);
         CookieUtils.removeSameSiteCookie(cookie, SessionCookie.SAMESITE, response);
 
         // Redirect the user

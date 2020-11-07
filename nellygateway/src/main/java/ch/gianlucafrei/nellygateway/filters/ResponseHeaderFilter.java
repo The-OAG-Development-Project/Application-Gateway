@@ -3,26 +3,25 @@ package ch.gianlucafrei.nellygateway.filters;
 import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.NellyRoute;
 import ch.gianlucafrei.nellygateway.config.SecurityProfile;
-import ch.gianlucafrei.nellygateway.cookies.SessionCookie;
-import ch.gianlucafrei.nellygateway.utils.JWEGenerator;
+import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
 import com.netflix.util.Pair;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ResponseHeaderFilter extends ZuulFilter {
 
-    private static Logger log = LoggerFactory.getLogger(SimpleFilter.class);
-    JWEGenerator jweGenerator = new JWEGenerator();
+    private static Logger log = LoggerFactory.getLogger(SimpleLogFilter.class);
+
+    @Autowired
+    private CookieEncryptor cookieEncryptor;
 
     @Override
     public String filterType() {

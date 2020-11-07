@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class SimpleFilter extends ZuulFilter {
+public class SimpleLogFilter extends ZuulFilter {
 
-    private static Logger log = LoggerFactory.getLogger(SimpleFilter.class);
+    private static Logger log = LoggerFactory.getLogger(SimpleLogFilter.class);
 
     @Override
     public String filterType() {
