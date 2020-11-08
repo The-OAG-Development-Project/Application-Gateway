@@ -20,6 +20,8 @@ jobs:
       run: mvn -B package --file nellygateway/pom.xml 
     - name: Create Artifact Folder
       run: mkdir nellygateway/target/artifact/ && cp nellygateway/target/nellygateway*.jar nellygateway/target/artifact/nellygateway.jar && cp nellygateway/sample-nelly-config.yaml nellygateway/target/artifact/sample-nelly-config.yaml
+    - name: Add commit hash to artifact
+      run: echo $GITHUB_SHA >> nellygateway/target/artifact/comit-hash.txt
     - name: Publish Artifact
       uses: actions/upload-artifact@v2
       with:
