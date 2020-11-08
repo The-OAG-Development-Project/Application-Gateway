@@ -27,6 +27,7 @@ jobs:
 
   deploy:
     name: Deploy to Azure App Service
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/download-artifact@v2
