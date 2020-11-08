@@ -1,0 +1,35 @@
+hostUri: http://localhost:8080
+logoutRedirectUri: http://localhost:8080
+nellyApiKey: env:NELLY_API_KEY
+
+routes:
+  backend1:
+    type: webapplication
+    path: /**
+    url: http://localhost:9000/
+  api:
+    type: webapplication
+    path: /api/**
+    url: https://gianlucafrei.ch
+
+authProviders:
+  google:
+    authEndpoint: https://accounts.google.com/o/oauth2/auth
+    tokenEndpoint: https://oauth2.googleapis.com/token
+    clientId: 372143946338-48et57uhmcumku7am3ocvva0idc7u0td.apps.googleusercontent.com
+    clientSecret: env:GOOGLE_CLIENT_SECRET
+    sessionDuration: 300
+    redirectSuccess: http://localhost:8080/
+
+securityProfiles:
+    webapplication:
+      headers:
+        Server: <<remove>>
+        X-Powered-By: <<remove>>
+        X-XSS-Protection: 1;mode=block;
+        X-Frame-Options: SAMEORIGIN
+        X-Content-Type-Options: nosniff
+        Referrer-Policy: strict-origin-when-cross-origin
+        Content-Security-Policy: upgrade-insecure-requests;base-uri 'self';object-src 'self'
+        Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
+        Strict-Transport-Security: max-age=31536000; includeSubDomains

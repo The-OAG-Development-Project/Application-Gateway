@@ -18,3 +18,5 @@ logging:
     org:
       springframework:
         web: DEBUG
+  file:
+    path: nelly.log

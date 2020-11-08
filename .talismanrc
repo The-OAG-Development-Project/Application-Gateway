@@ -7,3 +7,5 @@ fileignoreconfig:
   checksum: 2bb0083a74a59364a1ad9186377d29505f5164c81ce25f5f640f38c250db0108
 - filename: nellygateway/sample-nelly-config.yaml
   checksum: 7379dcbe5ac76860757c80064353f288c2362e85e28fe98e168fa600b5d794f1
+- filename: nellygateway/sample-nelly-config.yaml
+  checksum: 208f9eec5d14f04dacd6075a746b3ac755866acfdd00a2bfda29c46a04f6ec8c

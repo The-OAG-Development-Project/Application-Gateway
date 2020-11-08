@@ -67,7 +67,14 @@ public class NellygatewayApplication {
 
     public static void loadConfiguration() throws IOException {
 
+        String configPath;
+
+        if(System.getenv("NELLY_CONFIG_PATH") != null)
+            configPath = System.getenv("NELLY_CONFIG_PATH");
+        else
+            configPath = "sample-nelly-config.yaml"; // Default path if we have no config
+
         NellygatewayApplication.config = NellyConfig.load(
-                "nelly-config.yaml",null);
+                configPath,null);
     }
 }
