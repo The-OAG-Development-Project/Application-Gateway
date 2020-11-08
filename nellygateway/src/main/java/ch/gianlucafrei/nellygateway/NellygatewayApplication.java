@@ -68,6 +68,6 @@ public class NellygatewayApplication {
     public static void loadConfiguration() throws IOException {
 
         NellygatewayApplication.config = NellyConfig.load(
-                "sample-nelly-config.yaml",null);
+                "nelly-config.yaml",null);
     }
 }
