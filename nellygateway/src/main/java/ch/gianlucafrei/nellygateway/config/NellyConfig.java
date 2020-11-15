@@ -2,6 +2,7 @@ package ch.gianlucafrei.nellygateway.config;
 
 import ch.gianlucafrei.nellygateway.config.customDeserializer.StringEnvironmentVariableDeserializer;
 import ch.gianlucafrei.nellygateway.utils.MapTreeUpdater;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -33,12 +34,13 @@ public class NellyConfig {
         om.registerModule(module);
 
         File file = new File(path);
-        LinkedHashMap<String, Object> configMap = om.readValue(file, LinkedHashMap.class);
+        TypeReference<LinkedHashMap<String, Object>> mapType = new TypeReference<>() {};
+        LinkedHashMap<String, Object> configMap = om.readValue(file, mapType);
 
         if (secretsPath != null)
         {
             File secretFile = new File(secretsPath);
-            LinkedHashMap<String, Object> secretConfigMap = om.readValue(secretFile, LinkedHashMap.class);
+            LinkedHashMap<String, Object> secretConfigMap = om.readValue(secretFile, mapType);
 
             configMap = MapTreeUpdater.updateMap(configMap, secretConfigMap);
             // Update object with the secrets
