@@ -9,6 +9,8 @@ public class OidcStateCookie {
     private String sate;
     private String nonce;
 
+    public OidcStateCookie() {}
+
     public OidcStateCookie(String provider, String sate, String nonce) {
         this.provider = provider;
         this.sate = sate;
