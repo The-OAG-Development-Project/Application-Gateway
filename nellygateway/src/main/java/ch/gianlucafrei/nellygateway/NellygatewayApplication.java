@@ -63,8 +63,8 @@ public class NellygatewayApplication {
         else
             configPath = "sample-nelly-config.yaml"; // Default path if we have no config
 
-        NellygatewayApplication.config = NellyConfig.load(
-                configPath,null);
+
+        NellygatewayApplication.config = NellyConfig.load(configPath,null);
 
         log.debug("Configuration loaded from {}", configPath);
     }

@@ -16,9 +16,6 @@ public class SessionCookie {
     private String subject;
     private String orginalToken;
 
-    public SessionCookie() {
-    }
-
     public static SessionCookie loadFromRequest(HttpServletRequest request, CookieEncryptor encrypter) {
 
         Cookie cookie = CookieUtils.getCookieOrNull(NAME, request);
@@ -27,8 +24,7 @@ public class SessionCookie {
             return null;
 
         try {
-            SessionCookie sessionCookie = encrypter.decryptObject(cookie.getValue(), SessionCookie.class);
-            return sessionCookie;
+            return encrypter.decryptObject(cookie.getValue(), SessionCookie.class);
         } catch (Exception e) {
             // TODO log
             return null;

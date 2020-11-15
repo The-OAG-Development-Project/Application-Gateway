@@ -9,3 +9,7 @@ fileignoreconfig:
   checksum: 7379dcbe5ac76860757c80064353f288c2362e85e28fe98e168fa600b5d794f1
 - filename: nellygateway/sample-nelly-config.yaml
   checksum: 208f9eec5d14f04dacd6075a746b3ac755866acfdd00a2bfda29c46a04f6ec8c
+- filename: nellygateway/src/main/java/ch/gianlucafrei/nellygateway/config/NellyConfig.java
+  checksum: 6a7ecd0f446595ab9d19fb6b16bbeb9164c4e88d6a827b07e37281b7abbd3bc5
+- filename: nellygateway/src/main/java/ch/gianlucafrei/nellygateway/utils/MapTreeUpdater.java
+  checksum: f35592a524a0ea5d6caa803cb1340091b61a4bde39f5ca60e5971900be3b1325
