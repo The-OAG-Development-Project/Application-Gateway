@@ -41,7 +41,7 @@ public class JweEncrypter implements CookieEncryptor {
         else{
             // Create new secret key and store it in file
 
-            KeyGenerator keyGen = null;
+            KeyGenerator keyGen;
             try {
                 keyGen = KeyGenerator.getInstance("AES");
                 keyGen.init(128); // for example
@@ -76,8 +76,7 @@ public class JweEncrypter implements CookieEncryptor {
         try {
             // Generate symmetric 128 bit AES key
             SecretKey secretKey = KeyGenerator.getInstance("AES").generateKey();
-            String encodedKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-            return encodedKey;
+            return Base64.getEncoder().encodeToString(secretKey.getEncoded());
 
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("AES key coule not be generated", e);
@@ -106,8 +105,7 @@ public class JweEncrypter implements CookieEncryptor {
             jweObject.encrypt(new DirectEncrypter(secretKey));
 
             // Serialise to compact JOSE form
-            String jweString = jweObject.serialize();
-            return jweString;
+            return jweObject.serialize();
 
         } catch (JOSEException e) {
             throw new RuntimeException("JWE could not be encrypted", e);
@@ -121,8 +119,7 @@ public class JweEncrypter implements CookieEncryptor {
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            T obj = objectMapper.readValue(payload, clazz);
-            return obj;
+            return objectMapper.readValue(payload, clazz);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("JWE could not be deserialized", e);
         }
