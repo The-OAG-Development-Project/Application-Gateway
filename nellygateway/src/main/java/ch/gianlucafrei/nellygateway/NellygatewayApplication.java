@@ -1,11 +1,8 @@
 package ch.gianlucafrei.nellygateway;
 
 import ch.gianlucafrei.nellygateway.config.NellyConfig;
-import ch.gianlucafrei.nellygateway.filters.AuthenticationFilter;
-import ch.gianlucafrei.nellygateway.filters.ResponseHeaderFilter;
-import ch.gianlucafrei.nellygateway.filters.SimpleLogFilter;
-import ch.gianlucafrei.nellygateway.services.crypto.JweEncrypter;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
+import ch.gianlucafrei.nellygateway.services.crypto.JweEncrypter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -21,17 +18,6 @@ public class NellygatewayApplication {
 
     public static NellyConfig config;
     private static Logger log = LoggerFactory.getLogger(NellygatewayApplication.class);
-
-    @Bean
-    public SimpleLogFilter simpleFilter() { return new SimpleLogFilter(); }
-
-    @Bean
-    public AuthenticationFilter authenticationFilterFilter() {
-        return new AuthenticationFilter();
-    }
-
-    @Bean
-    public ResponseHeaderFilter responseHeaderFilter() {return new ResponseHeaderFilter();}
 
     @Bean
     public CookieEncryptor cookieEncryptor() throws IOException { return loadCookieEncrypter();}
@@ -74,6 +60,9 @@ public class NellygatewayApplication {
         else
             configPath = "sample-nelly-config.yaml"; // Default path if we have no config
 
+
         NellygatewayApplication.config = NellyConfig.load(configPath,null);
+
+        log.debug("Configuration loaded from {}", configPath);
     }
 }

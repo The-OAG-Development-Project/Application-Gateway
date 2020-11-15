@@ -60,6 +60,7 @@ public class NellyConfig {
         {
             routes.forEach((name, route) -> {
                 ZuulProperties.ZuulRoute zuulRoute = new ZuulProperties.ZuulRoute(route.path, route.url);
+                zuulRoute.setId(name);
                 zuulRoute.setSensitiveHeaders(new HashSet<>());
                 zuulRoutes.put(name, zuulRoute);
             });

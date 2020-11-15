@@ -2,7 +2,6 @@ package ch.gianlucafrei.nellygateway.controllers;
 
 import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.AuthProvider;
-import ch.gianlucafrei.nellygateway.config.NellyConfig;
 import ch.gianlucafrei.nellygateway.cookies.OidcStateCookie;
 import ch.gianlucafrei.nellygateway.cookies.SessionCookie;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
@@ -21,9 +20,6 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 
 
