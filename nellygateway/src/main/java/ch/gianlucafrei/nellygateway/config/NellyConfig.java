@@ -10,10 +10,9 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
 
 public class NellyConfig {
 
@@ -23,6 +22,7 @@ public class NellyConfig {
     public String hostUri;
     public String nellyApiKey;
     public String logoutRedirectUri;
+    public List<String> trustedRedirectHosts;
 
     public static NellyConfig load(String path, String secretsPath) throws IOException {
 
@@ -66,6 +66,16 @@ public class NellyConfig {
         }
 
         return zuulRoutes;
+    }
+
+    public String getHostname(){
+
+        try {
+            URL url = new URL(hostUri);
+            return url.getHost();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Host Uri from config is not a valid URL");
+        }
     }
 
 }
