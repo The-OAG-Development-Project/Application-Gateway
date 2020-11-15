@@ -23,10 +23,6 @@ public class NellyConfig {
     public String nellyApiKey;
     public String logoutRedirectUri;
 
-    public NellyConfig() {
-
-    }
-
     public static NellyConfig load(String path, String secretsPath) throws IOException {
 
         // Instantiating a new ObjectMapper as a YAMLFactory
