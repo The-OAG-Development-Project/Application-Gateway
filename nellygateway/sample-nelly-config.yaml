@@ -8,10 +8,12 @@ routes:
     type: webapplication
     path: /**
     url: https://nellydemoapp.azurewebsites.net
+    allowAnonymous: yes
   authenticated:
     type: webapplication
-    path: /authenticated/**
+    path: /secure/**
     url: https://nellydemoapp.azurewebsites.net
+    allowAnonymous: no
 
 authProviders:
   google:
