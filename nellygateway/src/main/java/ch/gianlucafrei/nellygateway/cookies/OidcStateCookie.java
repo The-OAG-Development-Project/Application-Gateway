@@ -10,9 +10,7 @@ public class OidcStateCookie {
     private String nonce;
     private String returnUrl;
 
-    public OidcStateCookie() {
-
-    }
+    public OidcStateCookie() {}
 
     public OidcStateCookie(String provider, String sate, String nonce, String returnUrl) {
         this.provider = provider;
