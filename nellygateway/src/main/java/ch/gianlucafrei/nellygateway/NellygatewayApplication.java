@@ -1,11 +1,8 @@
 package ch.gianlucafrei.nellygateway;
 
 import ch.gianlucafrei.nellygateway.config.NellyConfig;
-import ch.gianlucafrei.nellygateway.filters.zuul.AccessControlFilter;
-import ch.gianlucafrei.nellygateway.filters.zuul.AuthenticationHeadersFilter;
-import ch.gianlucafrei.nellygateway.filters.zuul.ResponseHeaderFilter;
-import ch.gianlucafrei.nellygateway.services.crypto.JweEncrypter;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
+import ch.gianlucafrei.nellygateway.services.crypto.JweEncrypter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
