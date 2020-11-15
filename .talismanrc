@@ -13,3 +13,5 @@ fileignoreconfig:
   checksum: 6a7ecd0f446595ab9d19fb6b16bbeb9164c4e88d6a827b07e37281b7abbd3bc5
 - filename: nellygateway/src/main/java/ch/gianlucafrei/nellygateway/utils/MapTreeUpdater.java
   checksum: f35592a524a0ea5d6caa803cb1340091b61a4bde39f5ca60e5971900be3b1325
+- filename: nelly-config-azure.yaml
+  checksum: d0b9eb982c799d4f2b17ac450d2a1db35c245f523698acf0fc61ab96036a4b63

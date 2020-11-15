@@ -1,7 +1,8 @@
-hostUri: http://localhost:8080
-logoutRedirectUri: http://localhost:8080
+# This is the config file of the demo instance that is deployed on https://nellygateway.azurewebsites.net
+
+hostUri: https://nellygateway.azurewebsites.net
+logoutRedirectUri: https://nellygateway.azurewebsites.net
 nellyApiKey: env:NELLY_API_KEY
-trustedRedirectHosts: [example.com]
 
 routes:
   default:
@@ -14,10 +15,6 @@ routes:
     path: /secure/**
     url: https://nellydemoapp.azurewebsites.net
     allowAnonymous: no
-  gianluca:
-    type: webapplication
-    path: /gianluca/**
-    url: https://gianlucafrei.ch
 
 authProviders:
   google:
@@ -26,7 +23,7 @@ authProviders:
     clientId: 372143946338-48et57uhmcumku7am3ocvva0idc7u0td.apps.googleusercontent.com
     clientSecret: env:GOOGLE_CLIENT_SECRET
     sessionDuration: 300
-    redirectSuccess: http://localhost:8080/
+    redirectSuccess: https://nellygateway.azurewebsites.net
 
 securityProfiles:
     webapplication:
