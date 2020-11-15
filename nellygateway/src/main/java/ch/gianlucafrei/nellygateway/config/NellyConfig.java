@@ -35,12 +35,12 @@ public class NellyConfig {
 
         File file = new File(path);
         TypeReference<LinkedHashMap<String, Object>> mapType = new TypeReference<>() {};
-        LinkedHashMap<String, Object> configMap = om.readValue(file, mapType);
+        Map<String, Object> configMap = om.readValue(file, mapType);
 
         if (secretsPath != null)
         {
             File secretFile = new File(secretsPath);
-            LinkedHashMap<String, Object> secretConfigMap = om.readValue(secretFile, mapType);
+            Map<String, Object> secretConfigMap = om.readValue(secretFile, mapType);
 
             configMap = MapTreeUpdater.updateMap(configMap, secretConfigMap);
             // Update object with the secrets

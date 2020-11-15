@@ -1,41 +1,47 @@
 package ch.gianlucafrei.nellygateway.utils;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class MapTreeUpdater {
 
-    public static LinkedHashMap<String, Object> updateMap(
-            LinkedHashMap<String, Object> original,
-            LinkedHashMap<String, Object> update)
-    {
-        LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+    public static Map<String, Object> updateMap(Object original, Object update) {
+        if (original instanceof Map && update instanceof Map) {
+            ObjectMapper om = new ObjectMapper();
+            TypeReference<LinkedHashMap<String, Object>> mapType = new TypeReference<>() {};
+            Map<String, Object> originalMap = om.convertValue(original, mapType);
+            Map<String, Object> updateMap = om.convertValue(update, mapType);
+
+            return updateMap(originalMap, updateMap);
+        }
+
+        return null;
+    }
+
+    public static Map<String, Object> updateMap(Map<String, Object> original,
+                                                Map<String, Object> update) {
+        Map<String, Object> result = new LinkedHashMap<>();
 
         // Copy original
-        for(String key : original.keySet())
-        {
+        for (String key : original.keySet()) {
             result.put(key, original.get(key));
         }
 
         // update values
-        Set<Map.Entry<String, Object>> entries = update.entrySet();
-        for(Map.Entry<String, Object> entry : entries)
-        {
-            if(entry.getValue() instanceof Map)
-            {
+        for (Map.Entry<String, Object> entry : update.entrySet()) {
+            if (entry.getValue() instanceof String) {
+                result.put(entry.getKey(), entry.getValue());
+            } else {
                 // update recursively
-                Object innerOriginal = (LinkedHashMap<String, Object>) original.get(entry.getKey());
+                Object innerOriginal = original.get(entry.getKey());
                 Object innerUpdate = entry.getValue();
 
-                LinkedHashMap<String, Object> updatedInner = updateMap(
-                        (LinkedHashMap<String, Object>) innerOriginal,
-                        (LinkedHashMap<String, Object>) innerUpdate);
+                Map<String, Object> updatedInner = updateMap(innerOriginal, innerUpdate);
 
                 result.put(entry.getKey(), updatedInner);
-            }
-            else{
-                result.put(entry.getKey(), entry.getValue());
             }
         }
 

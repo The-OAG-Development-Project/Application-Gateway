@@ -6,14 +6,14 @@ public class OidcStateCookie {
     public static final String NAME = "oidc-state";
 
     private String provider;
-    private String sate;
+    private String state;
     private String nonce;
 
     public OidcStateCookie() {}
 
-    public OidcStateCookie(String provider, String sate, String nonce) {
+    public OidcStateCookie(String provider, String state, String nonce) {
         this.provider = provider;
-        this.sate = sate;
+        this.state = state;
         this.nonce = nonce;
     }
 
@@ -25,12 +25,12 @@ public class OidcStateCookie {
         this.provider = provider;
     }
 
-    public String getSate() {
-        return sate;
+    public String getState() {
+        return state;
     }
 
-    public void setSate(String sate) {
-        this.sate = sate;
+    public void setState(String state) {
+        this.state = state;
     }
 
     public String getNonce() {
