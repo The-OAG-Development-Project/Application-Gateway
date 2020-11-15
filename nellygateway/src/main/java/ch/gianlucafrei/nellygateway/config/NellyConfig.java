@@ -46,9 +46,8 @@ public class NellyConfig {
         }
 
         String configWithSecretAsString = om.writeValueAsString(configMap);
-        NellyConfig config = om.readValue(configWithSecretAsString, NellyConfig.class);
 
-        return config;
+        return om.readValue(configWithSecretAsString, NellyConfig.class);
     }
 
     public Map<String, ZuulProperties.ZuulRoute> getRoutesAsZuulRoutes(){
