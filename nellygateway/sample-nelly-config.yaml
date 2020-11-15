@@ -1,16 +1,17 @@
 hostUri: http://localhost:8080
 logoutRedirectUri: http://localhost:8080
 nellyApiKey: env:NELLY_API_KEY
+trustedRedirectHosts: [example.com]
 
 routes:
-  backend1:
+  default:
     type: webapplication
     path: /**
-    url: http://localhost:9000/
-  api:
+    url: https://nellydemoapp.azurewebsites.net
+  authenticated:
     type: webapplication
-    path: /api/**
-    url: https://gianlucafrei.ch
+    path: /authenticated/**
+    url: https://nellydemoapp.azurewebsites.net
 
 authProviders:
   google:

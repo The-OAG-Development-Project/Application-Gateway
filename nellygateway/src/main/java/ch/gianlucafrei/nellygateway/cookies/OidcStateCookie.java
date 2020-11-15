@@ -8,15 +8,17 @@ public class OidcStateCookie {
     private String provider;
     private String sate;
     private String nonce;
+    private String returnUrl;
 
     public OidcStateCookie() {
 
     }
 
-    public OidcStateCookie(String provider, String sate, String nonce) {
+    public OidcStateCookie(String provider, String sate, String nonce, String returnUrl) {
         this.provider = provider;
         this.sate = sate;
         this.nonce = nonce;
+        this.returnUrl =returnUrl;
     }
 
     public String getProvider() {
@@ -41,5 +43,13 @@ public class OidcStateCookie {
 
     public void setNonce(String nonce) {
         this.nonce = nonce;
+    }
+
+    public String getReturnUrl() {
+        return returnUrl;
+    }
+
+    public void setReturnUrl(String returnUrl) {
+        this.returnUrl = returnUrl;
     }
 }

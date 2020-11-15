@@ -2,6 +2,7 @@ package ch.gianlucafrei.nellygateway.controllers;
 
 import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.AuthProvider;
+import ch.gianlucafrei.nellygateway.config.NellyConfig;
 import ch.gianlucafrei.nellygateway.cookies.OidcStateCookie;
 import ch.gianlucafrei.nellygateway.cookies.SessionCookie;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
@@ -9,6 +10,7 @@ import ch.gianlucafrei.nellygateway.services.oidc.OIDCCallbackResult;
 import ch.gianlucafrei.nellygateway.services.oidc.OIDCLoginStepResult;
 import ch.gianlucafrei.nellygateway.services.oidc.OIDCService;
 import ch.gianlucafrei.nellygateway.utils.CookieUtils;
+import ch.gianlucafrei.nellygateway.utils.UrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,10 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
 
 
 @RestController
@@ -38,7 +43,10 @@ public class AuthenticationController {
     }
 
     @GetMapping("{providerKey}/login")
-    public void login(@PathVariable(value = "providerKey") String providerKey, HttpServletResponse httpServletResponse) throws URISyntaxException {
+    public void login(
+            @PathVariable(value = "providerKey") String providerKey,
+            @RequestParam(value = "returnUrl", required = false) String returnUrl,
+            HttpServletResponse httpServletResponse) {
         log.trace(String.format("auth login request"));
 
         // Load auth provider settings
@@ -49,12 +57,22 @@ public class AuthenticationController {
             );
         }
 
+        // Validate return url
+        if(returnUrl == null) {
+            // If no return url is specified in the request, we use the default return url
+            returnUrl = providerSettings.getRedirectSuccess();
+        }
+        else{
+            if(! isValidReturnUrl(returnUrl))
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid return url");
+        }
+
         // Create OIDC request
         String callbackUri = String.format("%s/auth/%s/callback", NellygatewayApplication.config.hostUri, providerKey);
         OIDCLoginStepResult result = oidcService.getRedirectUri(providerSettings, callbackUri);
 
         // Store state and nonce as a encrypted JEW in cookie on the client
-        OidcStateCookie oidcState = new OidcStateCookie(providerKey, result.state, result.nonce);
+        OidcStateCookie oidcState = new OidcStateCookie(providerKey, result.state, result.nonce, returnUrl);
         String encryptedState = cookieEncryptor.encryptObject(oidcState);
         Cookie oidcStateCookie = new Cookie("oidc-state", encryptedState);
         httpServletResponse.addCookie(oidcStateCookie);
@@ -108,12 +126,13 @@ public class AuthenticationController {
         CookieUtils.addSameSiteCookie(cookie, SessionCookie.SAMESITE, response);
 
         // Redirect the user
-        response.setHeader("Location", providerSettings.getRedirectSuccess());
+        response.setHeader("Location", oidcState.getReturnUrl());
         response.setStatus(302);
     }
 
     @GetMapping("/logout")
     public void logout(
+            @RequestParam(value = "returnUrl", required = false) String returnUrl,
             HttpServletResponse response,
             HttpServletRequest request) {
         log.trace(String.format("logout request"));
@@ -126,7 +145,26 @@ public class AuthenticationController {
         CookieUtils.removeSameSiteCookie(cookie, SessionCookie.SAMESITE, response);
 
         // Redirect the user
-        response.setHeader("Location", NellygatewayApplication.config.logoutRedirectUri);
+
+        String redirectUrl = NellygatewayApplication.config.logoutRedirectUri;
+        if(returnUrl != null)
+        {
+            // validate return url
+            // if not valid we fail silent and redirect to the default url
+            if(isValidReturnUrl(returnUrl))
+                redirectUrl = returnUrl;
+            else
+                log.warn("Received invalid return url during logout. Redirect to default logout url");
+        }
+
+        response.setHeader("Location", redirectUrl);
         response.setStatus(302);
+    }
+
+    public boolean isValidReturnUrl(String returnUrl){
+
+        ArrayList<String> allowedHosts = new ArrayList<>(NellygatewayApplication.config.trustedRedirectHosts);
+        allowedHosts.add(NellygatewayApplication.config.getHostname());
+        return  UrlUtils.isValidReturnUrl(returnUrl, allowedHosts.toArray(new String[]{}));
     }
 }
