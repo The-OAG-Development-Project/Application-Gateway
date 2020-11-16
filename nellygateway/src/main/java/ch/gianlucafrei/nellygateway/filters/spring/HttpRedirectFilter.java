@@ -1,5 +1,6 @@
 package ch.gianlucafrei.nellygateway.filters.spring;
 
+import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -23,23 +24,31 @@ public class HttpRedirectFilter implements Filter {
             ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
 
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse res = (HttpServletResponse) response;
-
-        if(isInsecureRequest(req))
+        String hostUri = NellygatewayApplication.config.hostUri;
+        if(hostUri.startsWith("https://"))
         {
-            String path = req.getRequestURI();
-            res.sendRedirect(path);
+            // We do the request only if we are on https
+            HttpServletRequest req = (HttpServletRequest) request;
+            HttpServletResponse res = (HttpServletResponse) response;
 
-            log.debug("Redirected insecure request to {}", path);
+            if(isInsecureRequest(req))
+            {
+                sendHttpsRedirectResponse(req, res);
+                log.debug("Redirected insecure request to {}", req.getPathInfo());
+                return;
+            }
         }
-        else
-        {
-            chain.doFilter(request, response);
-        }
+
+        chain.doFilter(request, response);
     }
 
-    public static boolean isInsecureRequest(HttpServletRequest request) {
+    public void sendHttpsRedirectResponse(HttpServletRequest req, HttpServletResponse res) throws IOException {
+
+        String path = NellygatewayApplication.config.hostUri + req.getRequestURI() + (req.getQueryString() != null ? "?" + req.getQueryString() : "");
+        res.sendRedirect(path);
+    }
+
+    public boolean isInsecureRequest(HttpServletRequest request) {
 
         // Check if request was forwarded
         if(request.getHeader("X-Forwarded-For") != null){
