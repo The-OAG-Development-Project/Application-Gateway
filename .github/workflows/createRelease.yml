@@ -37,7 +37,7 @@ jobs:
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
       - name: Copy artifact
-        run: mkdir nellygateway/target/artifact/ && cp artifact/* nellygateway/target/artifact/
+        run: mkdir  -p nellygateway/target/artifact/ && cp artifact/* nellygateway/target/artifact/
       - name: Build (not push)
         id: docker_build
         uses: docker/build-push-action@v2
