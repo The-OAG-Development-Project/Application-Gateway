@@ -37,8 +37,6 @@ jobs:
       - uses: actions/download-artifact@v2
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
-        with:
-          driver-opts: network=host
       - name: Copy artifact
         run: mkdir  -p nellygateway/target/artifact/ && cp artifact/* nellygateway/target/artifact/
       - name: Docker Build
