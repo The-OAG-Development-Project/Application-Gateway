@@ -1,5 +1,4 @@
 FROM openjdk:11-jre-slim
-LABEL nellygateway="0.1"
 RUN useradd --user-group --system --create-home --no-log-init app
 USER app
 COPY nellygateway/target/artifact/* /
