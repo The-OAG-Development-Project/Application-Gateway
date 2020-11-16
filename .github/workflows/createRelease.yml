@@ -31,11 +31,18 @@ jobs:
     name: Build docker image
     needs: [build]
     runs-on: ubuntu-latest
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: network=host
       - name: Copy artifact
         run: mkdir  -p nellygateway/target/artifact/ && cp artifact/* nellygateway/target/artifact/
       - name: Build (not push)
@@ -44,12 +51,12 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          push: false
-          tags: gianlucafrei/nellygateway:latest
+          push: true
+          tags: localhost:5000/gianlucafrei/nellygateway:latest
       - name: Install Dockle
         run: VERSION=$(curl --silent "https://api.github.com/repos/goodwithtech/dockle/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/') && curl -L -o dockle.tar.gz https://github.com/goodwithtech/dockle/releases/download/v${VERSION}/dockle_${VERSION}_Linux-64bit.tar.gz &&  tar zxvf dockle.tar.gz
       - name: Run Dockle Tests
-        run: ./dockle --exit-code 1 gianlucafrei/nellygateway:latest
+        run: ./dockle --exit-code 1 localhost:5000/gianlucafrei/nellygateway:latest
 
   deploy-azure:
     name: Deploy to Azure App Service
