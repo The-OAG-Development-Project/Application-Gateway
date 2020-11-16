@@ -26,8 +26,27 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
           path: nellygateway/target/artifact/
+  
+  build-docker:
+    name: Build docker image
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+      -
+        name: Build (not push)
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: false
+          tags: gianlucafrei/nellygateway:latest
+      - name: Install Dockle
+        run: VERSION=$(curl --silent "https://api.github.com/repos/goodwithtech/dockle/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/') && curl -L -o dockle.tar.gz https://github.com/goodwithtech/dockle/releases/download/v${VERSION}/dockle_${VERSION}_Linux-64bit.tar.gz &&  tar zxvf dockle.tar.gz
+      - name: Run Dockle Tests
+        run: ./dockle --exit-code 1 gianlucafrei/nellygateway:latest
 
-  deploy:
+  deploy-azure:
     name: Deploy to Azure App Service
     needs: [build]
     runs-on: ubuntu-latest

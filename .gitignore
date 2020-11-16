@@ -6,6 +6,7 @@ nellygateway/nelly.log/
 !**/src/main/**/target/
 !**/src/test/**/target/
 .DS_Store
+env.list
 
 ### STS ###
 .apt_generated
