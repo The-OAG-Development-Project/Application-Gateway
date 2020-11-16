@@ -31,35 +31,64 @@ Nelly's behavior is controlled with a central configuration file describing all 
 Nelly is fully configured with a simple and easy to undertand configuration file:
 
 ```yaml
-hostUri: https://yourdomain.com
+hostUri: http://example.com
 
 routes:
-  frontend:
+  default:
     type: webapplication
     path: /**
-    url: http://yourserver/frontend
-  backend
+    url: https://nellydemoapp.azurewebsites.net
+    allowAnonymous: yes
+  authenticated:
     type: webapplication
-    path: /api/**
-    url: http://yourotherserver/api/v1/
+    path: /secure/**
+    url: https://nellydemoapp.azurewebsites.net
+    allowAnonymous: no
 
 authProviders:
   google:
     authEndpoint: https://accounts.google.com/o/oauth2/auth
     tokenEndpoint: https://oauth2.googleapis.com/token
-    clientId: yourclientId.apps.googleusercontent.com
+    clientId: <<your client id>
+    clientSecret: env:GOOGLE_CLIENT_SECRET
     sessionDuration: 300
-    redirectSuccess: https://yourdomain.com/myportal
+    redirectSuccess: http://example.com/
 
 securityProfiles:
     webapplication:
       headers:
+        Server: <<remove>>
         X-Powered-By: <<remove>>
         X-XSS-Protection: 1;mode=block;
         X-Frame-Options: SAMEORIGIN
         X-Content-Type-Options: nosniff
         Referrer-Policy: strict-origin-when-cross-origin
         Content-Security-Policy: upgrade-insecure-requests;base-uri 'self';object-src 'self'
+        Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
+        Strict-Transport-Security: max-age=31536000; includeSubDomains
 
-logoutRedirectUri: https://yourdomain.com
+logoutRedirectUri: http://example.com/
+nellyApiKey: env:NELLY_API_KEY
+trustedRedirectHosts: [subdomain.example.com]
 ```
+
+# Functionality
+
+- [x] HTTPS Redirection with Proxy Awareness
+- [x] OpenID Connect Login with multiple providers
+- [x] Multiple Backend routes
+- [x] Authenticated routes
+- [x] Request Logging
+- [x] Add and remove response filtering
+- [x] Secure, HTTP-only and same-site session cookies
+- [x] Forward id token to backend
+- [x] Upstream authentication with API key
+
+Ideas:
+
+- [ ] Method whitelisting
+- [ ] Header whitelisting
+- [ ] GitHub Login support
+- [ ] Report URI Endpoint
+- [ ] Default configuration
+- [ ] ...

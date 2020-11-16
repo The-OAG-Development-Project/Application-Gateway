@@ -15,3 +15,5 @@ fileignoreconfig:
   checksum: f35592a524a0ea5d6caa803cb1340091b61a4bde39f5ca60e5971900be3b1325
 - filename: nelly-config-azure.yaml
   checksum: d0b9eb982c799d4f2b17ac450d2a1db35c245f523698acf0fc61ab96036a4b63
+- filename: README.md
+  checksum: f788c35e096beed993c47be7e79d09a1c2ce0f5567331309b284142e34d054d3
