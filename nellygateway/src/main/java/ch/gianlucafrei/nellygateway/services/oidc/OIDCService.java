@@ -49,15 +49,21 @@ public class OIDCService {
         // Compose the OpenID authentication request (for the code flow)
         AuthenticationRequest request = null;
         try {
+
+            Scope scope = new Scope(providerSettings.getScopes());
+            ResponseType responseType = new ResponseType("code");
+            URI authEndpoint = new URI(providerSettings.getAuthEndpoint());
+
             request = new AuthenticationRequest.Builder(
-                    new ResponseType("code"),
-                    new Scope("openid"),
+                    responseType,
+                    scope,
                     clientID,
                     callback)
-                    .endpointURI(new URI(providerSettings.getAuthEndpoint()))
+                    .endpointURI(authEndpoint)
                     .state(state)
                     .nonce(nonce)
                     .build();
+
         } catch (URISyntaxException e) {
             throw new RuntimeException("Invalid Auth Endpoint URI");
         }

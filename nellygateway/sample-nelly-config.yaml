@@ -27,6 +27,7 @@ authProviders:
     clientSecret: env:GOOGLE_CLIENT_SECRET
     sessionDuration: 300
     redirectSuccess: http://localhost:8080/
+    scopes: [ "openid", "email" ]
 
 securityProfiles:
     webapplication:

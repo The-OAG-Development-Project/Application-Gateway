@@ -7,7 +7,7 @@ public class AuthProvider {
     private String clientId;
     private String clientSecret;
     private int sessionDuration;
-
+    private String[] scopes = new String[] {"openid"};
     private String redirectSuccess;
 
     public String getTokenEndpoint() {
@@ -58,4 +58,11 @@ public class AuthProvider {
         this.redirectSuccess = redirectSuccess;
     }
 
+    public String[] getScopes() {
+        return scopes;
+    }
+
+    public void setScopes(String[] scopes) {
+        this.scopes = scopes;
+    }
 }
