@@ -48,14 +48,10 @@ jobs:
           push: false
           load: true
           tags: gianlucafrei/nellygateway:latest
-      - name: Inspect
-        run: docker image inspect gianlucafrei/nellygateway:latest
-      - name: Export image
-        run: docker save --output nellygateway.tar gianlucafrei/nellygateway:latest
       - name: Install Dockle
         run: VERSION=$(curl --silent "https://api.github.com/repos/goodwithtech/dockle/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/') && curl -L -o dockle.tar.gz https://github.com/goodwithtech/dockle/releases/download/v${VERSION}/dockle_${VERSION}_Linux-64bit.tar.gz &&  tar zxvf dockle.tar.gz
       - name: Run Dockle Tests
-        run: ./dockle --exit-code 1 --input nellygateway.tar
+        run: ./dockle --exit-code 1 gianlucafrei/nellygateway:latest
 
   deploy-azure:
     name: Deploy to Azure App Service
