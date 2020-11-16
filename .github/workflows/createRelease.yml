@@ -47,11 +47,11 @@ jobs:
           file: ./Dockerfile
           push: false
           load: true
-          tags: gianlucafrei/nellygateway:latest
+          tags: gianlucafrei/nellygateway:${GITHUB_SHA::8}
       - name: Install Dockle
         run: VERSION=$(curl --silent "https://api.github.com/repos/goodwithtech/dockle/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/') && curl -L -o dockle.tar.gz https://github.com/goodwithtech/dockle/releases/download/v${VERSION}/dockle_${VERSION}_Linux-64bit.tar.gz &&  tar zxvf dockle.tar.gz
       - name: Run Dockle Tests
-        run: ./dockle --exit-code 1 gianlucafrei/nellygateway:latest
+        run: ./dockle --exit-code 1 gianlucafrei/nellygateway:${GITHUB_SHA::8}
 
   deploy-azure:
     name: Deploy to Azure App Service
