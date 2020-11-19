@@ -8,6 +8,7 @@ import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
 import ch.gianlucafrei.nellygateway.services.oidc.OIDCCallbackResult;
 import ch.gianlucafrei.nellygateway.services.oidc.OIDCLoginStepResult;
 import ch.gianlucafrei.nellygateway.services.oidc.OIDCService;
+import ch.gianlucafrei.nellygateway.services.oidc.drivers.DiverConfiguration;
 import ch.gianlucafrei.nellygateway.utils.CookieUtils;
 import ch.gianlucafrei.nellygateway.utils.UrlUtils;
 import org.slf4j.Logger;
@@ -28,7 +29,9 @@ import java.util.ArrayList;
 public class AuthenticationController {
 
     private static Logger log = LoggerFactory.getLogger(AuthenticationController.class);
-    private OIDCService oidcService = new OIDCService();
+
+    @Autowired
+    private DiverConfiguration driverConfiguration;
 
     @Autowired
     private CookieEncryptor cookieEncryptor;
@@ -52,6 +55,9 @@ public class AuthenticationController {
                     HttpStatus.NOT_FOUND, "Provider not found"
             );
         }
+
+        // Load driver
+        OIDCService oidcService = driverConfiguration.getDriver(providerSettings.getDriver());
 
         // Validate return url
         if(returnUrl == null) {
@@ -98,6 +104,10 @@ public class AuthenticationController {
         }
 
         AuthProvider providerSettings = NellygatewayApplication.config.authProviders.getOrDefault(providerKey, null);
+
+        // Load driver
+        OIDCService oidcService = driverConfiguration.getDriver(providerSettings.getDriver());
+
         String callbackUri = String.format("%s/auth/%s/callback", NellygatewayApplication.config.hostUri, providerKey);
 
         OIDCCallbackResult result = oidcService.processCallback(providerSettings, codeStr, callbackUri);

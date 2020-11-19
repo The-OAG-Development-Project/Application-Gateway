@@ -28,6 +28,15 @@ authProviders:
     sessionDuration: 300
     redirectSuccess: http://localhost:8080/
     scopes: [ "openid", "email" ]
+  github:
+    authEndpoint: https://github.com/login/oauth/authorize
+    tokenEndpoint: https://github.com/login/oauth/access_token
+    driver: github-driver
+    clientId: 163ad3b08c3829216ba1
+    clientSecret: env:GITHUB_CLIENT_SECRET
+    sessionDuration: 300
+    redirectSuccess: http://localhost:8080/
+    scopes: [ "user", "email" ]
 
 securityProfiles:
     webapplication:

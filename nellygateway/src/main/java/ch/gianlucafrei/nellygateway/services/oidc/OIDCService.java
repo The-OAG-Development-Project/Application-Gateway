@@ -35,12 +35,7 @@ public class OIDCService {
         ClientID clientID = new ClientID(providerSettings.getClientId());
 
         // The client callback URL
-        URI callback = null;
-        try {
-            callback = new URI(callbackUri);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Invalid Callback URL");
-        }
+        URI callback = getCallbackUri(callbackUri);
 
         // Generate random state string to securely pair the callback to this request
         State state = new State();
@@ -71,6 +66,15 @@ public class OIDCService {
         return result;
     }
 
+    public URI getCallbackUri(String callbackUri) {
+
+        try {
+            return new URI(callbackUri);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Invalid Callback URL");
+        }
+    }
+
     public OIDCCallbackResult processCallback(AuthProvider providerSettings, String codeStr, String callbackUri) {
         OIDCCallbackResult result = new OIDCCallbackResult();
         OIDCLoadTokenResult tokenResult = loadTokens(providerSettings, codeStr, callbackUri);
@@ -97,50 +101,25 @@ public class OIDCService {
         return result;
     }
 
-    private OIDCLoadTokenResult loadTokens(AuthProvider providerSettings, String codeStr, String callbackUri) {
+    protected OIDCLoadTokenResult loadTokens(AuthProvider providerSettings, String codeStr, String callbackUri) {
         OIDCLoadTokenResult result = new OIDCLoadTokenResult();
 
         // Construct the code grant from the code obtained from the authz endpoint
         // and the original callback URI used at the authz endpoint
         AuthorizationCode code = new AuthorizationCode(codeStr);
-        URI callback = null;
-        try {
-            callback = new URI(callbackUri);
-        } catch (URISyntaxException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR, "Provider error"
-            );
-        }
+        URI callback = getCallbackUri(callbackUri);
 
         AuthorizationGrant codeGrant = new AuthorizationCodeGrant(code, callback);
 
         // The credentials to authenticate the client at the token endpoint
-        ClientID clientID = new ClientID(providerSettings.getClientId());
-        Secret clientSecret = new Secret(providerSettings.getClientSecret());
-        ClientAuthentication clientAuth = new ClientSecretBasic(clientID, clientSecret);
+        ClientAuthentication clientAuth = getClientAuthentication(providerSettings);
 
         // The token endpoint
-        URI tokenEndpoint = null;
-        try {
-            tokenEndpoint = new URI(providerSettings.getTokenEndpoint());
-        } catch (URISyntaxException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Provider error");
-        }
+        URI tokenEndpoint = providerSettings.getTokenEndpointAsURI();
 
         // Make the token request
         TokenRequest tokenRequest = new TokenRequest(tokenEndpoint, clientAuth, codeGrant);
-        TokenResponse tokenResponse;
-        HTTPResponse tokenHttpResponse;
-        try {
-            HTTPRequest tokenHttpRequest = tokenRequest.toHTTPRequest();
-            tokenHttpRequest.setAccept("application/json");
-            tokenHttpResponse = tokenHttpRequest.send();
-            tokenResponse = OIDCTokenResponseParser.parse(tokenHttpResponse);
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Token response io error");
-        } catch (ParseException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Token response parse error");
-        }
+        TokenResponse tokenResponse = sendTokenRequest(tokenRequest);
 
         if (!tokenResponse.indicatesSuccess()) {
 
@@ -164,7 +143,31 @@ public class OIDCService {
         return result;
     }
 
-    private void validateToken(AuthProvider providerSetting, JWT idToken) {
+    protected TokenResponse sendTokenRequest(TokenRequest tokenRequest) {
+        TokenResponse tokenResponse;
+        try {
+            HTTPRequest tokenHttpRequest = tokenRequest.toHTTPRequest();
+            tokenHttpRequest.setAccept("application/json");
+            HTTPResponse tokenHttpResponse = tokenHttpRequest.send();
+            tokenResponse = OIDCTokenResponseParser.parse(tokenHttpResponse);
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Token response io error");
+        } catch (ParseException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Token response parse error");
+        }
+        return tokenResponse;
+    }
+
+    protected ClientAuthentication getClientAuthentication(AuthProvider providerSettings) {
+
+        ClientID clientID = new ClientID(providerSettings.getClientId());
+        Secret clientSecret = new Secret(providerSettings.getClientSecret());
+        ClientAuthentication clientAuth = new ClientSecretBasic(clientID, clientSecret);
+
+        return clientAuth;
+    }
+
+    protected void validateToken(AuthProvider providerSetting, JWT idToken) {
         // TODO implement
     }
 }
