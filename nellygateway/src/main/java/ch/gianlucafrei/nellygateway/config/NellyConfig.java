@@ -3,6 +3,7 @@ package ch.gianlucafrei.nellygateway.config;
 import ch.gianlucafrei.nellygateway.config.customDeserializer.StringEnvironmentVariableDeserializer;
 import ch.gianlucafrei.nellygateway.utils.MapTreeUpdater;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -11,45 +12,46 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.*;
 
 public class NellyConfig {
 
     public Map<String, AuthProvider> authProviders;
+    public Map<String, LoginProvider> loginProviders;
     public Map<String, NellyRoute> routes;
     public Map<String, SecurityProfile> securityProfiles;
     public String hostUri;
     public String nellyApiKey;
     public String logoutRedirectUri;
     public List<String> trustedRedirectHosts;
+    public SessionBehaviour sessionBehaviour;
 
-    public static NellyConfig load(String path, String secretsPath) throws IOException {
+    public static NellyConfig load(URI defaultSettingsURI, String configPath) throws IOException {
 
         // Instantiating a new ObjectMapper as a YAMLFactory
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
-
+        om.configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, true);
         SimpleModule module = new SimpleModule();
         module.addDeserializer(String.class, new StringEnvironmentVariableDeserializer());
         om.registerModule(module);
 
-        File file = new File(path);
+        // Load default configuration
+        File file = new File(defaultSettingsURI);
         TypeReference<LinkedHashMap<String, Object>> mapType = new TypeReference<>() {};
-        Map<String, Object> configMap = om.readValue(file, mapType);
+        Map<String, Object> defaultConfigMap = om.readValue(file, mapType);
 
-        if (secretsPath != null)
-        {
-            File secretFile = new File(secretsPath);
-            Map<String, Object> secretConfigMap = om.readValue(secretFile, mapType);
+        // Load config
+        File userConfigFile = new File(configPath);
+        Map<String, Object> userConfigMap = om.readValue(userConfigFile, mapType);
 
-            configMap = MapTreeUpdater.updateMap(configMap, secretConfigMap);
-            // Update object with the secrets
-            //config = om.readerForUpdating(config).readValue(secretFile);
-        }
+        // Combine default and user config
+        Map<String, Object> combinedConfig = MapTreeUpdater.updateMap(defaultConfigMap, userConfigMap);
+        String combinedConfigStr = om.writeValueAsString(combinedConfig);
+        NellyConfig finalConfig = om.readValue(combinedConfigStr, NellyConfig.class);
 
-        String configWithSecretAsString = om.writeValueAsString(configMap);
-
-        return om.readValue(configWithSecretAsString, NellyConfig.class);
+        return finalConfig;
     }
 
     public Map<String, ZuulProperties.ZuulRoute> getRoutesAsZuulRoutes(){
@@ -77,6 +79,11 @@ public class NellyConfig {
         } catch (MalformedURLException e) {
             throw new RuntimeException("Host Uri from config is not a valid URL");
         }
+    }
+
+    public boolean isHttpsHost(){
+
+        return hostUri.startsWith("https://");
     }
 
 }

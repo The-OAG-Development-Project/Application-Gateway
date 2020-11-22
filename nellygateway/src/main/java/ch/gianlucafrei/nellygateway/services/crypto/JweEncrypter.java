@@ -113,7 +113,7 @@ public class JweEncrypter implements CookieEncryptor {
     }
 
     @Override
-    public <T> T decryptObject(String jwe, Class<T> clazz) {
+    public <T> T decryptObject(String jwe, Class<T> clazz) throws CookieDecryptionException {
         String payload = decrypt(jwe);
 
 
@@ -121,11 +121,11 @@ public class JweEncrypter implements CookieEncryptor {
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(payload, clazz);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("JWE could not be deserialized", e);
+            throw new CookieDecryptionException("JWE could not be deserialized", e);
         }
     }
 
-    private String decrypt(String jwe) {
+    private String decrypt(String jwe) throws CookieDecryptionException {
         try {
             // Parse into JWE object again...
             JWEObject jweObject = JWEObject.parse(jwe);
@@ -137,7 +137,7 @@ public class JweEncrypter implements CookieEncryptor {
             Payload payload = jweObject.getPayload();
             return payload.toString();
         } catch (JOSEException | ParseException e) {
-            throw new RuntimeException("JWE could not be decrypted", e);
+            throw new CookieDecryptionException("JWE could not be decrypted", e);
         }
     }
 }

@@ -7,7 +7,6 @@ An elephant strong web application gateway that handles oauth2 authentication an
 
 🏗️ **Nellygateway is work-in-progress. No productive version has been released yet.**
 
-
 ## What is Nelly?
 
 Nellygateway is an HTTP reverse proxy that sits between your web application and the client and handles Oauth2 login and session management. For you, as a developer, Nelly removes the hassle to implement complicated oauth2 logic in the backend and frontend so you can focus totally on your application.
@@ -17,6 +16,7 @@ Nellygateway is an HTTP reverse proxy that sits between your web application and
 ## What are the design principles for Nelly?
 
 ### Secure by default
+
 Implementing secure logins and session management became much more complicated within the last few years. Nellygateway aims to make this easier. Also, it implements many security hardening measures out of the box.
 
 ### Stateless
@@ -28,6 +28,7 @@ Wherever possible, Nelly is stateless. All session information is stored within 
 Nelly's behavior is controlled with a central configuration file describing all routes and Oauth2 integrations. This makes it easier to review the configuration for security issues and to debug on different environments. The deployment and scaling are straightforward; configure the config file's file path, and that's all you need to do.
 
 ## Config File
+
 Nelly is fully configured with a simple and easy to undertand configuration file:
 
 ```yaml
@@ -45,14 +46,30 @@ routes:
     url: https://nellydemoapp.azurewebsites.net
     allowAnonymous: no
 
-authProviders:
+loginProviders:
   google:
-    authEndpoint: https://accounts.google.com/o/oauth2/auth
-    tokenEndpoint: https://oauth2.googleapis.com/token
-    clientId: <<your client id>
-    clientSecret: env:GOOGLE_CLIENT_SECRET
-    sessionDuration: 300
-    redirectSuccess: http://example.com/
+    type: oidc
+    with:
+      authEndpoint: https://accounts.google.com/o/oauth2/auth
+      tokenEndpoint: https://oauth2.googleapis.com/token
+      clientId: 372143946338-48et57uhmcumku7am3ocvva0idc7u0td.apps.googleusercontent.com
+      clientSecret: env:GOOGLE_CLIENT_SECRET
+      scopes: [ "openid", "email" ]
+
+  github:
+    type: github
+    with:
+      authEndpoint: https://github.com/login/oauth/authorize
+      tokenEndpoint: https://github.com/login/oauth/access_token
+      clientId: 163ad3b08c3829216ba1
+      clientSecret: env:GITHUB_CLIENT_SECRET
+      scopes: [ "user", "email" ]
+
+sessionBehaviour:
+  sessionDuration: 3600
+  redirectLoginSuccess: /app
+  redirectLoginFailure: /uups
+  redirectLogout: /
 
 securityProfiles:
     webapplication:
@@ -72,7 +89,7 @@ nellyApiKey: env:NELLY_API_KEY
 trustedRedirectHosts: [subdomain.example.com]
 ```
 
-# Functionality
+## Functionality
 
 - [x] HTTPS Redirection with Proxy Awareness
 - [x] OpenID Connect Login with multiple providers
@@ -83,12 +100,12 @@ trustedRedirectHosts: [subdomain.example.com]
 - [x] Secure, HTTP-only and same-site session cookies
 - [x] Forward id token to backend
 - [x] Upstream authentication with API key
+- [x] GitHub Login support
 
 Ideas:
 
-- [ ] Method whitelisting
-- [ ] Header whitelisting
-- [ ] GitHub Login support
+- [ ] Method whitelisting  
+- [ ] Header whitelisting  
 - [ ] Report URI Endpoint
-- [ ] Default configuration
+- [ ] Default configuration 
 - [ ] ...

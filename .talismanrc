@@ -17,3 +17,9 @@ fileignoreconfig:
   checksum: d0b9eb982c799d4f2b17ac450d2a1db35c245f523698acf0fc61ab96036a4b63
 - filename: README.md
   checksum: f788c35e096beed993c47be7e79d09a1c2ce0f5567331309b284142e34d054d3
+- filename: nellygateway/src/main/java/ch/gianlucafrei/nellygateway/cookies/LoginCookie.java
+  checksum: c22ea0062824d7361568a61cfcdf27e0703dedffe515c4d850a4f14482e1fe1c
+- filename: nellygateway/src/main/java/ch/gianlucafrei/nellygateway/utils/MapTreeUpdater.java
+  checksum: 17cb51bce9f40645958f1ce9a86aa77eaaad539c71cd90e265e64af6f8196728
+- filename: README.md
+  checksum: 8d089deeb343c2fb0c91f9873099493f5d3d2e8691b39589bcdba1ae23f7b59e

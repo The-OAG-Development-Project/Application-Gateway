@@ -8,6 +8,7 @@ import com.netflix.zuul.context.RequestContext;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.Optional;
 
 @Component
@@ -42,9 +43,14 @@ public class AuthenticationHeadersFilter extends ZuulFilter {
         {
             Session session = sessionOptional.get();
             ctx.addZuulRequestHeader("X-NELLY-Status", "Authenticated");
-            ctx.addZuulRequestHeader("X-NELLY-User", session.getSubject());
             ctx.addZuulRequestHeader("X-NELLY-Provider", session.getProvider());
-            ctx.addZuulRequestHeader("X-NELLY-OriginalToken", session.getOrginalToken());
+
+            HashMap<String, String> userMappings = session.getUserModel().getMappings();
+
+            userMappings.entrySet()
+                    .forEach(mapping -> ctx.addZuulRequestHeader(
+                            "X-NELLY-USER-" + mapping.getKey(),
+                            mapping.getValue()));
         }
         else {
             ctx.addZuulRequestHeader("X-NELLY-Status", "Anonymous");

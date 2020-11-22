@@ -1,21 +1,18 @@
 package ch.gianlucafrei.nellygateway.cookies;
 
+public class LoginStateCookie {
 
-public class OidcStateCookie {
-
-    public static final String NAME = "oidc-state";
+    public static final String NAME = "state";
 
     private String provider;
     private String state;
-    private String nonce;
     private String returnUrl;
 
-    public OidcStateCookie() {}
+    public LoginStateCookie() {}
 
-    public OidcStateCookie(String provider, String state, String nonce, String returnUrl) {
+    public LoginStateCookie(String provider, String state, String returnUrl) {
         this.provider = provider;
         this.state = state;
-        this.nonce = nonce;
         this.returnUrl =returnUrl;
     }
 
@@ -33,14 +30,6 @@ public class OidcStateCookie {
 
     public void setState(String state) {
         this.state = state;
-    }
-
-    public String getNonce() {
-        return nonce;
-    }
-
-    public void setNonce(String nonce) {
-        this.nonce = nonce;
     }
 
     public String getReturnUrl() {

@@ -1,40 +1,47 @@
 package ch.gianlucafrei.nellygateway.session;
 
-import ch.gianlucafrei.nellygateway.cookies.SessionCookie;
+import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
+import ch.gianlucafrei.nellygateway.filters.spring.ExtractAuthenticationFilter;
+import ch.gianlucafrei.nellygateway.services.login.drivers.UserModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
 public class Session {
 
+    private static Logger log = LoggerFactory.getLogger(ExtractAuthenticationFilter.class);
+
     private long sessionExpSeconds;
     private long remainingTimeSeconds;
     private String provider;
-    private String subject;
-    private String orginalToken;
+    private UserModel userModel;
 
-    private Session(long sessionExpSeconds, long remainingTimeSeconds, String provider, String subject, String orginalToken) {
+    private Session(long sessionExpSeconds, long remainingTimeSeconds, String provider, UserModel userModel) {
         this.sessionExpSeconds = sessionExpSeconds;
         this.remainingTimeSeconds = remainingTimeSeconds;
         this.provider = provider;
-        this.subject = subject;
-        this.orginalToken = orginalToken;
+        this.userModel = userModel;
     }
 
-    public static Optional<Session> fromSessionCookie(SessionCookie cookie){
+    public static Optional<Session> fromSessionCookie(LoginCookie cookie){
 
         if(cookie == null)
             return Optional.empty();
 
-        long remainingTimeSeconds = cookie.getSessionExp() - (System.currentTimeMillis() / 1000);
+        long remainingTimeSeconds = cookie.getSessionExpSeconds() - (System.currentTimeMillis() / 1000);
         if(remainingTimeSeconds < 0)
+        {
+            log.info("received expired session cookie");
             return Optional.empty();
+        }
+
 
         Session session = new Session(
-                cookie.getSessionExp(),
+                cookie.getSessionExpSeconds(),
                 remainingTimeSeconds,
-                cookie.getProvider(),
-                cookie.getSubject(),
-                cookie.getOrginalToken()
+                cookie.getProviderKey(),
+                cookie.getUserModel()
         );
 
         return Optional.of(session);
@@ -44,14 +51,6 @@ public class Session {
         return provider;
     }
 
-    public String getSubject() {
-        return subject;
-    }
-
-    public String getOrginalToken() {
-        return orginalToken;
-    }
-
     public long getSessionExpSeconds() {
         return sessionExpSeconds;
     }
@@ -59,4 +58,6 @@ public class Session {
     public long getRemainingTimeSeconds() {
         return remainingTimeSeconds;
     }
+
+    public UserModel getUserModel() { return userModel; }
 }

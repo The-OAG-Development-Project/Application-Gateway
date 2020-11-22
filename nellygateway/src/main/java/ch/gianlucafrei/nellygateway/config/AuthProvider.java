@@ -1,5 +1,8 @@
 package ch.gianlucafrei.nellygateway.config;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 public class AuthProvider {
 
     private String authEndpoint;
@@ -9,9 +12,18 @@ public class AuthProvider {
     private int sessionDuration;
     private String[] scopes = new String[] {"openid"};
     private String redirectSuccess;
+    private String driver;
 
     public String getTokenEndpoint() {
         return tokenEndpoint;
+    }
+
+    public URI getTokenEndpointAsURI(){
+        try {
+            return new URI(tokenEndpoint);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Invalid token endpoint");
+        }
     }
 
     public void setTokenEndpoint(String tokenEndpoint) {
@@ -28,6 +40,14 @@ public class AuthProvider {
 
     public String getAuthEndpoint() {
         return authEndpoint;
+    }
+
+    public URI getAuthEndpointAsURI() {
+        try {
+            return new URI(authEndpoint);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Invalid auth endpoint");
+        }
     }
 
     public void setAuthEndpoint(String authEndpoint) {
@@ -64,5 +84,13 @@ public class AuthProvider {
 
     public void setScopes(String[] scopes) {
         this.scopes = scopes;
+    }
+
+    public String getDriver() {
+        return driver;
+    }
+
+    public void setDriver(String driver) {
+        this.driver = driver;
     }
 }

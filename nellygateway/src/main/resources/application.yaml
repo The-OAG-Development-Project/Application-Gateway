@@ -3,6 +3,8 @@ server:
 spring:
   application:
     name: nellygateway
+  banner:
+    location: banner.txt
 
 ribbon:
   eureka:
