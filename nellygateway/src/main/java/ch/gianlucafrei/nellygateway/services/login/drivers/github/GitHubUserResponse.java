@@ -1,4 +1,4 @@
-package ch.gianlucafrei.nellygateway.services.oidc.drivers.github;
+package ch.gianlucafrei.nellygateway.services.login.drivers.github;
 
 public class GitHubUserResponse {
 

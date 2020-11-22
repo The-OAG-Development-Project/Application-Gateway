@@ -1,9 +1,10 @@
-package ch.gianlucafrei.nellygateway.services.oidc.drivers.github;
+package ch.gianlucafrei.nellygateway.services.login.drivers;
 
 import ch.gianlucafrei.nellygateway.config.LoginProviderSettings;
+
 import java.net.URI;
 
-public abstract class LoginDriverBase implements LoginDriver{
+public abstract class LoginDriverBase implements LoginDriver {
 
 
     private LoginProviderSettings settings;

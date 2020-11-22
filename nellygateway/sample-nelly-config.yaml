@@ -1,7 +1,5 @@
 hostUri: http://localhost:8080
-logoutRedirectUri: http://localhost:8080
 nellyApiKey: env:NELLY_API_KEY
-trustedRedirectHosts: [example.com]
 
 routes:
   default:
@@ -19,11 +17,9 @@ routes:
     path: /gianluca/**
     url: https://gianlucafrei.ch
 
-authProviders:
+loginProviders:
   google:
     type: oidc
-    sessionDuration: 300
-    redirectSuccess: http://localhost:8080/
     with:
       authEndpoint: https://accounts.google.com/o/oauth2/auth
       tokenEndpoint: https://oauth2.googleapis.com/token
@@ -33,8 +29,6 @@ authProviders:
 
   github:
     type: github
-    sessionDuration: 300
-    redirectSuccess: http://localhost:8080/
     with:
       authEndpoint: https://github.com/login/oauth/authorize
       tokenEndpoint: https://github.com/login/oauth/access_token

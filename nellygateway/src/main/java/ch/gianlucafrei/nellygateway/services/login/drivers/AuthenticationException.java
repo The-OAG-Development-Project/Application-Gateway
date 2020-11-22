@@ -1,4 +1,4 @@
-package ch.gianlucafrei.nellygateway.services.oidc.drivers;
+package ch.gianlucafrei.nellygateway.services.login.drivers;
 
 public class AuthenticationException extends Exception {
 

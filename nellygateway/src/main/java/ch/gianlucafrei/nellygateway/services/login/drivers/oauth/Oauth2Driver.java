@@ -1,8 +1,10 @@
-package ch.gianlucafrei.nellygateway.services.oidc.drivers.github;
+package ch.gianlucafrei.nellygateway.services.login.drivers.oauth;
 
 import ch.gianlucafrei.nellygateway.config.LoginProviderSettings;
-import ch.gianlucafrei.nellygateway.services.oidc.drivers.AuthenticationException;
-import ch.gianlucafrei.nellygateway.services.oidc.drivers.UserModel;
+import ch.gianlucafrei.nellygateway.services.login.drivers.AuthenticationException;
+import ch.gianlucafrei.nellygateway.services.login.drivers.LoginDriverBase;
+import ch.gianlucafrei.nellygateway.services.login.drivers.LoginDriverResult;
+import ch.gianlucafrei.nellygateway.services.login.drivers.UserModel;
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
@@ -11,7 +13,6 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
-import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
 import org.springframework.http.HttpStatus;
@@ -74,7 +75,8 @@ public abstract class Oauth2Driver extends LoginDriverBase {
     protected Scope getScopes(LoginProviderSettings settings){
 
         try{
-            return new Scope((String[]) settings.get("scopes"));
+            List<String> scopes = (List<String>) settings.get("scopes");
+            return new Scope(scopes.toArray(new String[] {}));
         } catch (Exception e) {
             throw new RuntimeException("Invalid scope");
         }
@@ -99,7 +101,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
     }
 
     @Override
-    public LoginState getRedirectUri() {
+    public LoginDriverResult startLogin() {
 
         var settings = getSettings();
 
@@ -123,11 +125,11 @@ public abstract class Oauth2Driver extends LoginDriverBase {
 
         // Use this URI to send the end-user's browser to the server
         URI requestURI = request.toURI();
-        return new LoginState(requestURI, state.toString());
+        return new LoginDriverResult(requestURI, state.toString());
     }
 
     @Override
-    public UserModel processCallback(HttpServletRequest request, LoginState loginState) throws AuthenticationException {
+    public UserModel processCallback(HttpServletRequest request, String stateFromLoginStep) throws AuthenticationException {
 
         var settings = getSettings();
 
@@ -138,8 +140,6 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         String stateFromRequest = request.getParameter("state");
         if(stateFromRequest == null)
             throw new AuthenticationException("No state");
-
-        String stateFromLoginStep = (String) loginState.getState();
 
         if(! stateFromLoginStep.equals(stateFromRequest))
             throw new AuthenticationException("State missmatch");
@@ -156,7 +156,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         Tokens tokens = loadTokens(clientAuth, tokenEndpoint, codeGrant);
 
         // Load user Email
-        return loadUserInfo(tokens, loginState);
+        return loadUserInfo(tokens);
     }
 
     protected Tokens loadTokens(ClientAuthentication clientAuth, URI tokenEndpoint, AuthorizationGrant codeGrant) throws AuthenticationException {
@@ -176,7 +176,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         return tokens;
     }
 
-    protected abstract UserModel loadUserInfo(Tokens accessToken, LoginState state);
+    protected abstract UserModel loadUserInfo(Tokens accessToken);
 
     protected TokenResponse sendTokenRequest(TokenRequest tokenRequest) {
 

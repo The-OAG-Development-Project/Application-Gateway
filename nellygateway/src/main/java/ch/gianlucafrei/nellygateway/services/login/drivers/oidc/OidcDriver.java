@@ -1,10 +1,9 @@
-package ch.gianlucafrei.nellygateway.services.oidc.drivers.oidc;
+package ch.gianlucafrei.nellygateway.services.login.drivers.oidc;
 
 import ch.gianlucafrei.nellygateway.config.LoginProviderSettings;
-import ch.gianlucafrei.nellygateway.services.oidc.drivers.AuthenticationException;
-import ch.gianlucafrei.nellygateway.services.oidc.drivers.UserModel;
-import ch.gianlucafrei.nellygateway.services.oidc.drivers.github.LoginState;
-import ch.gianlucafrei.nellygateway.services.oidc.drivers.github.Oauth2Driver;
+import ch.gianlucafrei.nellygateway.services.login.drivers.AuthenticationException;
+import ch.gianlucafrei.nellygateway.services.login.drivers.UserModel;
+import ch.gianlucafrei.nellygateway.services.login.drivers.oauth.Oauth2Driver;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.*;
@@ -69,7 +68,7 @@ public class OidcDriver extends Oauth2Driver {
     }
 
     @Override
-    protected UserModel loadUserInfo(Tokens tokens, LoginState state) {
+    protected UserModel loadUserInfo(Tokens tokens) {
 
         try {
 

@@ -4,11 +4,12 @@ import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.AuthProvider;
 import ch.gianlucafrei.nellygateway.cookies.OidcStateCookie;
 import ch.gianlucafrei.nellygateway.cookies.SessionCookie;
+import ch.gianlucafrei.nellygateway.services.crypto.CookieDecryptionException;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
 import ch.gianlucafrei.nellygateway.services.oidc.OIDCCallbackResult;
 import ch.gianlucafrei.nellygateway.services.oidc.OIDCLoginStepResult;
 import ch.gianlucafrei.nellygateway.services.oidc.OIDCService;
-import ch.gianlucafrei.nellygateway.services.oidc.drivers.DiverConfiguration;
+import ch.gianlucafrei.nellygateway.services.login.drivers.DiverConfiguration;
 import ch.gianlucafrei.nellygateway.utils.CookieUtils;
 import ch.gianlucafrei.nellygateway.utils.UrlUtils;
 import org.slf4j.Logger;
@@ -25,10 +26,10 @@ import java.util.ArrayList;
 
 
 @RestController
-@RequestMapping("/auth")
-public class AuthenticationController {
+@RequestMapping("/auth/old")
+public class AuthenticationOldController {
 
-    private static Logger log = LoggerFactory.getLogger(AuthenticationController.class);
+    private static Logger log = LoggerFactory.getLogger(AuthenticationOldController.class);
 
     @Autowired
     private DiverConfiguration driverConfiguration;
@@ -90,7 +91,7 @@ public class AuthenticationController {
             @RequestParam("code") String codeStr,
             @RequestParam("state") String stateStr,
             HttpServletResponse response,
-            HttpServletRequest request) {
+            HttpServletRequest request) throws CookieDecryptionException {
         log.trace(String.format("auth callback request"));
 
         // Load oidc state from cookie

@@ -1,7 +1,7 @@
-package ch.gianlucafrei.nellygateway.services.oidc.drivers;
+package ch.gianlucafrei.nellygateway.services.login.drivers;
 
 import ch.gianlucafrei.nellygateway.services.oidc.OIDCService;
-import ch.gianlucafrei.nellygateway.services.oidc.drivers.github.GitHubLoginImplementation;
+import ch.gianlucafrei.nellygateway.services.login.drivers.github.GitHubLoginImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;

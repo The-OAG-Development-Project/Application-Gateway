@@ -1,8 +1,9 @@
-package ch.gianlucafrei.nellygateway.services.oidc.drivers.github;
+package ch.gianlucafrei.nellygateway.services.login.drivers.github;
 
 import ch.gianlucafrei.nellygateway.config.LoginProviderSettings;
-import ch.gianlucafrei.nellygateway.services.oidc.drivers.AuthenticationException;
-import ch.gianlucafrei.nellygateway.services.oidc.drivers.UserModel;
+import ch.gianlucafrei.nellygateway.services.login.drivers.AuthenticationException;
+import ch.gianlucafrei.nellygateway.services.login.drivers.UserModel;
+import ch.gianlucafrei.nellygateway.services.login.drivers.oauth.Oauth2Driver;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.oauth2.sdk.AuthorizationGrant;
@@ -52,7 +53,7 @@ public class GitHubDriver extends Oauth2Driver {
     }
 
     @Override
-    protected UserModel loadUserInfo(Tokens tokens, LoginState state){
+    protected UserModel loadUserInfo(Tokens tokens){
 
         AccessToken accessToken = tokens.getAccessToken();
         RefreshToken refreshToken = tokens.getRefreshToken();

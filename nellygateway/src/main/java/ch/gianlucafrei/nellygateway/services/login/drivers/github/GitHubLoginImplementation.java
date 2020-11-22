@@ -1,4 +1,4 @@
-package ch.gianlucafrei.nellygateway.services.oidc.drivers.github;
+package ch.gianlucafrei.nellygateway.services.login.drivers.github;
 
 import ch.gianlucafrei.nellygateway.config.AuthProvider;
 import ch.gianlucafrei.nellygateway.services.oidc.OIDCCallbackResult;

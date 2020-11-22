@@ -1,15 +1,14 @@
-package ch.gianlucafrei.nellygateway.services.oidc.drivers.github;
+package ch.gianlucafrei.nellygateway.services.login.drivers;
 
 import ch.gianlucafrei.nellygateway.config.LoginProviderSettings;
-import ch.gianlucafrei.nellygateway.services.oidc.drivers.AuthenticationException;
-import ch.gianlucafrei.nellygateway.services.oidc.drivers.UserModel;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface LoginDriver {
 
-    LoginState getRedirectUri();
-    UserModel processCallback(HttpServletRequest request, LoginState state) throws AuthenticationException;
+    LoginDriverResult startLogin();
+    UserModel processCallback(HttpServletRequest request, String state) throws AuthenticationException;
 
     List<String> getSettingsErrors(LoginProviderSettings settings);
     default boolean settingsAreValid(LoginProviderSettings settings){
