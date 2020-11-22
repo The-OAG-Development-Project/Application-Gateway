@@ -81,9 +81,19 @@ public class OidcDriver extends Oauth2Driver {
             RefreshToken refreshToken = oidcTokens.getRefreshToken();
 
             UserModel model = new UserModel(jwtClaims.getSubject());
-            model.set("id-token", idToken.toString());
+            model.set("id-token", idToken.getParsedString());
             model.set("access-token", accessToken.toString());
             model.set("refreshToken", refreshToken != null ? refreshToken.toString() : null);
+
+            // TODO create logic for claim mappings
+            Object email = jwtClaims.getClaim("email");
+            if(email != null)
+                model.set("email", email.toString());
+
+            Object phone = jwtClaims.getClaim("phone");
+            if(phone != null)
+                model.set("phone", phone.toString());
+
             return model;
 
         } catch (Exception e) {
