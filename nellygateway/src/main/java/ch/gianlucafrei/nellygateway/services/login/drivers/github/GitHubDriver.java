@@ -36,7 +36,6 @@ public class GitHubDriver extends Oauth2Driver {
         {
             Scope scopes = getScopes(settings);
 
-
             if (! scopes.contains("user"))
                 errors.add("'user' be within scope");
 

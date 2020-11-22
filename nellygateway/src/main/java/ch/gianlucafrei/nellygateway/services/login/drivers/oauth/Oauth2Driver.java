@@ -75,8 +75,15 @@ public abstract class Oauth2Driver extends LoginDriverBase {
     protected Scope getScopes(LoginProviderSettings settings){
 
         try{
-            List<String> scopes = (List<String>) settings.get("scopes");
-            return new Scope(scopes.toArray(new String[] {}));
+
+            Object scopes = settings.get("scopes");
+
+            if(scopes instanceof String[])
+                return new Scope((String[]) scopes);
+
+            List<String> scopesList = (List<String>) scopes;
+            return new Scope(scopesList.toArray(new String[] {}));
+
         } catch (Exception e) {
             throw new RuntimeException("Invalid scope");
         }
