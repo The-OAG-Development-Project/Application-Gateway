@@ -1,30 +1,33 @@
 package ch.gianlucafrei.nellygateway.services.oidc.drivers.github;
 
-import ch.gianlucafrei.nellygateway.NellygatewayApplication;
-
+import ch.gianlucafrei.nellygateway.config.LoginProviderSettings;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 public abstract class LoginDriverBase implements LoginDriver{
 
-    private String providerKey;
 
-    public LoginDriverBase(String providerKey) {
-        this.providerKey = providerKey;
-    }
+    private LoginProviderSettings settings;
+    private URI callbackURI;
 
-    public String getProviderKey() {
-        return providerKey;
-    }
+    public LoginDriverBase(LoginProviderSettings settings, URI callbackURI) {
+        this.callbackURI = callbackURI;
 
-    protected URI getCallbackUri(){
-
-        String callback = String.format("%s/auth/%s/callback", NellygatewayApplication.config.hostUri, providerKey);
-
-        try {
-            return new URI(callback);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Cannot compute callback URI for provider " + providerKey, e);
+        var errors = getSettingsErrors(settings);
+        if(errors.isEmpty()){
+            this.settings = settings;
         }
+        else{
+            String errorMsgs = String.join(", ", errors);
+            throw new RuntimeException("Invalid provider settings: " + errorMsgs);
+        }
+    }
+
+    public LoginProviderSettings getSettings() {
+        return settings;
+    }
+
+    public URI getCallbackUri(){
+
+        return callbackURI;
     }
 }

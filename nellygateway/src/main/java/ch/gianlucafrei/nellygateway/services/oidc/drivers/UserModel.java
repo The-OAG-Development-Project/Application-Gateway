@@ -7,6 +7,16 @@ public class UserModel {
     private String id;
     private HashMap<String, String> mappings;
 
+    public UserModel() {
+
+        this.mappings = new HashMap<>();
+    }
+
+    public UserModel(String id) {
+        this.id = id;
+        this.mappings = new HashMap<>();
+    }
+
     public String getId() {
         return id;
     }
@@ -23,11 +33,11 @@ public class UserModel {
         this.mappings = mappings;
     }
 
-    private void put(String key, String value){
+    public void set(String key, String value){
         mappings.put(key, value);
     }
 
-    private String get(String key){
+    public String get(String key){
         return mappings.get(key);
     }
 }

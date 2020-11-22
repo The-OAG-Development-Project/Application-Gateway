@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface LoginDriver {
 
-    LoginState getRedirectUri(LoginProviderSettings settings);
-    UserModel processCallback(HttpServletRequest request, LoginState state, LoginProviderSettings settings) throws AuthenticationException;
+    LoginState getRedirectUri();
+    UserModel processCallback(HttpServletRequest request, LoginState state) throws AuthenticationException;
 
     List<String> getSettingsErrors(LoginProviderSettings settings);
     default boolean settingsAreValid(LoginProviderSettings settings){

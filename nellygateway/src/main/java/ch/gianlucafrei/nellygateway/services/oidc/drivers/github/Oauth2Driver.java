@@ -1,8 +1,6 @@
 package ch.gianlucafrei.nellygateway.services.oidc.drivers.github;
 
 import ch.gianlucafrei.nellygateway.config.LoginProviderSettings;
-import ch.gianlucafrei.nellygateway.services.oidc.OIDCCallbackResult;
-import ch.gianlucafrei.nellygateway.services.oidc.OIDCLoginStepResult;
 import ch.gianlucafrei.nellygateway.services.oidc.drivers.AuthenticationException;
 import ch.gianlucafrei.nellygateway.services.oidc.drivers.UserModel;
 import com.nimbusds.oauth2.sdk.*;
@@ -14,6 +12,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.oauth2.sdk.token.Tokens;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,15 +20,14 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public abstract class Oauth2Driver extends LoginDriverBase {
 
-    public Oauth2Driver(String providerKey) {
-        super(providerKey);
+
+    public Oauth2Driver(LoginProviderSettings settings, URI callbackURI) {
+        super(settings, callbackURI);
     }
 
     @Override
@@ -101,7 +99,9 @@ public abstract class Oauth2Driver extends LoginDriverBase {
     }
 
     @Override
-    public LoginState getRedirectUri(LoginProviderSettings settings) {
+    public LoginState getRedirectUri() {
+
+        var settings = getSettings();
 
         // Preprare Oauth2 request
         URI authzEndpoint = getAuthEndpoint(settings);
@@ -127,7 +127,9 @@ public abstract class Oauth2Driver extends LoginDriverBase {
     }
 
     @Override
-    public UserModel processCallback(HttpServletRequest request, LoginState loginState, LoginProviderSettings settings) throws AuthenticationException {
+    public UserModel processCallback(HttpServletRequest request, LoginState loginState) throws AuthenticationException {
+
+        var settings = getSettings();
 
         String authCode = request.getParameter("code");
         if(authCode == null)
@@ -151,6 +153,14 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         URI tokenEndpoint = getTokenEndpoint(settings);
         AuthorizationGrant codeGrant = new AuthorizationCodeGrant(code, getCallbackUri());
 
+        Tokens tokens = loadTokens(clientAuth, tokenEndpoint, codeGrant);
+
+        // Load user Email
+        return loadUserInfo(tokens, loginState);
+    }
+
+    protected Tokens loadTokens(ClientAuthentication clientAuth, URI tokenEndpoint, AuthorizationGrant codeGrant) throws AuthenticationException {
+
         TokenRequest tokenRequest = new TokenRequest(tokenEndpoint, clientAuth, codeGrant);
         TokenResponse tokenResponse = sendTokenRequest(tokenRequest);
 
@@ -159,16 +169,14 @@ public abstract class Oauth2Driver extends LoginDriverBase {
             // We got an error response...
             TokenErrorResponse errorResponse = tokenResponse.toErrorResponse();
             String message = errorResponse.getErrorObject().getDescription();
-            throw new AuthenticationException(message)
+            throw new AuthenticationException(message);
         }
 
-        AccessToken accessToken = tokenResponse.toSuccessResponse().getTokens().getAccessToken();
-
-        // Load user Email
-        return loadUserInfo(accessToken, loginState, settings);
+        var tokens = tokenResponse.toSuccessResponse().getTokens();
+        return tokens;
     }
 
-    protected abstract UserModel loadUserInfo(AccessToken accessToken, LoginState state, LoginProviderSettings settings);
+    protected abstract UserModel loadUserInfo(Tokens accessToken, LoginState state);
 
     protected TokenResponse sendTokenRequest(TokenRequest tokenRequest) {
 
