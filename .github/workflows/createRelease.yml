@@ -5,7 +5,7 @@ name: Java CI/CD with Maven
 
 on:
   push:
-    branches: [ main, dockerhub-integration]
+    branches: [ main ]
 
 jobs:
   build:
