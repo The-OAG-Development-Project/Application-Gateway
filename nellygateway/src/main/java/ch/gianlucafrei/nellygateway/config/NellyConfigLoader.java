@@ -1,5 +1,7 @@
 package ch.gianlucafrei.nellygateway.config;
 
+import ch.gianlucafrei.nellygateway.NellygatewayApplication;
+import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.config.customDeserializer.StringEnvironmentVariableDeserializer;
 import ch.gianlucafrei.nellygateway.utils.MapTreeUpdater;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -7,29 +9,51 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-public class NellyConfig {
+@Component("nellyConfigLoader")
+public class NellyConfigLoader {
 
-    public Map<String, AuthProvider> authProviders;
-    public Map<String, LoginProvider> loginProviders;
-    public Map<String, NellyRoute> routes;
-    public Map<String, SecurityProfile> securityProfiles;
-    public String hostUri;
-    public String nellyApiKey;
-    public String logoutRedirectUri;
-    public List<String> trustedRedirectHosts;
-    public SessionBehaviour sessionBehaviour;
+    private static Logger log = LoggerFactory.getLogger(NellygatewayApplication.class);
 
-    public static NellyConfig load(InputStream defaultSettingsStream, String configPath) throws IOException {
+    @Bean
+    public NellyConfig nellyConfig(){
+
+        try {
+            return loadConfiguration();
+        } catch (IOException e) {
+            throw new RuntimeException("Could not load nelly configuration", e);
+        }
+    }
+
+    public NellyConfig loadConfiguration() throws IOException {
+
+        String configPath;
+
+        if(System.getenv("NELLY_CONFIG_PATH") != null)
+            configPath = System.getenv("NELLY_CONFIG_PATH");
+        else
+            configPath = "sample-nelly-config.yaml"; // Default path if we have no config
+
+        log.info("Load nelly configuration from: {}", configPath);
+
+        InputStream defaultConfigStream = NellygatewayApplication.class.getResourceAsStream("/default-config.yaml");
+        NellyConfig config = load(defaultConfigStream, configPath);
+
+        log.debug("Configuration successfully loaded");
+        return config;
+    }
+
+    private NellyConfig load(InputStream defaultSettingsStream, String configPath) throws IOException {
 
         // Instantiating a new ObjectMapper as a YAMLFactory
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
@@ -53,37 +77,4 @@ public class NellyConfig {
 
         return finalConfig;
     }
-
-    public Map<String, ZuulProperties.ZuulRoute> getRoutesAsZuulRoutes(){
-
-        Map<String, ZuulProperties.ZuulRoute> zuulRoutes = new HashMap<>();
-
-        if(routes != null)
-        {
-            routes.forEach((name, route) -> {
-                ZuulProperties.ZuulRoute zuulRoute = new ZuulProperties.ZuulRoute(route.path, route.url);
-                zuulRoute.setId(name);
-                zuulRoute.setSensitiveHeaders(new HashSet<>());
-                zuulRoutes.put(name, zuulRoute);
-            });
-        }
-
-        return zuulRoutes;
-    }
-
-    public String getHostname(){
-
-        try {
-            URL url = new URL(hostUri);
-            return url.getHost();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Host Uri from config is not a valid URL");
-        }
-    }
-
-    public boolean isHttpsHost(){
-
-        return hostUri.startsWith("https://");
-    }
-
 }

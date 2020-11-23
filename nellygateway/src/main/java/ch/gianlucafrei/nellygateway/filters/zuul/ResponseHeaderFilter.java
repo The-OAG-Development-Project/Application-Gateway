@@ -1,11 +1,13 @@
 package ch.gianlucafrei.nellygateway.filters.zuul;
 
 import ch.gianlucafrei.nellygateway.NellygatewayApplication;
-import ch.gianlucafrei.nellygateway.config.NellyRoute;
-import ch.gianlucafrei.nellygateway.config.SecurityProfile;
+import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
+import ch.gianlucafrei.nellygateway.config.configuration.NellyRoute;
+import ch.gianlucafrei.nellygateway.config.configuration.SecurityProfile;
 import com.netflix.util.Pair;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
@@ -15,6 +17,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class ResponseHeaderFilter extends ZuulFilter {
+
+    @Autowired
+    private NellyConfig config;
 
     @Override
     public String filterType() {
@@ -38,8 +43,8 @@ public class ResponseHeaderFilter extends ZuulFilter {
 
         // Load security profile
         String routeName = (String) ctx.get("proxy");
-        NellyRoute nellyRoute = NellygatewayApplication.config.routes.get(routeName);
-        SecurityProfile securityProfile = NellygatewayApplication.config.securityProfiles.get(nellyRoute.type);
+        NellyRoute nellyRoute = config.routes.get(routeName);
+        SecurityProfile securityProfile = config.securityProfiles.get(nellyRoute.type);
 
         // Load headers
         List<Pair<String, String>> zuulResponseHeaders = ctx.getZuulResponseHeaders();

@@ -1,6 +1,5 @@
 package ch.gianlucafrei.nellygateway;
 
-import ch.gianlucafrei.nellygateway.config.NellyConfig;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
 import ch.gianlucafrei.nellygateway.services.crypto.JweEncrypter;
 import org.slf4j.Logger;
@@ -11,16 +10,11 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 
 @EnableZuulProxy
 @SpringBootApplication
 public class NellygatewayApplication {
 
-    public static NellyConfig config;
     private static Logger log = LoggerFactory.getLogger(NellygatewayApplication.class);
 
     @Bean
@@ -30,16 +24,6 @@ public class NellygatewayApplication {
 
         // The global configuration is loaded before Spring starts
         log.debug(String.format("Nell starting... Working directory %s", System.getProperty("user.dir")));
-
-        try{
-            loadConfiguration();
-        }
-        catch (Exception e)
-        {
-            log.error("Startup failed", e);
-            return;
-        }
-
         SpringApplication.run(NellygatewayApplication.class, args);
     }
 
@@ -53,20 +37,5 @@ public class NellygatewayApplication {
             return JweEncrypter.loadFromFileOrCreateAndStoreNewKey("NELLY.key");
         }
 
-    }
-
-    public static void loadConfiguration() throws IOException {
-
-        String configPath;
-
-        if(System.getenv("NELLY_CONFIG_PATH") != null)
-            configPath = System.getenv("NELLY_CONFIG_PATH");
-        else
-            configPath = "sample-nelly-config.yaml"; // Default path if we have no config
-
-        InputStream defaultConfigStream = NellygatewayApplication.class.getResourceAsStream("/default-config.yaml");
-        NellygatewayApplication.config = NellyConfig.load(defaultConfigStream, configPath);
-
-        log.debug("Configuration loaded from {}", configPath);
     }
 }

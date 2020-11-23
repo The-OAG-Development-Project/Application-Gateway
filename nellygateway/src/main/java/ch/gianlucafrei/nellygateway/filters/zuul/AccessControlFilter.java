@@ -1,13 +1,15 @@
 package ch.gianlucafrei.nellygateway.filters.zuul;
 
 import ch.gianlucafrei.nellygateway.NellygatewayApplication;
-import ch.gianlucafrei.nellygateway.config.NellyRoute;
+import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
+import ch.gianlucafrei.nellygateway.config.configuration.NellyRoute;
 import ch.gianlucafrei.nellygateway.filters.spring.ExtractAuthenticationFilter;
 import ch.gianlucafrei.nellygateway.session.Session;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +20,9 @@ import java.util.Optional;
 public class AccessControlFilter extends ZuulFilter {
 
     private static Logger log = LoggerFactory.getLogger(AccessControlFilter.class);
+
+    @Autowired
+    private NellyConfig config;
 
     @Override
     public String filterType() {
@@ -41,7 +46,7 @@ public class AccessControlFilter extends ZuulFilter {
 
         // Load nelly route
         String routeName = (String) ctx.get("proxy");
-        NellyRoute nellyRoute = NellygatewayApplication.config.routes.get(routeName);
+        NellyRoute nellyRoute = config.routes.get(routeName);
 
         // Load session
         Optional<Session> sessionOptional = (Optional<Session>) request.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);

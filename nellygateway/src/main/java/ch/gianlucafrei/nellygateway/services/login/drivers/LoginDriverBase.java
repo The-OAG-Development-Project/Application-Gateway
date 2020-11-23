@@ -1,6 +1,6 @@
 package ch.gianlucafrei.nellygateway.services.login.drivers;
 
-import ch.gianlucafrei.nellygateway.config.LoginProviderSettings;
+import ch.gianlucafrei.nellygateway.config.configuration.LoginProviderSettings;
 
 import java.net.URI;
 

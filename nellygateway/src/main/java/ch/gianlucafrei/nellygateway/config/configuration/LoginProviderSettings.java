@@ -1,4 +1,4 @@
-package ch.gianlucafrei.nellygateway.config;
+package ch.gianlucafrei.nellygateway.config.configuration;
 
 import java.util.HashMap;
 

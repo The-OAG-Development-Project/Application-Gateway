@@ -11,7 +11,7 @@ class NellygatewayApplicationTests {
 
     @BeforeAll
     static void loadConfiguration() throws IOException {
-        NellygatewayApplication.loadConfiguration();
+        //NellygatewayApplication.loadConfiguration();
     }
 
     @Test

@@ -1,6 +1,6 @@
 package ch.gianlucafrei.nellygateway.services.login.drivers.github;
 
-import ch.gianlucafrei.nellygateway.config.LoginProviderSettings;
+import ch.gianlucafrei.nellygateway.config.configuration.LoginProviderSettings;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;

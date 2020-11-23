@@ -1,4 +1,4 @@
-hostUri: http://localhost:8080
+hostUri: env:HOSTURI
 nellyApiKey: env:NELLY_API_KEY
 
 routes:

@@ -1,8 +1,10 @@
 package ch.gianlucafrei.nellygateway.filters.spring;
 
 import ch.gianlucafrei.nellygateway.NellygatewayApplication;
+import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -18,13 +20,16 @@ public class HttpRedirectFilter implements Filter {
 
     private static Logger log = LoggerFactory.getLogger(HttpRedirectFilter.class);
 
+    @Autowired
+    private NellyConfig config;
+
     @Override
     public void doFilter(
             ServletRequest request,
             ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
 
-        String hostUri = NellygatewayApplication.config.hostUri;
+        String hostUri = config.hostUri;
         if(hostUri.startsWith("https://"))
         {
             // We do the request only if we are on https
@@ -44,7 +49,7 @@ public class HttpRedirectFilter implements Filter {
 
     public void sendHttpsRedirectResponse(HttpServletRequest req, HttpServletResponse res) throws IOException {
 
-        String path = NellygatewayApplication.config.hostUri + req.getRequestURI() + (req.getQueryString() != null ? "?" + req.getQueryString() : "");
+        String path = config.hostUri + req.getRequestURI() + (req.getQueryString() != null ? "?" + req.getQueryString() : "");
         res.sendRedirect(path);
     }
 

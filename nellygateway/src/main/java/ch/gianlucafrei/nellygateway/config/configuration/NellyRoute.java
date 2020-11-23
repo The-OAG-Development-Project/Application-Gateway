@@ -1,4 +1,4 @@
-package ch.gianlucafrei.nellygateway.config;
+package ch.gianlucafrei.nellygateway.config.configuration;
 
 public class NellyRoute {
 

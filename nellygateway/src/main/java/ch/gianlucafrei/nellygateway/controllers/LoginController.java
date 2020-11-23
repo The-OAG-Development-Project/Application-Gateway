@@ -1,8 +1,8 @@
 package ch.gianlucafrei.nellygateway.controllers;
 
 import ch.gianlucafrei.nellygateway.NellygatewayApplication;
-import ch.gianlucafrei.nellygateway.config.LoginProvider;
-import ch.gianlucafrei.nellygateway.config.NellyConfig;
+import ch.gianlucafrei.nellygateway.config.configuration.LoginProvider;
+import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
 import ch.gianlucafrei.nellygateway.cookies.LoginStateCookie;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieDecryptionException;
@@ -38,7 +38,8 @@ public class LoginController {
     @Autowired
     private CookieEncryptor cookieEncryptor;
 
-    private NellyConfig config = NellygatewayApplication.config;
+    @Autowired
+    private NellyConfig config;
 
     @GetMapping("{providerKey}/login")
     public void login(
@@ -143,8 +144,8 @@ public class LoginController {
 
     public boolean isValidReturnUrl(String returnUrl){
 
-        ArrayList<String> allowedHosts = new ArrayList<>(NellygatewayApplication.config.trustedRedirectHosts);
-        allowedHosts.add(NellygatewayApplication.config.getHostname());
+        ArrayList<String> allowedHosts = new ArrayList<>(config.trustedRedirectHosts);
+        allowedHosts.add(config.getHostname());
         return  UrlUtils.isValidReturnUrl(returnUrl, allowedHosts.toArray(new String[]{}));
     }
 
@@ -161,7 +162,7 @@ public class LoginController {
     private URI loadCallbackURI(String providerKey){
 
         try {
-            String callbackStr = String.format("%s/auth/%s/callback", NellygatewayApplication.config.hostUri, providerKey);
+            String callbackStr = String.format("%s/auth/%s/callback", config.hostUri, providerKey);
             return new URI(callbackStr);
 
         } catch (URISyntaxException e) {

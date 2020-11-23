@@ -1,6 +1,6 @@
 package ch.gianlucafrei.nellygateway.services.login.drivers.github;
 
-import ch.gianlucafrei.nellygateway.config.LoginProviderSettings;
+import ch.gianlucafrei.nellygateway.config.configuration.LoginProviderSettings;
 import ch.gianlucafrei.nellygateway.services.login.drivers.AuthenticationException;
 import ch.gianlucafrei.nellygateway.services.login.drivers.UserModel;
 import ch.gianlucafrei.nellygateway.services.login.drivers.oauth.Oauth2Driver;
