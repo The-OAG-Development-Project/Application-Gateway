@@ -11,6 +11,7 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -63,15 +64,8 @@ public class NellygatewayApplication {
         else
             configPath = "sample-nelly-config.yaml"; // Default path if we have no config
 
-
-        URI defaultConfigURI = null;
-        try {
-            URL defaultConfigResource = NellygatewayApplication.class.getResource("/default-config.yaml");
-            defaultConfigURI = defaultConfigResource.toURI();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Could not load default configuration", e);
-        }
-        NellygatewayApplication.config = NellyConfig.load(defaultConfigURI, configPath);
+        InputStream defaultConfigStream = NellygatewayApplication.class.getResourceAsStream("/default-config.yaml");
+        NellygatewayApplication.config = NellyConfig.load(defaultConfigStream, configPath);
 
         log.debug("Configuration loaded from {}", configPath);
     }

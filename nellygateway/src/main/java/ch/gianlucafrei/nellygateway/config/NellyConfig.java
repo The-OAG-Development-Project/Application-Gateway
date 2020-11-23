@@ -11,6 +11,7 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -28,7 +29,7 @@ public class NellyConfig {
     public List<String> trustedRedirectHosts;
     public SessionBehaviour sessionBehaviour;
 
-    public static NellyConfig load(URI defaultSettingsURI, String configPath) throws IOException {
+    public static NellyConfig load(InputStream defaultSettingsStream, String configPath) throws IOException {
 
         // Instantiating a new ObjectMapper as a YAMLFactory
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
@@ -38,9 +39,8 @@ public class NellyConfig {
         om.registerModule(module);
 
         // Load default configuration
-        File file = new File(defaultSettingsURI);
         TypeReference<LinkedHashMap<String, Object>> mapType = new TypeReference<>() {};
-        Map<String, Object> defaultConfigMap = om.readValue(file, mapType);
+        Map<String, Object> defaultConfigMap = om.readValue(defaultSettingsStream, mapType);
 
         // Load config
         File userConfigFile = new File(configPath);
