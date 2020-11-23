@@ -1,6 +1,5 @@
 package ch.gianlucafrei.nellygateway.controllers;
 
-import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.configuration.LoginProvider;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
