@@ -41,10 +41,9 @@ public class AuthenticationHeadersFilter extends ZuulFilter {
         ctx.addZuulRequestHeader("X-PROXY", "Nellygateway");
         ctx.addZuulRequestHeader("X-NELLY-ApiKey", nellyConfig.getNellyApiKey());
 
-        Optional<Session> sessionOptional = (Optional<Session>)request.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
+        Optional<Session> sessionOptional = (Optional<Session>) request.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
 
-        if(sessionOptional.isPresent())
-        {
+        if (sessionOptional.isPresent()) {
             Session session = sessionOptional.get();
             ctx.addZuulRequestHeader("X-NELLY-Status", "Authenticated");
             ctx.addZuulRequestHeader("X-NELLY-Provider", session.getProvider());
@@ -55,8 +54,7 @@ public class AuthenticationHeadersFilter extends ZuulFilter {
                     .forEach(mapping -> ctx.addZuulRequestHeader(
                             "X-NELLY-USER-" + mapping.getKey(),
                             mapping.getValue()));
-        }
-        else {
+        } else {
             ctx.addZuulRequestHeader("X-NELLY-Status", "Anonymous");
         }
 

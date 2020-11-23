@@ -17,7 +17,7 @@ import java.io.IOException;
 @Component
 public class HttpRedirectFilter implements Filter {
 
-    private static Logger log = LoggerFactory.getLogger(HttpRedirectFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpRedirectFilter.class);
 
     @Autowired
     private NellyConfig config;
@@ -29,14 +29,12 @@ public class HttpRedirectFilter implements Filter {
             FilterChain chain) throws IOException, ServletException {
 
         String hostUri = config.getHostUri();
-        if(hostUri.startsWith("https://"))
-        {
+        if (hostUri.startsWith("https://")) {
             // We do the request only if we are on https
             HttpServletRequest req = (HttpServletRequest) request;
             HttpServletResponse res = (HttpServletResponse) response;
 
-            if(isInsecureRequest(req))
-            {
+            if (isInsecureRequest(req)) {
                 sendHttpsRedirectResponse(req, res);
                 log.debug("Redirected insecure request to {}", req.getPathInfo());
                 return;
@@ -46,34 +44,34 @@ public class HttpRedirectFilter implements Filter {
         chain.doFilter(request, response);
     }
 
-    public void sendHttpsRedirectResponse(HttpServletRequest req, HttpServletResponse res) throws IOException {
-
-        String path = config.getHostUri() + req.getRequestURI() + (req.getQueryString() != null ? "?" + req.getQueryString() : "");
-        res.sendRedirect(path);
-    }
-
     public boolean isInsecureRequest(HttpServletRequest request) {
 
         // Check if request was forwarded
-        if(request.getHeader("X-Forwarded-For") != null){
+        if (request.getHeader("X-Forwarded-For") != null) {
 
             // if X-Forwarded-Proto: https we threat the request as secure
-            return ! "https".equals(request.getHeader("X-Forwarded-Proto"));
+            return !"https".equals(request.getHeader("X-Forwarded-Proto"));
         }
 
         // Check if localhost
-        if("localhost".equals(request.getServerName()))
+        if ("localhost".equals(request.getServerName()))
             return false;
 
         // Check protocol
-        if("http".equals(request.getScheme()))
+        if ("http".equals(request.getScheme()))
             return true;
 
-        if("https".equals(request.getScheme()))
+        if ("https".equals(request.getScheme()))
             return false;
 
         // Fallback if everything else fails (don't redirect)
         log.debug("Unsecure if request if https");
         return false;
+    }
+
+    public void sendHttpsRedirectResponse(HttpServletRequest req, HttpServletResponse res) throws IOException {
+
+        String path = config.getHostUri() + req.getRequestURI() + (req.getQueryString() != null ? "?" + req.getQueryString() : "");
+        res.sendRedirect(path);
     }
 }

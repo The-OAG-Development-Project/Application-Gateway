@@ -5,7 +5,7 @@ import java.net.URI;
 public class LoginDriverResult {
 
     private URI authURI;
-    private String  state;
+    private String state;
 
     public LoginDriverResult(URI authURI, String state) {
         this.authURI = authURI;

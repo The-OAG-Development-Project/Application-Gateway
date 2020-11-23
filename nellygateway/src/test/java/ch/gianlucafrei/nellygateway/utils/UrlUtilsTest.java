@@ -2,12 +2,13 @@ package ch.gianlucafrei.nellygateway.utils;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UrlUtilsTest {
 
     @Test
-    public void testIsValidReturnUrl(){
+    public void testIsValidReturnUrl() {
 
         // WhitelistedUrl
         assertTrue(UrlUtils.isValidReturnUrl("https://user:pass@test.com/abc", new String[]{"abc.ch", "test.com"}));
@@ -19,7 +20,7 @@ class UrlUtilsTest {
     }
 
     @Test
-    public void testIsInvalidReturnUrl(){
+    public void testIsInvalidReturnUrl() {
 
         // Unknown host
         assertFalse(UrlUtils.isValidReturnUrl("https://unknown.com/realtiveUrl", new String[]{"abc.ch", "test.com"}));

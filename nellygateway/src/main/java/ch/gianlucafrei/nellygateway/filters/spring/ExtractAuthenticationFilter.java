@@ -23,7 +23,7 @@ public class ExtractAuthenticationFilter implements Filter {
 
     public final static String NELLY_SESSION = "nelly-session"; // Key for request context
 
-    private static Logger log = LoggerFactory.getLogger(ExtractAuthenticationFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(ExtractAuthenticationFilter.class);
 
     @Autowired
     CookieEncryptor cookieEncryptor;
@@ -39,11 +39,10 @@ public class ExtractAuthenticationFilter implements Filter {
         // Extract session from cookie
         Cookie cookie = CookieUtils.getCookieOrNull(LoginCookie.NAME, req);
         Optional<Session> sessionOptional;
-        if(cookie == null) {
+        if (cookie == null) {
 
             sessionOptional = Optional.empty();
-        }
-        else {
+        } else {
             // Decrypt cookie
             try {
                 LoginCookie loginCookie = cookieEncryptor.decryptObject(cookie.getValue(), LoginCookie.class);

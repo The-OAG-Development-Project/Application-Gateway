@@ -7,17 +7,16 @@ import java.net.URI;
 public abstract class LoginDriverBase implements LoginDriver {
 
 
-    private LoginProviderSettings settings;
-    private URI callbackURI;
+    private final LoginProviderSettings settings;
+    private final URI callbackURI;
 
     public LoginDriverBase(LoginProviderSettings settings, URI callbackURI) {
         this.callbackURI = callbackURI;
 
         var errors = getSettingsErrors(settings);
-        if(errors.isEmpty()){
+        if (errors.isEmpty()) {
             this.settings = settings;
-        }
-        else{
+        } else {
             String errorMsgs = String.join(", ", errors);
             throw new RuntimeException("Invalid provider settings: " + errorMsgs);
         }
@@ -27,7 +26,7 @@ public abstract class LoginDriverBase implements LoginDriver {
         return settings;
     }
 
-    public URI getCallbackUri(){
+    public URI getCallbackUri() {
 
         return callbackURI;
     }

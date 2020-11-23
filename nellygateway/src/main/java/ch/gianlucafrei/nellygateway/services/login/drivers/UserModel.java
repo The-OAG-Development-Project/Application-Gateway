@@ -33,11 +33,11 @@ public class UserModel {
         this.mappings = mappings;
     }
 
-    public void set(String key, String value){
+    public void set(String key, String value) {
         mappings.put(key, value);
     }
 
-    public String get(String key){
+    public String get(String key) {
         return mappings.get(key);
     }
 }

@@ -32,82 +32,6 @@ public abstract class Oauth2Driver extends LoginDriverBase {
     }
 
     @Override
-    public List<String> getSettingsErrors(LoginProviderSettings settings) {
-
-        var errors = new ArrayList<String>();
-
-        if (!settings.containsKey("clientId"))
-            errors.add("ClinetId missing");
-
-        if (!settings.containsKey("clientSecret"))
-            errors.add("ClinetSecret missing");
-
-        if (!settings.containsKey("scopes"))
-            errors.add("Scopes missing");
-
-        if (!settings.containsKey("tokenEndpoint"))
-            errors.add("tokenEndpoint missing");
-
-        if (!settings.containsKey("authEndpoint"))
-            errors.add("auth endpoint missing");
-
-        return errors;
-    }
-
-    protected URI getAuthEndpoint(LoginProviderSettings settings) {
-
-        try {
-            return new URI((String) settings.get("authEndpoint"));
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid auth endpoint");
-        }
-    }
-
-    protected URI getTokenEndpoint(LoginProviderSettings settings) {
-
-        try {
-            return new URI((String) settings.get("tokenEndpoint"));
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid token endpoint");
-        }
-    }
-
-    protected Scope getScopes(LoginProviderSettings settings){
-
-        try{
-
-            Object scopes = settings.get("scopes");
-
-            if(scopes instanceof String[])
-                return new Scope((String[]) scopes);
-
-            List<String> scopesList = (List<String>) scopes;
-            return new Scope(scopesList.toArray(new String[] {}));
-
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid scope");
-        }
-    }
-
-    protected ClientID getClientId(LoginProviderSettings settings){
-
-        try{
-            return new ClientID((String) settings.get("clientId"));
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid clientId");
-        }
-    }
-
-    protected Secret getClientSecret(LoginProviderSettings settings){
-
-        try{
-            return new Secret((String) settings.get("clientSecret"));
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid clientId");
-        }
-    }
-
-    @Override
     public LoginDriverResult startLogin() {
 
         var settings = getSettings();
@@ -135,20 +59,55 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         return new LoginDriverResult(requestURI, state.toString());
     }
 
+    protected URI getAuthEndpoint(LoginProviderSettings settings) {
+
+        try {
+            return new URI((String) settings.get("authEndpoint"));
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid auth endpoint");
+        }
+    }
+
+    protected ClientID getClientId(LoginProviderSettings settings) {
+
+        try {
+            return new ClientID((String) settings.get("clientId"));
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid clientId");
+        }
+    }
+
+    protected Scope getScopes(LoginProviderSettings settings) {
+
+        try {
+
+            Object scopes = settings.get("scopes");
+
+            if (scopes instanceof String[])
+                return new Scope((String[]) scopes);
+
+            List<String> scopesList = (List<String>) scopes;
+            return new Scope(scopesList.toArray(new String[]{}));
+
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid scope");
+        }
+    }
+
     @Override
     public UserModel processCallback(HttpServletRequest request, String stateFromLoginStep) throws AuthenticationException {
 
         var settings = getSettings();
 
         String authCode = request.getParameter("code");
-        if(authCode == null)
+        if (authCode == null)
             throw new AuthenticationException("No auth code");
 
         String stateFromRequest = request.getParameter("state");
-        if(stateFromRequest == null)
+        if (stateFromRequest == null)
             throw new AuthenticationException("No state");
 
-        if(! stateFromLoginStep.equals(stateFromRequest))
+        if (!stateFromLoginStep.equals(stateFromRequest))
             throw new AuthenticationException("State missmatch");
 
         AuthorizationCode code = new AuthorizationCode(authCode);
@@ -164,6 +123,47 @@ public abstract class Oauth2Driver extends LoginDriverBase {
 
         // Load user Email
         return loadUserInfo(tokens);
+    }
+
+    @Override
+    public List<String> getSettingsErrors(LoginProviderSettings settings) {
+
+        var errors = new ArrayList<String>();
+
+        if (!settings.containsKey("clientId"))
+            errors.add("ClinetId missing");
+
+        if (!settings.containsKey("clientSecret"))
+            errors.add("ClinetSecret missing");
+
+        if (!settings.containsKey("scopes"))
+            errors.add("Scopes missing");
+
+        if (!settings.containsKey("tokenEndpoint"))
+            errors.add("tokenEndpoint missing");
+
+        if (!settings.containsKey("authEndpoint"))
+            errors.add("auth endpoint missing");
+
+        return errors;
+    }
+
+    protected Secret getClientSecret(LoginProviderSettings settings) {
+
+        try {
+            return new Secret((String) settings.get("clientSecret"));
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid clientId");
+        }
+    }
+
+    protected URI getTokenEndpoint(LoginProviderSettings settings) {
+
+        try {
+            return new URI((String) settings.get("tokenEndpoint"));
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid token endpoint");
+        }
     }
 
     protected Tokens loadTokens(ClientAuthentication clientAuth, URI tokenEndpoint, AuthorizationGrant codeGrant) throws AuthenticationException {

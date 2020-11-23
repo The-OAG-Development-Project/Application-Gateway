@@ -13,7 +13,7 @@ import java.io.IOException;
 @Component
 public class SimpleLogFilter implements Filter {
 
-    private static Logger log = LoggerFactory.getLogger(SimpleLogFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(SimpleLogFilter.class);
 
     @Override
     public void doFilter(

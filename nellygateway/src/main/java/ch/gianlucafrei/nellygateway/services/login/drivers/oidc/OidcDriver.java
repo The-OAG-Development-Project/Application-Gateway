@@ -29,11 +29,10 @@ public class OidcDriver extends Oauth2Driver {
     @Override
     public List<String> getSettingsErrors(LoginProviderSettings settings) {
 
-        var errors =  super.getSettingsErrors(settings);
+        var errors = super.getSettingsErrors(settings);
 
-        if(errors.isEmpty())
-        {
-            if(! getScopes(settings).contains("openid"))
+        if (errors.isEmpty()) {
+            if (!getScopes(settings).contains("openid"))
                 errors.add("Scopes does not contain 'openid'");
         }
 
@@ -46,16 +45,14 @@ public class OidcDriver extends Oauth2Driver {
         TokenRequest request = new TokenRequest(tokenEndpoint, clientAuth, codeGrant);
         TokenResponse tokenResponse;
 
-        try{
+        try {
             HTTPResponse httpResponse = request.toHTTPRequest().send();
             tokenResponse = OIDCTokenResponseParser.parse(httpResponse);
-        }
-        catch (IOException | ParseException ex)
-        {
+        } catch (IOException | ParseException ex) {
             throw new RuntimeException("Could not load tokens", ex);
         }
 
-        if (! tokenResponse.indicatesSuccess()) {
+        if (!tokenResponse.indicatesSuccess()) {
             // We got an error response...
             TokenErrorResponse errorResponse = tokenResponse.toErrorResponse();
             String message = errorResponse.getErrorObject().getDescription();
@@ -87,11 +84,11 @@ public class OidcDriver extends Oauth2Driver {
 
             // TODO create logic for claim mappings
             Object email = jwtClaims.getClaim("email");
-            if(email != null)
+            if (email != null)
                 model.set("email", email.toString());
 
             Object phone = jwtClaims.getClaim("phone");
-            if(phone != null)
+            if (phone != null)
                 model.set("phone", phone.toString());
 
             return model;

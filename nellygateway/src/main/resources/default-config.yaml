@@ -1,4 +1,4 @@
-trustedRedirectHosts: []
+trustedRedirectHosts: [ ]
 
 sessionBehaviour:
   sessionDuration: 300

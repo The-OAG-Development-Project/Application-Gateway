@@ -3,10 +3,11 @@ package ch.gianlucafrei.nellygateway.utils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MapTreeUpdaterTest {
 
@@ -32,7 +33,8 @@ class MapTreeUpdaterTest {
 
         // ASSERT
         ObjectMapper om = new ObjectMapper();
-        TypeReference<LinkedHashMap<String, Object>> mapType = new TypeReference<>() {};
+        TypeReference<LinkedHashMap<String, Object>> mapType = new TypeReference<>() {
+        };
         Map<String, Object> updatedInner = om.convertValue(updated.get("inner"), mapType);
         assertEquals("original", updated.get("a"));
         assertEquals("update", updated.get("b"));
@@ -59,7 +61,8 @@ class MapTreeUpdaterTest {
 
         // ASSERT
         ObjectMapper om = new ObjectMapper();
-        TypeReference<LinkedHashMap<String, Object>> mapType = new TypeReference<>() {};
+        TypeReference<LinkedHashMap<String, Object>> mapType = new TypeReference<>() {
+        };
         Map<String, Object> updatedInner = om.convertValue(updated.get("inner"), mapType);
         assertEquals("foo", updatedInner.get("inner-b"));
     }

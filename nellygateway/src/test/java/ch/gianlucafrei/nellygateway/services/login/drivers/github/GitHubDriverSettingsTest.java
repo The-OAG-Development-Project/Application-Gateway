@@ -11,27 +11,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class GitHubDriverSettingsTest {
 
 
-    public static LoginProviderSettings getValidSettings(){
-
-        LoginProviderSettings settings = new LoginProviderSettings();
-        settings.put("authEndpoint", "https://github.com/login/oauth/authorize");
-        settings.put("tokenEndpoint", "https://github.com/login/oauth/access_token");
-        settings.put("clientId", "foo");
-        settings.put("clientSecret", "bar");
-        settings.put("scopes", new String[]{"user", "email", "test"});
-        return settings;
-    }
-
-    public static GitHubDriver getDriver(LoginProviderSettings settings){
-
-        try {
-            return new GitHubDriver(settings, new URI("http://localhost:7777"));
-        } catch (URISyntaxException e) {
-            fail("Should not happen");
-            return null;
-        }
-    }
-
     @Test
     void getSettingsErrorsTestValidSettings() {
 
@@ -43,6 +22,27 @@ class GitHubDriverSettingsTest {
 
         // Assert
         assertNotNull(driver);
+    }
+
+    public static LoginProviderSettings getValidSettings() {
+
+        LoginProviderSettings settings = new LoginProviderSettings();
+        settings.put("authEndpoint", "https://github.com/login/oauth/authorize");
+        settings.put("tokenEndpoint", "https://github.com/login/oauth/access_token");
+        settings.put("clientId", "foo");
+        settings.put("clientSecret", "bar");
+        settings.put("scopes", new String[]{"user", "email", "test"});
+        return settings;
+    }
+
+    public static GitHubDriver getDriver(LoginProviderSettings settings) {
+
+        try {
+            return new GitHubDriver(settings, new URI("http://localhost:7777"));
+        } catch (URISyntaxException e) {
+            fail("Should not happen");
+            return null;
+        }
     }
 
     @Test

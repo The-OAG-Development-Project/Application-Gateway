@@ -20,14 +20,14 @@ import java.util.Map;
 
 public class FileConfigLoader implements NellyConfigLoader {
 
-    private static Logger log = LoggerFactory.getLogger(FileConfigLoader.class);
+    private static final Logger log = LoggerFactory.getLogger(FileConfigLoader.class);
 
     @Override
     public NellyConfig loadConfiguration() throws IOException {
 
         String configPath;
 
-        if(System.getenv("NELLY_CONFIG_PATH") != null)
+        if (System.getenv("NELLY_CONFIG_PATH") != null)
             configPath = System.getenv("NELLY_CONFIG_PATH");
         else
             configPath = "sample-nelly-config.yaml"; // Default path if we have no config
@@ -51,7 +51,8 @@ public class FileConfigLoader implements NellyConfigLoader {
         om.registerModule(module);
 
         // Load default configuration
-        TypeReference<LinkedHashMap<String, Object>> mapType = new TypeReference<>() {};
+        TypeReference<LinkedHashMap<String, Object>> mapType = new TypeReference<>() {
+        };
         Map<String, Object> defaultConfigMap = om.readValue(defaultSettingsStream, mapType);
 
         // Load config

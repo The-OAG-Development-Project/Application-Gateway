@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 
 import javax.servlet.http.Cookie;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CookieUtilsTest {

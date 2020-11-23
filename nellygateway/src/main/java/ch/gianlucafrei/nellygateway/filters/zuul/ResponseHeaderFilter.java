@@ -54,10 +54,9 @@ public class ResponseHeaderFilter extends ZuulFilter {
             String name = entry.getKey();
             String value = entry.getValue();
 
-            if("<<remove>>".equals(value)){
+            if ("<<remove>>".equals(value)) {
                 zuulResponseHeaders = removeHeader(zuulResponseHeaders, name);
-            }
-            else {
+            } else {
                 zuulResponseHeaders.add(new Pair<>(name, value));
             }
         }
@@ -66,7 +65,7 @@ public class ResponseHeaderFilter extends ZuulFilter {
         return null;
     }
 
-    private List<Pair<String, String>> removeHeader(List<Pair<String, String>> zuulResponseHeaders, String name){
+    private List<Pair<String, String>> removeHeader(List<Pair<String, String>> zuulResponseHeaders, String name) {
 
         return zuulResponseHeaders.stream()
                 .filter(pair -> !pair.first().equals(name))

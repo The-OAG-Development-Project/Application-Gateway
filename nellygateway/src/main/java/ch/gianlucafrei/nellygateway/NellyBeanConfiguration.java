@@ -7,13 +7,14 @@ import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
 import ch.gianlucafrei.nellygateway.services.crypto.JweEncrypter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import java.io.IOException;
 
 @Configuration
 public class NellyBeanConfiguration {
 
     @Bean
-    public NellyConfig nellyConfig(){
+    public NellyConfig nellyConfig() {
 
         try {
 
@@ -28,10 +29,9 @@ public class NellyBeanConfiguration {
     @Bean
     public CookieEncryptor cookieEncryptor() throws IOException {
 
-        if(System.getenv("NELLY-KEY") != null) {
+        if (System.getenv("NELLY-KEY") != null) {
             return JweEncrypter.loadFromEnvironmentVariable("NELLY-KEY");
-        }
-        else{
+        } else {
             return JweEncrypter.loadFromFileOrCreateAndStoreNewKey("NELLY.key");
         }
     }

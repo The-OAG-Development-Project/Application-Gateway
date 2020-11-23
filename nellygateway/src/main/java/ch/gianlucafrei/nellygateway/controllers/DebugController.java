@@ -1,9 +1,7 @@
 package ch.gianlucafrei.nellygateway.controllers;
 
 import ch.gianlucafrei.nellygateway.filters.spring.ExtractAuthenticationFilter;
-import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
 import ch.gianlucafrei.nellygateway.session.Session;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,12 +18,11 @@ public class DebugController {
     public String whoami(HttpServletResponse response,
                          HttpServletRequest request) {
 
-        Optional<Session> sessionOptional = (Optional<Session>)request.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
+        Optional<Session> sessionOptional = (Optional<Session>) request.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
 
         if (sessionOptional.isPresent()) {
             return sessionOptional.get().getUserModel().getId();
-        }
-        else {
+        } else {
 
             return "Anonymous";
         }

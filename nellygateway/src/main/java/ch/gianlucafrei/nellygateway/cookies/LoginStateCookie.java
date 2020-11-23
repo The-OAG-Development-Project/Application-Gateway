@@ -8,12 +8,13 @@ public class LoginStateCookie {
     private String state;
     private String returnUrl;
 
-    public LoginStateCookie() {}
+    public LoginStateCookie() {
+    }
 
     public LoginStateCookie(String provider, String state, String returnUrl) {
         this.provider = provider;
         this.state = state;
-        this.returnUrl =returnUrl;
+        this.returnUrl = returnUrl;
     }
 
     public String getProvider() {

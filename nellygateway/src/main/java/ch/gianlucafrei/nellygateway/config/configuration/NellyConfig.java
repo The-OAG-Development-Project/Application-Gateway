@@ -2,9 +2,10 @@ package ch.gianlucafrei.nellygateway.config.configuration;
 
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 public class NellyConfig {
 
@@ -16,12 +17,11 @@ public class NellyConfig {
     private List<String> trustedRedirectHosts;
     private SessionBehaviour sessionBehaviour;
 
-    public Map<String, ZuulProperties.ZuulRoute> getRoutesAsZuulRoutes(){
+    public Map<String, ZuulProperties.ZuulRoute> getRoutesAsZuulRoutes() {
 
         Map<String, ZuulProperties.ZuulRoute> zuulRoutes = new HashMap<>();
 
-        if(getRoutes() != null)
-        {
+        if (getRoutes() != null) {
             getRoutes().forEach((name, route) -> {
                 ZuulProperties.ZuulRoute zuulRoute = new ZuulProperties.ZuulRoute(route.getPath(), route.getUrl());
                 zuulRoute.setId(name);
@@ -33,9 +33,25 @@ public class NellyConfig {
         return zuulRoutes;
     }
 
-    public boolean isHttpsHost(){
+    public Map<String, NellyRoute> getRoutes() {
+        return routes;
+    }
+
+    private void setRoutes(Map<String, NellyRoute> routes) {
+        this.routes = routes;
+    }
+
+    public boolean isHttpsHost() {
 
         return getHostUri().startsWith("https://");
+    }
+
+    public String getHostUri() {
+        return hostUri;
+    }
+
+    private void setHostUri(String hostUri) {
+        this.hostUri = hostUri;
     }
 
     public Map<String, LoginProvider> getLoginProviders() {
@@ -46,28 +62,12 @@ public class NellyConfig {
         this.loginProviders = loginProviders;
     }
 
-    public Map<String, NellyRoute> getRoutes() {
-        return routes;
-    }
-
-    private void setRoutes(Map<String, NellyRoute> routes) {
-        this.routes = routes;
-    }
-
     public Map<String, SecurityProfile> getSecurityProfiles() {
         return securityProfiles;
     }
 
     private void setSecurityProfiles(Map<String, SecurityProfile> securityProfiles) {
         this.securityProfiles = securityProfiles;
-    }
-
-    public String getHostUri() {
-        return hostUri;
-    }
-
-    private void setHostUri(String hostUri) {
-        this.hostUri = hostUri;
     }
 
     public String getNellyApiKey() {

@@ -32,14 +32,13 @@ public class GitHubDriver extends Oauth2Driver {
 
         var errors = super.getSettingsErrors(settings);
 
-        if(errors.isEmpty())
-        {
+        if (errors.isEmpty()) {
             Scope scopes = getScopes(settings);
 
-            if (! scopes.contains("user"))
+            if (!scopes.contains("user"))
                 errors.add("'user' be within scope");
 
-            if (! scopes.contains("email"))
+            if (!scopes.contains("email"))
                 errors.add("'email' be within scope");
         }
 
@@ -52,12 +51,12 @@ public class GitHubDriver extends Oauth2Driver {
     }
 
     @Override
-    protected UserModel loadUserInfo(Tokens tokens){
+    protected UserModel loadUserInfo(Tokens tokens) {
 
         AccessToken accessToken = tokens.getAccessToken();
         RefreshToken refreshToken = tokens.getRefreshToken();
 
-        try{
+        try {
             // Load data
             String email = loadUserEmail(accessToken);
             GitHubUserResponse profileResponse = makeGitHubApiRequest("https://api.github.com/user", accessToken.getValue(), GitHubUserResponse.class);
@@ -72,13 +71,12 @@ public class GitHubDriver extends Oauth2Driver {
             model.set("refreshToken", refreshToken != null ? refreshToken.toString() : null);
 
             return model;
-        }
-        catch (IOException | InterruptedException ex){
+        } catch (IOException | InterruptedException ex) {
             throw new RuntimeException("Could not load user profile data", ex);
         }
     }
 
-    protected String loadUserEmail(AccessToken accessToken){
+    protected String loadUserEmail(AccessToken accessToken) {
 
         try {
 
@@ -90,7 +88,7 @@ public class GitHubDriver extends Oauth2Driver {
                     .findAny();
 
 
-            if(anyEmail.isPresent())
+            if (anyEmail.isPresent())
                 return anyEmail.get().getEmail();
             else
                 return null;

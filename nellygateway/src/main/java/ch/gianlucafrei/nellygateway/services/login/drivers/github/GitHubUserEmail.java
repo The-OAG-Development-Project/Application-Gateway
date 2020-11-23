@@ -4,6 +4,7 @@ public class GitHubUserEmail {
 
     private String email;
     private boolean primary;
+    private boolean verified;
 
     public String getEmail() {
         return email;
@@ -28,6 +29,4 @@ public class GitHubUserEmail {
     public void setVerified(boolean verified) {
         this.verified = verified;
     }
-
-    private boolean verified;
 }

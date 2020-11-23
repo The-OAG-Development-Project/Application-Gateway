@@ -18,7 +18,7 @@ import java.util.Base64;
 
 public class JweEncrypter implements CookieEncryptor {
 
-    private SecretKey secretKey;
+    private final SecretKey secretKey;
 
     private JweEncrypter(byte[] keyBytes) {
 
@@ -27,18 +27,16 @@ public class JweEncrypter implements CookieEncryptor {
 
     public static JweEncrypter loadFromFileOrCreateAndStoreNewKey(String filename) throws IOException {
 
-        if(filename == null)
+        if (filename == null)
             throw new IllegalArgumentException("Filename must not be null");
 
         File keyFile = new File(filename);
         byte[] keyBytes;
 
-        if(keyFile.exists())
-        {
+        if (keyFile.exists()) {
             // Read key from file
             keyBytes = Files.toByteArray(keyFile);
-        }
-        else{
+        } else {
             // Create new secret key and store it in file
 
             KeyGenerator keyGen;
@@ -63,7 +61,7 @@ public class JweEncrypter implements CookieEncryptor {
 
         String key = System.getenv(variableName);
 
-        if(key == null)
+        if (key == null)
             throw new IllegalStateException("NELLY-KEY is not defined");
 
         // decode the base64 encoded string

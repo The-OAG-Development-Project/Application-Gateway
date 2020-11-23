@@ -10,12 +10,12 @@ import java.util.Optional;
 
 public class Session {
 
-    private static Logger log = LoggerFactory.getLogger(ExtractAuthenticationFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(ExtractAuthenticationFilter.class);
 
-    private long sessionExpSeconds;
-    private long remainingTimeSeconds;
-    private String provider;
-    private UserModel userModel;
+    private final long sessionExpSeconds;
+    private final long remainingTimeSeconds;
+    private final String provider;
+    private final UserModel userModel;
 
     private Session(long sessionExpSeconds, long remainingTimeSeconds, String provider, UserModel userModel) {
         this.sessionExpSeconds = sessionExpSeconds;
@@ -24,14 +24,13 @@ public class Session {
         this.userModel = userModel;
     }
 
-    public static Optional<Session> fromSessionCookie(LoginCookie cookie){
+    public static Optional<Session> fromSessionCookie(LoginCookie cookie) {
 
-        if(cookie == null)
+        if (cookie == null)
             return Optional.empty();
 
         long remainingTimeSeconds = cookie.getSessionExpSeconds() - (System.currentTimeMillis() / 1000);
-        if(remainingTimeSeconds < 0)
-        {
+        if (remainingTimeSeconds < 0) {
             log.info("received expired session cookie");
             return Optional.empty();
         }
@@ -59,5 +58,7 @@ public class Session {
         return remainingTimeSeconds;
     }
 
-    public UserModel getUserModel() { return userModel; }
+    public UserModel getUserModel() {
+        return userModel;
+    }
 }

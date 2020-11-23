@@ -1,21 +1,16 @@
 package ch.gianlucafrei.nellygateway;
 
-import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
-import ch.gianlucafrei.nellygateway.services.crypto.JweEncrypter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-import org.springframework.context.annotation.Bean;
-
-import java.io.IOException;
 
 @EnableZuulProxy
 @SpringBootApplication
 public class NellygatewayApplication {
 
-    private static Logger log = LoggerFactory.getLogger(NellygatewayApplication.class);
+    private static final Logger log = LoggerFactory.getLogger(NellygatewayApplication.class);
 
     public static void main(String[] args) {
 

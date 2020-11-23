@@ -5,12 +5,12 @@ public class LoginProvider {
     private String type;
     private LoginProviderSettings with;
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public String getType() {
         return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public LoginProviderSettings getWith() {

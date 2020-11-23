@@ -18,7 +18,7 @@ import java.util.Optional;
 @Component
 public class AccessControlFilter extends ZuulFilter {
 
-    private static Logger log = LoggerFactory.getLogger(AccessControlFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(AccessControlFilter.class);
 
     @Autowired
     private NellyConfig config;
@@ -50,11 +50,10 @@ public class AccessControlFilter extends ZuulFilter {
         // Load session
         Optional<Session> sessionOptional = (Optional<Session>) request.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
 
-        if(nellyRoute.isAllowAnonymous())
+        if (nellyRoute.isAllowAnonymous())
             return null;
 
-        if(! sessionOptional.isPresent())
-        {
+        if (!sessionOptional.isPresent()) {
             ctx.setSendZuulResponse(false);
             ctx.setResponseBody("not authorized");
             ctx.getResponse().setHeader("Content-Type", "text/plain;charset=UTF-8");

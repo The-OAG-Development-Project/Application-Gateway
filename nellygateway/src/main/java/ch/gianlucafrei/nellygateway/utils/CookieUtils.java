@@ -20,16 +20,16 @@ public class CookieUtils {
         return null;
     }
 
-    public static void addSameSiteCookie(Cookie cookie, String sameSiteValue, HttpServletResponse response){
-
-        String cookieHeader = getCookieAsHeader(cookie, sameSiteValue);
-        response.addHeader("Set-Cookie", cookieHeader);
-    }
-
     public static void removeSameSiteCookie(Cookie cookie, String sameSiteValue, HttpServletResponse response) {
 
         cookie.setMaxAge(0);
         addSameSiteCookie(cookie, sameSiteValue, response);
+    }
+
+    public static void addSameSiteCookie(Cookie cookie, String sameSiteValue, HttpServletResponse response) {
+
+        String cookieHeader = getCookieAsHeader(cookie, sameSiteValue);
+        response.addHeader("Set-Cookie", cookieHeader);
     }
 
     public static String getCookieAsHeader(Cookie cookie, String sameSiteValue) {
@@ -37,22 +37,22 @@ public class CookieUtils {
                 String.format("%s=%s", cookie.getName(), cookie.getValue())
         );
 
-        if(cookie.getMaxAge() >= 0)
+        if (cookie.getMaxAge() >= 0)
             builder.append(String.format("; Max-Age=%d", cookie.getMaxAge()));
 
-        if(cookie.isHttpOnly())
+        if (cookie.isHttpOnly())
             builder.append("; HttpOnly");
 
-        if(cookie.getSecure())
+        if (cookie.getSecure())
             builder.append("; Secure");
 
-        if(sameSiteValue != null && !sameSiteValue.equals(""))
+        if (sameSiteValue != null && !sameSiteValue.equals(""))
             builder.append(String.format("; SameSite=%s", sameSiteValue));
 
-        if(cookie.getPath() != null && !cookie.getPath().equals(""))
+        if (cookie.getPath() != null && !cookie.getPath().equals(""))
             builder.append(String.format("; Path=%s", cookie.getPath()));
 
-        if(cookie.getDomain() != null && !cookie.getDomain().equals(""))
+        if (cookie.getDomain() != null && !cookie.getDomain().equals(""))
             builder.append(String.format("; Domain=%s", cookie.getDomain()));
 
         return builder.toString();
