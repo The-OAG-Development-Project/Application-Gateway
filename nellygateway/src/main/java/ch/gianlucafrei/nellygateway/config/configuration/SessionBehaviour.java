@@ -11,7 +11,7 @@ public class SessionBehaviour {
         return sessionDuration;
     }
 
-    public void setSessionDuration(int sessionDuration) {
+    private void setSessionDuration(int sessionDuration) {
         this.sessionDuration = sessionDuration;
     }
 
@@ -19,7 +19,7 @@ public class SessionBehaviour {
         return redirectLoginSuccess;
     }
 
-    public void setRedirectLoginSuccess(String redirectLoginSuccess) {
+    private void setRedirectLoginSuccess(String redirectLoginSuccess) {
         this.redirectLoginSuccess = redirectLoginSuccess;
     }
 
@@ -27,7 +27,7 @@ public class SessionBehaviour {
         return redirectLoginFailure;
     }
 
-    public void setRedirectLoginFailure(String redirectLoginFailure) {
+    private void setRedirectLoginFailure(String redirectLoginFailure) {
         this.redirectLoginFailure = redirectLoginFailure;
     }
 
@@ -35,7 +35,7 @@ public class SessionBehaviour {
         return redirectLogout;
     }
 
-    public void setRedirectLogout(String redirectLogout) {
+    private void setRedirectLogout(String redirectLogout) {
         this.redirectLogout = redirectLogout;
     }
 }

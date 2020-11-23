@@ -1,6 +1,5 @@
 package ch.gianlucafrei.nellygateway.filters.zuul;
 
-import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.filters.spring.ExtractAuthenticationFilter;
 import ch.gianlucafrei.nellygateway.session.Session;
@@ -40,7 +39,7 @@ public class AuthenticationHeadersFilter extends ZuulFilter {
         HttpServletRequest request = ctx.getRequest();
 
         ctx.addZuulRequestHeader("X-PROXY", "Nellygateway");
-        ctx.addZuulRequestHeader("X-NELLY-ApiKey", nellyConfig.nellyApiKey);
+        ctx.addZuulRequestHeader("X-NELLY-ApiKey", nellyConfig.getNellyApiKey());
 
         Optional<Session> sessionOptional = (Optional<Session>)request.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
 

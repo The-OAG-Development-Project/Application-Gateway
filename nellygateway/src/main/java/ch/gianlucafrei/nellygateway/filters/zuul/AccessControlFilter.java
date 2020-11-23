@@ -1,6 +1,5 @@
 package ch.gianlucafrei.nellygateway.filters.zuul;
 
-import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyRoute;
 import ch.gianlucafrei.nellygateway.filters.spring.ExtractAuthenticationFilter;
@@ -46,12 +45,12 @@ public class AccessControlFilter extends ZuulFilter {
 
         // Load nelly route
         String routeName = (String) ctx.get("proxy");
-        NellyRoute nellyRoute = config.routes.get(routeName);
+        NellyRoute nellyRoute = config.getRoutes().get(routeName);
 
         // Load session
         Optional<Session> sessionOptional = (Optional<Session>) request.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
 
-        if(nellyRoute.allowAnonymous)
+        if(nellyRoute.isAllowAnonymous())
             return null;
 
         if(! sessionOptional.isPresent())

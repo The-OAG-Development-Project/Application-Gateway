@@ -114,7 +114,7 @@ public class LoginController {
         // Validate return url
         if(returnUrl == null) {
             // If no return url is specified in the request, we use the default return url
-            return config.sessionBehaviour.getRedirectLoginSuccess();
+            return config.getSessionBehaviour().getRedirectLoginSuccess();
         }
 
         if(! isValidReturnUrl(returnUrl))
@@ -130,7 +130,7 @@ public class LoginController {
         // Validate return url
         if(returnUrl == null) {
             // If no return url is specified in the request, we use the default return url
-            return config.sessionBehaviour.getRedirectLogout();
+            return config.getSessionBehaviour().getRedirectLogout();
         }
 
         if(! isValidReturnUrl(returnUrl))
@@ -143,14 +143,14 @@ public class LoginController {
 
     public boolean isValidReturnUrl(String returnUrl){
 
-        ArrayList<String> allowedHosts = new ArrayList<>(config.trustedRedirectHosts);
-        allowedHosts.add(config.getHostname());
+        ArrayList<String> allowedHosts = new ArrayList<>(config.getTrustedRedirectHosts());
+        allowedHosts.add(config.getHostUri());
         return  UrlUtils.isValidReturnUrl(returnUrl, allowedHosts.toArray(new String[]{}));
     }
 
     private LoginProvider loadProvider(String providerKey) {
 
-        var provider = config.loginProviders.get(providerKey);
+        var provider = config.getLoginProviders().get(providerKey);
 
         if(provider == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Provider not found");
@@ -161,7 +161,7 @@ public class LoginController {
     private URI loadCallbackURI(String providerKey){
 
         try {
-            String callbackStr = String.format("%s/auth/%s/callback", config.hostUri, providerKey);
+            String callbackStr = String.format("%s/auth/%s/callback", config.getHostUri(), providerKey);
             return new URI(callbackStr);
 
         } catch (URISyntaxException e) {
@@ -222,7 +222,7 @@ public class LoginController {
     private void createSession(String providerKey, UserModel model, HttpServletResponse response) {
 
         int currentTimeSeconds = (int)(System.currentTimeMillis() / 1000);
-        int sessionDuration = config.sessionBehaviour.getSessionDuration();
+        int sessionDuration = config.getSessionBehaviour().getSessionDuration();
         int sessionExp = currentTimeSeconds + sessionDuration;
 
         LoginCookie loginCookie = new LoginCookie(sessionExp, providerKey, model);

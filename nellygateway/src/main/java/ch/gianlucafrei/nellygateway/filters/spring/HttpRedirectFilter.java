@@ -1,6 +1,5 @@
 package ch.gianlucafrei.nellygateway.filters.spring;
 
-import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,7 @@ public class HttpRedirectFilter implements Filter {
             ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
 
-        String hostUri = config.hostUri;
+        String hostUri = config.getHostUri();
         if(hostUri.startsWith("https://"))
         {
             // We do the request only if we are on https
@@ -49,7 +48,7 @@ public class HttpRedirectFilter implements Filter {
 
     public void sendHttpsRedirectResponse(HttpServletRequest req, HttpServletResponse res) throws IOException {
 
-        String path = config.hostUri + req.getRequestURI() + (req.getQueryString() != null ? "?" + req.getQueryString() : "");
+        String path = config.getHostUri() + req.getRequestURI() + (req.getQueryString() != null ? "?" + req.getQueryString() : "");
         res.sendRedirect(path);
     }
 

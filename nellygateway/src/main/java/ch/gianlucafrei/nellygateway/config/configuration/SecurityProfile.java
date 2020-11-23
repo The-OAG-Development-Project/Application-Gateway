@@ -4,5 +4,13 @@ import java.util.Map;
 
 public class SecurityProfile {
 
-    public Map<String, String> headers;
+    private Map<String, String> headers;
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    private void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
 }
