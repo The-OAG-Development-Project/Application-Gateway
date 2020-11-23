@@ -10,7 +10,7 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 @SpringBootApplication
 public class NellygatewayApplication {
 
-    private static final Logger log = LoggerFactory.getLogger(NellygatewayApplication.class);
+    private static Logger log = LoggerFactory.getLogger(NellygatewayApplication.class);
 
     public static void main(String[] args) {
 

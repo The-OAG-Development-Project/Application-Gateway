@@ -1,7 +1,7 @@
 trustedRedirectHosts: [ ]
 
 sessionBehaviour:
-  sessionDuration: 300
+  sessionDuration: 3600
   redirectLoginSuccess: /
   redirectLoginFailure: /
   redirectLogout: /

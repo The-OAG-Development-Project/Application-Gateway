@@ -14,11 +14,11 @@ org:
   springframework:
     web:
       filter:
-        CommonsRequestLoggingFilter: DEBUG
+        CommonsRequestLoggingFilter: INFO
 logging:
   level:
     org:
       springframework:
-        web: DEBUG
+        web: INFO
   file:
     path: nelly.log
