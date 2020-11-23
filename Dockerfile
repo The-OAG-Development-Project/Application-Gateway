@@ -3,7 +3,7 @@ RUN useradd --user-group --system --create-home --no-log-init app
 
 RUN mkdir -p /app
 RUN chown app /app
-COPY nellygateway/target/artifact/* /app
+COPY nellygateway/target/artifact/* /app/
 
 USER app
 WORKDIR /app
