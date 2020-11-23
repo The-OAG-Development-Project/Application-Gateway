@@ -28,7 +28,7 @@ jobs:
           path: nellygateway/target/artifact/
   
   build-docker:
-    name: Build docker image
+    name: Build and Push Docker Image
     needs: [build]
     runs-on: ubuntu-latest
 
@@ -37,7 +37,7 @@ jobs:
       - uses: actions/download-artifact@v2
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
-      - name: Copy artifact
+      - name: Copy Artifact
         run: mkdir  -p nellygateway/target/artifact/ && cp artifact/* nellygateway/target/artifact/
       - name: Docker Build
         run: docker build -t gianlucafrei/nellygateway:main-SNAPSHOT .
