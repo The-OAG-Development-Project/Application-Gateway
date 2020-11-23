@@ -28,8 +28,7 @@ public class HttpRedirectFilter implements Filter {
             ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
 
-        String hostUri = config.getHostUri();
-        if (hostUri.startsWith("https://")) {
+        if (config.isHttpsHost()) {
             // We do the request only if we are on https
             HttpServletRequest req = (HttpServletRequest) request;
             HttpServletResponse res = (HttpServletResponse) response;

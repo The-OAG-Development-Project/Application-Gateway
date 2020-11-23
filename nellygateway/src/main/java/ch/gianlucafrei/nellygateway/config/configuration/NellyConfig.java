@@ -43,6 +43,9 @@ public class NellyConfig {
 
     public boolean isHttpsHost() {
 
+        if(hostUri == null)
+            return false;
+
         return getHostUri().startsWith("https://");
     }
 
