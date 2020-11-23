@@ -16,6 +16,7 @@ routes:
     type: webapplication
     path: /gianluca/**
     url: https://gianlucafrei.ch
+    allowAnonymous: yes
 
 loginProviders:
   google:
