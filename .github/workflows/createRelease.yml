@@ -5,7 +5,7 @@ name: Java CI/CD with Maven
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dockerhub-integration]
 
 jobs:
   build:
@@ -40,24 +40,12 @@ jobs:
       - name: Copy artifact
         run: mkdir  -p nellygateway/target/artifact/ && cp artifact/* nellygateway/target/artifact/
       - name: Docker Build
-        run: docker build -t gianlucafrei/nellygateway:$(echo ${GITHUB_SHA} | cut -c1-8) .
+        run: docker build -t gianlucafrei/nellygateway:main-SNAPSHOT .
       - name: Install Dockle
         run: VERSION=$(curl --silent "https://api.github.com/repos/goodwithtech/dockle/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/') && curl -L -o dockle.tar.gz https://github.com/goodwithtech/dockle/releases/download/v${VERSION}/dockle_${VERSION}_Linux-64bit.tar.gz &&  tar zxvf dockle.tar.gz
       - name: Run Dockle Tests
-        run: ./dockle --exit-code 1 gianlucafrei/nellygateway:$(echo ${GITHUB_SHA} | cut -c1-8)
-
-  deploy-azure:
-    name: Deploy to Azure App Service
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/download-artifact@v2
-    - name: 'Copy config file'
-      run: 'cp nelly-config-azure.yaml artifact/nelly-config-azure.yaml'
-    - name: 'Deploy to Azure WebApp'
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: nellygateway
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: 'artifact/'
+        run: ./dockle --exit-code 1 gianlucafrei/nellygateway:main-SNAPSHOT
+      - name: Docker Login
+        run: docker login --username gianlucafrei --password ${{ secrets.DOCKER_PASSWORD }}
+      - name: Docker Push
+        run: docker push gianlucafrei/nellygateway:main-SNAPSHOT
