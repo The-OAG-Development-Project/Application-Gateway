@@ -13,7 +13,6 @@ Nellygateway is an HTTP reverse proxy that sits between your web application and
 
 <img src="https://github.com/gianlucafrei/nellygateway/blob/main/doc/overview.png?raw=true" data-canonical-src="https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png" width="500" />
 
-## How to run Nelly
 For docker please check https://hub.docker.com/r/gianlucafrei/nellygateway
 
 ## What are the design principles for Nelly?
@@ -91,6 +90,32 @@ logoutRedirectUri: http://example.com/
 nellyApiKey: env:NELLY_API_KEY
 trustedRedirectHosts: [subdomain.example.com]
 ```
+
+## How to run Nelly
+
+You have two options on how to run Nelly: There is an official docker image that you can just works out of the box. You just need to mount the nelly config file via docker volumes. If you don't want to use docker you can also use the download the released jar file. Of course you can also build Nelly by yourself with Maven.
+
+### Docker Release
+
+```bash
+# Download image of nelly
+docker pull gianlucafrei/nellygateway:main-SNAPSHOT
+
+# Download sample config and adapt it to your needs
+curl https://raw.githubusercontent.com/gianlucafrei/nellygateway/main/nellygateway/sample-nelly-config.yaml >> nelly-config.yaml
+vim nelly-config.yaml
+
+# Start the container
+docker run -e NELLY_CONFIG_PATH=/app/config.nelly -v ${PWD}/nelly-config.yaml:/app/config.nelly gianlucafrei/nellygateway:main-SNAPSHOT
+```
+
+### Jar release
+
+todo
+
+### Compile Nelly Yourself
+
+todo
 
 ## Functionality
 

@@ -33,3 +33,5 @@ fileignoreconfig:
   checksum: 34459dc575b5a68f4cbc08ea161732bc60a21ea5ff8a4ce7a2039c2694331a9c
 - filename: nellygateway/src/main/java/ch/gianlucafrei/nellygateway/utils/MapTreeUpdater.java
   checksum: 68e601d6738060db0ce37a0901d1b1de473fbb8e7a5afce0b6860888ea408fce
+- filename: README.md
+  checksum: 1aba436a1f44425a37a506e69209ade6daab02a138016a8a36d086decaeb7dbe
