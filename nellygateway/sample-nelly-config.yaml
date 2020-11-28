@@ -39,7 +39,7 @@ loginProviders:
 
 securityProfiles:
   webapplication:
-    headers:
+    responseHeaders:
       Server: <<remove>>
       X-Powered-By: <<remove>>
       X-XSS-Protection: 1;mode=block;

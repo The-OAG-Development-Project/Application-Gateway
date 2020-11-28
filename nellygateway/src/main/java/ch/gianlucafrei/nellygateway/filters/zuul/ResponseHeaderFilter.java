@@ -49,7 +49,7 @@ public class ResponseHeaderFilter extends ZuulFilter {
         List<Pair<String, String>> zuulResponseHeaders = ctx.getZuulResponseHeaders();
 
         // Change headers according to security policy
-        for (Map.Entry<String, String> entry : securityProfile.getHeaders().entrySet()) {
+        for (Map.Entry<String, String> entry : securityProfile.getResponseHeaders().entrySet()) {
 
             String name = entry.getKey();
             String value = entry.getValue();
