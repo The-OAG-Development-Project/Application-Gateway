@@ -1,4 +1,4 @@
-package ch.gianlucafrei.nellygateway.filters.zuul;
+package ch.gianlucafrei.nellygateway.filters.zuul.route;
 
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyRoute;
@@ -30,7 +30,7 @@ public class AccessControlFilter extends ZuulFilter {
 
     @Override
     public int filterOrder() {
-        return 1;
+        return 2;
     }
 
     @Override

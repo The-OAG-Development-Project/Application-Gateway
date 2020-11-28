@@ -8,6 +8,12 @@ routes:
     url: http://localhost:7777
     allowAnonymous: yes
 
+  local-static:
+    type: static
+    path: /static/**
+    url: http://localhost:7777
+    allowAnonymous: yes
+
   secured:
     type: webapplication
     path: /secure/**

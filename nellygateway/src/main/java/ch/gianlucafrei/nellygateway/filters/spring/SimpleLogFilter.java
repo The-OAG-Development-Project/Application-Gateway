@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Order(1)
@@ -28,6 +29,8 @@ public class SimpleLogFilter implements Filter {
 
         chain.doFilter(request, response);
 
-        log.info("Response for {} {}", req.getMethod(), req.getRequestURI());
+
+        HttpServletResponse res = (HttpServletResponse) response;
+        log.info("Response status code {} for {} {}", res.getStatus(), req.getMethod(), req.getRequestURI());
     }
 }

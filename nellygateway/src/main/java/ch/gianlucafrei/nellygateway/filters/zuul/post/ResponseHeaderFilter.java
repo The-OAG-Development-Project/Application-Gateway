@@ -1,4 +1,4 @@
-package ch.gianlucafrei.nellygateway.filters.zuul;
+package ch.gianlucafrei.nellygateway.filters.zuul.post;
 
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyRoute;

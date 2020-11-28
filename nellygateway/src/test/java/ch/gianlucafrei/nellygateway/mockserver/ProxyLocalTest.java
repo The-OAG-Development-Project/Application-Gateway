@@ -17,7 +17,6 @@ import java.net.http.HttpResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class ProxyLocalTest extends MockServerTest {
@@ -56,31 +55,6 @@ class ProxyLocalTest extends MockServerTest {
 
         assertEquals(TEST_2_RESPONSE, mvcResult.getResponse().getContentAsString());
     }
-
-    @Test
-    void testProxyAddsSecurityHeaders() throws Exception {
-
-        // Makes a request through zuul and check if the security headers are applied
-        this.mockMvc.perform(
-                get(TEST_1_ENDPOINT))
-                .andExpect(header().string("X-Frame-Options", "SAMEORIGIN"))
-                .andExpect(header().string("X-Content-Type-Options", "nosniff"));
-    }
-
-    @Test
-    void testProxyBlocksWhenAllowAnonymous() throws Exception {
-
-        // Checks if allowAnonymous: yes works
-        this.mockMvc.perform(
-                get(TEST_1_ENDPOINT))
-                .andExpect(status().is(200));
-
-        // Checks if allowAnonymous: no works
-        this.mockMvc.perform(
-                get("/secure" + TEST_1_ENDPOINT))
-                .andExpect(status().is(401));
-    }
-
 
     /**
      * Test if the mock upstream server works correctly
