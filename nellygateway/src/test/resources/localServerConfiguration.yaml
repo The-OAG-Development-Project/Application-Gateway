@@ -1,0 +1,15 @@
+hostUri: env:HOSTURI
+nellyApiKey: env:NELLY_API_KEY
+
+routes:
+  local:
+    type: webapplication
+    path: /**
+    url: http://localhost:7777
+    allowAnonymous: yes
+
+  secured:
+    type: webapplication
+    path: /secure/**
+    url: http://localhost:7777
+    allowAnonymous: no

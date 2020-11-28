@@ -19,11 +19,16 @@ public class NellyBeanConfiguration {
     private static final Logger log = LoggerFactory.getLogger(NellyBeanConfiguration.class);
 
     @Bean
+    NellyConfigLoader nellyConfigLoader() {
+        return new FileConfigLoader();
+    }
+
+    @Bean
     public NellyConfig nellyConfig() {
 
         try {
 
-            NellyConfigLoader loader = new FileConfigLoader();
+            NellyConfigLoader loader = nellyConfigLoader();
             return loader.loadConfiguration();
 
         } catch (JsonProcessingException e) {

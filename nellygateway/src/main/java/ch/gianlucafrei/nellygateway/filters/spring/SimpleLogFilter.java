@@ -24,9 +24,10 @@ public class SimpleLogFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
 
         log.info(
-                "Request to {} {}", req.getMethod(),
-                req.getRequestURI());
+                "Request to {} {}", req.getMethod(), req.getRequestURI());
 
         chain.doFilter(request, response);
+
+        log.info("Response for {} {}", req.getMethod(), req.getRequestURI());
     }
 }

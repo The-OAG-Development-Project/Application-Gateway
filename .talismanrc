@@ -35,3 +35,5 @@ fileignoreconfig:
   checksum: 68e601d6738060db0ce37a0901d1b1de473fbb8e7a5afce0b6860888ea408fce
 - filename: README.md
   checksum: 1aba436a1f44425a37a506e69209ade6daab02a138016a8a36d086decaeb7dbe
+- filename: nellygateway/src/test/resources/localServerConfiguration.yaml
+  checksum: 30fc4b52cf3095b267e5ed4cce2c41d108add88c3a5d58a299cdf44730eec033

@@ -2,6 +2,8 @@ package ch.gianlucafrei.nellygateway;
 
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -19,11 +21,15 @@ public class CustomZuulConfiguration {
     @Autowired
     private NellyConfig nellyConfig;
 
+    private static final Logger log = LoggerFactory.getLogger(CustomZuulConfiguration.class);
+
     @Primary
     @Bean(name = "zuul.CONFIGURATION_PROPERTIES")
     @RefreshScope
     @ConfigurationProperties("zuul")
     public ZuulProperties zuulProperties() {
+
+        log.debug("Load zuul configuration");
 
         ZuulProperties zuulProperties = new ZuulProperties();
 
