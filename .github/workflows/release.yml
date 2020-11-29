@@ -3,49 +3,49 @@ on:
     tags:
       - v*
 
-  jobs:
-    build:
-      runs-on: ubuntu-latest
-      steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 15
-      - name: Build with Maven
-        run: mvn -B package --file nellygateway/pom.xml 
-      - name: Create Artifact Folder
-        run: mkdir nellygateway/target/artifact/ && cp nellygateway/target/nellygateway*.jar nellygateway/target/artifact/nellygateway.jar && cp nellygateway/sample-nelly-config.yaml nellygateway/target/artifact/sample-nelly-config.yaml
-      - name: Add commit hash to artifact
-        run: echo $GITHUB_SHA >> nellygateway/target/artifact/commit-hash.txt
-      - name: Publish Artifact
-        uses: actions/upload-artifact@v2
-        with:
-            path: nellygateway/target/artifact/
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 15
+    - name: Build with Maven
+      run: mvn -B package --file nellygateway/pom.xml 
+    - name: Create Artifact Folder
+      run: mkdir nellygateway/target/artifact/ && cp nellygateway/target/nellygateway*.jar nellygateway/target/artifact/nellygateway.jar && cp nellygateway/sample-nelly-config.yaml nellygateway/target/artifact/sample-nelly-config.yaml
+    - name: Add commit hash to artifact
+      run: echo $GITHUB_SHA >> nellygateway/target/artifact/commit-hash.txt
+    - name: Publish Artifact
+      uses: actions/upload-artifact@v2
+      with:
+          path: nellygateway/target/artifact/
 
-      - name: Cd to artifact directory
-        run: cd nellygateway/target/artifact/
-      - name: Create release tar
-        run: tar -zcvf nellygateway${{ github.ref }}.tar.gz *
+    - name: Cd to artifact directory
+      run: cd nellygateway/target/artifact/
+    - name: Create release tar
+      run: tar -zcvf nellygateway${{ github.ref }}.tar.gz *
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-          
-      - name: Upload Release Asset
-        id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ./nellygateway${{ github.ref }}.tar.gz
-          asset_name: nellygateway${{ github.ref }}.tar.gz
-          asset_content_type: application/gzip
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+        
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./nellygateway${{ github.ref }}.tar.gz
+        asset_name: nellygateway${{ github.ref }}.tar.gz
+        asset_content_type: application/gzip
