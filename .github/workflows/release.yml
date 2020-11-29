@@ -30,7 +30,7 @@ jobs:
     - name: Cd to artifact directory
       run: cd nellygateway/target/artifact/
     - name: Create release tar
-      run: tar -zcvf nellygateway${{ steps.get_version.outputs.VERSION }}.tar.gz *
+      run: tar -zcvf nellygateway${{ steps.get_version.outputs.VERSION }}.tar.gz ./
 
     - name: Create Release
       id: create_release
