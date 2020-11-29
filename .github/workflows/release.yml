@@ -23,10 +23,14 @@ jobs:
       with:
           path: nellygateway/target/artifact/
 
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
     - name: Cd to artifact directory
       run: cd nellygateway/target/artifact/
     - name: Create release tar
-      run: tar -zcvf nellygateway${{ github.ref }}.tar.gz *
+      run: tar -zcvf nellygateway${{ steps.get_version.outputs.VERSION }}.tar.gz *
 
     - name: Create Release
       id: create_release
@@ -34,8 +38,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        release_name: Release ${{ steps.get_version.outputs.VERSION }}
         draft: false
         prerelease: false
         
@@ -46,6 +50,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./nellygateway${{ github.ref }}.tar.gz
-        asset_name: nellygateway${{ github.ref }}.tar.gz
+        asset_path: ./nellygateway${{ steps.get_version.outputs.VERSION }}.tar.gz
+        asset_name: nellygateway${{ steps.get_version.outputs.VERSION }}.tar.gz
         asset_content_type: application/gzip
