@@ -11,39 +11,40 @@
 
 </head>
 
+<style>
+pre {background-color: lightgrey; padding: 10px 10px 10px 10px;}
+.nelly-header {background-color: lightpink;}
+</style>
+
 <body>
 
-    <h1>This is a Sample Web application</h1>
-
-    <p>Headers:<p>
+    <h1>This is a sample application for NellyGateway</h1>
+    <p>Please find out more about NellyGateway on <a href="https://github.com/gianlucafrei/nellygateway">GitHub</a></p>
+    
     <pre>
 <?php
+
+  echo $_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['REQUEST_URI'] . ' ' . $_SERVER['SERVER_PROTOCOL'] . '<br>';
+
+  function startsWith( $haystack, $needle ) {
+    $length = strlen( $needle );
+    return substr( $haystack, 0, $length ) === $needle;
+  }
+
   $headers =  getallheaders();
   foreach($headers as $key=>$val){
-    echo $key . ': ' . $val . '<br>';
+
+    if(startsWith($key, "X-Nelly") or startsWith($key, "X-Proxy"))
+    {
+      echo '<span class="nelly-header">' . $key . ': ' . $val . '</span><br>';
+    }
+    else
+    {
+      echo '<span>' . $key . ': ' . $val . '</span><br>';
+    }
   }
 ?>
   </pre>
-
-  <p>Cookies:<p>
-  <pre>
-<?php
-foreach ($_COOKIE as $key=>$val)
-{
-echo $key.' is '.$val."<br>\n";
-}
-?>
-  </pre>
-
-
-    <p>Debug info:</p>
-    <pre>
-        <?php
-            print_r($_SERVER);
-        ?>
-    </pre>
-
-
   <script src="js/scripts.js"></script>
 </body>
 </html>

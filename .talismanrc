@@ -37,3 +37,9 @@ fileignoreconfig:
   checksum: 1aba436a1f44425a37a506e69209ade6daab02a138016a8a36d086decaeb7dbe
 - filename: nellygateway/src/test/resources/localServerConfiguration.yaml
   checksum: 30fc4b52cf3095b267e5ed4cce2c41d108add88c3a5d58a299cdf44730eec033
+- filename: nellygateway/src/test/java/ch/gianlucafrei/nellygateway/mockserver/LoginLogoutTest.java
+  checksum: 3a3e4edd0bbe6ca4285eca1fddfdb42da3ce708e900372c162bb3933f53b5a86
+- filename: nellygateway/src/test/resources/localServerConfiguration.yaml
+  checksum: d91bca2100ef9ec322c97511f9c9174213238c98681f79694eeb369ccd01b3a9
+- filename: sampleApp/index.php
+  checksum: 9c2d58deda5c49531cf2eb4bc437146ffbcd39a5d896bac31237e44975da5d1b
