@@ -19,3 +19,15 @@ routes:
     path: /secure/**
     url: http://localhost:7777
     allowAnonymous: no
+
+loginProviders:
+  local:
+    type: oidc
+    with:
+      authEndpoint: http://localhost:7777/oidc/auth
+      tokenEndpoint: http://localhost:7777/oidc/token
+      clientId: sample-client-id
+      clientSecret: thisIsASeceret
+      scopes: [ "openid", "email" ]
+
+

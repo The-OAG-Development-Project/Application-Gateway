@@ -15,12 +15,17 @@ import com.nimbusds.oauth2.sdk.token.Tokens;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
 public class OidcDriver extends Oauth2Driver {
+
+    private static final Logger log = LoggerFactory.getLogger(OidcDriver.class);
 
     public OidcDriver(LoginProviderSettings settings, URI callbackURI) {
         super(settings, callbackURI);
@@ -44,17 +49,24 @@ public class OidcDriver extends Oauth2Driver {
 
         TokenRequest request = new TokenRequest(tokenEndpoint, clientAuth, codeGrant);
         TokenResponse tokenResponse;
+        HTTPResponse httpResponse;
 
         try {
-            HTTPResponse httpResponse = request.toHTTPRequest().send();
+            httpResponse = request.toHTTPRequest().send();
             tokenResponse = OIDCTokenResponseParser.parse(httpResponse);
         } catch (IOException | ParseException ex) {
+            log.warn("Load token failed: {}", ex.getMessage());
             throw new RuntimeException("Could not load tokens", ex);
         }
 
         if (!tokenResponse.indicatesSuccess()) {
             // We got an error response...
             TokenErrorResponse errorResponse = tokenResponse.toErrorResponse();
+
+            if (httpResponse.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
+                log.warn("404 response from token endpoint");
+            }
+
             String message = errorResponse.getErrorObject().getDescription();
             throw new AuthenticationException(message);
         }

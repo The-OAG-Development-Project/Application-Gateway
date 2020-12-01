@@ -1,8 +1,8 @@
 package ch.gianlucafrei.nellygateway.mockserver;
 
 import com.sun.net.httpserver.HttpServer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,14 +32,21 @@ public class MockServerTest {
     public static String TEST_2_ENDPOINT = "/bar";
     public static String TEST_2_RESPONSE = "bar";
 
-
-    @BeforeAll
-    public static void StartUpMockServer() throws IOException {
+    @BeforeEach
+    public void StartUpMockServer() throws IOException {
 
         httpServer = HttpServer.create(new InetSocketAddress(MOCK_SERVER_PORT), 0);
 
+        this.setupMockServerRoutes(httpServer);
+
+        httpServer.start();
+    }
+
+    public void setupMockServerRoutes(HttpServer httpServer) {
+
         httpServer.createContext(TEST_1_ENDPOINT, exchange -> {
             byte[] response = TEST_1_RESPONSE.getBytes();
+            
             exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
             exchange.getResponseBody().write(response);
             exchange.close();
@@ -51,12 +58,10 @@ public class MockServerTest {
             exchange.getResponseBody().write(response);
             exchange.close();
         });
-
-        httpServer.start();
     }
 
-    @AfterAll
-    public static void shutDownMockServer() {
+    @AfterEach
+    public void shutDownMockServer() {
 
         httpServer.stop(0);
     }
