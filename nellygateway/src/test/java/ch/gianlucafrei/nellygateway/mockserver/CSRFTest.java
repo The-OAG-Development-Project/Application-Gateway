@@ -2,29 +2,31 @@ package ch.gianlucafrei.nellygateway.mockserver;
 
 import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.NellyConfigLoader;
-import ch.gianlucafrei.nellygateway.config.configuration.LoginProvider;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
-import ch.gianlucafrei.nellygateway.controllers.dto.SessionInformation;
 import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
 import ch.gianlucafrei.nellygateway.cookies.LoginStateCookie;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
 import javax.servlet.http.Cookie;
 import java.net.URI;
+import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class LoginLogoutTest extends MockServerTest {
+class CSRFTest extends MockServerTest {
 
     @Autowired
     NellyConfig nellyConfig;
@@ -40,12 +42,8 @@ class LoginLogoutTest extends MockServerTest {
         }
     }
 
-    @Test
-    void testLoginGetRedirectUrl() throws Exception {
+    private MvcResult makeLogin() throws Exception {
 
-        // TWO Step test
-
-        // ACT1: Start the login
         MvcResult loginResult = this.mockMvc.perform(
                 get("/auth/local/login"))
                 .andExpect(status().is(302))
@@ -56,10 +54,6 @@ class LoginLogoutTest extends MockServerTest {
         URI redirectUri = new URI(redirectUriString);
 
         AuthenticationRequest oidcRequest = AuthenticationRequest.parse(redirectUri);
-        LoginProvider provider = nellyConfig.getLoginProviders().get("local");
-
-        assertTrue(redirectUriString.startsWith((String) provider.getWith().get("authEndpoint")));
-        assertEquals(provider.getWith().get("clientId"), oidcRequest.getClientID().toString());
 
         Cookie loginStateCookie = loginResult.getResponse().getCookie(LoginStateCookie.NAME);
 
@@ -72,36 +66,65 @@ class LoginLogoutTest extends MockServerTest {
                 .andExpect(status().is(302))
                 .andReturn();
 
-        Cookie sessionCookie = callbackResult.getResponse().getCookie(LoginCookie.NAME);
-        assertNotNull(sessionCookie);
-
-        // ACT 3: Call the session endpoint
-        mockMvc.perform(
-                get("/auth/session").cookie(sessionCookie))
-                .andExpect(status().is(200))
-                .andExpect(jsonPath("$.state").value(SessionInformation.SESSION_STATE_AUTHENTICATED));
-
-
-        // ACT 4: Logout
-        MvcResult logoutResult = mockMvc.perform(
-                get("/auth/logout").cookie(sessionCookie))
-                .andExpect(status().is(302))
-                .andReturn();
-
-        //Expect that the cookie is deleted
-        Cookie sessionCookie2 = logoutResult.getResponse().getCookie(LoginCookie.NAME);
-        assertEquals(0, sessionCookie2.getMaxAge());
-        assertEquals(sessionCookie.getName(), sessionCookie2.getName());
-        assertEquals(sessionCookie.getPath(), sessionCookie2.getPath());
-        assertEquals(sessionCookie.getDomain(), sessionCookie2.getDomain());
+        return callbackResult;
     }
 
     @Test
-    void testSessionIsAnonymous() throws Exception {
+    void testCsrfDoubleSubmitCookie() throws Exception {
 
-        mockMvc.perform(
-                get("/auth/session")) // no session cookie
-                .andExpect(status().is(200))
-                .andExpect(jsonPath("$.state").value(SessionInformation.SESSION_STATE_ANONYMOUS));
+        // Arrange
+        MvcResult loginCallbackResult = makeLogin();
+        Cookie sessionCookie = loginCallbackResult.getResponse().getCookie(LoginCookie.NAME);
+        Cookie csrfCookie = loginCallbackResult.getResponse().getCookie("csrf");
+
+        // Act
+        // Baseline cookie in header
+        mockMvc.perform(post("/csrfDoubleSubmit/")
+                .cookie(sessionCookie)
+                .cookie(csrfCookie)
+                .header("csrf", csrfCookie.getValue()))
+                .andExpect(status().is(200));
+
+        // Baseline cookie in form post
+        mockMvc.perform(post("/csrfDoubleSubmit/")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+                        new BasicNameValuePair("csrf", csrfCookie.getValue()),
+                        new BasicNameValuePair("foo", "bar")
+                )))))
+                .andExpect(status().is(200));
+    }
+
+    @Test
+    void testCsrfDoubleSubmitCookieBlocksWhenNoCsrfToken() throws Exception {
+
+        // Arrange
+        MvcResult loginCallbackResult = makeLogin();
+        Cookie sessionCookie = loginCallbackResult.getResponse().getCookie(LoginCookie.NAME);
+        Cookie csrfCookie = loginCallbackResult.getResponse().getCookie("csrf");
+
+        // Act
+        // No csrf cookie value in csrf header or formpost
+        mockMvc.perform(post("/csrfDoubleSubmit/")
+                .cookie(sessionCookie)
+                .cookie(csrfCookie))
+                .andExpect(status().is(401));
+    }
+
+    @Test
+    void testCsrfDoubleSubmitCookieBlocksWhenInvalidCsrfToken() throws Exception {
+
+        // Arrange
+        MvcResult loginCallbackResult = makeLogin();
+        Cookie sessionCookie = loginCallbackResult.getResponse().getCookie(LoginCookie.NAME);
+        Cookie csrfCookie = loginCallbackResult.getResponse().getCookie("csrf");
+
+        // Act
+        // Csrf header but wrong value
+        mockMvc.perform(post("/csrfDoubleSubmit/")
+                .cookie(sessionCookie)
+                .cookie(csrfCookie)
+                .header("csrf", "some other value"))
+                .andExpect(status().is(401));
     }
 }

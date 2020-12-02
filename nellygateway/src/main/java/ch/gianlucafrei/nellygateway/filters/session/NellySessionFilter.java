@@ -1,12 +1,11 @@
 package ch.gianlucafrei.nellygateway.filters.session;
 
-import ch.gianlucafrei.nellygateway.services.login.drivers.UserModel;
-
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
-public interface SessionCreationFilter {
+public interface NellySessionFilter {
 
     int order();
 
-    void doFilter(String providerKey, UserModel model, HttpServletResponse response);
+    void doFilter(Map<String, Object> filterContext, HttpServletResponse response);
 }

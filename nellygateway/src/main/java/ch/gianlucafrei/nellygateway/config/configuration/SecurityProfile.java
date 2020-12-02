@@ -1,20 +1,23 @@
 package ch.gianlucafrei.nellygateway.config.configuration;
 
-import java.util.ArrayList;
+import com.google.common.collect.Lists;
+
+import java.util.List;
 import java.util.Map;
 
 public class SecurityProfile {
 
-    private ArrayList<String> allowedMethods;
+    private List<String> allowedMethods;
     private String csrfProtection;
+    private List<String> csrfSafeMethods = Lists.asList("GET", new String[]{"HEAD", "OPTIONS"});
     private Map<String, String> responseHeaders;
 
 
-    public ArrayList<String> getAllowedMethods() {
+    public List<String> getAllowedMethods() {
         return allowedMethods;
     }
 
-    public void setAllowedMethods(ArrayList<String> allowedMethods) {
+    public void setAllowedMethods(List<String> allowedMethods) {
         this.allowedMethods = allowedMethods;
     }
 
@@ -32,5 +35,15 @@ public class SecurityProfile {
 
     private void setResponseHeaders(Map<String, String> headers) {
         this.responseHeaders = headers;
+    }
+
+    public List<String> getCsrfSafeMethods() {
+
+        return this.csrfSafeMethods;
+    }
+
+    public void setCsrfSafeMethods(List<String> csrfSafeMethods) {
+
+        this.csrfSafeMethods = csrfSafeMethods;
     }
 }

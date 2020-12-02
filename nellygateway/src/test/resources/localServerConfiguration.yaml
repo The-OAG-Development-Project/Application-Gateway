@@ -20,6 +20,12 @@ routes:
     url: http://localhost:7777
     allowAnonymous: no
 
+  carfDoubleSumbit:
+    type: webapplication
+    path: /csrfDoubleSubmit/**
+    url: https://gianlucafrei.ch
+    allowAnonymous: yes
+
 loginProviders:
   local:
     type: oidc
@@ -30,4 +36,8 @@ loginProviders:
       clientSecret: thisIsASeceret
       scopes: [ "openid", "email" ]
 
+securityProfiles:
+  webapplication:
+    allowedMethods: [ "GET", "PUT", "POST" ]
+    csrfProtection: doubleSubmitCookie
 

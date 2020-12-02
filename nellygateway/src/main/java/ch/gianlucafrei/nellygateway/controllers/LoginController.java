@@ -5,6 +5,7 @@ import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.controllers.dto.SessionInformation;
 import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
 import ch.gianlucafrei.nellygateway.cookies.LoginStateCookie;
+import ch.gianlucafrei.nellygateway.filters.session.NellySessionFilter;
 import ch.gianlucafrei.nellygateway.filters.spring.ExtractAuthenticationFilter;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieDecryptionException;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
@@ -20,6 +21,7 @@ import ch.gianlucafrei.nellygateway.utils.UrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +35,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Optional;
 
 @RestController
@@ -46,6 +50,9 @@ public class LoginController {
 
     @Autowired
     private NellyConfig config;
+
+    @Autowired
+    ApplicationContext context;
 
     @GetMapping("session")
     public SessionInformation sessionInfo(
@@ -212,19 +219,15 @@ public class LoginController {
 
     private void createSession(String providerKey, UserModel model, HttpServletResponse response) {
 
-        int currentTimeSeconds = (int) (System.currentTimeMillis() / 1000);
-        int sessionDuration = config.getSessionBehaviour().getSessionDuration();
-        int sessionExp = currentTimeSeconds + sessionDuration;
+        var filterContext = new HashMap<String, Object>();
 
-        LoginCookie loginCookie = new LoginCookie(sessionExp, providerKey, model);
-        String encryptedLoginCookie = cookieEncryptor.encryptObject(loginCookie);
+        filterContext.put("providerKey", providerKey);
+        filterContext.put("userModel", model);
 
-        Cookie cookie = new Cookie(LoginCookie.NAME, encryptedLoginCookie);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(sessionDuration);
-        cookie.setSecure(config.isHttpsHost());
-        CookieUtils.addSameSiteCookie(cookie, LoginCookie.SAMESITE, response);
+        var filters = context.getBeansOfType(NellySessionFilter.class);
+        filters.values().stream()
+                .sorted(Comparator.comparingInt(NellySessionFilter::order))
+                .forEach(f -> f.doFilter(filterContext, response));
     }
 
     @GetMapping("logout")

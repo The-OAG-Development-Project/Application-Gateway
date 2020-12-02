@@ -3,26 +3,29 @@ package ch.gianlucafrei.nellygateway.filters.zuul.route;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyRoute;
 import ch.gianlucafrei.nellygateway.config.configuration.SecurityProfile;
+import ch.gianlucafrei.nellygateway.services.csrf.CsrfProtectionValidation;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 @Component
-public class MethodWhitelistFilter extends ZuulFilter {
+public class CsrfValidationFilter extends ZuulFilter {
 
-    private static final Logger log = LoggerFactory.getLogger(MethodWhitelistFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(CsrfValidationFilter.class);
 
     @Autowired
     private NellyConfig config;
+
+    @Autowired
+    private ApplicationContext context;
 
     @Override
     public String filterType() {
@@ -31,7 +34,7 @@ public class MethodWhitelistFilter extends ZuulFilter {
 
     @Override
     public int filterOrder() {
-        return 1;
+        return 2;
     }
 
     @Override
@@ -49,24 +52,42 @@ public class MethodWhitelistFilter extends ZuulFilter {
         NellyRoute nellyRoute = config.getRoutes().get(routeName);
         String type = nellyRoute.getType();
         SecurityProfile securityProfile = config.getSecurityProfiles().get(type);
-        ArrayList<String> allowedMethods = securityProfile.getAllowedMethods();
+
+        // Find out if we should validate the request
 
         String reqMethod = request.getMethod();
-        // Check if method is allowed
-        boolean isAllowed = allowedMethods.stream().anyMatch(m -> m.equals(reqMethod));
+        boolean isSafeMethod = securityProfile.getCsrfSafeMethods()
+                .contains(reqMethod);
 
-        if (!isAllowed) {
+        if (!isSafeMethod) {
+            String csrfProtectionMethod = securityProfile.getCsrfProtection();
+            CsrfProtectionValidation csrfValidation = loadValidationImplementation(csrfProtectionMethod);
 
-            ctx.setSendZuulResponse(false);
-            HttpServletResponse response = ctx.getResponse();
-            response.setStatus(HttpStatus.SC_METHOD_NOT_ALLOWED);
+            if (csrfValidation.shouldBlockRequest(request)) {
 
-            log.info("Blocked request because method was not allowed, route={}, reqMethod={}, allowedMethods={}",
-                    routeName,
-                    reqMethod,
-                    Arrays.toString(allowedMethods.toArray()));
+                ctx.setSendZuulResponse(false);
+                HttpServletResponse response = ctx.getResponse();
+                response.setStatus(HttpStatus.SC_UNAUTHORIZED);
+
+                log.info("Blocked request due to csrf protection, route={}, reqMethod={}, csrfMethod={}",
+                        routeName,
+                        reqMethod,
+                        csrfProtectionMethod);
+            }
         }
 
         return null;
+    }
+
+    private CsrfProtectionValidation loadValidationImplementation(String csrfProtectionMethod) {
+
+        String beanname = csrfProtectionMethod + "-validation";
+        CsrfProtectionValidation validationImplementation = context.getBean(CsrfProtectionValidation.class, beanname);
+
+        if (validationImplementation == null) {
+            throw new RuntimeException("csrf validation implementation not found: " + beanname);
+        }
+
+        return validationImplementation;
     }
 }

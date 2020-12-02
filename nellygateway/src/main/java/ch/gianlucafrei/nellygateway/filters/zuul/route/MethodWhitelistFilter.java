@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class MethodWhitelistFilter extends ZuulFilter {
@@ -49,7 +49,7 @@ public class MethodWhitelistFilter extends ZuulFilter {
         NellyRoute nellyRoute = config.getRoutes().get(routeName);
         String type = nellyRoute.getType();
         SecurityProfile securityProfile = config.getSecurityProfiles().get(type);
-        ArrayList<String> allowedMethods = securityProfile.getAllowedMethods();
+        List<String> allowedMethods = securityProfile.getAllowedMethods();
 
         String reqMethod = request.getMethod();
         // Check if method is allowed

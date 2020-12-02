@@ -22,6 +22,7 @@ import java.util.Optional;
 public class ExtractAuthenticationFilter implements Filter {
 
     public final static String NELLY_SESSION = "nelly-session"; // Key for request context
+    public final static String NELLY_SESSION_CSRF_TOKEN = "session-csrf-token";
 
     private static final Logger log = LoggerFactory.getLogger(ExtractAuthenticationFilter.class);
 
@@ -43,10 +44,13 @@ public class ExtractAuthenticationFilter implements Filter {
 
             sessionOptional = Optional.empty();
         } else {
-            // Decrypt cookie
             try {
+                // Decrypt cookie
                 LoginCookie loginCookie = cookieEncryptor.decryptObject(cookie.getValue(), LoginCookie.class);
                 sessionOptional = Session.fromSessionCookie(loginCookie);
+
+                // Extract csrf token from session cookie and store in context
+                req.setAttribute(NELLY_SESSION_CSRF_TOKEN, loginCookie.getCsrfToken());
 
             } catch (CookieDecryptionException e) {
 
