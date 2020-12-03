@@ -7,5 +7,7 @@ public interface NellySessionFilter {
 
     int order();
 
-    void doFilter(Map<String, Object> filterContext, HttpServletResponse response);
+    void createSession(Map<String, Object> filterContext, HttpServletResponse response);
+
+    void destroySession(Map<String, Object> filterContext, HttpServletResponse response);
 }

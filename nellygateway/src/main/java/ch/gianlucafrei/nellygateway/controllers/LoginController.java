@@ -3,7 +3,6 @@ package ch.gianlucafrei.nellygateway.controllers;
 import ch.gianlucafrei.nellygateway.config.configuration.LoginProvider;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.controllers.dto.SessionInformation;
-import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
 import ch.gianlucafrei.nellygateway.cookies.LoginStateCookie;
 import ch.gianlucafrei.nellygateway.filters.session.NellySessionFilter;
 import ch.gianlucafrei.nellygateway.filters.spring.ExtractAuthenticationFilter;
@@ -34,10 +33,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
@@ -224,10 +221,19 @@ public class LoginController {
         filterContext.put("providerKey", providerKey);
         filterContext.put("userModel", model);
 
+        List<NellySessionFilter> sessionFilters = getNellySessionFilters();
+
+        sessionFilters.forEach(f -> f.createSession(filterContext, response));
+    }
+
+    private List<NellySessionFilter> getNellySessionFilters() {
+
         var filters = context.getBeansOfType(NellySessionFilter.class);
-        filters.values().stream()
+
+        List<NellySessionFilter> sessionFilters = filters.values().stream()
                 .sorted(Comparator.comparingInt(NellySessionFilter::order))
-                .forEach(f -> f.doFilter(filterContext, response));
+                .collect(Collectors.toList());
+        return sessionFilters;
     }
 
     @GetMapping("logout")
@@ -249,13 +255,9 @@ public class LoginController {
 
     private void destroySession(HttpServletResponse response) {
 
-        // Override session cookie with new cookie that has max-age = 0
-        Cookie cookie = new Cookie(LoginCookie.NAME, "");
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        cookie.setSecure(config.isHttpsHost());
-        CookieUtils.addSameSiteCookie(cookie, LoginCookie.SAMESITE, response);
+        var filterContext = new HashMap<String, Object>();
+        List<NellySessionFilter> sessionFilters = getNellySessionFilters();
+        sessionFilters.forEach(f -> f.destroySession(filterContext, response));
     }
 
     public String loadLogoutReturnUrl(HttpServletRequest request) {

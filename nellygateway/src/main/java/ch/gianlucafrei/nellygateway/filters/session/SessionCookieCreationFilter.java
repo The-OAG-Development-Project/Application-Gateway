@@ -27,7 +27,7 @@ public class SessionCookieCreationFilter implements NellySessionFilter {
     }
 
     @Override
-    public void doFilter(Map<String, Object> filterContext, HttpServletResponse response) {
+    public void createSession(Map<String, Object> filterContext, HttpServletResponse response) {
 
         String providerKey = (String) filterContext.get("providerKey");
         UserModel model = (UserModel) filterContext.get("userModel");
@@ -50,6 +50,18 @@ public class SessionCookieCreationFilter implements NellySessionFilter {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(sessionDuration);
+        cookie.setSecure(config.isHttpsHost());
+        CookieUtils.addSameSiteCookie(cookie, LoginCookie.SAMESITE, response);
+    }
+
+    @Override
+    public void destroySession(Map<String, Object> filterContext, HttpServletResponse response) {
+
+        // Override session cookie with new cookie that has max-age = 0
+        Cookie cookie = new Cookie(LoginCookie.NAME, "");
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
         cookie.setSecure(config.isHttpsHost());
         CookieUtils.addSameSiteCookie(cookie, LoginCookie.SAMESITE, response);
     }
