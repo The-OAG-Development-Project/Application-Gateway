@@ -10,7 +10,7 @@ securityProfiles:
 
   static:
     allowedMethods: [ "GET", "HEAD", "OPTIONS" ]
-    csrfProtection: ignoreAuthentication
+    csrfProtection: none
     responseHeaders:
       Server: <<remove>>
       X-Powered-By: <<remove>>
@@ -38,7 +38,7 @@ securityProfiles:
 
   apiforspa:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
-    csrfProtection: doubleSubmitCookie
+    csrfProtection: double-submit-cookie
     responseHeaders:
       Server: <<remove>>
       X-Powered-By: <<remove>>
@@ -49,7 +49,7 @@ securityProfiles:
 
   apiforexternal:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
-    csrfProtection: ignoreAuthentication
+    csrfProtection: none
     responseHeaders:
       Server: <<remove>>
       X-Powered-By: <<remove>>

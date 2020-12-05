@@ -20,11 +20,23 @@ routes:
     url: http://localhost:7777
     allowAnonymous: no
 
-  carfDoubleSumbit:
-    type: webapplication
+  csrf-double-submit:
+    type: csrf-double-submit
     path: /csrfDoubleSubmit/**
-    url: https://gianlucafrei.ch
+    url: http://localhost:7777
     allowAnonymous: yes
+
+  csrf-samesite-strict:
+    type: csrf-ignore-auth
+    path: /csrf-ignore-auth/**
+    url: http://localhost:7777
+    allowAnonymous: no
+
+  csrf-none:
+    type: csrf-none
+    path: /csrf-none/**
+    url: http://localhost:7777
+    allowAnonymous: no
 
 loginProviders:
   local:
@@ -37,7 +49,14 @@ loginProviders:
       scopes: [ "openid", "email" ]
 
 securityProfiles:
-  webapplication:
+  csrf-double-submit:
     allowedMethods: [ "GET", "PUT", "POST" ]
-    csrfProtection: doubleSubmitCookie
+    csrfProtection: double-submit-cookie
 
+  csrf-none:
+    allowedMethods: [ "GET", "PUT", "POST" ]
+    csrfProtection: none
+
+  csrf-samesite-strict:
+    allowedMethods: [ "GET", "PUT", "POST" ]
+    csrfProtection: samesite-strict

@@ -81,8 +81,8 @@ public class CsrfValidationFilter extends ZuulFilter {
 
     private CsrfProtectionValidation loadValidationImplementation(String csrfProtectionMethod) {
 
-        String beanname = csrfProtectionMethod + "-validation";
-        CsrfProtectionValidation validationImplementation = context.getBean(CsrfProtectionValidation.class, beanname);
+        String beanname = "csrf-" + csrfProtectionMethod + "-validation";
+        CsrfProtectionValidation validationImplementation = context.getBean(beanname, CsrfProtectionValidation.class);
 
         if (validationImplementation == null) {
             throw new RuntimeException("csrf validation implementation not found: " + beanname);

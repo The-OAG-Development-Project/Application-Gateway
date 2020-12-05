@@ -1,17 +1,29 @@
 package ch.gianlucafrei.nellygateway.mockserver;
 
+import ch.gianlucafrei.nellygateway.cookies.LoginStateCookie;
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
+import com.sun.net.httpserver.Filter;
+import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import javax.servlet.http.Cookie;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.util.ArrayList;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Creates a local server that acts as backend to test the proxy server
@@ -22,6 +34,8 @@ public class MockServerTest {
 
     @Autowired
     public MockMvc mockMvc;
+
+    private static final Logger log = LoggerFactory.getLogger(MockServerTest.class);
 
     public static HttpServer httpServer;
     public static final int MOCK_SERVER_PORT = 7777;
@@ -51,14 +65,16 @@ public class MockServerTest {
             exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
             exchange.getResponseBody().write(response);
             exchange.close();
-        });
+        }).getFilters().add(logging());
+        ;
 
         httpServer.createContext(TEST_2_ENDPOINT, exchange -> {
             byte[] response = TEST_2_RESPONSE.getBytes();
             exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
             exchange.getResponseBody().write(response);
             exchange.close();
-        });
+        }).getFilters().add(logging());
+        ;
 
         /* Example token response from oidc specification*/
         String tokenResponse = "{" +
@@ -89,12 +105,63 @@ public class MockServerTest {
             exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
             exchange.getResponseBody().write(response);
             exchange.close();
-        });
+        }).getFilters().add(logging());
+    }
+
+    private static Filter logging() {
+        return new Filter() {
+
+            @Override
+            public void doFilter(HttpExchange http, Chain chain) throws IOException {
+                try {
+                    chain.doFilter(http);
+                } finally {
+
+                    log.info(String.format("%s %s %s %s",
+                            http.getRequestMethod(),
+                            http.getRequestURI().getPath(),
+                            http.getRemoteAddress(),
+                            http.getRequestHeaders().getFirst("User-Agent")));
+                }
+            }
+
+            @Override
+            public String description() {
+                return "logging";
+            }
+        };
     }
 
     @AfterEach
     public void shutDownMockServer() {
 
         httpServer.stop(0);
+    }
+    
+    public MvcResult makeLogin() throws Exception {
+
+        MvcResult loginResult = this.mockMvc.perform(
+                get("/auth/local/login"))
+                .andExpect(status().is(302))
+                .andReturn();
+
+        // Assert
+        String redirectUriString = loginResult.getResponse().getHeader("Location");
+        URI redirectUri = new URI(redirectUriString);
+
+        AuthenticationRequest oidcRequest = AuthenticationRequest.parse(redirectUri);
+
+        Cookie loginStateCookie = loginResult.getResponse().getCookie(LoginStateCookie.NAME);
+
+        // ACT 2: Call the callback url
+        // Arrange
+        String authorizationResponse = String.format("?state=%s&code=%s", oidcRequest.getState().getValue(), "authCode");
+
+        MvcResult callbackResult = mockMvc.perform(
+                get("/auth/local/callback" + authorizationResponse).cookie(loginStateCookie))
+                .andExpect(status().is(302))
+                .andReturn();
+
+        return callbackResult;
     }
 }
