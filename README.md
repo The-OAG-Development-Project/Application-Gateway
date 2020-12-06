@@ -9,13 +9,26 @@ An elephant strong web application gateway that handles oauth2 authentication an
 
 🏗️ **Nellygateway is work-in-progress. No productive version has been released yet.**
 
-## What is Nelly?
-
 Nellygateway is an HTTP reverse proxy that sits between your web application and the client and handles Oauth2 login and session management. For you, as a developer, Nelly removes the hassle to implement complicated oauth2 logic in the backend and frontend so you can focus totally on your applications logic.
 
 <img src="https://github.com/gianlucafrei/nellygateway/blob/main/doc/overview.png?raw=true" data-canonical-src="https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png" width="500" />
 
-## What are the design principles for Nelly?
+- [Nellygateway](#nellygateway)
+  * [Design Principles](#design-principles)
+    + [Secure by default](#secure-by-default)
+    + [Stateless](#stateless)
+    + [Configuration based](#configuration-based)
+  * [Configuration File](#config-file)
+  * [How to run Nelly](#how-to-run-nelly)
+    + [Docker Release](#docker-release)
+    + [Jar release](#jar-release)
+    + [Compile Nelly Yourself](#compile-nelly-yourself)
+  * [Functionality](#functionality)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
+
+## Design Principles
 
 ### Secure by default
 
@@ -29,7 +42,7 @@ Wherever possible, Nelly is stateless. All session information is stored within 
 
 Nelly's behavior is controlled with a central configuration file describing all routes and Oauth2 integrations. This makes it easier to review the configuration for security issues and to debug on different environments. The deployment and scaling are straightforward; configure the config file's file path, and that's all you need to do.
 
-## Config File
+## Configuration File
 
 Nelly is fully configured with a simple and easy to understand configuration file. Details are documented in the [GitHub wiki](https://github.com/gianlucafrei/nellygateway/wiki).
 
