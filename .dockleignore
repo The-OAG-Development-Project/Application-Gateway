@@ -1,0 +1,2 @@
+# Ignore ADD instead of COPY because the base image openjdk:13.0.2-oracle uses it
+CIS-DI-0009
