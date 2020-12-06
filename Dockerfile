@@ -1,4 +1,4 @@
-FROM openjdk:11-jre-slim
+FROM openjdk:13.0.2-oracle
 RUN useradd --user-group --system --create-home --no-log-init app
 
 RUN mkdir -p /app

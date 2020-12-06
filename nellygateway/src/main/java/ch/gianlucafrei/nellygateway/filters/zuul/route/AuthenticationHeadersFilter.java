@@ -1,4 +1,4 @@
-package ch.gianlucafrei.nellygateway.filters.zuul;
+package ch.gianlucafrei.nellygateway.filters.zuul.route;
 
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.filters.spring.ExtractAuthenticationFilter;
@@ -20,12 +20,12 @@ public class AuthenticationHeadersFilter extends ZuulFilter {
 
     @Override
     public String filterType() {
-        return "pre";
+        return "route";
     }
 
     @Override
     public int filterOrder() {
-        return 2;
+        return 3;
     }
 
     @Override

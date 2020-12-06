@@ -1,4 +1,4 @@
-package ch.gianlucafrei.nellygateway.filters.zuul;
+package ch.gianlucafrei.nellygateway.filters.zuul.post;
 
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyRoute;
@@ -44,12 +44,16 @@ public class ResponseHeaderFilter extends ZuulFilter {
         String routeName = (String) ctx.get("proxy");
         NellyRoute nellyRoute = config.getRoutes().get(routeName);
         SecurityProfile securityProfile = config.getSecurityProfiles().get(nellyRoute.getType());
+        Map<String, String> responseHeaders = securityProfile.getResponseHeaders();
 
-        // Load headers
+        if (responseHeaders == null)
+            return null;
+
+        // Load headers from upstream response
         List<Pair<String, String>> zuulResponseHeaders = ctx.getZuulResponseHeaders();
 
         // Change headers according to security policy
-        for (Map.Entry<String, String> entry : securityProfile.getHeaders().entrySet()) {
+        for (Map.Entry<String, String> entry : responseHeaders.entrySet()) {
 
             String name = entry.getKey();
             String value = entry.getValue();

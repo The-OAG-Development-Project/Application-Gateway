@@ -1,3 +1,6 @@
+nelly:
+  configPath: ${NELLY_CONFIG_PATH:sample-nelly-config.yaml}
+
 server:
   port: 8080
 spring:

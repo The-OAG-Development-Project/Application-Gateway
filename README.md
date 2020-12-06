@@ -9,7 +9,7 @@ An elephant strong web application gateway that handles oauth2 authentication an
 
 ## What is Nelly?
 
-Nellygateway is an HTTP reverse proxy that sits between your web application and the client and handles Oauth2 login and session management. For you, as a developer, Nelly removes the hassle to implement complicated oauth2 logic in the backend and frontend so you can focus totally on your application.
+Nellygateway is an HTTP reverse proxy that sits between your web application and the client and handles Oauth2 login and session management. For you, as a developer, Nelly removes the hassle to implement complicated oauth2 logic in the backend and frontend so you can focus totally on your applications logic.
 
 <img src="https://github.com/gianlucafrei/nellygateway/blob/main/doc/overview.png?raw=true" data-canonical-src="https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png" width="500" />
 
@@ -29,7 +29,7 @@ Nelly's behavior is controlled with a central configuration file describing all 
 
 ## Config File
 
-Nelly is fully configured with a simple and easy to undertand configuration file:
+Nelly is fully configured with a simple and easy to understand configuration file. Details are documented in the [GitHub wiki](https://github.com/gianlucafrei/nellygateway/wiki).
 
 ```yaml
 hostUri: http://example.com
@@ -71,18 +71,19 @@ sessionBehaviour:
   redirectLoginFailure: /uups
   redirectLogout: /
 
-securityProfiles:
-    webapplication:
-      headers:
-        Server: <<remove>>
-        X-Powered-By: <<remove>>
-        X-XSS-Protection: 1;mode=block;
-        X-Frame-Options: SAMEORIGIN
-        X-Content-Type-Options: nosniff
-        Referrer-Policy: strict-origin-when-cross-origin
-        Content-Security-Policy: upgrade-insecure-requests;base-uri 'self';object-src 'self'
-        Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
-        Strict-Transport-Security: max-age=31536000; includeSubDomains
+  webapplication:
+    allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
+    csrfProtection: samesite-strict-cookie
+    responseHeaders:
+      Server: <<remove>>
+      X-Powered-By: <<remove>>
+      X-XSS-Protection: 1; mode=block;
+      X-Frame-Options: SAMEORIGIN
+      X-Content-Type-Options: nosniff
+      Referrer-Policy: strict-origin-when-cross-origin
+      Content-Security-Policy: upgrade-insecure-requests;base-uri 'self';object-src 'self'
+      Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
+      Strict-Transport-Security: max-age=31536000; includeSubDomains
 
 logoutRedirectUri: http://example.com/
 nellyApiKey: env:NELLY_API_KEY
@@ -125,16 +126,17 @@ todo
 - [x] Multiple Backend routes
 - [x] Authenticated routes
 - [x] Request Logging
-- [x] Add and remove response filtering
+- [x] Add and remove response headers
 - [x] Secure, HTTP-only and same-site session cookies
 - [x] Forward id token to backend
 - [x] Upstream authentication with API key
 - [x] GitHub Login support
+- [x] Method whitelisting
+- [x] CSRF Protection
 
 Ideas:
 
-- [ ] Method whitelisting  
-- [ ] Header whitelisting  
+- [ ] Header whitelisting
 - [ ] Report URI Endpoint
-- [ ] Default configuration 
+- [ ] Default configuration
 - [ ] ...

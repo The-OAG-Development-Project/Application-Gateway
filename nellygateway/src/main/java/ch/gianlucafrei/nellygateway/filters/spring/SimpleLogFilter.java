@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Order(1)
@@ -24,9 +25,12 @@ public class SimpleLogFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
 
         log.info(
-                "Request to {} {}", req.getMethod(),
-                req.getRequestURI());
+                "Request to {} {}", req.getMethod(), req.getRequestURI());
 
         chain.doFilter(request, response);
+
+
+        HttpServletResponse res = (HttpServletResponse) response;
+        log.info("Response status code {} for {} {}", res.getStatus(), req.getMethod(), req.getRequestURI());
     }
 }

@@ -10,6 +10,7 @@ public class LoginCookie {
     private int sessionExpSeconds;
     private String providerKey;
     private UserModel userModel;
+    private String csrfToken;
 
     public LoginCookie() {
     }
@@ -42,5 +43,13 @@ public class LoginCookie {
 
     public void setUserModel(UserModel userModel) {
         this.userModel = userModel;
+    }
+
+    public String getCsrfToken() {
+        return csrfToken;
+    }
+
+    public void setCsrfToken(String csrfToken) {
+        this.csrfToken = csrfToken;
     }
 }
