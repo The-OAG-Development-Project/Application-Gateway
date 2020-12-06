@@ -3,24 +3,22 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-
   <title>Sample Webapp</title>
   <meta name="description" content="Sample Webapp">
-
-  <link rel="stylesheet" href="css/styles.css?v=1.0">
-
+  <link rel="stylesheet" href="/styles.css">
 </head>
-
-<style>
-pre {background-color: lightgrey; padding: 10px 10px 10px 10px;}
-.nelly-header {background-color: lightpink;}
-</style>
 
 <body>
 
     <h1>This is a sample application for NellyGateway</h1>
     <p>Please find out more about NellyGateway on <a href="https://github.com/gianlucafrei/nellygateway">GitHub</a></p>
     
+    <a href="/">Home</a>
+    <a href="/auth/google/login">Login with Google</a>
+    <a href="/auth/github/login">Login with GitHub</a>
+    <a href="/csrf.php">CSRF Example</a>
+
+
     <pre>
 <?php
 
@@ -45,6 +43,5 @@ pre {background-color: lightgrey; padding: 10px 10px 10px 10px;}
   }
 ?>
   </pre>
-  <script src="js/scripts.js"></script>
 </body>
 </html>

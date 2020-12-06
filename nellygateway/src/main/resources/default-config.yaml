@@ -24,7 +24,7 @@ securityProfiles:
 
   webapplication:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
-    csrfProtection: samesite-strict-cookie
+    csrfProtection: double-submit-cookie
     responseHeaders:
       Server: <<remove>>
       X-Powered-By: <<remove>>

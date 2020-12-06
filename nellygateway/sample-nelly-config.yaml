@@ -12,11 +12,6 @@ routes:
     path: /secure/**
     url: https://nellydemoapp.azurewebsites.net
     allowAnonymous: no
-  gianluca:
-    type: webapplication
-    path: /gianluca/**
-    url: https://gianlucafrei.ch
-    allowAnonymous: yes
 
 loginProviders:
   google:
