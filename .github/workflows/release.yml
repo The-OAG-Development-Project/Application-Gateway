@@ -54,3 +54,11 @@ jobs:
         asset_path: ./nellygateway${{ steps.get_version.outputs.VERSION }}.zip
         asset_name: nellygateway${{ steps.get_version.outputs.VERSION }}.zip
         asset_content_type: application/gzip
+        
+    # Docker build
+    - name: Docker Build
+      run: docker build -t gianlucafrei/nellygateway:${{ steps.get_version.outputs.VERSION }} -t gianlucafrei/nellygateway:latest .
+    - name: Docker Login
+      run: docker login --username gianlucafrei --password ${{ secrets.DOCKER_PASSWORD }}
+    - name: Docker Push
+      run: docker push gianlucafrei/nellygateway:${{ steps.get_version.outputs.VERSION }}
