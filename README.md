@@ -88,6 +88,7 @@ sessionBehaviour:
   redirectLoginFailure: /uups
   redirectLogout: /
 
+securityProfiles:
   webapplication:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
     csrfProtection: samesite-strict-cookie
