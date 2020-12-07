@@ -27,8 +27,8 @@ routes:
     allowAnonymous: yes
 
   csrf-samesite-strict:
-    type: csrf-ignore-auth
-    path: /csrf-ignore-auth/**
+    type: csrf-samesite-strict
+    path: /csrf-samesite-strict/**
     url: http://localhost:7777
     allowAnonymous: no
 
@@ -59,4 +59,4 @@ securityProfiles:
 
   csrf-samesite-strict:
     allowedMethods: [ "GET", "PUT", "POST" ]
-    csrfProtection: samesite-strict
+    csrfProtection: samesite-strict-cookie

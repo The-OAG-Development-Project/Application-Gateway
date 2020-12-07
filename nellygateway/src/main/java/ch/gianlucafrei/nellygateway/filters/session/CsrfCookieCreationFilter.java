@@ -36,7 +36,7 @@ public class CsrfCookieCreationFilter implements NellySessionFilter {
         cookie.setSecure(config.isHttpsHost());
 
         filterContext.put("csrfToken", csrfToken);
-        CookieUtils.addSameSiteCookie(cookie, "lax", response);
+        CookieUtils.addSameSiteCookie(cookie, "Strict", response);
     }
 
     @Override
@@ -48,6 +48,6 @@ public class CsrfCookieCreationFilter implements NellySessionFilter {
         cookie.setPath("/");
         cookie.setMaxAge(0);
         cookie.setSecure(config.isHttpsHost());
-        CookieUtils.addSameSiteCookie(cookie, "lax", response);
+        CookieUtils.addSameSiteCookie(cookie, "Strict", response);
     }
 }
