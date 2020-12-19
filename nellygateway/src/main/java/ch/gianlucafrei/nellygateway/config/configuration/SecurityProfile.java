@@ -1,5 +1,6 @@
 package ch.gianlucafrei.nellygateway.config.configuration;
 
+import ch.gianlucafrei.nellygateway.config.ErrorValidation;
 import ch.gianlucafrei.nellygateway.filters.zuul.route.CsrfValidationFilter;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -39,7 +40,11 @@ public class SecurityProfile implements ErrorValidation {
     }
 
     private void setResponseHeaders(Map<String, String> headers) {
-        this.responseHeaders = headers;
+
+        if (headers == null)
+            this.responseHeaders = new HashMap<>();
+        else
+            this.responseHeaders = headers;
     }
 
     public List<String> getCsrfSafeMethods() {

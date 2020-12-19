@@ -1,4 +1,4 @@
-package ch.gianlucafrei.nellygateway.config.configuration;
+package ch.gianlucafrei.nellygateway.config;
 
 import org.springframework.context.ApplicationContext;
 
