@@ -12,6 +12,8 @@ import java.util.Optional;
 @Component("csrf-samesite-strict-cookie-validation")
 public class CsrfSamesiteStrictValidation implements CsrfProtectionValidation {
 
+    public static final String NAME = "samesite-strict-cookie";
+
     @Override
     public boolean shouldBlockRequest(HttpServletRequest request) {
 

@@ -6,8 +6,11 @@ import ch.gianlucafrei.nellygateway.controllers.dto.SessionInformation;
 import ch.gianlucafrei.nellygateway.cookies.LoginStateCookie;
 import ch.gianlucafrei.nellygateway.filters.session.NellySessionFilter;
 import ch.gianlucafrei.nellygateway.filters.spring.ExtractAuthenticationFilter;
+import ch.gianlucafrei.nellygateway.filters.zuul.route.CsrfValidationFilter;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieDecryptionException;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
+import ch.gianlucafrei.nellygateway.services.csrf.CsrfProtectionValidation;
+import ch.gianlucafrei.nellygateway.services.csrf.CsrfSamesiteStrictValidation;
 import ch.gianlucafrei.nellygateway.services.login.drivers.AuthenticationException;
 import ch.gianlucafrei.nellygateway.services.login.drivers.LoginDriver;
 import ch.gianlucafrei.nellygateway.services.login.drivers.LoginDriverResult;
@@ -241,16 +244,29 @@ public class LoginController {
             HttpServletResponse response,
             HttpServletRequest request) {
 
-        // TODO add csrf protection
+        // Logout csrf prevention
+        CsrfProtectionValidation csrfValidation = getCsrfValidationMethod();
+        if (csrfValidation.shouldBlockRequest(request)) {
+            log.info("Blocked logout request due to csrf protection");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            
+        } else {
+            // Destroy the user session
+            destroySession(response);
 
-        destroySession(response);
+            // Get redirection url
+            String returnUrl = loadLogoutReturnUrl(request);
 
-        // Redirect the user
-        String returnUrl = loadLogoutReturnUrl(request);
+            // Redirect the user
+            response.setHeader("Location", returnUrl);
+            response.setStatus(302);
+        }
+    }
 
-        // Redirect the user
-        response.setHeader("Location", returnUrl);
-        response.setStatus(302);
+    private CsrfProtectionValidation getCsrfValidationMethod() {
+
+        return CsrfValidationFilter.loadValidationImplementation(
+                CsrfSamesiteStrictValidation.NAME, context);
     }
 
     private void destroySession(HttpServletResponse response) {
