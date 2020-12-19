@@ -1,0 +1,51 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: CI/CD
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 15
+    - name: Build with Maven
+      run: mvn -B package --file nellygateway/pom.xml 
+    - name: Create Artifact Folder
+      run: mkdir nellygateway/target/artifact/ && cp nellygateway/target/nellygateway*.jar nellygateway/target/artifact/nellygateway.jar && cp nellygateway/sample-nelly-config.yaml nellygateway/target/artifact/sample-nelly-config.yaml
+    - name: Add commit hash to artifact
+      run: echo $GITHUB_SHA >> nellygateway/target/artifact/commit-hash.txt
+    - name: Publish Artifact
+      uses: actions/upload-artifact@v2
+      with:
+          path: nellygateway/target/artifact/
+  
+  build-docker:
+    name: Build and Push Docker Image
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+      - uses: docker/setup-qemu-action@v1
+      - uses: docker/setup-buildx-action@v1
+      - name: Copy Artifact
+        run: mkdir  -p nellygateway/target/artifact/ && cp artifact/* nellygateway/target/artifact/
+      - name: Docker Build
+        run: docker build -t gianlucafrei/nellygateway:dev-SNAPSHOT .
+      - name: Install Dockle
+        run: VERSION=$(curl --silent "https://api.github.com/repos/goodwithtech/dockle/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/') && curl -L -o dockle.tar.gz https://github.com/goodwithtech/dockle/releases/download/v${VERSION}/dockle_${VERSION}_Linux-64bit.tar.gz &&  tar zxvf dockle.tar.gz
+      - name: Run Dockle Tests
+        run: ./dockle --exit-code 1 gianlucafrei/nellygateway:dev-SNAPSHOT
+      - name: Docker Login
+        run: docker login --username gianlucafrei --password ${{ secrets.DOCKER_PASSWORD }}
+      - name: Docker Push
+        run: docker push gianlucafrei/nellygateway:dev-SNAPSHOT
