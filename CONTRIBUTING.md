@@ -1,6 +1,6 @@
-# Contribution
+# Contributing
 
-First of all, thanks much for contributing to this project! All kind of help, contribution, and support is much appreciated and will make it a little bit easier to build secure web applications!
+🎉 First of all, thanks much for contributing to this project! All kind of help, contribution, and support is much appreciated and will make it a little bit easier to build secure web applications!
 
 ## How to contribute
 
@@ -16,8 +16,10 @@ If you are interested in the project but still have any questions, please feel f
 ## Branching and Versioning
 
 We use a bit simplified version of the git-flow for our branching (https://nvie.com/posts/a-successful-git-branching-model/). We currently have the following two long-lived branches:
-main: The main branch is used for releases. We tag each release with its version number. (i.e. "v0.3")
-dev: The dev branch should always build, but we are a bit more reluctant here. Usually, we merge all features to this branch until we release a new version. Pre-releases are tagged on this branch.
+
+- `main`: The main branch is used for releases. We tag each release with its version number. (i.e. "v0.3")
+- `dev`: The dev branch should always build, but we are a bit more reluctant here. Usually, we merge all features to this branch until we release a new version. Pre-releases are tagged on this branch.
+
 This means if you want to implement a feature, please fork the repository, add your feature and create a pull request back to the dev branch. If you are a regular contributor, we can also add you as a collaborator to the repository.
 
 We use semantic version numbers (MAJOR.MINOR.PATCH) except that we didn't yet use patch numbers. (See https://semver.org) We are currently still in the development stage, so we don't have a stable public API yet, and anything can change at any time.
@@ -55,4 +57,4 @@ We currently use the following tools for CI/CD
 
 ## Varia
 
-If you have any inputs on how to improve this contributing guildeline or think we should do things differently feal free to contact us or create a pull request for this file.
+💡 If you have any inputs on how to improve this contributing guildeline or think we should do things differently feal free to contact us or create a pull request for this file.
