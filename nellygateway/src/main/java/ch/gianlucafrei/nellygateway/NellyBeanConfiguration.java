@@ -8,6 +8,8 @@ import ch.gianlucafrei.nellygateway.services.crypto.JweEncrypter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,6 +17,9 @@ import java.io.IOException;
 
 @Configuration
 public class NellyBeanConfiguration {
+
+    @Autowired
+    private ApplicationContext context;
 
     private static final Logger log = LoggerFactory.getLogger(NellyBeanConfiguration.class);
 
@@ -29,7 +34,16 @@ public class NellyBeanConfiguration {
         try {
 
             NellyConfigLoader loader = nellyConfigLoader();
-            return loader.loadConfiguration();
+            NellyConfig config = loader.loadConfiguration();
+
+            var configErrors = config.getErrors(context);
+            if (!configErrors.isEmpty()) {
+                String message = "Configuration file contains errors: " + configErrors.toString();
+                log.error(message);
+                throw new RuntimeException(message);
+            }
+
+            return config;
 
         } catch (JsonProcessingException e) {
             log.error("Nelly configuration file is invalid: {}", e.getMessage());

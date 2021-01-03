@@ -5,6 +5,7 @@ import ch.gianlucafrei.nellygateway.config.NellyConfigLoader;
 import ch.gianlucafrei.nellygateway.config.configuration.LoginProvider;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.controllers.dto.SessionInformation;
+import ch.gianlucafrei.nellygateway.cookies.CsrfCookie;
 import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
 import ch.gianlucafrei.nellygateway.cookies.LoginStateCookie;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
@@ -73,6 +74,7 @@ class LoginLogoutTest extends MockServerTest {
                 .andReturn();
 
         Cookie sessionCookie = callbackResult.getResponse().getCookie(LoginCookie.NAME);
+        Cookie csrfCookie = callbackResult.getResponse().getCookie(CsrfCookie.NAME);
         assertNotNull(sessionCookie);
 
         // ACT 3: Call the session endpoint
@@ -84,7 +86,9 @@ class LoginLogoutTest extends MockServerTest {
 
         // ACT 4: Logout
         MvcResult logoutResult = mockMvc.perform(
-                get("/auth/logout").cookie(sessionCookie))
+                get("/auth/logout")
+                        .cookie(sessionCookie)
+                        .cookie(csrfCookie))
                 .andExpect(status().is(302))
                 .andReturn();
 

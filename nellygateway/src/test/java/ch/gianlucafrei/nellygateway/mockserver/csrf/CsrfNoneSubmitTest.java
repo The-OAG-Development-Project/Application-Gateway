@@ -1,9 +1,11 @@
-package ch.gianlucafrei.nellygateway.mockserver;
+package ch.gianlucafrei.nellygateway.mockserver.csrf;
 
 import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.NellyConfigLoader;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
+import ch.gianlucafrei.nellygateway.mockserver.MockServerTest;
+import ch.gianlucafrei.nellygateway.mockserver.TestFileConfigLoader;
 import io.github.artsok.RepeatedIfExceptionsTest;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.TestMethodOrder;

@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 @Component("csrf-none-validation")
 public class CsrfNoneValidation implements CsrfProtectionValidation {
 
+    public static final String NAME = "none";
+
     @Override
     public boolean shouldBlockRequest(HttpServletRequest request) {
 

@@ -17,8 +17,7 @@ public abstract class LoginDriverBase implements LoginDriver {
         if (errors.isEmpty()) {
             this.settings = settings;
         } else {
-            String errorMsgs = String.join(", ", errors);
-            throw new RuntimeException("Invalid provider settings: " + errorMsgs);
+            throw new InvalidProviderSettingsException(errors);
         }
     }
 

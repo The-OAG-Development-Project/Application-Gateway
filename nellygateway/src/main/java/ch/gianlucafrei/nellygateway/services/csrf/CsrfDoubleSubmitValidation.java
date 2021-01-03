@@ -10,6 +10,7 @@ import java.util.Optional;
 @Component("csrf-double-submit-cookie-validation")
 public class CsrfDoubleSubmitValidation implements CsrfProtectionValidation {
 
+    public static final String NAME = "double-submit-cookie";
     public static final String CSRF_TOKEN_HEADER_NAME = "X-CSRF-TOKEN";
     public static final String CSRF_TOKEN_PARAMETER_NAME = "CSRFToken";
 

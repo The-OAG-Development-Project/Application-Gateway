@@ -6,14 +6,16 @@ import ch.gianlucafrei.nellygateway.controllers.dto.SessionInformation;
 import ch.gianlucafrei.nellygateway.cookies.LoginStateCookie;
 import ch.gianlucafrei.nellygateway.filters.session.NellySessionFilter;
 import ch.gianlucafrei.nellygateway.filters.spring.ExtractAuthenticationFilter;
+import ch.gianlucafrei.nellygateway.filters.zuul.route.CsrfValidationFilter;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieDecryptionException;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
+import ch.gianlucafrei.nellygateway.services.csrf.CsrfProtectionValidation;
+import ch.gianlucafrei.nellygateway.services.csrf.CsrfSamesiteStrictValidation;
 import ch.gianlucafrei.nellygateway.services.login.drivers.AuthenticationException;
 import ch.gianlucafrei.nellygateway.services.login.drivers.LoginDriver;
 import ch.gianlucafrei.nellygateway.services.login.drivers.LoginDriverResult;
 import ch.gianlucafrei.nellygateway.services.login.drivers.UserModel;
-import ch.gianlucafrei.nellygateway.services.login.drivers.github.GitHubDriver;
-import ch.gianlucafrei.nellygateway.services.login.drivers.oidc.OidcDriver;
+import ch.gianlucafrei.nellygateway.services.login.drivers.oidc.LoginDriverLoader;
 import ch.gianlucafrei.nellygateway.session.Session;
 import ch.gianlucafrei.nellygateway.utils.CookieUtils;
 import ch.gianlucafrei.nellygateway.utils.UrlUtils;
@@ -47,6 +49,9 @@ public class LoginController {
 
     @Autowired
     private NellyConfig config;
+
+    @Autowired
+    private LoginDriverLoader loginDriverLoader;
 
     @Autowired
     ApplicationContext context;
@@ -89,22 +94,19 @@ public class LoginController {
         response.setStatus(302);
     }
 
-    private LoginDriver loadLoginDriver(String providerKey) {
+    public LoginDriver loadLoginDriver(String providerKey) {
 
         // Load settings
         LoginProvider provider = loadProvider(providerKey);
         URI callbackURI = loadCallbackURI(providerKey);
-
-        // Load login driver
         String driverName = provider.getType();
 
-        if ("oidc".equals(driverName))
-            return new OidcDriver(provider.getWith(), callbackURI);
-
-        if ("github".equals(driverName))
-            return new GitHubDriver(provider.getWith(), callbackURI);
-
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "could not find login driver");
+        try {
+            return loginDriverLoader.loadDriverByKey(driverName, callbackURI, provider.getWith());
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR, "could not find login driver", e);
+        }
     }
 
     public String loadLoginReturnUrl(HttpServletRequest request) {
@@ -241,16 +243,29 @@ public class LoginController {
             HttpServletResponse response,
             HttpServletRequest request) {
 
-        // TODO add csrf protection
+        // Logout csrf prevention
+        CsrfProtectionValidation csrfValidation = getCsrfValidationMethod();
+        if (csrfValidation.shouldBlockRequest(request)) {
+            log.info("Blocked logout request due to csrf protection");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 
-        destroySession(response);
+        } else {
+            // Destroy the user session
+            destroySession(response);
 
-        // Redirect the user
-        String returnUrl = loadLogoutReturnUrl(request);
+            // Get redirection url
+            String returnUrl = loadLogoutReturnUrl(request);
 
-        // Redirect the user
-        response.setHeader("Location", returnUrl);
-        response.setStatus(302);
+            // Redirect the user
+            response.setHeader("Location", returnUrl);
+            response.setStatus(302);
+        }
+    }
+
+    private CsrfProtectionValidation getCsrfValidationMethod() {
+
+        return CsrfValidationFilter.loadValidationImplementation(
+                CsrfSamesiteStrictValidation.NAME, context);
     }
 
     private void destroySession(HttpServletResponse response) {

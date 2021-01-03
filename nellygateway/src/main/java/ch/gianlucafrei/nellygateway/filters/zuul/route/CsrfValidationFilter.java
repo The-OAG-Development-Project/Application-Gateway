@@ -61,7 +61,7 @@ public class CsrfValidationFilter extends ZuulFilter {
 
         if (!isSafeMethod) {
             String csrfProtectionMethod = securityProfile.getCsrfProtection();
-            CsrfProtectionValidation csrfValidation = loadValidationImplementation(csrfProtectionMethod);
+            CsrfProtectionValidation csrfValidation = loadValidationImplementation(csrfProtectionMethod, context);
 
             if (csrfValidation.shouldBlockRequest(request)) {
 
@@ -79,7 +79,7 @@ public class CsrfValidationFilter extends ZuulFilter {
         return null;
     }
 
-    private CsrfProtectionValidation loadValidationImplementation(String csrfProtectionMethod) {
+    public static CsrfProtectionValidation loadValidationImplementation(String csrfProtectionMethod, ApplicationContext context) {
 
         String beanname = "csrf-" + csrfProtectionMethod + "-validation";
         CsrfProtectionValidation validationImplementation = context.getBean(beanname, CsrfProtectionValidation.class);
