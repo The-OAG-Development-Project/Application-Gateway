@@ -34,16 +34,11 @@ jobs:
         recursive: false
         dest: nellygateway${{ steps.get_version.outputs.VERSION }}.zip
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.get_version.outputs.VERSION }}
-        release_name: Release ${{ steps.get_version.outputs.VERSION }}
-        draft: true
-        prerelease: false
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Upload Release Asset
       id: upload-release-asset 
@@ -51,7 +46,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        upload_url: ${{ steps.get_release.outputs.upload_url }}
         asset_path: ./nellygateway${{ steps.get_version.outputs.VERSION }}.zip
         asset_name: nellygateway${{ steps.get_version.outputs.VERSION }}.zip
         asset_content_type: application/gzip
