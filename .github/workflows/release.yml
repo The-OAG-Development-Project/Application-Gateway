@@ -32,7 +32,7 @@ jobs:
       with:
         files: nellygateway/target/artifact/
         recursive: false
-        dest: nellygateway${{ steps.get_version.outputs.VERSION }}.zip
+        dest: nellygateway-${{ steps.get_version.outputs.VERSION }}.zip
 
     - name: Get release
       id: get_release
@@ -47,8 +47,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.get_release.outputs.upload_url }}
-        asset_path: ./nellygateway${{ steps.get_version.outputs.VERSION }}.zip
-        asset_name: nellygateway${{ steps.get_version.outputs.VERSION }}.zip
+        asset_path: ./nellygateway-${{ steps.get_version.outputs.VERSION }}.zip
+        asset_name: nellygateway-${{ steps.get_version.outputs.VERSION }}.zip
         asset_content_type: application/gzip
         
     # Docker build
