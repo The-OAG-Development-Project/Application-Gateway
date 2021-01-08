@@ -34,11 +34,11 @@ jobs:
         recursive: false
         dest: nellygateway${{ steps.get_version.outputs.VERSION }}.zip
 
-      - name: Get release
-        id: get_release
-        uses: bruceadams/get-release@v1.2.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Get release
+      id: get_release
+      uses: bruceadams/get-release@v1.2.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Upload Release Asset
       id: upload-release-asset 
