@@ -16,16 +16,17 @@ Nellygateway is an HTTP reverse proxy that sits between your web application and
 ## Table of Contents
 
 - [Nellygateway](#nellygateway)
-  * [Design Principles](#design-principles)
-    + [Secure by default](#secure-by-default)
-    + [Stateless](#stateless)
-    + [Configuration based](#configuration-based)
-  * [Configuration File](#config-file)
-  * [How to run Nelly](#how-to-run-nelly)
-    + [Docker Release](#docker-release)
-    + [Jar release](#jar-release)
-    + [Compile Nelly Yourself](#compile-nelly-yourself)
-  * [Functionality](#functionality)
+  - [Table of Contents](#table-of-contents)
+  - [Design Principles](#design-principles)
+    - [Secure by default](#secure-by-default)
+    - [Stateless](#stateless)
+    - [Configuration based](#configuration-based)
+  - [Configuration File](#configuration-file)
+  - [How to run Nelly](#how-to-run-nelly)
+    - [Docker Release](#docker-release)
+    - [Jar release](#jar-release)
+    - [Compile Nelly Yourself](#compile-nelly-yourself)
+  - [Functionality](#functionality)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
@@ -150,7 +151,8 @@ todo
 - [x] Upstream authentication with API key
 - [x] GitHub Login support
 - [x] Method whitelisting
-- [x] CSRF Protection
+- [x] CSRF protection
+- [x] Rolling sessions 
 
 Ideas:
 

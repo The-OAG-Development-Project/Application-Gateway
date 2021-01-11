@@ -3,6 +3,7 @@ package ch.gianlucafrei.nellygateway.filters.session;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.cookies.CsrfCookie;
 import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
+import ch.gianlucafrei.nellygateway.session.Session;
 import ch.gianlucafrei.nellygateway.utils.CookieUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -49,5 +50,12 @@ public class CsrfCookieCreationFilter implements NellySessionFilter {
         cookie.setMaxAge(0);
         cookie.setSecure(config.isHttpsHost());
         CookieUtils.addSameSiteCookie(cookie, "Strict", response);
+    }
+
+    @Override
+    public void renewSession(Map<String, Object> filterContext, HttpServletResponse response) {
+
+        Session session = (Session) filterContext.get("old-session");
+        filterContext.put("csrfToken", session.getLoginCookie().getCsrfToken());
     }
 }

@@ -230,12 +230,7 @@ public class LoginController {
 
     private List<NellySessionFilter> getNellySessionFilters() {
 
-        var filters = context.getBeansOfType(NellySessionFilter.class);
-
-        List<NellySessionFilter> sessionFilters = filters.values().stream()
-                .sorted(Comparator.comparingInt(NellySessionFilter::order))
-                .collect(Collectors.toList());
-        return sessionFilters;
+        return NellySessionFilter.getNellySessionFilters(context);
     }
 
     @GetMapping("logout")

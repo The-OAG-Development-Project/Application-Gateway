@@ -6,6 +6,7 @@ import ch.gianlucafrei.nellygateway.services.login.drivers.UserModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Clock;
 import java.util.Optional;
 
 public class Session {
@@ -16,20 +17,22 @@ public class Session {
     private final long remainingTimeSeconds;
     private final String provider;
     private final UserModel userModel;
+    private final LoginCookie loginCookie;
 
-    private Session(long sessionExpSeconds, long remainingTimeSeconds, String provider, UserModel userModel) {
+    private Session(long sessionExpSeconds, long remainingTimeSeconds, String provider, UserModel userModel, LoginCookie loginCookie) {
         this.sessionExpSeconds = sessionExpSeconds;
         this.remainingTimeSeconds = remainingTimeSeconds;
         this.provider = provider;
         this.userModel = userModel;
+        this.loginCookie = loginCookie;
     }
 
-    public static Optional<Session> fromSessionCookie(LoginCookie cookie) {
+    public static Optional<Session> fromSessionCookie(LoginCookie cookie, Clock clock) {
 
         if (cookie == null)
             return Optional.empty();
 
-        long remainingTimeSeconds = cookie.getSessionExpSeconds() - (System.currentTimeMillis() / 1000);
+        long remainingTimeSeconds = cookie.getSessionExpSeconds() - (clock.millis() / 1000);
         if (remainingTimeSeconds < 0) {
             log.info("received expired session cookie");
             return Optional.empty();
@@ -40,7 +43,8 @@ public class Session {
                 cookie.getSessionExpSeconds(),
                 remainingTimeSeconds,
                 cookie.getProviderKey(),
-                cookie.getUserModel()
+                cookie.getUserModel(),
+                cookie
         );
 
         return Optional.of(session);
@@ -61,4 +65,6 @@ public class Session {
     public UserModel getUserModel() {
         return userModel;
     }
+
+    public LoginCookie getLoginCookie(){ return loginCookie; }
 }
