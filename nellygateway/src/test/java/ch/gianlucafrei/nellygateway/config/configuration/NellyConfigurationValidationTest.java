@@ -17,6 +17,7 @@ class NellyConfigurationValidationTest {
         // Arrange
         SessionBehaviour sessionBehaviour = new SessionBehaviour(
                 3600,
+                300,
                 "/",
                 "/",
                 "/");
@@ -42,6 +43,7 @@ class NellyConfigurationValidationTest {
         // Arrange
         SessionBehaviour sessionBehaviour = new SessionBehaviour(
                 -1, // inner error
+                300,
                 "/",
                 "/",
                 "/");
@@ -70,6 +72,7 @@ class NellyConfigurationValidationTest {
         routes.put("route1", new NellyRoute("/**", "http://backend", undefinedSecurityProfileName, true));
         SessionBehaviour sessionBehaviour = new SessionBehaviour(
                 3600, // inner error
+                300,
                 "/",
                 "/",
                 "/");

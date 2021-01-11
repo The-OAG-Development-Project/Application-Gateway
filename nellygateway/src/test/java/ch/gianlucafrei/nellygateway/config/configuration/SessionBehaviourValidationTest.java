@@ -12,6 +12,7 @@ class SessionBehaviourValidationTest {
         // Arrange
         SessionBehaviour behaviour = new SessionBehaviour(
                 3600,
+                300,
                 "/",
                 "/",
                 "/");
@@ -29,6 +30,7 @@ class SessionBehaviourValidationTest {
         // Arrange
         SessionBehaviour behaviour = new SessionBehaviour(
                 3600,
+                0,
                 null,
                 null,
                 null);
@@ -46,6 +48,26 @@ class SessionBehaviourValidationTest {
         // Arrange
         SessionBehaviour behaviour = new SessionBehaviour(
                 10, // too short session duration
+                0,
+                "/",
+                "/",
+                "/");
+
+        // Act
+        var errors = behaviour.getErrors(null);
+
+        // Assert
+        assertEquals(1, errors.size());
+    }
+
+    @Test
+    public void testInvalidRenewalSetting() {
+
+        // Arrange
+        // Arrange
+        SessionBehaviour behaviour = new SessionBehaviour(
+                3600,
+                3600,
                 "/",
                 "/",
                 "/");
