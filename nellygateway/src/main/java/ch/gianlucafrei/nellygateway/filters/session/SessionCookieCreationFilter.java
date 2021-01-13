@@ -1,9 +1,11 @@
 package ch.gianlucafrei.nellygateway.filters.session;
 
+import ch.gianlucafrei.nellygateway.GlobalClockSource;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
 import ch.gianlucafrei.nellygateway.services.login.drivers.UserModel;
+import ch.gianlucafrei.nellygateway.session.Session;
 import ch.gianlucafrei.nellygateway.utils.CookieUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,6 +23,20 @@ public class SessionCookieCreationFilter implements NellySessionFilter {
     @Autowired
     private NellyConfig config;
 
+    @Autowired
+    private GlobalClockSource globalClockSource;
+
+    @Override
+    public void renewSession(Map<String, Object> filterContext, HttpServletResponse response) {
+
+        Session session = (Session) filterContext.get("old-session");
+
+        filterContext.put("providerKey", session.getProvider());
+        filterContext.put("userModel", session.getUserModel());
+
+        createSession(filterContext, response); // Create a new session cookie which overwrites the old one
+    }
+
     @Override
     public int order() {
         return 2;
@@ -32,7 +48,7 @@ public class SessionCookieCreationFilter implements NellySessionFilter {
         String providerKey = (String) filterContext.get("providerKey");
         UserModel model = (UserModel) filterContext.get("userModel");
 
-        int currentTimeSeconds = (int) (System.currentTimeMillis() / 1000);
+        int currentTimeSeconds = (int) (globalClockSource.getGlobalClock().millis() / 1000);
         int sessionDuration = config.getSessionBehaviour().getSessionDuration();
         int sessionExp = currentTimeSeconds + sessionDuration;
 

@@ -27,17 +27,6 @@ class CsrfLogoutTest extends MockServerTest {
     @Autowired
     NellyConfig nellyConfig;
 
-    @Configuration
-    @Import(NellygatewayApplication.class)
-    public static class TestConfig {
-
-        @Primary
-        @Bean
-        NellyConfigLoader nellyConfigLoader() {
-            return new TestFileConfigLoader("/localServerConfiguration.yaml");
-        }
-    }
-
     @Test
     void testLogoutCsrfProtectionBlocksRequest() throws Exception {
 
@@ -83,5 +72,16 @@ class CsrfLogoutTest extends MockServerTest {
                 .cookie(sessionCookie))
                 .andExpect(status().is(200))
                 .andExpect(jsonPath("$.state").value(SessionInformation.SESSION_STATE_ANONYMOUS));
+    }
+
+    @Configuration
+    @Import(NellygatewayApplication.class)
+    public static class TestConfig {
+
+        @Primary
+        @Bean
+        NellyConfigLoader nellyConfigLoader() {
+            return new TestFileConfigLoader("/localServerConfiguration.yaml");
+        }
     }
 }

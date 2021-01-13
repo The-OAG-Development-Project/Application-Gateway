@@ -12,9 +12,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ErrorResponseFilter extends ZuulFilter {
 
-    private static final Logger log = LoggerFactory.getLogger(ErrorResponseFilter.class);
     protected static final String SEND_ERROR_FILTER_RAN = "sendErrorFilter.ran";
-
+    private static final Logger log = LoggerFactory.getLogger(ErrorResponseFilter.class);
     @Autowired
     private NellyConfig config;
 

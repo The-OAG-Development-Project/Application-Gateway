@@ -1,12 +1,13 @@
-hostUri: localhost:8080
+hostUri: http://localhost:8080
 nellyApiKey: env:NELLY_API_KEY
 
 routes:
-  default:
+  echo:
     type: webapplication
     path: /**
     url: https://nellydemoapp.azurewebsites.net
     allowAnonymous: yes
+
   authenticated:
     type: webapplication
     path: /secure/**
@@ -41,6 +42,6 @@ securityProfiles:
       X-Frame-Options: SAMEORIGIN
       X-Content-Type-Options: nosniff
       Referrer-Policy: strict-origin-when-cross-origin
-      Content-Security-Policy: upgrade-insecure-requests;base-uri 'self';object-src 'self'
+      Content-Security-Policy: base-uri 'self';object-src 'self'
       Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
       Strict-Transport-Security: max-age=31536000; includeSubDomains

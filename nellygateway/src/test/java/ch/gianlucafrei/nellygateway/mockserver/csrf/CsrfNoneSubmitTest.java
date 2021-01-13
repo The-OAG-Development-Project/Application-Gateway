@@ -27,18 +27,6 @@ class CsrfNoneSubmitTest extends MockServerTest {
     @Autowired
     NellyConfig nellyConfig;
 
-    @Configuration
-    @Import(NellygatewayApplication.class)
-    public static class TestConfig {
-
-        @Primary
-        @Bean
-        NellyConfigLoader nellyConfigLoader() {
-            return new TestFileConfigLoader("/localServerConfiguration.yaml");
-        }
-    }
-
-
     @RepeatedIfExceptionsTest(repeats = 5)
     void testCsrfNoneTest() throws Exception {
 
@@ -53,5 +41,16 @@ class CsrfNoneSubmitTest extends MockServerTest {
                 .cookie(sessionCookie)
                 .cookie(csrfCookie))
                 .andExpect(status().is(200));
+    }
+
+    @Configuration
+    @Import(NellygatewayApplication.class)
+    public static class TestConfig {
+
+        @Primary
+        @Bean
+        NellyConfigLoader nellyConfigLoader() {
+            return new TestFileConfigLoader("/localServerConfiguration.yaml");
+        }
     }
 }

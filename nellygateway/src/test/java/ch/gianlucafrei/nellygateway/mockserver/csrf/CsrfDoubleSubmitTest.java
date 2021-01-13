@@ -33,17 +33,6 @@ class CsrfDoubleSubmitTest extends MockServerTest {
     @Autowired
     NellyConfig nellyConfig;
 
-    @Configuration
-    @Import(NellygatewayApplication.class)
-    public static class TestConfig {
-
-        @Primary
-        @Bean
-        NellyConfigLoader nellyConfigLoader() {
-            return new TestFileConfigLoader("/localServerConfiguration.yaml");
-        }
-    }
-
     @RepeatedIfExceptionsTest(repeats = 5)
     void testCsrfDoubleSubmitCookie() throws Exception {
 
@@ -109,5 +98,16 @@ class CsrfDoubleSubmitTest extends MockServerTest {
                 .cookie(csrfCookie)
                 .header("X-csrf", "some other value"))
                 .andExpect(status().is(401));
+    }
+
+    @Configuration
+    @Import(NellygatewayApplication.class)
+    public static class TestConfig {
+
+        @Primary
+        @Bean
+        NellyConfigLoader nellyConfigLoader() {
+            return new TestFileConfigLoader("/localServerConfiguration.yaml");
+        }
     }
 }

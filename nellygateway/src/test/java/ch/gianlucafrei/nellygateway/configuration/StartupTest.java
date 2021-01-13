@@ -28,17 +28,6 @@ class StartupTest {
     @Autowired
     private ApplicationContext context;
 
-    @Configuration
-    @Import(NellygatewayApplication.class)
-    public static class TestConfig {
-
-        @Primary
-        @Bean
-        NellyConfigLoader nellyConfigLoader() {
-            return new TestFileConfigLoader("/localServerConfiguration.yaml");
-        }
-    }
-
     @Test
     void testLoadRoutes() {
 
@@ -52,5 +41,16 @@ class StartupTest {
 
         // Assert
         assertEquals(local.getPath(), localZuulRoute.getPath());
+    }
+
+    @Configuration
+    @Import(NellygatewayApplication.class)
+    public static class TestConfig {
+
+        @Primary
+        @Bean
+        NellyConfigLoader nellyConfigLoader() {
+            return new TestFileConfigLoader("/localServerConfiguration.yaml");
+        }
     }
 }

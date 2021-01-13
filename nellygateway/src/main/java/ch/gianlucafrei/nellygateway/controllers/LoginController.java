@@ -35,26 +35,24 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
 public class LoginController {
 
     private static final Logger log = LoggerFactory.getLogger(LoginController.class);
-
-    @Autowired
-    private CookieEncryptor cookieEncryptor;
-
-    @Autowired
-    private NellyConfig config;
-
-    @Autowired
-    private LoginDriverLoader loginDriverLoader;
-
     @Autowired
     ApplicationContext context;
+    @Autowired
+    private CookieEncryptor cookieEncryptor;
+    @Autowired
+    private NellyConfig config;
+    @Autowired
+    private LoginDriverLoader loginDriverLoader;
 
     @GetMapping("session")
     public SessionInformation sessionInfo(
@@ -230,12 +228,7 @@ public class LoginController {
 
     private List<NellySessionFilter> getNellySessionFilters() {
 
-        var filters = context.getBeansOfType(NellySessionFilter.class);
-
-        List<NellySessionFilter> sessionFilters = filters.values().stream()
-                .sorted(Comparator.comparingInt(NellySessionFilter::order))
-                .collect(Collectors.toList());
-        return sessionFilters;
+        return NellySessionFilter.getNellySessionFilters(context);
     }
 
     @GetMapping("logout")

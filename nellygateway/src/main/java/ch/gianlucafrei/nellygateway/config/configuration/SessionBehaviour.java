@@ -9,6 +9,7 @@ import java.util.List;
 public class SessionBehaviour implements ErrorValidation {
 
     private int sessionDuration;
+    private int renewWhenLessThan;
     private String redirectLoginSuccess;
     private String redirectLoginFailure;
     private String redirectLogout;
@@ -16,8 +17,9 @@ public class SessionBehaviour implements ErrorValidation {
     public SessionBehaviour() {
     }
 
-    public SessionBehaviour(int sessionDuration, String redirectLoginSuccess, String redirectLoginFailure, String redirectLogout) {
+    public SessionBehaviour(int sessionDuration, int renewWhenLessThan, String redirectLoginSuccess, String redirectLoginFailure, String redirectLogout) {
         this.sessionDuration = sessionDuration;
+        this.renewWhenLessThan = renewWhenLessThan;
         this.redirectLoginSuccess = redirectLoginSuccess;
         this.redirectLoginFailure = redirectLoginFailure;
         this.redirectLogout = redirectLogout;
@@ -55,6 +57,14 @@ public class SessionBehaviour implements ErrorValidation {
         this.redirectLogout = redirectLogout;
     }
 
+    public int getRenewWhenLessThan() {
+        return renewWhenLessThan;
+    }
+
+    private void setRenewWhenLessThan(int renewWhenLessThan) {
+        this.renewWhenLessThan = renewWhenLessThan;
+    }
+
     @Override
     public List<String> getErrors(ApplicationContext context) {
         var errors = new ArrayList<String>();
@@ -70,6 +80,12 @@ public class SessionBehaviour implements ErrorValidation {
 
         if (redirectLogout == null)
             errors.add("redirectLogout not defined");
+
+        if (!errors.isEmpty())
+            return errors;
+
+        if (renewWhenLessThan >= sessionDuration)
+            errors.add("renewWhenLessThan cannot be >= than sessionDuration");
 
         return errors;
     }

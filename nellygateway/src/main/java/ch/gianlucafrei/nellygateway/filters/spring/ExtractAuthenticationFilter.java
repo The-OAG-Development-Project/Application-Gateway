@@ -1,5 +1,6 @@
 package ch.gianlucafrei.nellygateway.filters.spring;
 
+import ch.gianlucafrei.nellygateway.GlobalClockSource;
 import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieDecryptionException;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
@@ -29,6 +30,9 @@ public class ExtractAuthenticationFilter implements Filter {
     @Autowired
     CookieEncryptor cookieEncryptor;
 
+    @Autowired
+    GlobalClockSource globalClockSource;
+
     @Override
     public void doFilter(
             ServletRequest request,
@@ -47,7 +51,7 @@ public class ExtractAuthenticationFilter implements Filter {
             try {
                 // Decrypt cookie
                 LoginCookie loginCookie = cookieEncryptor.decryptObject(cookie.getValue(), LoginCookie.class);
-                sessionOptional = Session.fromSessionCookie(loginCookie);
+                sessionOptional = Session.fromSessionCookie(loginCookie, globalClockSource.getGlobalClock());
 
                 // Extract csrf token from session cookie and store in context
                 req.setAttribute(NELLY_SESSION_CSRF_TOKEN, loginCookie.getCsrfToken());
