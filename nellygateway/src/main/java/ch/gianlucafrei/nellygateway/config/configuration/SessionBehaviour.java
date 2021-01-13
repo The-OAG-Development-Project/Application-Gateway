@@ -85,7 +85,7 @@ public class SessionBehaviour implements ErrorValidation {
             return errors;
 
         if (renewWhenLessThan >= sessionDuration)
-            errors.add("renewWhenLessThan cannot be larger than sessionDuration");
+            errors.add("renewWhenLessThan cannot be >= than sessionDuration");
 
         return errors;
     }
