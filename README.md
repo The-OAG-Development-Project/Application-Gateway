@@ -85,6 +85,7 @@ loginProviders:
 
 sessionBehaviour:
   sessionDuration: 3600
+  renewWhenLessThan: 1800
   redirectLoginSuccess: /app
   redirectLoginFailure: /uups
   redirectLogout: /
