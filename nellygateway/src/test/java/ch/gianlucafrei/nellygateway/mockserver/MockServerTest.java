@@ -32,20 +32,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class MockServerTest {
 
-    @Autowired
-    public MockMvc mockMvc;
-
+    public static final int MOCK_SERVER_PORT = 7777;
     private static final Logger log = LoggerFactory.getLogger(MockServerTest.class);
 
     public static HttpServer httpServer;
-    public static final int MOCK_SERVER_PORT = 7777;
     public static String TEST_SERVER_URI = "http://localhost:7777";
-
     public static String TEST_1_ENDPOINT = "/foo";
     public static String TEST_1_RESPONSE = "foo}";
-
     public static String TEST_2_ENDPOINT = "/bar";
     public static String TEST_2_RESPONSE = "bar";
+    @Autowired
+    public MockMvc mockMvc;
 
     @BeforeEach
     public void StartUpMockServer() throws IOException {
@@ -137,7 +134,7 @@ public class MockServerTest {
 
         httpServer.stop(0);
     }
-    
+
     public MvcResult makeLogin() throws Exception {
 
         MvcResult loginResult = this.mockMvc.perform(

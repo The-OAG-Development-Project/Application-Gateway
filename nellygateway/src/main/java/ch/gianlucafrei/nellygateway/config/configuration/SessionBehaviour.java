@@ -81,7 +81,7 @@ public class SessionBehaviour implements ErrorValidation {
         if (redirectLogout == null)
             errors.add("redirectLogout not defined");
 
-        if(! errors.isEmpty())
+        if (!errors.isEmpty())
             return errors;
 
         if (renewWhenLessThan >= sessionDuration)

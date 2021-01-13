@@ -21,17 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class ProxyLocalTest extends MockServerTest {
 
-    @Configuration
-    @Import(NellygatewayApplication.class)
-    public static class TestConfig {
-
-        @Primary
-        @Bean
-        NellyConfigLoader nellyConfigLoader() {
-            return new TestFileConfigLoader("/localServerConfiguration.yaml");
-        }
-    }
-
     @Test
     void testProxyBody1() throws Exception {
 
@@ -105,6 +94,17 @@ class ProxyLocalTest extends MockServerTest {
 
         // Assert
         assertEquals(404, response.statusCode());
+    }
+
+    @Configuration
+    @Import(NellygatewayApplication.class)
+    public static class TestConfig {
+
+        @Primary
+        @Bean
+        NellyConfigLoader nellyConfigLoader() {
+            return new TestFileConfigLoader("/localServerConfiguration.yaml");
+        }
     }
 
 }

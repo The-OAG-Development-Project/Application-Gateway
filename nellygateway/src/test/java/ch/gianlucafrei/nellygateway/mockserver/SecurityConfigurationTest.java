@@ -15,18 +15,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class SecurityConfigurationTest extends MockServerTest {
 
-    @Configuration
-    @Import(NellygatewayApplication.class)
-    public static class TestConfig {
-
-        @Primary
-        @Bean
-        NellyConfigLoader nellyConfigLoader() {
-            return new TestFileConfigLoader("/localServerConfiguration.yaml");
-        }
-    }
-
-
     @Test
     void testProxyBlocksWhenAllowAnonymous() throws Exception {
 
@@ -61,5 +49,16 @@ class SecurityConfigurationTest extends MockServerTest {
         this.mockMvc.perform(MockMvcRequestBuilders
                 .delete("/static" + TEST_1_ENDPOINT))
                 .andExpect(status().is(405));
+    }
+
+    @Configuration
+    @Import(NellygatewayApplication.class)
+    public static class TestConfig {
+
+        @Primary
+        @Bean
+        NellyConfigLoader nellyConfigLoader() {
+            return new TestFileConfigLoader("/localServerConfiguration.yaml");
+        }
     }
 }

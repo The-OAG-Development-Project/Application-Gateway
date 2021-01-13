@@ -18,10 +18,9 @@ import org.springframework.context.annotation.Primary;
 @Configuration
 public class CustomZuulConfiguration {
 
+    private static final Logger log = LoggerFactory.getLogger(CustomZuulConfiguration.class);
     @Autowired
     private NellyConfig nellyConfig;
-
-    private static final Logger log = LoggerFactory.getLogger(CustomZuulConfiguration.class);
 
     @Primary
     @Bean(name = "zuul.CONFIGURATION_PROPERTIES")

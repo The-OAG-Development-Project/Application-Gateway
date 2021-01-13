@@ -26,6 +26,16 @@ public class SessionCookieCreationFilter implements NellySessionFilter {
     @Autowired
     private GlobalClockSource globalClockSource;
 
+    @Override
+    public void renewSession(Map<String, Object> filterContext, HttpServletResponse response) {
+
+        Session session = (Session) filterContext.get("old-session");
+
+        filterContext.put("providerKey", session.getProvider());
+        filterContext.put("userModel", session.getUserModel());
+
+        createSession(filterContext, response); // Create a new session cookie which overwrites the old one
+    }
 
     @Override
     public int order() {
@@ -70,16 +80,5 @@ public class SessionCookieCreationFilter implements NellySessionFilter {
         cookie.setMaxAge(0);
         cookie.setSecure(config.isHttpsHost());
         CookieUtils.addSameSiteCookie(cookie, LoginCookie.SAMESITE, response);
-    }
-
-    @Override
-    public void renewSession(Map<String, Object> filterContext, HttpServletResponse response) {
-
-        Session session = (Session) filterContext.get("old-session");
-
-        filterContext.put("providerKey", session.getProvider());
-        filterContext.put("userModel", session.getUserModel());
-
-        createSession(filterContext, response); // Create a new session cookie which overwrites the old one
     }
 }

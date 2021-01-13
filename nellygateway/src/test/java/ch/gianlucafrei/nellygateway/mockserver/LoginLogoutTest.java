@@ -30,17 +30,6 @@ class LoginLogoutTest extends MockServerTest {
     @Autowired
     NellyConfig nellyConfig;
 
-    @Configuration
-    @Import(NellygatewayApplication.class)
-    public static class TestConfig {
-
-        @Primary
-        @Bean
-        NellyConfigLoader nellyConfigLoader() {
-            return new TestFileConfigLoader("/localServerConfiguration.yaml");
-        }
-    }
-
     @Test
     void testLoginGetRedirectUrl() throws Exception {
 
@@ -107,5 +96,16 @@ class LoginLogoutTest extends MockServerTest {
                 get("/auth/session")) // no session cookie
                 .andExpect(status().is(200))
                 .andExpect(jsonPath("$.state").value(SessionInformation.SESSION_STATE_ANONYMOUS));
+    }
+
+    @Configuration
+    @Import(NellygatewayApplication.class)
+    public static class TestConfig {
+
+        @Primary
+        @Bean
+        NellyConfigLoader nellyConfigLoader() {
+            return new TestFileConfigLoader("/localServerConfiguration.yaml");
+        }
     }
 }

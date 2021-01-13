@@ -66,5 +66,7 @@ public class Session {
         return userModel;
     }
 
-    public LoginCookie getLoginCookie(){ return loginCookie; }
+    public LoginCookie getLoginCookie() {
+        return loginCookie;
+    }
 }

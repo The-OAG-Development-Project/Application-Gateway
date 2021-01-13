@@ -19,7 +19,7 @@ public class GlobalClockSource {
 
     public void setGlobalClock(Clock clock) {
 
-        if(clock == null)
+        if (clock == null)
             throw new IllegalArgumentException("Clock must not be null");
 
         this.clock = clock;

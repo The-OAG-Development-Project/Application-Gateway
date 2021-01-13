@@ -20,6 +20,13 @@ public class CsrfCookieCreationFilter implements NellySessionFilter {
     NellyConfig config;
 
     @Override
+    public void renewSession(Map<String, Object> filterContext, HttpServletResponse response) {
+
+        Session session = (Session) filterContext.get("old-session");
+        filterContext.put("csrfToken", session.getLoginCookie().getCsrfToken());
+    }
+
+    @Override
     public int order() {
         return 1;
     }
@@ -50,12 +57,5 @@ public class CsrfCookieCreationFilter implements NellySessionFilter {
         cookie.setMaxAge(0);
         cookie.setSecure(config.isHttpsHost());
         CookieUtils.addSameSiteCookie(cookie, "Strict", response);
-    }
-
-    @Override
-    public void renewSession(Map<String, Object> filterContext, HttpServletResponse response) {
-
-        Session session = (Session) filterContext.get("old-session");
-        filterContext.put("csrfToken", session.getLoginCookie().getCsrfToken());
     }
 }

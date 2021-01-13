@@ -18,15 +18,9 @@ import java.io.IOException;
 @Configuration
 public class NellyBeanConfiguration {
 
+    private static final Logger log = LoggerFactory.getLogger(NellyBeanConfiguration.class);
     @Autowired
     private ApplicationContext context;
-
-    private static final Logger log = LoggerFactory.getLogger(NellyBeanConfiguration.class);
-
-    @Bean
-    NellyConfigLoader nellyConfigLoader() {
-        return new FileConfigLoader();
-    }
 
     @Bean
     public NellyConfig nellyConfig() {
@@ -53,6 +47,11 @@ public class NellyBeanConfiguration {
             log.error("Could not load nelly configuration {}", e.getMessage());
             throw new RuntimeException("Could not load nelly configuration", e);
         }
+    }
+
+    @Bean
+    NellyConfigLoader nellyConfigLoader() {
+        return new FileConfigLoader();
     }
 
     @Bean

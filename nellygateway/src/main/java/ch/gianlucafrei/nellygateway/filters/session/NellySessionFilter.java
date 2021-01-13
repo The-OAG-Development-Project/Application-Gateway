@@ -1,6 +1,5 @@
 package ch.gianlucafrei.nellygateway.filters.session;
 
-import ch.gianlucafrei.nellygateway.session.Session;
 import org.springframework.context.ApplicationContext;
 
 import javax.servlet.http.HttpServletResponse;
@@ -11,13 +10,11 @@ import java.util.stream.Collectors;
 
 public interface NellySessionFilter {
 
-    int order();
+    static void runRenewSessionFilterChain(ApplicationContext context, Map<String, Object> filterContext, HttpServletResponse response) {
 
-    void createSession(Map<String, Object> filterContext, HttpServletResponse response);
-
-    void destroySession(Map<String, Object> filterContext, HttpServletResponse response);
-
-    void renewSession(Map<String, Object> filterContext, HttpServletResponse response);
+        var filters = getNellySessionFilters(context);
+        filters.forEach(f -> f.renewSession(filterContext, response));
+    }
 
     static List<NellySessionFilter> getNellySessionFilters(ApplicationContext context) {
 
@@ -30,9 +27,11 @@ public interface NellySessionFilter {
         return sessionFilters;
     }
 
-    static void runRenewSessionFilterChain(ApplicationContext context, Map<String, Object> filterContext, HttpServletResponse response){
+    void renewSession(Map<String, Object> filterContext, HttpServletResponse response);
 
-        var filters = getNellySessionFilters(context);
-        filters.forEach(f -> f.renewSession(filterContext, response));
-    }
+    int order();
+
+    void createSession(Map<String, Object> filterContext, HttpServletResponse response);
+
+    void destroySession(Map<String, Object> filterContext, HttpServletResponse response);
 }

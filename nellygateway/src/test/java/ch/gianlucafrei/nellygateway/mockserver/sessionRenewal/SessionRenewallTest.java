@@ -23,8 +23,8 @@ import javax.servlet.http.Cookie;
 import java.time.Clock;
 import java.time.Duration;
 
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -36,19 +36,8 @@ class SessionRenewallTest extends MockServerTest {
     @Autowired
     GlobalClockSource globalClockSource;
 
-    @Configuration
-    @Import(NellygatewayApplication.class)
-    public static class TestConfig {
-
-        @Primary
-        @Bean
-        NellyConfigLoader nellyConfigLoader() {
-            return new TestFileConfigLoader("/localServerConfiguration.yaml");
-        }
-    }
-
     @BeforeEach
-    void beforeEach(){
+    void beforeEach() {
         globalClockSource.setGlobalClock(Clock.systemUTC());
     }
 
@@ -105,5 +94,16 @@ class SessionRenewallTest extends MockServerTest {
         Cookie sessionCookie2 = response.getCookie(LoginCookie.NAME);
 
         assertNull(sessionCookie2);
+    }
+
+    @Configuration
+    @Import(NellygatewayApplication.class)
+    public static class TestConfig {
+
+        @Primary
+        @Bean
+        NellyConfigLoader nellyConfigLoader() {
+            return new TestFileConfigLoader("/localServerConfiguration.yaml");
+        }
     }
 }
