@@ -6,26 +6,24 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5eaa206a103e4b28be9da2ba857d1653)](https://app.codacy.com/gh/gianlucafrei/nellygateway?utm_source=github.com&utm_medium=referral&utm_content=gianlucafrei/nellygateway&utm_campaign=Badge_Grade)
 ![Java CI with Maven](https://github.com/gianlucafrei/nellygateway/workflows/Java%20CI%20with%20Maven/badge.svg)
 
-An elephant strong web application gateway that handles oauth2 authentication and session management.
+🏗️ **NOWASP Application Gateway is work-in-progress. No productive version has been released yet.**
 
-🏗️ **Nellygateway is work-in-progress. No productive version has been released yet.**
-
-Nellygateway is an HTTP reverse proxy that sits between your web application and the client and handles Oauth2 login and session management. For you, as a developer, Nelly removes the hassle to implement complicated oauth2 logic in the backend and frontend so you can focus totally on your applications logic.
+OWASP Application Gateway is an HTTP reverse proxy that sits between your web application and the client and handles Oauth2 login and session management. For you, as a developer, OWASP Application Gateway removes the hassle to implement complicated oauth2 logic in the backend and frontend so you can focus totally on your applications logic.
 
 <img src="https://github.com/gianlucafrei/nellygateway/blob/main/doc/overview.png?raw=true" data-canonical-src="https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png" width="500" />
 
 ## Table of Contents
 
-- [OWASP Application Gateway](#OWASP Application Gateway)
+- [OWASP Application Gateway](#owasp-application-gateway)
   * [Design Principles](#design-principles)
     + [Secure by default](#secure-by-default)
     + [Stateless](#stateless)
     + [Configuration based](#configuration-based)
   * [Configuration File](#config-file)
-  * [How to run Nelly](#how-to-run-nelly)
+  * [How to run](#how-to-run)
     + [Docker Release](#docker-release)
     + [Jar release](#jar-release)
-    + [Compile Nelly Yourself](#compile-nelly-yourself)
+    + [Compile it yourself](#compile-it-yourself)
   * [Functionality](#functionality)
 
 
@@ -33,19 +31,19 @@ Nellygateway is an HTTP reverse proxy that sits between your web application and
 
 ### Secure by default
 
-Implementing secure logins and session management became much more complicated within the last few years. Nellygateway aims to make this easier. Also, it implements many security hardening measures out of the box.
+Implementing secure logins and session management became much more complicated within the last few years. OWASP Application Gateway aims to make this easier. Also, it implements many security hardening measures out of the box.
 
 ### Stateless
 
-Wherever possible, Nelly is stateless. All session information is stored within encrypted cookies on the clients. Stateless session management makes it a lot easier to deploy Nelly on multiple nodes.
+Wherever possible, OWASP Application Gateway is stateless. All session information is stored within encrypted cookies on the clients. Stateless session management makes it a lot easier to deploy OWASP Application Gateway on multiple nodes.
 
 ### Configuration based
 
-Nelly's behavior is controlled with a central configuration file describing all routes and Oauth2 integrations. This makes it easier to review the configuration for security issues and to debug on different environments. The deployment and scaling are straightforward; configure the config file's file path, and that's all you need to do.
+OWASP Application Gateway's behavior is controlled with a central configuration file describing all routes and Oauth2 integrations. This makes it easier to review the configuration for security issues and to debug on different environments. The deployment and scaling are straightforward; configure the config file's file path, and that's all you need to do.
 
 ## Configuration File
 
-Nelly is fully configured with a simple and easy to understand configuration file. Details are documented in the [GitHub wiki](https://github.com/gianlucafrei/nellygateway/wiki).
+OWASP Application Gateway is fully configured with a simple and easy to understand configuration file. Details are documented in the [GitHub wiki](https://github.com/gianlucafrei/nellygateway/wiki).
 
 ```yaml
 hostUri: http://example.com
@@ -107,13 +105,13 @@ nellyApiKey: env:NELLY_API_KEY
 trustedRedirectHosts: [subdomain.example.com]
 ```
 
-## How to run Nelly
+## How to run
 
-You have two options on how to run Nelly: There is an official docker image that you can just works out of the box. You just need to mount the nelly config file via docker volumes. If you don't want to use docker you can also use the download the released jar file. Of course you can also build Nelly by yourself with Maven.
+You have two options on how to run OWASP Application Gateway: There is an official docker image that you can just works out of the box. You just need to mount the nelly config file via docker volumes. If you don't want to use docker you can also use the download the released jar file. Of course you can also build OWASP Application Gateway by yourself with Maven.
 
 ### Docker Release
 
-You can find the Nelly Docker image at https://hub.docker.com/r/gianlucafrei/nellygateway
+You can find the Docker image at https://hub.docker.com/r/gianlucafrei/nellygateway
 
 Download and Start:
 ```bash
@@ -132,7 +130,7 @@ docker run -e NELLY_CONFIG_PATH=/app/config.nelly -v ${PWD}/nelly-config.yaml:/a
 
 todo
 
-### Compile Nelly Yourself
+### Compile it Yourself
 
 todo
 
