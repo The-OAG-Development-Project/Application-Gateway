@@ -1,5 +1,6 @@
-# Nellygateway
+# OWASP Application Gateway
 
+[![OWASP Incubator](https://img.shields.io/badge/owasp-incubator-blue.svg)](https://owasp.org/www-project-application-gateway/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/gianlucafrei/nellygateway)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5eaa206a103e4b28be9da2ba857d1653)](https://app.codacy.com/gh/gianlucafrei/nellygateway?utm_source=github.com&utm_medium=referral&utm_content=gianlucafrei/nellygateway&utm_campaign=Badge_Grade)
@@ -15,7 +16,7 @@ Nellygateway is an HTTP reverse proxy that sits between your web application and
 
 ## Table of Contents
 
-- [Nellygateway](#nellygateway)
+- [OWASP Application Gateway](#OWASP Application Gateway)
   * [Design Principles](#design-principles)
     + [Secure by default](#secure-by-default)
     + [Stateless](#stateless)
@@ -26,8 +27,6 @@ Nellygateway is an HTTP reverse proxy that sits between your web application and
     + [Jar release](#jar-release)
     + [Compile Nelly Yourself](#compile-nelly-yourself)
   * [Functionality](#functionality)
-
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 
 ## Design Principles
