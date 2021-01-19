@@ -6,7 +6,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5eaa206a103e4b28be9da2ba857d1653)](https://app.codacy.com/gh/gianlucafrei/nellygateway?utm_source=github.com&utm_medium=referral&utm_content=gianlucafrei/nellygateway&utm_campaign=Badge_Grade)
 ![Java CI with Maven](https://github.com/gianlucafrei/nellygateway/workflows/Java%20CI%20with%20Maven/badge.svg)
 
-🏗️ **NOWASP Application Gateway is work-in-progress. No productive version has been released yet.**
+🏗️ **OWASP Application Gateway is work-in-progress. No productive version has been released yet.**
 
 OWASP Application Gateway is an HTTP reverse proxy that sits between your web application and the client and handles Oauth2 login and session management. For you, as a developer, OWASP Application Gateway removes the hassle to implement complicated oauth2 logic in the backend and frontend so you can focus totally on your applications logic.
 
