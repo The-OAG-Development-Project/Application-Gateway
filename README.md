@@ -8,6 +8,9 @@
 
 🏗️ **OWASP Application Gateway is work-in-progress. No productive version has been released yet.**
 
+<img src="https://owasp.org/www-policy/branding-assets/OWASP-Combination-mark-r.png" width="500" />
+
+
 OWASP Application Gateway is an HTTP reverse proxy that sits between your web application and the client and handles Oauth2 login and session management. For you, as a developer, OWASP Application Gateway removes the hassle to implement complicated oauth2 logic in the backend and frontend so you can focus totally on your applications logic.
 
 <img src="https://github.com/gianlucafrei/nellygateway/blob/main/doc/overview.png?raw=true" data-canonical-src="https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png" width="500" />
@@ -15,16 +18,17 @@ OWASP Application Gateway is an HTTP reverse proxy that sits between your web ap
 ## Table of Contents
 
 - [OWASP Application Gateway](#owasp-application-gateway)
-  * [Design Principles](#design-principles)
-    + [Secure by default](#secure-by-default)
-    + [Stateless](#stateless)
-    + [Configuration based](#configuration-based)
-  * [Configuration File](#config-file)
-  * [How to run](#how-to-run)
-    + [Docker Release](#docker-release)
-    + [Jar release](#jar-release)
-    + [Compile it yourself](#compile-it-yourself)
-  * [Functionality](#functionality)
+  - [Table of Contents](#table-of-contents)
+  - [Design Principles](#design-principles)
+    - [Secure by default](#secure-by-default)
+    - [Stateless](#stateless)
+    - [Configuration based](#configuration-based)
+  - [Configuration File](#configuration-file)
+  - [How to run](#how-to-run)
+    - [Docker Release](#docker-release)
+    - [Jar release](#jar-release)
+    - [Compile it Yourself](#compile-it-yourself)
+  - [Functionality](#functionality)
 
 
 ## Design Principles
