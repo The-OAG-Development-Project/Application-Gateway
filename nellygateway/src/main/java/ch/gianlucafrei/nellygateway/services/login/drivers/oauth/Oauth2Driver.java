@@ -16,9 +16,9 @@ import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.Tokens;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -95,15 +95,15 @@ public abstract class Oauth2Driver extends LoginDriverBase {
     }
 
     @Override
-    public UserModel processCallback(HttpServletRequest request, String stateFromLoginStep) throws AuthenticationException {
+    public UserModel processCallback(ServerHttpRequest request, String stateFromLoginStep) throws AuthenticationException {
 
         var settings = getSettings();
 
-        String authCode = request.getParameter("code");
+        String authCode = request.getQueryParams().getFirst("code");
         if (authCode == null)
             throw new AuthenticationException("No auth code");
 
-        String stateFromRequest = request.getParameter("state");
+        String stateFromRequest = request.getQueryParams().getFirst("state");
         if (stateFromRequest == null)
             throw new AuthenticationException("No state");
 

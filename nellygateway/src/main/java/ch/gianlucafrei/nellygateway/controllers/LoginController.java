@@ -3,12 +3,11 @@ package ch.gianlucafrei.nellygateway.controllers;
 import ch.gianlucafrei.nellygateway.config.configuration.LoginProvider;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.controllers.dto.SessionInformation;
+import ch.gianlucafrei.nellygateway.cookies.CookieConverter;
 import ch.gianlucafrei.nellygateway.cookies.LoginStateCookie;
 import ch.gianlucafrei.nellygateway.filters.session.NellySessionFilter;
 import ch.gianlucafrei.nellygateway.filters.spring.ExtractAuthenticationFilter;
-import ch.gianlucafrei.nellygateway.filters.zuul.route.CsrfValidationFilter;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieDecryptionException;
-import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
 import ch.gianlucafrei.nellygateway.services.csrf.CsrfProtectionValidation;
 import ch.gianlucafrei.nellygateway.services.csrf.CsrfSamesiteStrictValidation;
 import ch.gianlucafrei.nellygateway.services.login.drivers.AuthenticationException;
@@ -17,22 +16,22 @@ import ch.gianlucafrei.nellygateway.services.login.drivers.LoginDriverResult;
 import ch.gianlucafrei.nellygateway.services.login.drivers.UserModel;
 import ch.gianlucafrei.nellygateway.services.login.drivers.oidc.LoginDriverLoader;
 import ch.gianlucafrei.nellygateway.session.Session;
-import ch.gianlucafrei.nellygateway.utils.CookieUtils;
 import ch.gianlucafrei.nellygateway.utils.UrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.server.ServerWebExchange;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -48,19 +47,16 @@ public class LoginController {
     @Autowired
     ApplicationContext context;
     @Autowired
-    private CookieEncryptor cookieEncryptor;
-    @Autowired
     private NellyConfig config;
     @Autowired
     private LoginDriverLoader loginDriverLoader;
+    @Autowired
+    private CookieConverter cookieConverter;
 
     @GetMapping("session")
-    public SessionInformation sessionInfo(
-            HttpServletResponse response,
-            HttpServletRequest request
-    ) {
+    public SessionInformation sessionInfo(ServerWebExchange exchange) {
         SessionInformation sessionInformation;
-        Optional<Session> sessionOptional = (Optional<Session>) request.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
+        Optional<Session> sessionOptional = (Optional<Session>) exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
 
         if (sessionOptional.isPresent()) {
             sessionInformation = new SessionInformation(SessionInformation.SESSION_STATE_AUTHENTICATED);
@@ -76,8 +72,10 @@ public class LoginController {
     @GetMapping("{providerKey}/login")
     public void login(
             @PathVariable(value = "providerKey") String providerKey,
-            HttpServletResponse response,
-            HttpServletRequest request) {
+            ServerWebExchange exchange) {
+
+        var request = exchange.getRequest();
+        var response = exchange.getResponse();
 
         // Load login implementation
         LoginDriver loginDriver = loadLoginDriver(providerKey);
@@ -88,8 +86,8 @@ public class LoginController {
         storeLoginState(providerKey, loginDriverResult, returnUrl, response);
 
         // Redirect the user
-        response.setHeader("Location", loginDriverResult.getAuthURI().toString());
-        response.setStatus(302);
+        response.getHeaders().add("Location", loginDriverResult.getAuthURI().toString());
+        response.setRawStatusCode(302);
     }
 
     public LoginDriver loadLoginDriver(String providerKey) {
@@ -107,9 +105,9 @@ public class LoginController {
         }
     }
 
-    public String loadLoginReturnUrl(HttpServletRequest request) {
+    public String loadLoginReturnUrl(ServerHttpRequest request) {
 
-        String returnUrl = request.getParameter("returnUrl");
+        String returnUrl = request.getQueryParams().getFirst("returnUrl");
 
         // Validate return url
         if (returnUrl == null) {
@@ -127,14 +125,10 @@ public class LoginController {
             String providerKey,
             LoginDriverResult loginDriverResult,
             String returnUrl,
-            HttpServletResponse response) {
+            ServerHttpResponse response) {
 
         LoginStateCookie stateCookie = new LoginStateCookie(providerKey, loginDriverResult.getState(), returnUrl);
-        String encryptedStateCookie = cookieEncryptor.encryptObject(stateCookie);
-        Cookie cookie = new Cookie(LoginStateCookie.NAME, encryptedStateCookie);
-        cookie.setHttpOnly(true);
-
-        response.addCookie(cookie);
+        response.addCookie(cookieConverter.convertStateCookie(stateCookie));
     }
 
     private LoginProvider loadProvider(String providerKey) {
@@ -168,8 +162,9 @@ public class LoginController {
     @GetMapping("{providerKey}/callback")
     public void callback(
             @PathVariable(value = "providerKey") String providerKey,
-            HttpServletResponse response,
-            HttpServletRequest request) {
+            ServerWebExchange exchange) {
+        var request = exchange.getRequest();
+        var response = exchange.getResponse();
 
         // Load login implementation
         LoginDriver loginDriver = loadLoginDriver(providerKey);
@@ -186,8 +181,8 @@ public class LoginController {
             createSession(providerKey, model, response);
 
             // Redirect the user
-            response.setHeader("Location", loginState.getReturnUrl());
-            response.setStatus(302);
+            response.getHeaders().add("Location", loginState.getReturnUrl());
+            response.setRawStatusCode(302);
 
         } catch (AuthenticationException e) {
 
@@ -196,9 +191,9 @@ public class LoginController {
 
     }
 
-    private LoginStateCookie loadLoginState(HttpServletRequest request) {
+    private LoginStateCookie loadLoginState(ServerHttpRequest request) {
 
-        Cookie oidcCookie = CookieUtils.getCookieOrNull(LoginStateCookie.NAME, request);
+        HttpCookie oidcCookie = request.getCookies().getFirst(LoginStateCookie.NAME);
 
         if (oidcCookie == null)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No login state");
@@ -206,7 +201,7 @@ public class LoginController {
 
         try {
             // Try decrypt
-            return cookieEncryptor.decryptObject(oidcCookie.getValue(), LoginStateCookie.class);
+            return cookieConverter.convertStateCookie(oidcCookie);
 
         } catch (CookieDecryptionException e) {
 
@@ -214,7 +209,7 @@ public class LoginController {
         }
     }
 
-    private void createSession(String providerKey, UserModel model, HttpServletResponse response) {
+    private void createSession(String providerKey, UserModel model, ServerHttpResponse response) {
 
         var filterContext = new HashMap<String, Object>();
 
@@ -233,12 +228,14 @@ public class LoginController {
 
     @GetMapping("logout")
     public void logout(
-            HttpServletResponse response,
-            HttpServletRequest request) {
+            ServerWebExchange exchange) {
+
+        var request = exchange.getRequest();
+        var response = exchange.getResponse();
 
         // Logout csrf prevention
         CsrfProtectionValidation csrfValidation = getCsrfValidationMethod();
-        if (csrfValidation.shouldBlockRequest(request)) {
+        if (csrfValidation.shouldBlockRequest(exchange)) {
             log.info("Blocked logout request due to csrf protection");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         } else {
@@ -249,27 +246,27 @@ public class LoginController {
             String returnUrl = loadLogoutReturnUrl(request);
 
             // Redirect the user
-            response.setHeader("Location", returnUrl);
-            response.setStatus(302);
+            response.getHeaders().add("Location", returnUrl);
+            response.setRawStatusCode(302);
         }
     }
 
     private CsrfProtectionValidation getCsrfValidationMethod() {
 
-        return CsrfValidationFilter.loadValidationImplementation(
+        return CsrfProtectionValidation.loadValidationImplementation(
                 CsrfSamesiteStrictValidation.NAME, context);
     }
 
-    private void destroySession(HttpServletResponse response) {
+    private void destroySession(ServerHttpResponse response) {
 
         var filterContext = new HashMap<String, Object>();
         List<NellySessionFilter> sessionFilters = getNellySessionFilters();
         sessionFilters.forEach(f -> f.destroySession(filterContext, response));
     }
 
-    public String loadLogoutReturnUrl(HttpServletRequest request) {
+    public String loadLogoutReturnUrl(ServerHttpRequest request) {
 
-        String returnUrl = request.getParameter("returnUrl");
+        String returnUrl = request.getQueryParams().getFirst("returnUrl");
 
         // Validate return url
         if (returnUrl == null) {

@@ -5,22 +5,18 @@ import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieDecryptionException;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
 import ch.gianlucafrei.nellygateway.session.Session;
-import ch.gianlucafrei.nellygateway.utils.CookieUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpCookie;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.*;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.Optional;
 
 @Order(3)
 @Component
-public class ExtractAuthenticationFilter implements Filter {
+public class ExtractAuthenticationFilter extends GlobalFilterBase {
 
     public final static String NELLY_SESSION = "nelly-session"; // Key for request context
     public final static String NELLY_SESSION_CSRF_TOKEN = "session-csrf-token";
@@ -34,18 +30,12 @@ public class ExtractAuthenticationFilter implements Filter {
     GlobalClockSource globalClockSource;
 
     @Override
-    public void doFilter(
-            ServletRequest request,
-            ServletResponse response,
-            FilterChain chain) throws IOException, ServletException {
-
-        HttpServletRequest req = (HttpServletRequest) request;
+    protected void filter() {
 
         // Extract session from cookie
-        Cookie cookie = CookieUtils.getCookieOrNull(LoginCookie.NAME, req);
+        HttpCookie cookie = request.getCookies().getFirst(LoginCookie.NAME);
         Optional<Session> sessionOptional;
         if (cookie == null) {
-
             sessionOptional = Optional.empty();
         } else {
             try {
@@ -54,7 +44,7 @@ public class ExtractAuthenticationFilter implements Filter {
                 sessionOptional = Session.fromSessionCookie(loginCookie, globalClockSource.getGlobalClock());
 
                 // Extract csrf token from session cookie and store in context
-                req.setAttribute(NELLY_SESSION_CSRF_TOKEN, loginCookie.getCsrfToken());
+                exchange.getAttributes().put(NELLY_SESSION_CSRF_TOKEN, loginCookie.getCsrfToken());
 
             } catch (CookieDecryptionException e) {
 
@@ -64,9 +54,6 @@ public class ExtractAuthenticationFilter implements Filter {
         }
 
         // Store session optional in http request object
-        req.setAttribute(NELLY_SESSION, sessionOptional);
-
-        // Process other filters
-        chain.doFilter(request, response);
+        exchange.getAttributes().put(NELLY_SESSION, sessionOptional);
     }
 }

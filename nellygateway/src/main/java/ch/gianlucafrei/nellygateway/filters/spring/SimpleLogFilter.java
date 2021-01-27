@@ -5,32 +5,39 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 @Order(1)
 @Component
-public class SimpleLogFilter implements Filter {
+public class SimpleLogFilter extends GlobalFilterBase {
 
     private static final Logger log = LoggerFactory.getLogger(SimpleLogFilter.class);
 
     @Override
-    public void doFilter(
-            ServletRequest request,
-            ServletResponse response,
-            FilterChain chain) throws IOException, ServletException {
-
-        HttpServletRequest req = (HttpServletRequest) request;
-
-        log.info(
-                "Request to {} {}", req.getMethod(), req.getRequestURI());
-
-        chain.doFilter(request, response);
+    public void filter() {
 
 
-        HttpServletResponse res = (HttpServletResponse) response;
-        log.info("Response status code {} for {} {}", res.getStatus(), req.getMethod(), req.getRequestURI());
+        log.info("Request to {} {}",
+                request.getMethod(),
+                request.getURI());
+    }
+
+    @Override
+    protected void onSuccess() {
+
+        log.info("Response status code {} for {} {}",
+                response.getRawStatusCode(),
+                request.getMethodValue(),
+                request.getURI());
+    }
+
+
+    @Override
+    protected void onError(Throwable t) {
+
+        log.info("Error {} during request processing for {} {}",
+                t.getMessage(),
+                request.getMethod(),
+                request.getURI());
+
+        throw new RuntimeException("Error during request processing", t);
     }
 }

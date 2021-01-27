@@ -11,16 +11,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Optional;
 
 @Order(4)
 @Component
-public class SessionRenewalFilter implements Filter {
+public class SessionRenewalFilter extends GlobalFilterBase {
 
     private static final Logger log = LoggerFactory.getLogger(SessionRenewalFilter.class);
 
@@ -34,16 +30,9 @@ public class SessionRenewalFilter implements Filter {
     ApplicationContext applicationContext;
 
     @Override
-    public void doFilter(
-            ServletRequest request,
-            ServletResponse response,
-            FilterChain chain) throws IOException, ServletException {
+    public void filter() {
 
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse res = (HttpServletResponse) response;
-
-
-        Optional<Session> sessionOptional = (Optional<Session>) req.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
+        Optional<Session> sessionOptional = (Optional<Session>) exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
         var sessionBehavior = config.getSessionBehaviour();
 
         if (sessionOptional.isPresent() && sessionBehavior.getRenewWhenLessThan() > 0) // Feature which if renewal time is <= 0
@@ -51,19 +40,17 @@ public class SessionRenewalFilter implements Filter {
             var session = sessionOptional.get();
             long remainingTime = session.getRemainingTimeSeconds();
             int renewWhenLessThan = sessionBehavior.getRenewWhenLessThan();
-            if (remainingTime < renewWhenLessThan)
-                renewSession(session, res);
-        }
 
-        // Process other filters
-        chain.doFilter(request, res);
+            if (remainingTime < renewWhenLessThan)
+                renewSession(session);
+        }
     }
 
-    private void renewSession(Session session, HttpServletResponse res) {
+    private void renewSession(Session session) {
 
         log.debug("Start renewing session");
         var filterContext = new HashMap<String, Object>();
         filterContext.put("old-session", session);
-        NellySessionFilter.runRenewSessionFilterChain(applicationContext, filterContext, res);
+        NellySessionFilter.runRenewSessionFilterChain(applicationContext, filterContext, response);
     }
 }

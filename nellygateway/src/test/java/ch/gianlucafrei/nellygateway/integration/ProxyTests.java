@@ -6,13 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,27 +26,6 @@ class ProxyTests {
 
     @Autowired
     private ApplicationContext context;
-
-    @Test
-    void testLoadRoutes() {
-
-        // Arrange (Load configuration)
-        var nellyRoutes = nellyConfig.getRoutes().entrySet();
-        ZuulProperties zuulProperties = (ZuulProperties) context.getBean("zuul.CONFIGURATION_PROPERTIES");
-        Map<String, ZuulProperties.ZuulRoute> zuulRoutes = zuulProperties.getRoutes();
-
-        // ACT
-        nellyRoutes.forEach(nellyRouteEntry -> {
-
-            var id = nellyRouteEntry.getKey();
-            var nellyRoute = nellyRouteEntry.getValue();
-
-            var zuulRoute = zuulRoutes.get(id);
-
-            assertEquals(nellyRoute.getPath(), zuulRoute.getPath());
-            assertEquals(nellyRoute.getUrl(), zuulRoute.getUrl());
-        });
-    }
 
     @Test
     void testProxyAddsSecurityHeaders() throws Exception {
@@ -75,5 +50,4 @@ class ProxyTests {
                 get("/secure/"))
                 .andExpect(status().is(401));
     }
-
 }

@@ -1,15 +1,13 @@
 package ch.gianlucafrei.nellygateway.filters.session;
 
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
+import ch.gianlucafrei.nellygateway.cookies.CookieConverter;
 import ch.gianlucafrei.nellygateway.cookies.CsrfCookie;
-import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
 import ch.gianlucafrei.nellygateway.session.Session;
-import ch.gianlucafrei.nellygateway.utils.CookieUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.UUID;
 
@@ -19,8 +17,11 @@ public class CsrfCookieCreationFilter implements NellySessionFilter {
     @Autowired
     NellyConfig config;
 
+    @Autowired
+    CookieConverter cookieConverter;
+
     @Override
-    public void renewSession(Map<String, Object> filterContext, HttpServletResponse response) {
+    public void renewSession(Map<String, Object> filterContext, ServerHttpResponse response) {
 
         Session session = (Session) filterContext.get("old-session");
         filterContext.put("csrfToken", session.getLoginCookie().getCsrfToken());
@@ -32,30 +33,23 @@ public class CsrfCookieCreationFilter implements NellySessionFilter {
     }
 
     @Override
-    public void createSession(Map<String, Object> filterContext, HttpServletResponse response) {
+    public void createSession(Map<String, Object> filterContext, ServerHttpResponse response) {
 
         var csrfToken = UUID.randomUUID().toString();
-        var cookie = new Cookie(CsrfCookie.NAME, new CsrfCookie(csrfToken).getCsrfToken());
-        int sessionDuration = config.getSessionBehaviour().getSessionDuration();
+        var csrfCookie = new CsrfCookie(csrfToken);
+        var sessionDuration = config.getSessionBehaviour().getSessionDuration();
 
-        cookie.setHttpOnly(false);
-        cookie.setPath("/");
-        cookie.setMaxAge(sessionDuration);
-        cookie.setSecure(config.isHttpsHost());
-
+        response.addCookie(cookieConverter.convertCsrfCookie(csrfCookie, sessionDuration));
         filterContext.put("csrfToken", csrfToken);
-        CookieUtils.addSameSiteCookie(cookie, "Strict", response);
     }
 
     @Override
-    public void destroySession(Map<String, Object> filterContext, HttpServletResponse response) {
+    public void destroySession(Map<String, Object> filterContext, ServerHttpResponse response) {
 
         // Override csrf cookie with new cookie that has max-age = 0
-        Cookie cookie = new Cookie(LoginCookie.NAME, "");
-        cookie.setHttpOnly(false);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        cookie.setSecure(config.isHttpsHost());
-        CookieUtils.addSameSiteCookie(cookie, "Strict", response);
+        var csrfToken = UUID.randomUUID().toString();
+        var csrfCookie = new CsrfCookie(csrfToken);
+
+        response.addCookie(cookieConverter.convertCsrfCookie(csrfCookie, 0));
     }
 }

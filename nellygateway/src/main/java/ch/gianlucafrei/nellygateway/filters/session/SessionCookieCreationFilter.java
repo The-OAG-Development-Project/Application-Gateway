@@ -2,23 +2,21 @@ package ch.gianlucafrei.nellygateway.filters.session;
 
 import ch.gianlucafrei.nellygateway.GlobalClockSource;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
+import ch.gianlucafrei.nellygateway.cookies.CookieConverter;
 import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
-import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
 import ch.gianlucafrei.nellygateway.services.login.drivers.UserModel;
 import ch.gianlucafrei.nellygateway.session.Session;
-import ch.gianlucafrei.nellygateway.utils.CookieUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 @Component
 public class SessionCookieCreationFilter implements NellySessionFilter {
 
     @Autowired
-    private CookieEncryptor cookieEncryptor;
+    private CookieConverter cookieConverter;
 
     @Autowired
     private NellyConfig config;
@@ -27,7 +25,7 @@ public class SessionCookieCreationFilter implements NellySessionFilter {
     private GlobalClockSource globalClockSource;
 
     @Override
-    public void renewSession(Map<String, Object> filterContext, HttpServletResponse response) {
+    public void renewSession(Map<String, Object> filterContext, ServerHttpResponse response) {
 
         Session session = (Session) filterContext.get("old-session");
 
@@ -43,7 +41,7 @@ public class SessionCookieCreationFilter implements NellySessionFilter {
     }
 
     @Override
-    public void createSession(Map<String, Object> filterContext, HttpServletResponse response) {
+    public void createSession(Map<String, Object> filterContext, ServerHttpResponse response) {
 
         String providerKey = (String) filterContext.get("providerKey");
         UserModel model = (UserModel) filterContext.get("userModel");
@@ -60,25 +58,13 @@ public class SessionCookieCreationFilter implements NellySessionFilter {
             loginCookie.setCsrfToken(csrfToken);
         }
 
-        String encryptedLoginCookie = cookieEncryptor.encryptObject(loginCookie);
-
-        Cookie cookie = new Cookie(LoginCookie.NAME, encryptedLoginCookie);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(sessionDuration);
-        cookie.setSecure(config.isHttpsHost());
-        CookieUtils.addSameSiteCookie(cookie, LoginCookie.SAMESITE, response);
+        response.addCookie(cookieConverter.convertLoginCookie(loginCookie, sessionDuration));
     }
 
     @Override
-    public void destroySession(Map<String, Object> filterContext, HttpServletResponse response) {
+    public void destroySession(Map<String, Object> filterContext, ServerHttpResponse response) {
 
         // Override session cookie with new cookie that has max-age = 0
-        Cookie cookie = new Cookie(LoginCookie.NAME, "");
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        cookie.setSecure(config.isHttpsHost());
-        CookieUtils.addSameSiteCookie(cookie, LoginCookie.SAMESITE, response);
+        response.addCookie(cookieConverter.convertLoginCookie(null, 0));
     }
 }

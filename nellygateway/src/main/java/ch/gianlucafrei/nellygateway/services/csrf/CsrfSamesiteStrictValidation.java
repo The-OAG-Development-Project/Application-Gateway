@@ -1,12 +1,15 @@
 package ch.gianlucafrei.nellygateway.services.csrf;
 
+import ch.gianlucafrei.nellygateway.cookies.CookieConverter;
 import ch.gianlucafrei.nellygateway.cookies.CsrfCookie;
 import ch.gianlucafrei.nellygateway.filters.spring.ExtractAuthenticationFilter;
 import ch.gianlucafrei.nellygateway.session.Session;
-import ch.gianlucafrei.nellygateway.utils.CookieUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpCookie;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @Component("csrf-samesite-strict-cookie-validation")
@@ -14,14 +17,17 @@ public class CsrfSamesiteStrictValidation implements CsrfProtectionValidation {
 
     public static final String NAME = "samesite-strict-cookie";
 
-    @Override
-    public boolean shouldBlockRequest(HttpServletRequest request) {
+    @Autowired
+    CookieConverter cookieConverter;
 
-        Optional<Session> sessionOptional = (Optional<Session>) request.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
+    @Override
+    public boolean shouldBlockRequest(ServerWebExchange exchange) {
+
+        Optional<Session> sessionOptional = (Optional<Session>) exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
 
         if (sessionOptional.isPresent()) {
-            String csrfValueFromSession = (String) request.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION_CSRF_TOKEN);
-            String csrfValueFromCookie = extractCsrfToken(request);
+            String csrfValueFromSession = (String) exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION_CSRF_TOKEN);
+            String csrfValueFromCookie = extractCsrfToken(exchange.getRequest());
 
             if (csrfValueFromCookie == null)
                 return true;
@@ -33,9 +39,18 @@ public class CsrfSamesiteStrictValidation implements CsrfProtectionValidation {
         return false;
     }
 
-    private String extractCsrfToken(HttpServletRequest request) {
+    private String extractCsrfToken(ServerHttpRequest request) {
 
-        var cookie = CookieUtils.getCookieOrNull(CsrfCookie.NAME, request);
-        return cookie == null ? null : cookie.getValue();
+        HttpCookie cookie = request.getCookies().getFirst(CsrfCookie.NAME);
+
+        if (cookie == null)
+            return null;
+
+        CsrfCookie csrfCookie = cookieConverter.convertCsrfCookie(cookie);
+
+        if (csrfCookie == null)
+            return null;
+
+        return csrfCookie.getCsrfToken();
     }
 }

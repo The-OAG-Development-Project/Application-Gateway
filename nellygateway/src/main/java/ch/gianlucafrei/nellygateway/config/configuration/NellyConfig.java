@@ -1,10 +1,11 @@
 package ch.gianlucafrei.nellygateway.config.configuration;
 
 import ch.gianlucafrei.nellygateway.config.ErrorValidation;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.context.ApplicationContext;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class NellyConfig implements ErrorValidation {
 
@@ -27,22 +28,6 @@ public class NellyConfig implements ErrorValidation {
         this.nellyApiKey = nellyApiKey;
         this.trustedRedirectHosts = trustedRedirectHosts;
         this.sessionBehaviour = sessionBehaviour;
-    }
-
-    public Map<String, ZuulProperties.ZuulRoute> getRoutesAsZuulRoutes() {
-
-        Map<String, ZuulProperties.ZuulRoute> zuulRoutes = new HashMap<>();
-
-        if (getRoutes() != null) {
-            getRoutes().forEach((name, route) -> {
-                ZuulProperties.ZuulRoute zuulRoute = new ZuulProperties.ZuulRoute(route.getPath(), route.getUrl());
-                zuulRoute.setId(name);
-                zuulRoute.setSensitiveHeaders(new HashSet<>());
-                zuulRoutes.put(name, zuulRoute);
-            });
-        }
-
-        return zuulRoutes;
     }
 
     public Map<String, NellyRoute> getRoutes() {

@@ -6,61 +6,57 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Mono;
 
 // TODO add flag to ignore this filter
 @Order(2)
 @Component
-public class HttpRedirectFilter implements Filter {
+public class HttpRedirectFilter extends GlobalFilterBase {
 
     private static final Logger log = LoggerFactory.getLogger(HttpRedirectFilter.class);
 
     @Autowired
     private NellyConfig config;
 
+
     @Override
-    public void doFilter(
-            ServletRequest request,
-            ServletResponse response,
-            FilterChain chain) throws IOException, ServletException {
+    public Mono<Void> filter(ServerWebExchange serverWebExchange, WebFilterChain webFilterChain) {
+        this.exchange = serverWebExchange;
+        this.request = serverWebExchange.getRequest();
+        this.response = serverWebExchange.getResponse();
 
         if (config.isHttpsHost()) {
             // We do the request only if we are on https
-            HttpServletRequest req = (HttpServletRequest) request;
-            HttpServletResponse res = (HttpServletResponse) response;
 
-            if (isInsecureRequest(req)) {
-                sendHttpsRedirectResponse(req, res);
-                log.debug("Redirected insecure request to {}", req.getPathInfo());
-                return;
+            if (isInsecureRequest()) {
+                sendHttpsRedirectResponse();
+                log.debug("Redirected insecure request to {}", request.getURI().getPath());
+                return response.setComplete();
             }
         }
-
-        chain.doFilter(request, response);
+        return webFilterChain.filter(serverWebExchange);
     }
 
-    public boolean isInsecureRequest(HttpServletRequest request) {
+    public boolean isInsecureRequest() {
 
-        // Check if request was forwarded
-        if (request.getHeader("X-Forwarded-For") != null) {
-
-            // if X-Forwarded-Proto: https we threat the request as secure
-            return !"https".equals(request.getHeader("X-Forwarded-Proto"));
-        }
-
-        // Check if localhost
-        if ("localhost".equals(request.getServerName()))
+        // If we are on http only https redirection is irrelevant
+        if (config.isHttpsHost())
             return false;
 
-        // Check protocol
-        if ("http".equals(request.getScheme()))
+        // Check if request was forwarded
+        if (request.getHeaders().getFirst("X-Forwarded-For") != null) {
+
+            // if X-Forwarded-Proto: https we threat the request as secure
+            return !"https".equals(request.getHeaders().getFirst("X-Forwarded-Proto"));
+        }
+
+        String scheme = request.getURI().getScheme();
+        if ("http".equals(scheme))
             return true;
 
-        if ("https".equals(request.getScheme()))
+        if ("https".equals(scheme))
             return false;
 
         // Fallback if everything else fails (don't redirect)
@@ -68,9 +64,15 @@ public class HttpRedirectFilter implements Filter {
         return false;
     }
 
-    public void sendHttpsRedirectResponse(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    public void sendHttpsRedirectResponse() {
 
-        String path = config.getHostUri() + req.getRequestURI() + (req.getQueryString() != null ? "?" + req.getQueryString() : "");
-        res.sendRedirect(path);
+        var requestUri = request.getURI();
+        var queryString = requestUri.getRawQuery();
+
+        var redirectLocation = config.getHostUri() + requestUri.getPath() + queryString
+                + (queryString != null ? "?" + queryString : "");
+
+        response.getHeaders().add("Location", redirectLocation);
+        response.setRawStatusCode(302);
     }
 }
