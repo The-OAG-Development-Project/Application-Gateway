@@ -19,6 +19,7 @@ import java.io.IOException;
 public class NellyBeanConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(NellyBeanConfiguration.class);
+    
     @Autowired
     private ApplicationContext context;
 

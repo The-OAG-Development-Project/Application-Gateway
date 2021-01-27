@@ -241,7 +241,6 @@ public class LoginController {
         if (csrfValidation.shouldBlockRequest(request)) {
             log.info("Blocked logout request due to csrf protection");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-
         } else {
             // Destroy the user session
             destroySession(response);

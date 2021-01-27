@@ -27,6 +27,19 @@ class CsrfSamesiteStrictTest extends MockServerTest {
     @Autowired
     NellyConfig nellyConfig;
 
+
+    @Configuration
+    @Import(NellygatewayApplication.class)
+    public static class TestConfig {
+
+        @Primary
+        @Bean
+        NellyConfigLoader nellyConfigLoader() {
+            return new TestFileConfigLoader("/localServerConfiguration.yaml");
+        }
+    }
+
+
     @RepeatedIfExceptionsTest(repeats = 5)
     void testCsrfSamesiteStrict() throws Exception {
 
@@ -72,16 +85,5 @@ class CsrfSamesiteStrictTest extends MockServerTest {
                 .cookie(sessionCookie)
                 .cookie(csrfCookie))
                 .andExpect(status().is(401));
-    }
-
-    @Configuration
-    @Import(NellygatewayApplication.class)
-    public static class TestConfig {
-
-        @Primary
-        @Bean
-        NellyConfigLoader nellyConfigLoader() {
-            return new TestFileConfigLoader("/localServerConfiguration.yaml");
-        }
     }
 }
