@@ -2,15 +2,16 @@ hostUri: http://localhost:8080
 nellyApiKey: env:NELLY_API_KEY
 
 routes:
-  echo:
+
+  httpbin:
     type: webapplication
     path: /**
-    url: https://nellydemoapp.azurewebsites.net
+    url: https://httpbin.org
     allowAnonymous: yes
 
-  authenticated:
+  echo:
     type: webapplication
-    path: /secure/**
+    path: /echo/**
     url: https://nellydemoapp.azurewebsites.net
     allowAnonymous: no
 
