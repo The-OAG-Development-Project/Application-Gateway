@@ -1,0 +1,7 @@
+logging:
+  level:
+    root: WARN
+    ch:
+      gianlucafrei: TRACE
+  file:
+    path: nelly-dev.log

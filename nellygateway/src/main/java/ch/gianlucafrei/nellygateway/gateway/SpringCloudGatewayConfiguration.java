@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * This class initializes the Spring Cloud Gateway. It creates the "gatewayRoutes" which contains all the routing information.
+ */
 @Configuration
 public class SpringCloudGatewayConfiguration {
 
@@ -25,7 +28,7 @@ public class SpringCloudGatewayConfiguration {
     private ProxyPathMatcher matcher = new ProxyPathMatcher();
 
     @Bean
-    public RouteLocator myRoutes(RouteLocatorBuilder builder) {
+    public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
 
         RouteLocatorBuilder.Builder routes = builder.routes();
 
@@ -39,6 +42,7 @@ public class SpringCloudGatewayConfiguration {
         var routes = routesBuilder;
 
         // Sort configuration routes by specificity
+        // Spring cloud gateway does not care about that
         var patternComparator = matcher.getPatternComparator();
         var configRoutes = config.getRoutes();
 
@@ -46,6 +50,7 @@ public class SpringCloudGatewayConfiguration {
                 .stream().sorted((p1, p2) -> patternComparator.compare(p1.getValue().getPath(), p2.getValue().getPath()))
                 .collect(Collectors.toList());
 
+        // Add the routes within their order of specificity
         for (var entry : sortedConfigRoutes) {
 
             var routeName = entry.getKey();
@@ -54,6 +59,7 @@ public class SpringCloudGatewayConfiguration {
 
             routes.route(r -> {
 
+                // Add route predicate that uses the ProxyPathMatcher to find out if a route matches a request
                 var path = r.predicate(exchange -> {
                     exchange.getAttributes().put("RouteName", routeName);
                     var requestUrl = exchange.getRequest().getURI().getPath();
@@ -61,6 +67,7 @@ public class SpringCloudGatewayConfiguration {
                     return matcher.matchesPath(requestUrl, routePath);
                 });
 
+                // If the route contains a wildcard (or two) at the end we rewrite the upstream path using the rewritePat Filter.
                 if (routePath.endsWith("*")) {
 
                     int wildcardStringLength = 1;

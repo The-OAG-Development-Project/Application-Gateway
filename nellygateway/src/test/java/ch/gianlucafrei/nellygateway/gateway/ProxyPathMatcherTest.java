@@ -1,6 +1,5 @@
-package ch.gianlucafrei.nellygateway;
+package ch.gianlucafrei.nellygateway.gateway;
 
-import ch.gianlucafrei.nellygateway.gateway.ProxyPathMatcher;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 

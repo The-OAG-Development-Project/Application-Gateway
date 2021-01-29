@@ -20,8 +20,9 @@ org:
         CommonsRequestLoggingFilter: INFO
 logging:
   level:
-    org:
-      springframework:
-        web: INFO
+    root: WARN
+    ch:
+      gianlucafrei: INFO
+
   file:
     path: nelly.log

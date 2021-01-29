@@ -1,0 +1,363 @@
+2021-01-29 10:41:30.012  INFO 94729 --- [main] c.g.n.NellygatewayApplication            : Starting NellygatewayApplication using Java 15 on Gian-Lucas-MacBook-Pro.local with PID 94729 (/Users/gifr/Documents/nellygateway/nellygateway/target/classes started by gifr in /Users/gifr/Documents/nellygateway/nellygateway)
+2021-01-29 10:41:30.013  INFO 94729 --- [main] c.g.n.NellygatewayApplication            : The following profiles are active: dev
+2021-01-29 10:41:30.632  INFO 94729 --- [main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=1030988e-4f63-38a8-a8b2-0558c4246926
+2021-01-29 10:41:30.658  INFO 94729 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-01-29 10:41:30.659  INFO 94729 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactorDeferringLoadBalancerFilterConfig' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactorDeferringLoadBalancerFilterConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-01-29 10:41:30.661  INFO 94729 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'reactorDeferringLoadBalancerExchangeFilterFunction' of type [org.springframework.cloud.client.loadbalancer.reactive.DeferringLoadBalancerExchangeFilterFunction] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-01-29 10:41:30.733  INFO 94729 --- [main] c.g.n.config.FileConfigLoader            : Load nelly configuration from: sample-nelly-config.yaml
+2021-01-29 10:41:30.750  WARN 94729 --- [main] .c.StringEnvironmentVariableDeserializer : Environment variable 'NELLY_API_KEY' does not exist
+2021-01-29 10:41:30.819  INFO 94729 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Route echo: Pattern /echo/(?<segment>.*) will be replaced with /${segment}
+2021-01-29 10:41:30.826  INFO 94729 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Initialized gateway route echo
+2021-01-29 10:41:30.826  INFO 94729 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Route httpbin: Pattern /(?<segment>.*) will be replaced with /${segment}
+2021-01-29 10:41:30.826  INFO 94729 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Initialized gateway route httpbin
+2021-01-29 10:41:31.036  INFO 94729 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [After]
+2021-01-29 10:41:31.036  INFO 94729 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Before]
+2021-01-29 10:41:31.036  INFO 94729 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Between]
+2021-01-29 10:41:31.036  INFO 94729 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Cookie]
+2021-01-29 10:41:31.036  INFO 94729 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Header]
+2021-01-29 10:41:31.036  INFO 94729 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Host]
+2021-01-29 10:41:31.036  INFO 94729 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Method]
+2021-01-29 10:41:31.036  INFO 94729 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Path]
+2021-01-29 10:41:31.036  INFO 94729 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Query]
+2021-01-29 10:41:31.036  INFO 94729 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [ReadBody]
+2021-01-29 10:41:31.037  INFO 94729 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [RemoteAddr]
+2021-01-29 10:41:31.037  INFO 94729 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Weight]
+2021-01-29 10:41:31.037  INFO 94729 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [CloudFoundryRouteService]
+2021-01-29 10:41:31.076 TRACE 94729 --- [main] s.w.r.r.m.a.RequestMappingHandlerMapping : 
+	c.g.n.c.LoginController:
+	{GET /auth/{providerKey}/callback}: callback(String,ServerWebExchange)
+	{GET /auth/session}: sessionInfo(ServerWebExchange)
+	{GET /auth/{providerKey}/login}: login(String,ServerWebExchange)
+	{GET /auth/logout}: logout(ServerWebExchange)
+2021-01-29 10:41:31.091 DEBUG 94729 --- [main] s.w.r.r.m.a.RequestMappingHandlerMapping : 4 mappings in 'requestMappingHandlerMapping'
+2021-01-29 10:41:31.092 TRACE 94729 --- [main] o.s.w.r.f.s.s.RouterFunctionMapping      : 0 RouterFunction(s) in 'routerFunctionMapping'
+2021-01-29 10:41:31.098 TRACE 94729 --- [main] o.s.w.r.handler.SimpleUrlHandlerMapping  : Mapped [/webjars/**] onto ResourceWebHandler ["classpath:/META-INF/resources/webjars/"]
+2021-01-29 10:41:31.098 TRACE 94729 --- [main] o.s.w.r.handler.SimpleUrlHandlerMapping  : Mapped [/**] onto ResourceWebHandler ["classpath:/META-INF/resources/", "classpath:/resources/", "classpath:/static/", "classpath:/public/"]
+2021-01-29 10:41:31.098 DEBUG 94729 --- [main] o.s.w.r.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**] in 'resourceHandlerMapping'
+2021-01-29 10:41:31.116 DEBUG 94729 --- [main] o.s.w.r.r.m.a.ControllerMethodResolver   : ControllerAdvice beans: none
+2021-01-29 10:41:31.126 DEBUG 94729 --- [main] o.s.w.s.adapter.HttpWebHandlerAdapter    : enableLoggingRequestDetails='false': form data and headers will be masked to prevent unsafe logging of potentially sensitive data
+2021-01-29 10:41:31.175  WARN 94729 --- [main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. You can switch to using Caffeine cache, by adding it to the classpath.
+2021-01-29 10:41:31.267  INFO 94729 --- [main] o.s.b.web.embedded.netty.NettyWebServer  : Netty started on port 8080
+2021-01-29 10:41:31.295  INFO 94729 --- [main] c.g.n.NellygatewayApplication            : Started NellygatewayApplication in 1.573 seconds (JVM running for 2.049)
+2021-01-29 10:41:31.298  INFO 94729 --- [main] c.g.nellygateway.utils.NellyMain         : Nelly started with ? routes
+2021-01-29 10:41:47.363 TRACE 94729 --- [reactor-http-nio-3] o.s.w.s.adapter.HttpWebHandlerAdapter    : [fc505fd8-1] HTTP GET "/", headers={masked}
+2021-01-29 10:41:47.369  INFO 94729 --- [reactor-http-nio-3] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/
+2021-01-29 10:41:48.502  INFO 94729 --- [reactor-http-nio-3] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/
+2021-01-29 10:41:48.502 TRACE 94729 --- [reactor-http-nio-3] o.s.w.s.adapter.HttpWebHandlerAdapter    : [fc505fd8-1] Completed 200 OK, headers={masked}
+2021-01-29 10:41:48.503 TRACE 94729 --- [reactor-http-nio-3] org.springframework.web.HttpLogging      : [fc505fd8-1] Handling completed
+2021-01-29 10:41:48.878 TRACE 94729 --- [reactor-http-nio-3] o.s.w.s.adapter.HttpWebHandlerAdapter    : [fc505fd8-2] HTTP GET "/flasgger_static/swagger-ui.css", headers={masked}
+2021-01-29 10:41:48.879  INFO 94729 --- [reactor-http-nio-3] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui.css
+2021-01-29 10:41:48.915 TRACE 94729 --- [reactor-http-nio-7] o.s.w.s.adapter.HttpWebHandlerAdapter    : [9f40b8f9-3] HTTP GET "/flasgger_static/lib/jquery.min.js", headers={masked}
+2021-01-29 10:41:48.916  INFO 94729 --- [reactor-http-nio-7] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/lib/jquery.min.js
+2021-01-29 10:41:48.922 TRACE 94729 --- [reactor-http-nio-6] o.s.w.s.adapter.HttpWebHandlerAdapter    : [ecc7066f-4] HTTP GET "/flasgger_static/swagger-ui-standalone-preset.js", headers={masked}
+2021-01-29 10:41:48.923  INFO 94729 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui-standalone-preset.js
+2021-01-29 10:41:48.937 TRACE 94729 --- [reactor-http-nio-8] o.s.w.s.adapter.HttpWebHandlerAdapter    : [3d469614-5] HTTP GET "/flasgger_static/swagger-ui-bundle.js", headers={masked}
+2021-01-29 10:41:48.937  INFO 94729 --- [reactor-http-nio-8] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui-bundle.js
+2021-01-29 10:41:49.021  INFO 94729 --- [reactor-http-nio-3] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/flasgger_static/swagger-ui-bundle.js
+2021-01-29 10:41:49.021 TRACE 94729 --- [reactor-http-nio-3] o.s.w.s.adapter.HttpWebHandlerAdapter    : [fc505fd8-2] Completed 304 NOT_MODIFIED, headers={masked}
+2021-01-29 10:41:49.021 TRACE 94729 --- [reactor-http-nio-3] org.springframework.web.HttpLogging      : [fc505fd8-2] Handling completed
+2021-01-29 10:41:49.617  INFO 94729 --- [reactor-http-nio-8] c.g.n.filters.spring.SimpleLogFilter     : Response status code 304 for GET http://localhost:8080/flasgger_static/swagger-ui-bundle.js
+2021-01-29 10:41:49.617  INFO 94729 --- [reactor-http-nio-7] c.g.n.filters.spring.SimpleLogFilter     : Response status code 304 for GET http://localhost:8080/flasgger_static/swagger-ui-bundle.js
+2021-01-29 10:41:49.617 TRACE 94729 --- [reactor-http-nio-7] o.s.w.s.adapter.HttpWebHandlerAdapter    : [9f40b8f9-3] Completed 304 NOT_MODIFIED, headers={masked}
+2021-01-29 10:41:49.617 TRACE 94729 --- [reactor-http-nio-8] o.s.w.s.adapter.HttpWebHandlerAdapter    : [3d469614-5] Completed 304 NOT_MODIFIED, headers={masked}
+2021-01-29 10:41:49.617 TRACE 94729 --- [reactor-http-nio-7] org.springframework.web.HttpLogging      : [9f40b8f9-3] Handling completed
+2021-01-29 10:41:49.617 TRACE 94729 --- [reactor-http-nio-8] org.springframework.web.HttpLogging      : [3d469614-5] Handling completed
+2021-01-29 10:41:49.619  INFO 94729 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Response status code 304 for GET http://localhost:8080/flasgger_static/swagger-ui-bundle.js
+2021-01-29 10:41:49.619 TRACE 94729 --- [reactor-http-nio-6] o.s.w.s.adapter.HttpWebHandlerAdapter    : [ecc7066f-4] Completed 304 NOT_MODIFIED, headers={masked}
+2021-01-29 10:41:49.619 TRACE 94729 --- [reactor-http-nio-6] org.springframework.web.HttpLogging      : [ecc7066f-4] Handling completed
+2021-01-29 10:41:49.791 TRACE 94729 --- [reactor-http-nio-3] o.s.w.s.adapter.HttpWebHandlerAdapter    : [fc505fd8-6] HTTP GET "/spec.json", headers={masked}
+2021-01-29 10:41:49.791  INFO 94729 --- [reactor-http-nio-3] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/spec.json
+2021-01-29 10:41:50.244  INFO 94729 --- [reactor-http-nio-3] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/spec.json
+2021-01-29 10:41:50.244 TRACE 94729 --- [reactor-http-nio-3] o.s.w.s.adapter.HttpWebHandlerAdapter    : [fc505fd8-6] Completed 200 OK, headers={masked}
+2021-01-29 10:41:50.244 TRACE 94729 --- [reactor-http-nio-3] org.springframework.web.HttpLogging      : [fc505fd8-6] Handling completed
+2021-01-29 10:54:40.412  INFO 94999 --- [main] c.g.n.NellygatewayApplication            : Starting NellygatewayApplication using Java 15 on Gian-Lucas-MacBook-Pro.local with PID 94999 (/Users/gifr/Documents/nellygateway/nellygateway/target/classes started by gifr in /Users/gifr/Documents/nellygateway/nellygateway)
+2021-01-29 10:54:40.413  INFO 94999 --- [main] c.g.n.NellygatewayApplication            : The following profiles are active: dev
+2021-01-29 10:54:41.010  INFO 94999 --- [main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=81f913aa-779b-30df-a144-4614c403b9e7
+2021-01-29 10:54:41.039  INFO 94999 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-01-29 10:54:41.040  INFO 94999 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactorDeferringLoadBalancerFilterConfig' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactorDeferringLoadBalancerFilterConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-01-29 10:54:41.042  INFO 94999 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'reactorDeferringLoadBalancerExchangeFilterFunction' of type [org.springframework.cloud.client.loadbalancer.reactive.DeferringLoadBalancerExchangeFilterFunction] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-01-29 10:54:41.130  INFO 94999 --- [main] c.g.n.config.FileConfigLoader            : Load nelly configuration from: sample-nelly-config.yaml
+2021-01-29 10:54:41.152  WARN 94999 --- [main] .c.StringEnvironmentVariableDeserializer : Environment variable 'NELLY_API_KEY' does not exist
+2021-01-29 10:54:41.239  INFO 94999 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Route echo: Pattern /echo/(?<segment>.*) will be replaced with /${segment}
+2021-01-29 10:54:41.248  INFO 94999 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Initialized gateway route echo
+2021-01-29 10:54:41.248  INFO 94999 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Route httpbin: Pattern /(?<segment>.*) will be replaced with /${segment}
+2021-01-29 10:54:41.248  INFO 94999 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Initialized gateway route httpbin
+2021-01-29 10:54:41.502  INFO 94999 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [After]
+2021-01-29 10:54:41.503  INFO 94999 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Before]
+2021-01-29 10:54:41.503  INFO 94999 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Between]
+2021-01-29 10:54:41.503  INFO 94999 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Cookie]
+2021-01-29 10:54:41.503  INFO 94999 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Header]
+2021-01-29 10:54:41.503  INFO 94999 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Host]
+2021-01-29 10:54:41.503  INFO 94999 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Method]
+2021-01-29 10:54:41.503  INFO 94999 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Path]
+2021-01-29 10:54:41.503  INFO 94999 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Query]
+2021-01-29 10:54:41.503  INFO 94999 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [ReadBody]
+2021-01-29 10:54:41.503  INFO 94999 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [RemoteAddr]
+2021-01-29 10:54:41.504  INFO 94999 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Weight]
+2021-01-29 10:54:41.504  INFO 94999 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [CloudFoundryRouteService]
+2021-01-29 10:54:41.552 TRACE 94999 --- [main] s.w.r.r.m.a.RequestMappingHandlerMapping : 
+	c.g.n.c.LoginController:
+	{GET /auth/session}: sessionInfo(ServerWebExchange)
+	{GET /auth/{providerKey}/login}: login(String,ServerWebExchange)
+	{GET /auth/logout}: logout(ServerWebExchange)
+	{GET /auth/{providerKey}/callback}: callback(String,ServerWebExchange)
+2021-01-29 10:54:41.555 DEBUG 94999 --- [main] s.w.r.r.m.a.RequestMappingHandlerMapping : 4 mappings in 'requestMappingHandlerMapping'
+2021-01-29 10:54:41.557 TRACE 94999 --- [main] o.s.w.r.f.s.s.RouterFunctionMapping      : 0 RouterFunction(s) in 'routerFunctionMapping'
+2021-01-29 10:54:41.564 TRACE 94999 --- [main] o.s.w.r.handler.SimpleUrlHandlerMapping  : Mapped [/webjars/**] onto ResourceWebHandler ["classpath:/META-INF/resources/webjars/"]
+2021-01-29 10:54:41.564 TRACE 94999 --- [main] o.s.w.r.handler.SimpleUrlHandlerMapping  : Mapped [/**] onto ResourceWebHandler ["classpath:/META-INF/resources/", "classpath:/resources/", "classpath:/static/", "classpath:/public/"]
+2021-01-29 10:54:41.564 DEBUG 94999 --- [main] o.s.w.r.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**] in 'resourceHandlerMapping'
+2021-01-29 10:54:41.581 DEBUG 94999 --- [main] o.s.w.r.r.m.a.ControllerMethodResolver   : ControllerAdvice beans: none
+2021-01-29 10:54:41.592 DEBUG 94999 --- [main] o.s.w.s.adapter.HttpWebHandlerAdapter    : enableLoggingRequestDetails='false': form data and headers will be masked to prevent unsafe logging of potentially sensitive data
+2021-01-29 10:54:41.659  WARN 94999 --- [main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. You can switch to using Caffeine cache, by adding it to the classpath.
+2021-01-29 10:54:41.771  INFO 94999 --- [main] o.s.b.web.embedded.netty.NettyWebServer  : Netty started on port 8080
+2021-01-29 10:54:41.804  INFO 94999 --- [main] c.g.n.NellygatewayApplication            : Started NellygatewayApplication in 1.69 seconds (JVM running for 2.324)
+2021-01-29 10:54:41.806  INFO 94999 --- [main] c.g.nellygateway.utils.NellyMain         : Nelly started with ? routes
+2021-01-29 10:54:49.599 TRACE 94999 --- [reactor-http-nio-2] o.s.w.s.adapter.HttpWebHandlerAdapter    : [0cd4f235-1] HTTP GET "/", headers={masked}
+2021-01-29 10:54:49.605  INFO 94999 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/
+2021-01-29 10:54:50.919  INFO 94999 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/
+2021-01-29 10:54:50.919 TRACE 94999 --- [reactor-http-nio-2] o.s.w.s.adapter.HttpWebHandlerAdapter    : [0cd4f235-1] Completed 200 OK, headers={masked}
+2021-01-29 10:54:50.920 TRACE 94999 --- [reactor-http-nio-2] org.springframework.web.HttpLogging      : [0cd4f235-1] Handling completed
+2021-01-29 10:54:51.340 TRACE 94999 --- [reactor-http-nio-2] o.s.w.s.adapter.HttpWebHandlerAdapter    : [0cd4f235-2] HTTP GET "/spec.json", headers={masked}
+2021-01-29 10:54:51.340  INFO 94999 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/spec.json
+2021-01-29 10:54:51.857  INFO 94999 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/spec.json
+2021-01-29 10:54:51.857 TRACE 94999 --- [reactor-http-nio-2] o.s.w.s.adapter.HttpWebHandlerAdapter    : [0cd4f235-2] Completed 200 OK, headers={masked}
+2021-01-29 10:54:51.857 TRACE 94999 --- [reactor-http-nio-2] org.springframework.web.HttpLogging      : [0cd4f235-2] Handling completed
+2021-01-29 10:59:21.986  INFO 95116 --- [main] c.g.n.NellygatewayApplication            : Starting NellygatewayApplication using Java 15 on Gian-Lucas-MacBook-Pro.local with PID 95116 (/Users/gifr/Documents/nellygateway/nellygateway/target/classes started by gifr in /Users/gifr/Documents/nellygateway/nellygateway)
+2021-01-29 10:59:21.987  INFO 95116 --- [main] c.g.n.NellygatewayApplication            : The following profiles are active: dev
+2021-01-29 10:59:22.558  INFO 95116 --- [main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=81f913aa-779b-30df-a144-4614c403b9e7
+2021-01-29 10:59:22.587  INFO 95116 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-01-29 10:59:22.588  INFO 95116 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactorDeferringLoadBalancerFilterConfig' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactorDeferringLoadBalancerFilterConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-01-29 10:59:22.590  INFO 95116 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'reactorDeferringLoadBalancerExchangeFilterFunction' of type [org.springframework.cloud.client.loadbalancer.reactive.DeferringLoadBalancerExchangeFilterFunction] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-01-29 10:59:22.684  INFO 95116 --- [main] c.g.n.config.FileConfigLoader            : Load nelly configuration from: sample-nelly-config.yaml
+2021-01-29 10:59:22.723  WARN 95116 --- [main] .c.StringEnvironmentVariableDeserializer : Environment variable 'NELLY_API_KEY' does not exist
+2021-01-29 10:59:22.839  INFO 95116 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Route echo: Pattern /echo/(?<segment>.*) will be replaced with /${segment}
+2021-01-29 10:59:22.850  INFO 95116 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Initialized gateway route echo
+2021-01-29 10:59:22.850  INFO 95116 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Route httpbin: Pattern /(?<segment>.*) will be replaced with /${segment}
+2021-01-29 10:59:22.850  INFO 95116 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Initialized gateway route httpbin
+2021-01-29 10:59:23.156  INFO 95116 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [After]
+2021-01-29 10:59:23.157  INFO 95116 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Before]
+2021-01-29 10:59:23.157  INFO 95116 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Between]
+2021-01-29 10:59:23.157  INFO 95116 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Cookie]
+2021-01-29 10:59:23.157  INFO 95116 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Header]
+2021-01-29 10:59:23.157  INFO 95116 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Host]
+2021-01-29 10:59:23.157  INFO 95116 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Method]
+2021-01-29 10:59:23.157  INFO 95116 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Path]
+2021-01-29 10:59:23.157  INFO 95116 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Query]
+2021-01-29 10:59:23.157  INFO 95116 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [ReadBody]
+2021-01-29 10:59:23.157  INFO 95116 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [RemoteAddr]
+2021-01-29 10:59:23.157  INFO 95116 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Weight]
+2021-01-29 10:59:23.157  INFO 95116 --- [main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [CloudFoundryRouteService]
+2021-01-29 10:59:23.208 TRACE 95116 --- [main] s.w.r.r.m.a.RequestMappingHandlerMapping : 
+	c.g.n.c.LoginController:
+	{GET /auth/{providerKey}/callback}: callback(String,ServerWebExchange)
+	{GET /auth/session}: sessionInfo(ServerWebExchange)
+	{GET /auth/{providerKey}/login}: login(String,ServerWebExchange)
+	{GET /auth/logout}: logout(ServerWebExchange)
+2021-01-29 10:59:23.211 DEBUG 95116 --- [main] s.w.r.r.m.a.RequestMappingHandlerMapping : 4 mappings in 'requestMappingHandlerMapping'
+2021-01-29 10:59:23.213 TRACE 95116 --- [main] o.s.w.r.f.s.s.RouterFunctionMapping      : 0 RouterFunction(s) in 'routerFunctionMapping'
+2021-01-29 10:59:23.221 TRACE 95116 --- [main] o.s.w.r.handler.SimpleUrlHandlerMapping  : Mapped [/webjars/**] onto ResourceWebHandler ["classpath:/META-INF/resources/webjars/"]
+2021-01-29 10:59:23.221 TRACE 95116 --- [main] o.s.w.r.handler.SimpleUrlHandlerMapping  : Mapped [/**] onto ResourceWebHandler ["classpath:/META-INF/resources/", "classpath:/resources/", "classpath:/static/", "classpath:/public/"]
+2021-01-29 10:59:23.221 DEBUG 95116 --- [main] o.s.w.r.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**] in 'resourceHandlerMapping'
+2021-01-29 10:59:23.244 DEBUG 95116 --- [main] o.s.w.r.r.m.a.ControllerMethodResolver   : ControllerAdvice beans: none
+2021-01-29 10:59:23.257 DEBUG 95116 --- [main] o.s.w.s.adapter.HttpWebHandlerAdapter    : enableLoggingRequestDetails='false': form data and headers will be masked to prevent unsafe logging of potentially sensitive data
+2021-01-29 10:59:23.323  WARN 95116 --- [main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. You can switch to using Caffeine cache, by adding it to the classpath.
+2021-01-29 10:59:23.443  INFO 95116 --- [main] o.s.b.web.embedded.netty.NettyWebServer  : Netty started on port 8080
+2021-01-29 10:59:23.474  INFO 95116 --- [main] c.g.n.NellygatewayApplication            : Started NellygatewayApplication in 1.923 seconds (JVM running for 2.888)
+2021-01-29 10:59:23.476  INFO 95116 --- [main] c.g.nellygateway.utils.NellyMain         : Nelly started with ? routes
+2021-01-29 10:59:25.051 TRACE 95116 --- [reactor-http-nio-2] o.s.w.s.adapter.HttpWebHandlerAdapter    : [7eaadac6-1] HTTP GET "/", headers={masked}
+2021-01-29 10:59:25.058  INFO 95116 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/
+2021-01-29 10:59:36.922  INFO 95116 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/
+2021-01-29 10:59:36.922 TRACE 95116 --- [reactor-http-nio-2] o.s.w.s.adapter.HttpWebHandlerAdapter    : [7eaadac6-1] Completed 200 OK, headers={masked}
+2021-01-29 10:59:36.923 TRACE 95116 --- [reactor-http-nio-2] org.springframework.web.HttpLogging      : [7eaadac6-1] Handling completed
+2021-01-29 10:59:37.071 TRACE 95116 --- [reactor-http-nio-2] o.s.w.s.adapter.HttpWebHandlerAdapter    : [7eaadac6-2] HTTP GET "/spec.json", headers={masked}
+2021-01-29 10:59:37.071  INFO 95116 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/spec.json
+2021-01-29 11:00:08.145 TRACE 95116 --- [reactor-http-nio-3] o.s.w.s.adapter.HttpWebHandlerAdapter    : [0fc8d5db-3] HTTP GET "/", headers={masked}
+2021-01-29 11:00:08.146  INFO 95116 --- [reactor-http-nio-3] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/
+2021-01-29 11:00:08.615  INFO 95116 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/
+2021-01-29 11:00:08.615 TRACE 95116 --- [reactor-http-nio-2] o.s.w.s.adapter.HttpWebHandlerAdapter    : [7eaadac6-2] Completed 200 OK, headers={masked}
+2021-01-29 11:00:08.615 TRACE 95116 --- [reactor-http-nio-2] org.springframework.web.HttpLogging      : [7eaadac6-2] Handling completed
+2021-01-29 11:00:08.756  INFO 95116 --- [reactor-http-nio-3] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/
+2021-01-29 11:00:08.756 TRACE 95116 --- [reactor-http-nio-3] o.s.w.s.adapter.HttpWebHandlerAdapter    : [0fc8d5db-3] Completed 200 OK, headers={masked}
+2021-01-29 11:00:08.756 TRACE 95116 --- [reactor-http-nio-3] org.springframework.web.HttpLogging      : [0fc8d5db-3] Handling completed
+2021-01-29 11:00:09.021 TRACE 95116 --- [reactor-http-nio-3] o.s.w.s.adapter.HttpWebHandlerAdapter    : [0fc8d5db-4] HTTP GET "/spec.json", headers={masked}
+2021-01-29 11:00:09.021  INFO 95116 --- [reactor-http-nio-3] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/spec.json
+2021-01-29 11:00:09.389  INFO 95116 --- [reactor-http-nio-3] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/spec.json
+2021-01-29 11:00:09.389 TRACE 95116 --- [reactor-http-nio-3] o.s.w.s.adapter.HttpWebHandlerAdapter    : [0fc8d5db-4] Completed 200 OK, headers={masked}
+2021-01-29 11:00:09.390 TRACE 95116 --- [reactor-http-nio-3] org.springframework.web.HttpLogging      : [0fc8d5db-4] Handling completed
+2021-01-29 11:02:31.843  INFO 95175 --- [main] c.g.n.NellygatewayApplication            : Starting NellygatewayApplication using Java 15 on Gian-Lucas-MacBook-Pro.local with PID 95175 (/Users/gifr/Documents/nellygateway/nellygateway/target/classes started by gifr in /Users/gifr/Documents/nellygateway/nellygateway)
+2021-01-29 11:02:31.844 DEBUG 95175 --- [main] c.g.n.NellygatewayApplication            : Running with Spring Boot v2.4.2, Spring v5.3.3
+2021-01-29 11:02:31.844  INFO 95175 --- [main] c.g.n.NellygatewayApplication            : The following profiles are active: dev
+2021-01-29 11:02:32.569  INFO 95175 --- [main] c.g.n.config.FileConfigLoader            : Load nelly configuration from: sample-nelly-config.yaml
+2021-01-29 11:02:32.590  WARN 95175 --- [main] .c.StringEnvironmentVariableDeserializer : Environment variable 'NELLY_API_KEY' does not exist
+2021-01-29 11:02:32.636 DEBUG 95175 --- [main] c.g.n.config.FileConfigLoader            : Configuration successfully loaded
+2021-01-29 11:02:32.671  INFO 95175 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Route echo: Pattern /echo/(?<segment>.*) will be replaced with /${segment}
+2021-01-29 11:02:32.678  INFO 95175 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Initialized gateway route echo
+2021-01-29 11:02:32.678  INFO 95175 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Route httpbin: Pattern /(?<segment>.*) will be replaced with /${segment}
+2021-01-29 11:02:32.678  INFO 95175 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Initialized gateway route httpbin
+2021-01-29 11:02:33.033  WARN 95175 --- [main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. You can switch to using Caffeine cache, by adding it to the classpath.
+2021-01-29 11:02:33.166  INFO 95175 --- [main] c.g.n.NellygatewayApplication            : Started NellygatewayApplication in 1.615 seconds (JVM running for 2.289)
+2021-01-29 11:02:33.168  INFO 95175 --- [main] c.g.nellygateway.utils.NellyMain         : Nelly started with ? routes
+2021-01-29 11:03:01.463  INFO 95175 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/
+2021-01-29 11:03:01.473 TRACE 95175 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /
+2021-01-29 11:03:01.474 TRACE 95175 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /
+2021-01-29 11:03:01.481 DEBUG 95175 --- [reactor-http-nio-2] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/ is routed to id: 65488783-6145-4aee-bd0a-4f5131d9750c, uri:https://httpbin.org:443/
+2021-01-29 11:03:02.659  INFO 95175 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/
+2021-01-29 11:03:02.938  INFO 95175 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/spec.json
+2021-01-29 11:03:02.938 TRACE 95175 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /spec.json
+2021-01-29 11:03:02.939 TRACE 95175 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /spec.json
+2021-01-29 11:03:02.939 DEBUG 95175 --- [reactor-http-nio-2] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/spec.json is routed to id: 65488783-6145-4aee-bd0a-4f5131d9750c, uri:https://httpbin.org:443/spec.json
+2021-01-29 11:03:03.444  INFO 95175 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/spec.json
+2021-01-29 11:04:27.868  INFO 95175 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui-standalone-preset.js.map
+2021-01-29 11:04:27.870 TRACE 95175 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /flasgger_static/swagger-ui-standalone-preset.js.map
+2021-01-29 11:04:27.870 TRACE 95175 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /flasgger_static/swagger-ui-standalone-preset.js.map
+2021-01-29 11:04:27.871 DEBUG 95175 --- [reactor-http-nio-2] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/flasgger_static/swagger-ui-standalone-preset.js.map is routed to id: 65488783-6145-4aee-bd0a-4f5131d9750c, uri:https://httpbin.org:443/flasgger_static/swagger-ui-standalone-preset.js.map
+2021-01-29 11:04:27.913  INFO 95175 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui.css.map
+2021-01-29 11:04:27.914 TRACE 95175 --- [reactor-http-nio-6] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /flasgger_static/swagger-ui.css.map
+2021-01-29 11:04:27.915 TRACE 95175 --- [reactor-http-nio-6] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /flasgger_static/swagger-ui.css.map
+2021-01-29 11:04:27.916 DEBUG 95175 --- [reactor-http-nio-6] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/flasgger_static/swagger-ui.css.map is routed to id: 65488783-6145-4aee-bd0a-4f5131d9750c, uri:https://httpbin.org:443/flasgger_static/swagger-ui.css.map
+2021-01-29 11:04:27.917  INFO 95175 --- [reactor-http-nio-7] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 11:04:27.918 TRACE 95175 --- [reactor-http-nio-7] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 11:04:27.918 TRACE 95175 --- [reactor-http-nio-7] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 11:04:27.920 DEBUG 95175 --- [reactor-http-nio-7] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/flasgger_static/swagger-ui-bundle.js.map is routed to id: 65488783-6145-4aee-bd0a-4f5131d9750c, uri:https://httpbin.org:443/flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 11:04:28.448  INFO 95175 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 11:04:33.304  INFO 95175 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/
+2021-01-29 11:04:33.305 TRACE 95175 --- [reactor-http-nio-6] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /
+2021-01-29 11:04:33.306 TRACE 95175 --- [reactor-http-nio-6] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /
+2021-01-29 11:04:33.306 DEBUG 95175 --- [reactor-http-nio-6] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/ is routed to id: 65488783-6145-4aee-bd0a-4f5131d9750c, uri:https://httpbin.org:443/
+2021-01-29 11:04:33.445  INFO 95175 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/
+2021-01-29 11:04:33.770  INFO 95175 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/spec.json
+2021-01-29 11:04:33.770 TRACE 95175 --- [reactor-http-nio-6] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /spec.json
+2021-01-29 11:04:33.771 TRACE 95175 --- [reactor-http-nio-6] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /spec.json
+2021-01-29 11:04:33.771 DEBUG 95175 --- [reactor-http-nio-6] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/spec.json is routed to id: 65488783-6145-4aee-bd0a-4f5131d9750c, uri:https://httpbin.org:443/spec.json
+2021-01-29 11:04:34.233  INFO 95175 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/spec.json
+2021-01-29 11:04:37.932  INFO 95175 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/spec.json
+2021-01-29 11:04:39.447  INFO 95175 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/
+2021-01-29 11:04:39.448 TRACE 95175 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /
+2021-01-29 11:04:39.449 TRACE 95175 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /
+2021-01-29 11:04:39.449 DEBUG 95175 --- [reactor-http-nio-2] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/ is routed to id: 65488783-6145-4aee-bd0a-4f5131d9750c, uri:https://httpbin.org:443/
+2021-01-29 11:04:39.622  INFO 95175 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/
+2021-01-29 11:04:39.677  INFO 95175 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui.css
+2021-01-29 11:04:39.677  INFO 95175 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui.css
+2021-01-29 11:04:39.677 TRACE 95175 --- [reactor-http-nio-6] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /flasgger_static/swagger-ui-bundle.js
+2021-01-29 11:04:39.677 TRACE 95175 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /flasgger_static/swagger-ui.css
+2021-01-29 11:04:39.677 TRACE 95175 --- [reactor-http-nio-6] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /flasgger_static/swagger-ui-bundle.js
+2021-01-29 11:04:39.678 TRACE 95175 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /flasgger_static/swagger-ui.css
+2021-01-29 11:04:39.678 DEBUG 95175 --- [reactor-http-nio-6] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/flasgger_static/swagger-ui-bundle.js is routed to id: 65488783-6145-4aee-bd0a-4f5131d9750c, uri:https://httpbin.org:443/flasgger_static/swagger-ui-bundle.js
+2021-01-29 11:04:39.678 DEBUG 95175 --- [reactor-http-nio-2] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/flasgger_static/swagger-ui.css is routed to id: 65488783-6145-4aee-bd0a-4f5131d9750c, uri:https://httpbin.org:443/flasgger_static/swagger-ui.css
+2021-01-29 11:04:39.688  INFO 95175 --- [reactor-http-nio-8] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui-standalone-preset.js
+2021-01-29 11:04:39.689  INFO 95175 --- [reactor-http-nio-1] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/lib/jquery.min.js
+2021-01-29 11:04:39.690 TRACE 95175 --- [reactor-http-nio-8] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /flasgger_static/swagger-ui-standalone-preset.js
+2021-01-29 11:04:39.691 TRACE 95175 --- [reactor-http-nio-8] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /flasgger_static/swagger-ui-standalone-preset.js
+2021-01-29 11:04:39.690 TRACE 95175 --- [reactor-http-nio-1] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /flasgger_static/lib/jquery.min.js
+2021-01-29 11:04:39.692 TRACE 95175 --- [reactor-http-nio-1] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /flasgger_static/lib/jquery.min.js
+2021-01-29 11:04:39.692 DEBUG 95175 --- [reactor-http-nio-8] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/flasgger_static/swagger-ui-standalone-preset.js is routed to id: 65488783-6145-4aee-bd0a-4f5131d9750c, uri:https://httpbin.org:443/flasgger_static/swagger-ui-standalone-preset.js
+2021-01-29 11:04:39.692 DEBUG 95175 --- [reactor-http-nio-1] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/flasgger_static/lib/jquery.min.js is routed to id: 65488783-6145-4aee-bd0a-4f5131d9750c, uri:https://httpbin.org:443/flasgger_static/lib/jquery.min.js
+2021-01-29 11:04:40.281  INFO 95175 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/flasgger_static/lib/jquery.min.js
+2021-01-29 11:04:40.313  INFO 95175 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui.css.map
+2021-01-29 11:04:40.314 TRACE 95175 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /flasgger_static/swagger-ui.css.map
+2021-01-29 11:04:40.314 TRACE 95175 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /flasgger_static/swagger-ui.css.map
+2021-01-29 11:04:40.315 DEBUG 95175 --- [reactor-http-nio-2] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/flasgger_static/swagger-ui.css.map is routed to id: 65488783-6145-4aee-bd0a-4f5131d9750c, uri:https://httpbin.org:443/flasgger_static/swagger-ui.css.map
+2021-01-29 11:04:40.452  INFO 95175 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/flasgger_static/swagger-ui.css.map
+2021-01-29 11:04:40.863  INFO 95175 --- [reactor-http-nio-1] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/flasgger_static/swagger-ui.css.map
+2021-01-29 11:04:41.954  INFO 95175 --- [reactor-http-nio-8] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/flasgger_static/swagger-ui.css.map
+2021-01-29 11:04:43.743  INFO 95175 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/flasgger_static/swagger-ui.css.map
+2021-01-29 11:04:43.911  INFO 95175 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 11:04:43.912 TRACE 95175 --- [reactor-http-nio-6] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 11:04:43.912 TRACE 95175 --- [reactor-http-nio-6] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 11:04:43.913 DEBUG 95175 --- [reactor-http-nio-6] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/flasgger_static/swagger-ui-bundle.js.map is routed to id: 65488783-6145-4aee-bd0a-4f5131d9750c, uri:https://httpbin.org:443/flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 11:04:43.919  INFO 95175 --- [reactor-http-nio-8] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui-standalone-preset.js.map
+2021-01-29 11:04:43.919 TRACE 95175 --- [reactor-http-nio-8] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /flasgger_static/swagger-ui-standalone-preset.js.map
+2021-01-29 11:04:43.920 TRACE 95175 --- [reactor-http-nio-8] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /flasgger_static/swagger-ui-standalone-preset.js.map
+2021-01-29 11:04:43.920 DEBUG 95175 --- [reactor-http-nio-8] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/flasgger_static/swagger-ui-standalone-preset.js.map is routed to id: 65488783-6145-4aee-bd0a-4f5131d9750c, uri:https://httpbin.org:443/flasgger_static/swagger-ui-standalone-preset.js.map
+2021-01-29 11:04:43.991  INFO 95175 --- [reactor-http-nio-1] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/spec.json
+2021-01-29 11:04:43.992 TRACE 95175 --- [reactor-http-nio-1] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /spec.json
+2021-01-29 11:04:43.992 TRACE 95175 --- [reactor-http-nio-1] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /spec.json
+2021-01-29 11:04:43.993 DEBUG 95175 --- [reactor-http-nio-1] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/spec.json is routed to id: 65488783-6145-4aee-bd0a-4f5131d9750c, uri:https://httpbin.org:443/spec.json
+2021-01-29 11:04:44.376  INFO 95175 --- [reactor-http-nio-1] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/spec.json
+2021-01-29 11:04:46.806  INFO 95175 --- [reactor-http-nio-7] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/spec.json
+2021-01-29 11:04:47.709  INFO 95175 --- [reactor-http-nio-8] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/spec.json
+2021-01-29 11:04:51.423  INFO 95175 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/spec.json
+2021-01-29 13:05:18.225  INFO 97576 --- [main] c.g.n.NellygatewayApplication            : Starting NellygatewayApplication using Java 15 on Gian-Lucas-MacBook-Pro.local with PID 97576 (/Users/gifr/Documents/nellygateway/nellygateway/target/classes started by gifr in /Users/gifr/Documents/nellygateway/nellygateway)
+2021-01-29 13:05:18.226 DEBUG 97576 --- [main] c.g.n.NellygatewayApplication            : Running with Spring Boot v2.4.2, Spring v5.3.3
+2021-01-29 13:05:18.227  INFO 97576 --- [main] c.g.n.NellygatewayApplication            : The following profiles are active: dev
+2021-01-29 13:05:19.190  INFO 97576 --- [main] c.g.n.config.FileConfigLoader            : Load nelly configuration from: sample-nelly-config.yaml
+2021-01-29 13:05:19.213  WARN 97576 --- [main] .c.StringEnvironmentVariableDeserializer : Environment variable 'NELLY_API_KEY' does not exist
+2021-01-29 13:05:19.268 DEBUG 97576 --- [main] c.g.n.config.FileConfigLoader            : Configuration successfully loaded
+2021-01-29 13:05:19.302  INFO 97576 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Route echo: Pattern /echo/(?<segment>.*) will be replaced with /${segment}
+2021-01-29 13:05:19.313  INFO 97576 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Initialized gateway route echo
+2021-01-29 13:05:19.313  INFO 97576 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Route httpbin: Pattern /(?<segment>.*) will be replaced with /${segment}
+2021-01-29 13:05:19.313  INFO 97576 --- [main] c.g.n.g.SpringCloudGatewayConfiguration  : Initialized gateway route httpbin
+2021-01-29 13:05:19.790  WARN 97576 --- [main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. You can switch to using Caffeine cache, by adding it to the classpath.
+2021-01-29 13:05:19.931  INFO 97576 --- [main] c.g.n.NellygatewayApplication            : Started NellygatewayApplication in 2.137 seconds (JVM running for 2.72)
+2021-01-29 13:05:19.933  INFO 97576 --- [main] c.g.nellygateway.utils.NellyMain         : Nelly started with ? routes
+2021-01-29 13:05:30.558  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/echo
+2021-01-29 13:05:30.568 TRACE 97576 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /echo
+2021-01-29 13:05:30.577 DEBUG 97576 --- [reactor-http-nio-2] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/echo is routed to uri:https://nellydemoapp.azurewebsites.net:443/echo
+2021-01-29 13:05:38.124  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 404 for GET http://localhost:8080/echo
+2021-01-29 13:05:56.114  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/echo/
+2021-01-29 13:05:56.115 TRACE 97576 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /echo/
+2021-01-29 13:05:56.116 DEBUG 97576 --- [reactor-http-nio-2] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/echo/ is routed to uri:https://nellydemoapp.azurewebsites.net:443/
+2021-01-29 13:05:56.532  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/echo/
+2021-01-29 13:05:56.617  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/styles.css
+2021-01-29 13:05:56.618 TRACE 97576 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /styles.css
+2021-01-29 13:05:56.619 TRACE 97576 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /styles.css
+2021-01-29 13:05:56.620 DEBUG 97576 --- [reactor-http-nio-2] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/styles.css is routed to uri:https://httpbin.org:443/styles.css
+2021-01-29 13:05:57.383  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 404 for GET http://localhost:8080/styles.css
+2021-01-29 13:06:00.033  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/auth/google/login
+2021-01-29 13:06:00.091  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 302 for GET http://localhost:8080/auth/google/login
+2021-01-29 13:06:00.801  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/auth/google/callback?state=Zb9iCszcxEfcgdl-QyPWvK9DO9drbkwy8zjHPS0ADvY&code=4%2F0AY0e-g5Gef0t__d-3ZpjkGR-y1khEnBlA8gSQkdyW9Hh2W6mxaoP8ytQDF7EJM5WoCxy2w&scope=email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+openid&authuser=0&prompt=none
+2021-01-29 13:06:01.175  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 302 for GET http://localhost:8080/auth/google/callback?state=Zb9iCszcxEfcgdl-QyPWvK9DO9drbkwy8zjHPS0ADvY&code=4%2F0AY0e-g5Gef0t__d-3ZpjkGR-y1khEnBlA8gSQkdyW9Hh2W6mxaoP8ytQDF7EJM5WoCxy2w&scope=email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+openid&authuser=0&prompt=none
+2021-01-29 13:06:01.181  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/
+2021-01-29 13:06:01.184 TRACE 97576 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /
+2021-01-29 13:06:01.184 TRACE 97576 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /
+2021-01-29 13:06:01.185 DEBUG 97576 --- [reactor-http-nio-2] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/ is routed to uri:https://httpbin.org:443/
+2021-01-29 13:06:01.344  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/
+2021-01-29 13:06:01.789  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui.css.map
+2021-01-29 13:06:01.793 TRACE 97576 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /flasgger_static/swagger-ui.css.map
+2021-01-29 13:06:01.794 TRACE 97576 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /flasgger_static/swagger-ui.css.map
+2021-01-29 13:06:01.794 DEBUG 97576 --- [reactor-http-nio-2] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/flasgger_static/swagger-ui.css.map is routed to uri:https://httpbin.org:443/flasgger_static/swagger-ui.css.map
+2021-01-29 13:06:01.941  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/flasgger_static/swagger-ui.css.map
+2021-01-29 13:06:02.130  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui-standalone-preset.js.map
+2021-01-29 13:06:02.132 TRACE 97576 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /flasgger_static/swagger-ui-standalone-preset.js.map
+2021-01-29 13:06:02.133 TRACE 97576 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /flasgger_static/swagger-ui-standalone-preset.js.map
+2021-01-29 13:06:02.133 DEBUG 97576 --- [reactor-http-nio-2] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/flasgger_static/swagger-ui-standalone-preset.js.map is routed to uri:https://httpbin.org:443/flasgger_static/swagger-ui-standalone-preset.js.map
+2021-01-29 13:06:02.162  INFO 97576 --- [reactor-http-nio-3] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/spec.json
+2021-01-29 13:06:02.165 TRACE 97576 --- [reactor-http-nio-3] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /spec.json
+2021-01-29 13:06:02.165 TRACE 97576 --- [reactor-http-nio-3] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /spec.json
+2021-01-29 13:06:02.166 DEBUG 97576 --- [reactor-http-nio-3] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/spec.json is routed to uri:https://httpbin.org:443/spec.json
+2021-01-29 13:06:02.251  INFO 97576 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 13:06:02.254 TRACE 97576 --- [reactor-http-nio-6] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 13:06:02.255 TRACE 97576 --- [reactor-http-nio-6] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 13:06:02.255 DEBUG 97576 --- [reactor-http-nio-6] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/flasgger_static/swagger-ui-bundle.js.map is routed to uri:https://httpbin.org:443/flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 13:06:03.342  INFO 97576 --- [reactor-http-nio-3] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 13:06:04.019  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 13:06:08.107  INFO 97576 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 13:06:12.010  INFO 97576 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/auth/session
+2021-01-29 13:06:12.024  INFO 97576 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/auth/session
+2021-01-29 13:06:16.782  INFO 97576 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/auth/logout
+2021-01-29 13:06:16.785  INFO 97576 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Response status code 302 for GET http://localhost:8080/auth/logout
+2021-01-29 13:06:16.789  INFO 97576 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/
+2021-01-29 13:06:16.790 TRACE 97576 --- [reactor-http-nio-6] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /
+2021-01-29 13:06:16.790 TRACE 97576 --- [reactor-http-nio-6] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /
+2021-01-29 13:06:16.791 DEBUG 97576 --- [reactor-http-nio-6] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/ is routed to uri:https://httpbin.org:443/
+2021-01-29 13:06:16.945  INFO 97576 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/
+2021-01-29 13:06:17.203  INFO 97576 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 13:06:17.204 TRACE 97576 --- [reactor-http-nio-6] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 13:06:17.204 TRACE 97576 --- [reactor-http-nio-6] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 13:06:17.204 DEBUG 97576 --- [reactor-http-nio-6] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/flasgger_static/swagger-ui-bundle.js.map is routed to uri:https://httpbin.org:443/flasgger_static/swagger-ui-bundle.js.map
+2021-01-29 13:06:17.218  INFO 97576 --- [reactor-http-nio-3] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui.css.map
+2021-01-29 13:06:17.218  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/flasgger_static/swagger-ui.css.map
+2021-01-29 13:06:17.218 TRACE 97576 --- [reactor-http-nio-3] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /flasgger_static/swagger-ui.css.map
+2021-01-29 13:06:17.219 TRACE 97576 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /flasgger_static/swagger-ui-standalone-preset.js.map
+2021-01-29 13:06:17.219 TRACE 97576 --- [reactor-http-nio-3] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /flasgger_static/swagger-ui.css.map
+2021-01-29 13:06:17.219 TRACE 97576 --- [reactor-http-nio-2] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /flasgger_static/swagger-ui-standalone-preset.js.map
+2021-01-29 13:06:17.219 DEBUG 97576 --- [reactor-http-nio-3] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/flasgger_static/swagger-ui.css.map is routed to uri:https://httpbin.org:443/flasgger_static/swagger-ui.css.map
+2021-01-29 13:06:17.219 DEBUG 97576 --- [reactor-http-nio-2] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/flasgger_static/swagger-ui-standalone-preset.js.map is routed to uri:https://httpbin.org:443/flasgger_static/swagger-ui-standalone-preset.js.map
+2021-01-29 13:06:17.345  INFO 97576 --- [reactor-http-nio-7] c.g.n.filters.spring.SimpleLogFilter     : Request to GET http://localhost:8080/spec.json
+2021-01-29 13:06:17.346 TRACE 97576 --- [reactor-http-nio-7] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route echo for /spec.json
+2021-01-29 13:06:17.346 TRACE 97576 --- [reactor-http-nio-7] c.g.n.g.SpringCloudGatewayConfiguration  : Evaluate route httpbin for /spec.json
+2021-01-29 13:06:17.346 DEBUG 97576 --- [reactor-http-nio-7] c.g.n.f.proxy.GatewayLoggingFilter       : Incoming request http://localhost:8080/spec.json is routed to uri:https://httpbin.org:443/spec.json
+2021-01-29 13:06:17.421  INFO 97576 --- [reactor-http-nio-3] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/spec.json
+2021-01-29 13:06:18.741  INFO 97576 --- [reactor-http-nio-7] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/spec.json
+2021-01-29 13:06:21.512  INFO 97576 --- [reactor-http-nio-2] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/spec.json
+2021-01-29 13:06:21.863  INFO 97576 --- [reactor-http-nio-6] c.g.n.filters.spring.SimpleLogFilter     : Response status code 200 for GET http://localhost:8080/spec.json

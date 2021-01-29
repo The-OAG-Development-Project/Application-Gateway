@@ -60,7 +60,7 @@ public class CookieConverter {
         return ResponseCookie.from(LoginCookie.NAME, value)
                 .httpOnly(true)
                 .secure(config.isHttpsHost())
-                .maxAge(Duration.ofSeconds(sessionDurationSeconds))
+                .maxAge(sessionDurationSeconds)
                 .sameSite(sameSiteValue)
                 .path("/")
                 .build();
