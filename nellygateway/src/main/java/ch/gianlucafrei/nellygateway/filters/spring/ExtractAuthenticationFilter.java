@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpCookie;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Optional;
 
@@ -30,30 +31,29 @@ public class ExtractAuthenticationFilter extends GlobalFilterBase {
     GlobalClockSource globalClockSource;
 
     @Override
-    protected void filter() {
+    protected void filter(ServerWebExchange exchange) {
+        log.trace("ExtractAuthenticationFilter started");
+
+        exchange.getAttributes().put(NELLY_SESSION, Optional.empty());
 
         // Extract session from cookie
+        var request = exchange.getRequest();
         HttpCookie cookie = request.getCookies().getFirst(LoginCookie.NAME);
-        Optional<Session> sessionOptional;
-        if (cookie == null) {
-            sessionOptional = Optional.empty();
-        } else {
+        if (cookie != null) {
             try {
                 // Decrypt cookie
                 LoginCookie loginCookie = cookieEncryptor.decryptObject(cookie.getValue(), LoginCookie.class);
-                sessionOptional = Session.fromSessionCookie(loginCookie, globalClockSource.getGlobalClock());
+                var sessionOptional = Session.fromSessionCookie(loginCookie, globalClockSource.getGlobalClock());
 
                 // Extract csrf token from session cookie and store in context
                 exchange.getAttributes().put(NELLY_SESSION_CSRF_TOKEN, loginCookie.getCsrfToken());
+                // Store session optional in http request object
+                exchange.getAttributes().put(NELLY_SESSION, sessionOptional);
 
             } catch (CookieDecryptionException e) {
 
                 log.info("Received invalid session cookie");
-                sessionOptional = Optional.empty();
             }
         }
-
-        // Store session optional in http request object
-        exchange.getAttributes().put(NELLY_SESSION, sessionOptional);
     }
 }

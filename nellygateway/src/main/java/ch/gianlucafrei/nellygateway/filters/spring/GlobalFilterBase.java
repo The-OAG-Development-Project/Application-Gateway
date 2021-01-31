@@ -1,7 +1,5 @@
 package ch.gianlucafrei.nellygateway.filters.spring;
 
-import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -9,31 +7,23 @@ import reactor.core.publisher.Mono;
 
 public abstract class GlobalFilterBase implements WebFilter {
 
-    protected ServerHttpRequest request;
-    protected ServerHttpResponse response;
-    protected ServerWebExchange exchange;
-
     @Override
     public Mono<Void> filter(ServerWebExchange serverWebExchange, WebFilterChain webFilterChain) {
 
-        this.exchange = serverWebExchange;
-        this.request = serverWebExchange.getRequest();
-        this.response = serverWebExchange.getResponse();
-
-        filter();
+        filter(serverWebExchange);
 
         return webFilterChain.filter(serverWebExchange)
-                .doOnSuccess(d -> onSuccess())
-                .doOnError(t -> onError(t));
+                .doOnSuccess(d -> onSuccess(serverWebExchange))
+                .doOnError(t -> onError(t, serverWebExchange));
     }
 
-    protected void onError(Throwable t) {
-        
+    protected void onError(Throwable t, ServerWebExchange exchange) {
+
     }
 
-    protected void filter() {
+    protected void filter(ServerWebExchange serverWebExchange) {
     }
 
-    protected void onSuccess() {
+    protected void onSuccess(ServerWebExchange exchange) {
     }
 }

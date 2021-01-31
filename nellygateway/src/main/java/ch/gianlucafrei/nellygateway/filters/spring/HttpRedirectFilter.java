@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
@@ -23,15 +24,14 @@ public class HttpRedirectFilter extends GlobalFilterBase {
 
     @Override
     public Mono<Void> filter(ServerWebExchange serverWebExchange, WebFilterChain webFilterChain) {
-        this.exchange = serverWebExchange;
-        this.request = serverWebExchange.getRequest();
-        this.response = serverWebExchange.getResponse();
+        var request = serverWebExchange.getRequest();
+        var response = serverWebExchange.getResponse();
 
         if (config.isHttpsHost()) {
             // We do the request only if we are on https
 
-            if (isInsecureRequest()) {
-                sendHttpsRedirectResponse();
+            if (isInsecureRequest(request)) {
+                sendHttpsRedirectResponse(serverWebExchange);
                 log.debug("Redirected insecure request to {}", request.getURI().getPath());
                 return response.setComplete();
             }
@@ -39,7 +39,7 @@ public class HttpRedirectFilter extends GlobalFilterBase {
         return webFilterChain.filter(serverWebExchange);
     }
 
-    public boolean isInsecureRequest() {
+    public boolean isInsecureRequest(ServerHttpRequest request) {
 
         // If we are on http only https redirection is irrelevant
         if (config.isHttpsHost())
@@ -64,7 +64,10 @@ public class HttpRedirectFilter extends GlobalFilterBase {
         return false;
     }
 
-    public void sendHttpsRedirectResponse() {
+    public void sendHttpsRedirectResponse(ServerWebExchange exchange) {
+
+        var request = exchange.getRequest();
+        var response = exchange.getResponse();
 
         var requestUri = request.getURI();
         var queryString = requestUri.getRawQuery();

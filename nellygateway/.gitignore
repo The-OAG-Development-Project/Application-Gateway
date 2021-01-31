@@ -1,5 +1,7 @@
 nellygateway/sample-nelly-config.yaml
 NELLY.key
+nelly-dev.log/
+nelly.log/
 
 HELP.md
 target/

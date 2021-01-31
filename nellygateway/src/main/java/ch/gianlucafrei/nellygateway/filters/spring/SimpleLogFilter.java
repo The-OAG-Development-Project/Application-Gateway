@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
 
 @Order(1)
 @Component
@@ -12,8 +13,9 @@ public class SimpleLogFilter extends GlobalFilterBase {
     private static final Logger log = LoggerFactory.getLogger(SimpleLogFilter.class);
 
     @Override
-    public void filter() {
+    public void filter(ServerWebExchange exchange) {
 
+        var request = exchange.getRequest();
 
         log.info("Request to {} {}",
                 request.getMethod(),
@@ -21,7 +23,10 @@ public class SimpleLogFilter extends GlobalFilterBase {
     }
 
     @Override
-    protected void onSuccess() {
+    protected void onSuccess(ServerWebExchange exchange) {
+
+        var request = exchange.getRequest();
+        var response = exchange.getResponse();
 
         log.info("Response status code {} for {} {}",
                 response.getRawStatusCode(),
@@ -31,7 +36,9 @@ public class SimpleLogFilter extends GlobalFilterBase {
 
 
     @Override
-    protected void onError(Throwable t) {
+    protected void onError(Throwable t, ServerWebExchange exchange) {
+
+        var request = exchange.getRequest();
 
         log.info("Error {} during request processing for {} {}",
                 t.getMessage(),
