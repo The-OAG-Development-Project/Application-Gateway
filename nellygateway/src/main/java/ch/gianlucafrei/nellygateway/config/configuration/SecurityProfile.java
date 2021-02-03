@@ -1,7 +1,9 @@
 package ch.gianlucafrei.nellygateway.config.configuration;
 
 import ch.gianlucafrei.nellygateway.config.ErrorValidation;
+import ch.gianlucafrei.nellygateway.services.csrf.CsrfProtectionValidation;
 import com.google.common.collect.Lists;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
@@ -72,14 +74,11 @@ public class SecurityProfile implements ErrorValidation {
         if (responseHeaders == null)
             errors.add("'responseHeaders' not specified");
 
-        // TODO Move this check to another place due to circular bean dependencies
-        /*
         try {
             CsrfProtectionValidation.loadValidationImplementation(csrfProtection, context);
         } catch (NoSuchBeanDefinitionException ex) {
             errors.add("No csrf implementation found for '" + csrfProtection + "'");
         }
-        */
 
         return errors;
     }

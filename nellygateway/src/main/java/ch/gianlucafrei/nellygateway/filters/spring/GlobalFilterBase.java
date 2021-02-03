@@ -13,8 +13,7 @@ public abstract class GlobalFilterBase implements WebFilter {
         filter(serverWebExchange);
 
         return webFilterChain.filter(serverWebExchange)
-                .doOnSuccess(d -> onSuccess(serverWebExchange))
-                .doOnError(t -> onError(t, serverWebExchange));
+                .doOnSuccess(d -> onSuccess(serverWebExchange));
     }
 
     protected void onError(Throwable t, ServerWebExchange exchange) {

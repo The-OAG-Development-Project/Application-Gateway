@@ -9,7 +9,12 @@ public class CsrfNoneValidation implements CsrfProtectionValidation {
     public static final String NAME = "none";
 
     @Override
-    public boolean shouldBlockRequest(ServerWebExchange exchange) {
+    public boolean needsRequestBody() {
+        return false;
+    }
+
+    @Override
+    public boolean shouldBlockRequest(ServerWebExchange exchange, String requestBody) {
 
         return false;
     }

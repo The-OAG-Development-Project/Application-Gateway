@@ -2,12 +2,13 @@ package ch.gianlucafrei.nellygateway.reactiveMockServer;
 
 import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.NellyConfigLoader;
-import ch.gianlucafrei.nellygateway.mockserver.TestFileConfigLoader;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 public class ProxyTest extends WiremockTest {
 
@@ -41,5 +42,27 @@ public class ProxyTest extends WiremockTest {
                 .get().uri(TEST_NOTFOUND)
                 .exchange()
                 .expectStatus().isEqualTo(404);
+    }
+
+    @Test
+    public void urlRewriteTest() {
+
+        /**
+         *     rewriteTest:
+         *       type: webapplication
+         *       path: /rewrite/**
+         *       url: http://localhost:7777/rewritten/
+         *       allowAnonymous: yes
+         */
+
+        var msg = "This is the Message";
+        stubFor(get(urlEqualTo("/rewritten/message.txt"))
+                .willReturn(aResponse().withBody(msg)));
+
+        webClient
+                .get().uri("/rewrite/message.txt")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody().equals(msg);
     }
 }

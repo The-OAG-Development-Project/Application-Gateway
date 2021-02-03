@@ -5,7 +5,9 @@ import org.springframework.web.server.ServerWebExchange;
 
 public interface CsrfProtectionValidation {
 
-    boolean shouldBlockRequest(ServerWebExchange exchange);
+    boolean needsRequestBody();
+
+    boolean shouldBlockRequest(ServerWebExchange exchange, String requestBody);
 
     static CsrfProtectionValidation loadValidationImplementation(String csrfProtectionMethod, ApplicationContext context) {
 

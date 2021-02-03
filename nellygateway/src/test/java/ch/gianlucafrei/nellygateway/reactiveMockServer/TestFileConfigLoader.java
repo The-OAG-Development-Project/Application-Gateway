@@ -1,4 +1,4 @@
-package ch.gianlucafrei.nellygateway.mockserver;
+package ch.gianlucafrei.nellygateway.reactiveMockServer;
 
 import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.FileConfigLoader;

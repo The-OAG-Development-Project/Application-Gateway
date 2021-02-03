@@ -7,17 +7,12 @@ import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Optional;
 
-@Component("csrf-double-submit-cookie-validation")
-public class CsrfDoubleSubmitValidation implements CsrfProtectionValidation {
-
-    public static final String NAME = "double-submit-cookie";
-    public static final String CSRF_TOKEN_HEADER_NAME = "X-CSRF-TOKEN";
-    public static final String CSRF_TOKEN_PARAMETER_NAME = "CSRFToken";
-
+@Component("csrf-double-submit-cookie-with-body-validation")
+public class CsrfDoubleSubmitInPostBody extends CsrfDoubleSubmitValidation {
 
     @Override
     public boolean needsRequestBody() {
-        return false;
+        return true;
     }
 
     @Override
@@ -29,6 +24,13 @@ public class CsrfDoubleSubmitValidation implements CsrfProtectionValidation {
             String csrfValueFromSession = exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION_CSRF_TOKEN);
             String csrfValueFromDoubleSubmit = extractCsrfToken(exchange);
 
+            if (requestBody == null) {
+                throw new AssertionError("request body is null");
+            }
+
+            if (requestBody.contains(csrfValueFromSession))
+                return false;
+
             if (csrfValueFromDoubleSubmit == null)
                 return true;
 
@@ -37,22 +39,5 @@ public class CsrfDoubleSubmitValidation implements CsrfProtectionValidation {
         }
 
         return false;
-    }
-
-    protected String extractCsrfToken(ServerWebExchange exchange) {
-
-        var request = exchange.getRequest();
-
-        // Return from header if present
-        String csrfTokenFromHeader = request.getHeaders().getFirst(CSRF_TOKEN_HEADER_NAME);
-        if (csrfTokenFromHeader != null)
-            return csrfTokenFromHeader;
-
-        // Return token from parameter or null if not present
-        String csrfFromParam = request.getQueryParams().getFirst(CSRF_TOKEN_PARAMETER_NAME);
-        if (csrfFromParam != null)
-            return csrfFromParam;
-
-        return null;
     }
 }

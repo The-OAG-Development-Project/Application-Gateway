@@ -1,33 +1,32 @@
-package ch.gianlucafrei.nellygateway.configuration;
+package ch.gianlucafrei.nellygateway.reactiveMockServer.csrf;
 
 import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.NellyConfigLoader;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.reactiveMockServer.TestFileConfigLoader;
-import org.junit.jupiter.api.Test;
+import ch.gianlucafrei.nellygateway.reactiveMockServer.WiremockTest;
+import io.github.artsok.RepeatedIfExceptionsTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpMethod;
 
-
-@SpringBootTest(properties = {"spring.main.allow-bean-definition-overriding=true"})
-class StartupTest {
-
-    @Autowired
-    private NellyConfig nellyConfig;
+class CsrfNoneSubmitTest extends WiremockTest {
 
     @Autowired
-    private ApplicationContext context;
+    NellyConfig nellyConfig;
 
-    @Test
-    void testLoadRoutes() {
+    @RepeatedIfExceptionsTest(repeats = 5)
+    void testCsrfNoneTest() throws Exception {
 
-        // TODO Implement
+        // Arrange
+        var loginResult = makeLogin();
 
+        loginResult.authenticatedRequest(HttpMethod.POST, "/csrf-none/" + TEST_1_ENDPOINT)
+                .exchange()
+                .expectStatus().isOk();
     }
 
     @Configuration

@@ -21,7 +21,12 @@ public class CsrfSamesiteStrictValidation implements CsrfProtectionValidation {
     CookieConverter cookieConverter;
 
     @Override
-    public boolean shouldBlockRequest(ServerWebExchange exchange) {
+    public boolean needsRequestBody() {
+        return false;
+    }
+
+    @Override
+    public boolean shouldBlockRequest(ServerWebExchange exchange, String requestBody) {
 
         Optional<Session> sessionOptional = (Optional<Session>) exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
 

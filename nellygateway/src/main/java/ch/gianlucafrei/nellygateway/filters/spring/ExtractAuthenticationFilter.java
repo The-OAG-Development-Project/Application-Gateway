@@ -56,4 +56,14 @@ public class ExtractAuthenticationFilter extends GlobalFilterBase {
             }
         }
     }
+
+    public static Optional<Session> extractSessionFromExchange(ServerWebExchange exchange) {
+
+        var sessionOptional = (Optional<Session>) exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
+
+        if (sessionOptional == null)
+            return Optional.empty();
+
+        return sessionOptional;
+    }
 }

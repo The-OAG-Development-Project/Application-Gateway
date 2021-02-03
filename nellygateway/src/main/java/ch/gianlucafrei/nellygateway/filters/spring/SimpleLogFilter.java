@@ -33,18 +33,4 @@ public class SimpleLogFilter extends GlobalFilterBase {
                 request.getMethodValue(),
                 request.getURI());
     }
-
-
-    @Override
-    protected void onError(Throwable t, ServerWebExchange exchange) {
-
-        var request = exchange.getRequest();
-
-        log.info("Error {} during request processing for {} {}",
-                t.getMessage(),
-                request.getMethod(),
-                request.getURI());
-
-        throw new RuntimeException("Error during request processing", t);
-    }
 }

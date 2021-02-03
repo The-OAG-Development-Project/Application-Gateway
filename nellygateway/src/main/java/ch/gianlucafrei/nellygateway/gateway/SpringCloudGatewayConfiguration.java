@@ -10,6 +10,7 @@ import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,6 +25,8 @@ public class SpringCloudGatewayConfiguration {
 
     @Autowired
     NellyConfig config;
+
+    public final static String ATTRIBUTE_ROUTE_NAME = "RouteName";
 
     private ProxyPathMatcher matcher = new ProxyPathMatcher();
 
@@ -56,12 +59,13 @@ public class SpringCloudGatewayConfiguration {
             var routeName = entry.getKey();
             var routePath = entry.getValue().getPath();
             var routeUrl = entry.getValue().getUrl();
+            var routeUrlPath = URI.create(routeUrl).getPath();
 
             routes.route(r -> {
 
                 // Add route predicate that uses the ProxyPathMatcher to find out if a route matches a request
                 var path = r.predicate(exchange -> {
-                    exchange.getAttributes().put("RouteName", routeName);
+                    exchange.getAttributes().put(ATTRIBUTE_ROUTE_NAME, routeName);
                     var requestUrl = exchange.getRequest().getURI().getPath();
                     log.trace("Evaluate route {} for {}", routeName, requestUrl);
                     return matcher.matchesPath(requestUrl, routePath);

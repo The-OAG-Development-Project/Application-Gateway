@@ -8,7 +8,6 @@ import ch.gianlucafrei.nellygateway.controllers.dto.SessionInformation;
 import ch.gianlucafrei.nellygateway.cookies.CsrfCookie;
 import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
 import ch.gianlucafrei.nellygateway.cookies.LoginStateCookie;
-import ch.gianlucafrei.nellygateway.mockserver.TestFileConfigLoader;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +74,7 @@ class LoginLogoutTest extends WiremockTest {
         webClient.get().uri("/auth/session").cookie(sessionCookie.getName(), sessionCookie.getValue())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody().jsonPath("$.state", SessionInformation.SESSION_STATE_AUTHENTICATED);
+                .expectBody().jsonPath("$.state").isEqualTo(SessionInformation.SESSION_STATE_AUTHENTICATED);
 
         // ACT 4: Logout
         var logoutResult = webClient
@@ -101,6 +100,6 @@ class LoginLogoutTest extends WiremockTest {
         webClient.get().uri("/auth/session")
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody().jsonPath("$.state", SessionInformation.SESSION_STATE_ANONYMOUS);
+                .expectBody().jsonPath("$.state").isEqualTo(SessionInformation.SESSION_STATE_ANONYMOUS);
     }
 }

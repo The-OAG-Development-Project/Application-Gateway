@@ -4,6 +4,7 @@ import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieDecryptionException;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
@@ -13,11 +14,15 @@ import java.time.Duration;
 @Component
 public class CookieConverter {
 
-    @Autowired
-    NellyConfig config;
+    private final NellyConfig config;
+
+    private final CookieEncryptor encryptor;
 
     @Autowired
-    CookieEncryptor encryptor;
+    public CookieConverter(@Lazy NellyConfig config, @Lazy CookieEncryptor encryptor) {
+        this.config = config;
+        this.encryptor = encryptor;
+    }
 
     public ResponseCookie convertStateCookie(LoginStateCookie stateCookie) {
 

@@ -235,7 +235,7 @@ public class LoginController {
 
         // Logout csrf prevention
         CsrfProtectionValidation csrfValidation = getCsrfValidationMethod();
-        if (csrfValidation.shouldBlockRequest(exchange)) {
+        if (csrfValidation.shouldBlockRequest(exchange, null)) {
             log.info("Blocked logout request due to csrf protection");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         } else {
