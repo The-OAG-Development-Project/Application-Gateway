@@ -8,6 +8,8 @@ spring:
     name: nellygateway
   banner:
     location: banner.txt
+  main:
+    lazy-initialization: true
 
 ribbon:
   eureka:
@@ -26,3 +28,4 @@ logging:
 
   file:
     path: nelly.log
+

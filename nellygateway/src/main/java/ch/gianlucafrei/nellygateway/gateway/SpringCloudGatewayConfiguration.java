@@ -10,7 +10,6 @@ import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -57,9 +56,9 @@ public class SpringCloudGatewayConfiguration {
         for (var entry : sortedConfigRoutes) {
 
             var routeName = entry.getKey();
+            var route = entry.getValue();
             var routePath = entry.getValue().getPath();
             var routeUrl = entry.getValue().getUrl();
-            var routeUrlPath = URI.create(routeUrl).getPath();
 
             routes.route(r -> {
 
@@ -71,25 +70,11 @@ public class SpringCloudGatewayConfiguration {
                     return matcher.matchesPath(requestUrl, routePath);
                 });
 
-                // If the route contains a wildcard (or two) at the end we rewrite the upstream path using the rewritePat Filter.
-                if (routePath.endsWith("*")) {
+                var rewriteConfig = route.getRewrite().build(route);
+                log.info("Route {}: Pattern {} will be replaced with {}", routeName, rewriteConfig.getRegex(), rewriteConfig.getReplacement());
+                var filters = path.filters(rw -> rw.rewritePath(rewriteConfig.getRegex(), rewriteConfig.getReplacement()));
 
-                    int wildcardStringLength = 1;
-
-                    if (routePath.endsWith("**"))
-                        wildcardStringLength = 2;
-
-                    var rewriteRegex = routePath.substring(0, routePath.length() - wildcardStringLength) + "(?<segment>.*)";
-                    var rewriteReplacement = "/${segment}";
-
-                    log.info("Route {}: Pattern {} will be replaced with {}", routeName, rewriteRegex, rewriteReplacement);
-
-                    var pathWithFilter = path.filters(rw -> rw.rewritePath(rewriteRegex, rewriteReplacement));
-
-                    return pathWithFilter.uri(routeUrl);
-                } else {
-                    return path.uri(routeUrl);
-                }
+                return filters.uri(routeUrl);
 
             });
 

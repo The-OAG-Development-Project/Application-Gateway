@@ -1,6 +1,7 @@
 package ch.gianlucafrei.nellygateway.config.configuration;
 
 import ch.gianlucafrei.nellygateway.config.ErrorValidation;
+import ch.gianlucafrei.nellygateway.utils.UrlUtils;
 import org.springframework.context.ApplicationContext;
 
 import java.net.MalformedURLException;
@@ -14,6 +15,7 @@ public class NellyRoute implements ErrorValidation {
     private String url;
     private String type;
     private boolean allowAnonymous;
+    private PathRewriteConfig rewrite = PathRewriteConfig.defaultConfig();
 
     public NellyRoute() {
     }
@@ -57,6 +59,14 @@ public class NellyRoute implements ErrorValidation {
         this.allowAnonymous = allowAnonymous;
     }
 
+    public PathRewriteConfig getRewrite() {
+        return rewrite;
+    }
+
+    private void setRewrite(PathRewriteConfig rewrite) {
+        this.rewrite = rewrite;
+    }
+
     @Override
     public List<String> getErrors(ApplicationContext context) {
         var errors = new ArrayList<String>();
@@ -70,9 +80,14 @@ public class NellyRoute implements ErrorValidation {
         if (type == null)
             errors.add("type not defined");
 
+        if (rewrite == null)
+            errors.add("path rewrite config not defined");
+
         // Dont continue with validation if fields are missing
         if (!errors.isEmpty())
             return errors;
+
+        errors.addAll(rewrite.getErrors(context));
 
         try {
             new URL(url);
@@ -81,5 +96,33 @@ public class NellyRoute implements ErrorValidation {
         }
 
         return errors;
+    }
+
+    /**
+     * Returns the path of the route without trailing wildcards
+     *
+     * @return
+     */
+    public String getPathBase() {
+
+        int wildcardStringLength = 0;
+
+        if (path.endsWith("*"))
+            wildcardStringLength = 1;
+
+        if (path.endsWith("**"))
+            wildcardStringLength = 2;
+
+        return path.substring(0, path.length() - wildcardStringLength);
+    }
+
+    /**
+     * Returns the path of the url of the route
+     *
+     * @return
+     */
+    public String getUrlPath() {
+
+        return UrlUtils.getPathOfUrl(url);
     }
 }

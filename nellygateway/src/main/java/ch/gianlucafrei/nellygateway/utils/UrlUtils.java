@@ -1,6 +1,7 @@
 package ch.gianlucafrei.nellygateway.utils;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 
@@ -49,5 +50,12 @@ public class UrlUtils {
             throw new IllegalArgumentException("url is null");
 
         return url.startsWith("/");
+    }
+
+    public static String getPathOfUrl(String url) {
+
+        var uri = URI.create(url);
+        var path = uri.getRawPath();
+        return path.endsWith("/") ? path : path + "/";
     }
 }
