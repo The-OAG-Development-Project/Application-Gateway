@@ -28,17 +28,16 @@ public class CsrfSamesiteStrictValidation implements CsrfProtectionValidation {
     @Override
     public boolean shouldBlockRequest(ServerWebExchange exchange, String requestBody) {
 
-        Optional<Session> sessionOptional = (Optional<Session>) exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
+        Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
 
         if (sessionOptional.isPresent()) {
-            String csrfValueFromSession = (String) exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION_CSRF_TOKEN);
+            String csrfValueFromSession = exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION_CSRF_TOKEN);
             String csrfValueFromCookie = extractCsrfToken(exchange.getRequest());
 
             if (csrfValueFromCookie == null)
                 return true;
 
-            if (!csrfValueFromCookie.equals(csrfValueFromSession))
-                return true;
+            return !csrfValueFromCookie.equals(csrfValueFromSession);
         }
 
         return false;

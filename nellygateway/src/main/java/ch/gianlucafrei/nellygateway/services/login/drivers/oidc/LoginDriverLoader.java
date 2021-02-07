@@ -12,7 +12,7 @@ import java.net.URI;
 @Component
 public class LoginDriverLoader {
 
-    private ApplicationContext context;
+    private final ApplicationContext context;
 
     public LoginDriverLoader(@Autowired ApplicationContext context) {
         this.context = context;

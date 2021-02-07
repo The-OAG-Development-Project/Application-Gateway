@@ -5,20 +5,21 @@ import ch.gianlucafrei.nellygateway.services.login.drivers.UserModel;
 public class LoginCookie {
 
     public static final String NAME = "session";
-    public static final String SAMESITE = "lax";
 
     private int sessionExpSeconds;
     private String providerKey;
     private UserModel userModel;
     private String csrfToken;
+    private String id;
 
     public LoginCookie() {
     }
 
-    public LoginCookie(int sessionExpSeconds, String provider, UserModel userModel) {
+    public LoginCookie(int sessionExpSeconds, String provider, UserModel userModel, String id) {
         this.sessionExpSeconds = sessionExpSeconds;
         this.providerKey = provider;
         this.userModel = userModel;
+        this.id = id;
     }
 
     public long getSessionExpSeconds() {
@@ -51,5 +52,13 @@ public class LoginCookie {
 
     public void setCsrfToken(String csrfToken) {
         this.csrfToken = csrfToken;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

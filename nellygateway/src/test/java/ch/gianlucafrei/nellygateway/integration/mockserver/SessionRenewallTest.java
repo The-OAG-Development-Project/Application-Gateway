@@ -1,17 +1,12 @@
-package ch.gianlucafrei.nellygateway.reactiveMockServer;
+package ch.gianlucafrei.nellygateway.integration.mockserver;
 
 import ch.gianlucafrei.nellygateway.GlobalClockSource;
-import ch.gianlucafrei.nellygateway.NellygatewayApplication;
-import ch.gianlucafrei.nellygateway.config.NellyConfigLoader;
 import ch.gianlucafrei.nellygateway.controllers.dto.SessionInformation;
 import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
+import ch.gianlucafrei.nellygateway.integration.testInfrastructure.WiremockTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -66,16 +61,5 @@ class SessionRenewallTest extends WiremockTest {
                 .cookie(loginResult.sessionCookie.getName(), loginResult.sessionCookie.getValue())
                 .exchange()
                 .expectBody().jsonPath("$.state").isEqualTo(SessionInformation.SESSION_STATE_ANONYMOUS);
-    }
-
-    @Configuration
-    @Import(NellygatewayApplication.class)
-    public static class TestConfig {
-
-        @Primary
-        @Bean
-        NellyConfigLoader nellyConfigLoader() {
-            return new TestFileConfigLoader("/localServerConfiguration.yaml");
-        }
     }
 }

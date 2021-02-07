@@ -16,4 +16,11 @@ public class ReactiveUtils {
         return Mono.fromCallable(blockingFunction)
                 .subscribeOn(Schedulers.boundedElastic());
     }
+
+    public static Mono<Void> runBlockingProcedure(Runnable blockingFunction) {
+
+        return Mono.fromRunnable(blockingFunction)
+                .subscribeOn(Schedulers.boundedElastic())
+                .then();
+    }
 }

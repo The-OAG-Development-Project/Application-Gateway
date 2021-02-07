@@ -2,6 +2,7 @@ package ch.gianlucafrei.nellygateway.filters.session;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Comparator;
 import java.util.List;
@@ -27,12 +28,11 @@ public interface NellySessionFilter {
         return sessionFilters;
     }
 
+    void renewSession(Map<String, Object> filterContext, ServerHttpResponse response);
 
     int order();
 
-    void renewSession(Map<String, Object> filterContext, ServerHttpResponse response);
-
     void createSession(Map<String, Object> filterContext, ServerHttpResponse response);
 
-    void destroySession(Map<String, Object> filterContext, ServerHttpResponse response);
+    void destroySession(Map<String, Object> filterContext, ServerWebExchange response);
 }

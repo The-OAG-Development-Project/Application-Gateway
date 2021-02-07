@@ -1,13 +1,8 @@
-package ch.gianlucafrei.nellygateway.reactiveMockServer;
+package ch.gianlucafrei.nellygateway.integration.mockserver;
 
-import ch.gianlucafrei.nellygateway.NellygatewayApplication;
-import ch.gianlucafrei.nellygateway.config.NellyConfigLoader;
 import ch.gianlucafrei.nellygateway.controllers.dto.SessionInformation;
+import ch.gianlucafrei.nellygateway.integration.testInfrastructure.WiremockTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
@@ -15,17 +10,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  * This test test if the gateway correctly transforms the cookie into a JWT token and attaches it to the server
  */
 public class UpstreamAuthenticationTest extends WiremockTest {
-
-    @Configuration
-    @Import(NellygatewayApplication.class)
-    public static class TestConfig {
-
-        @Primary
-        @Bean
-        NellyConfigLoader nellyConfigLoader() {
-            return new TestFileConfigLoader("/localServerConfiguration.yaml");
-        }
-    }
 
     @Test
     void testUpstreamHeaderAnonymous() {

@@ -1,10 +1,10 @@
-package ch.gianlucafrei.nellygateway.reactiveMockServer.csrf;
+package ch.gianlucafrei.nellygateway.integration.mockserver.csrf;
 
 import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.NellyConfigLoader;
 import ch.gianlucafrei.nellygateway.cookies.CsrfCookie;
-import ch.gianlucafrei.nellygateway.reactiveMockServer.TestFileConfigLoader;
-import ch.gianlucafrei.nellygateway.reactiveMockServer.WiremockTest;
+import ch.gianlucafrei.nellygateway.integration.testInfrastructure.TestFileConfigLoader;
+import ch.gianlucafrei.nellygateway.integration.testInfrastructure.WiremockTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,17 +14,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseCookie;
 
 class CsrfSamesiteStrictTest extends WiremockTest {
-
-    @Configuration
-    @Import(NellygatewayApplication.class)
-    public static class TestConfig {
-
-        @Primary
-        @Bean
-        NellyConfigLoader nellyConfigLoader() {
-            return new TestFileConfigLoader("/localServerConfiguration.yaml");
-        }
-    }
 
     @Test
     void testCsrfSamesiteStrict() throws Exception {
@@ -59,5 +48,16 @@ class CsrfSamesiteStrictTest extends WiremockTest {
         // Act
         loginResult.authenticatedRequest(HttpMethod.POST, "/csrf-samesite-strict/" + TEST_1_ENDPOINT)
                 .exchange().expectStatus().isUnauthorized();
+    }
+
+    @Configuration
+    @Import(NellygatewayApplication.class)
+    public static class TestConfig {
+
+        @Primary
+        @Bean
+        NellyConfigLoader nellyConfigLoader() {
+            return new TestFileConfigLoader("/localServerConfiguration.yaml");
+        }
     }
 }

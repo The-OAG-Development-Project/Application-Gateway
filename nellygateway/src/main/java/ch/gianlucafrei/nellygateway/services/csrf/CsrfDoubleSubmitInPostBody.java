@@ -18,7 +18,7 @@ public class CsrfDoubleSubmitInPostBody extends CsrfDoubleSubmitValidation {
     @Override
     public boolean shouldBlockRequest(ServerWebExchange exchange, String requestBody) {
 
-        Optional<Session> sessionOptional = (Optional<Session>) exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
+        Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
 
         if (sessionOptional.isPresent()) {
             String csrfValueFromSession = exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION_CSRF_TOKEN);
@@ -34,8 +34,7 @@ public class CsrfDoubleSubmitInPostBody extends CsrfDoubleSubmitValidation {
             if (csrfValueFromDoubleSubmit == null)
                 return true;
 
-            if (!csrfValueFromDoubleSubmit.equals(csrfValueFromSession))
-                return true;
+            return !csrfValueFromDoubleSubmit.equals(csrfValueFromSession);
         }
 
         return false;

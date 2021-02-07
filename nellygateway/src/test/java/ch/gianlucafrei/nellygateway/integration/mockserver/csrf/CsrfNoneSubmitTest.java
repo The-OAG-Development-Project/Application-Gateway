@@ -1,10 +1,10 @@
-package ch.gianlucafrei.nellygateway.reactiveMockServer.csrf;
+package ch.gianlucafrei.nellygateway.integration.mockserver.csrf;
 
 import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.NellyConfigLoader;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
-import ch.gianlucafrei.nellygateway.reactiveMockServer.TestFileConfigLoader;
-import ch.gianlucafrei.nellygateway.reactiveMockServer.WiremockTest;
+import ch.gianlucafrei.nellygateway.integration.testInfrastructure.TestFileConfigLoader;
+import ch.gianlucafrei.nellygateway.integration.testInfrastructure.WiremockTest;
 import io.github.artsok.RepeatedIfExceptionsTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

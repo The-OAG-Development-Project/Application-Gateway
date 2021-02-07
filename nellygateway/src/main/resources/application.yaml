@@ -8,8 +8,6 @@ spring:
     name: nellygateway
   banner:
     location: banner.txt
-  main:
-    lazy-initialization: true
 
 ribbon:
   eureka:
@@ -29,3 +27,6 @@ logging:
   file:
     path: nelly.log
 
+
+oag:
+  session-blacklist-file: "session-blacklist.db"

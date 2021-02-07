@@ -1,10 +1,10 @@
-package ch.gianlucafrei.nellygateway.reactiveMockServer.csrf;
+package ch.gianlucafrei.nellygateway.integration.mockserver.csrf;
 
 import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.NellyConfigLoader;
 import ch.gianlucafrei.nellygateway.cookies.CsrfCookie;
-import ch.gianlucafrei.nellygateway.reactiveMockServer.TestFileConfigLoader;
-import ch.gianlucafrei.nellygateway.reactiveMockServer.WiremockTest;
+import ch.gianlucafrei.nellygateway.integration.testInfrastructure.TestFileConfigLoader;
+import ch.gianlucafrei.nellygateway.integration.testInfrastructure.WiremockTest;
 import ch.gianlucafrei.nellygateway.services.csrf.CsrfDoubleSubmitValidation;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Bean;

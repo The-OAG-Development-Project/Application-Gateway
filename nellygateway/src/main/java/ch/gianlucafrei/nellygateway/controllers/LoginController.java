@@ -59,11 +59,11 @@ public class LoginController {
     @GetMapping("session")
     public SessionInformation sessionInfo(ServerWebExchange exchange) {
         SessionInformation sessionInformation;
-        Optional<Session> sessionOptional = (Optional<Session>) exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
+        Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
 
         if (sessionOptional.isPresent()) {
             sessionInformation = new SessionInformation(SessionInformation.SESSION_STATE_AUTHENTICATED);
-            sessionInformation.setExpiresIn((int) sessionOptional.get().getRemainingTimeSeconds());
+            sessionInformation.setExpiresIn(sessionOptional.get().getRemainingTimeSeconds());
 
         } else {
             sessionInformation = new SessionInformation(SessionInformation.SESSION_STATE_ANONYMOUS);
@@ -97,59 +97,6 @@ public class LoginController {
                     var redirectUri = loginDriverResult.getAuthURI().toString();
                     return ResponseEntity.status(302).header("Location", redirectUri).build();
                 });
-    }
-
-    @GetMapping("{providerKey}/callback")
-    public Mono<ResponseEntity<Object>> callback(
-            @PathVariable(value = "providerKey") String providerKey,
-            ServerWebExchange exchange) {
-        var request = exchange.getRequest();
-        var response = exchange.getResponse();
-
-        // Load login implementation
-        LoginDriver loginDriver = loadLoginDriver(providerKey);
-
-        // Load login state
-        var loginState = loadLoginState(request);
-
-        return ReactiveUtils.runBlockingProcedure(() -> loginDriver.processCallback(request, loginState.getState()))
-                .onErrorMap(AuthenticationException.class, e -> {
-                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-                })
-                .map(userModel -> {
-
-                    // Store session
-                    createSession(providerKey, userModel, response);
-
-                    var redirectUri = loginState.getReturnUrl();
-                    return ResponseEntity.status(302).header("Location", redirectUri).build();
-
-                });
-    }
-
-    @GetMapping("logout")
-    public void logout(
-            ServerWebExchange exchange) {
-
-        var request = exchange.getRequest();
-        var response = exchange.getResponse();
-
-        // Logout csrf prevention
-        CsrfProtectionValidation csrfValidation = getCsrfValidationMethod();
-        if (csrfValidation.shouldBlockRequest(exchange, null)) {
-            log.info("Blocked logout request due to csrf protection");
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        } else {
-            // Destroy the user session
-            destroySession(response);
-
-            // Get redirection url
-            String returnUrl = loadLogoutReturnUrl(request);
-
-            // Redirect the user
-            response.getHeaders().add("Location", returnUrl);
-            response.setRawStatusCode(302);
-        }
     }
 
     public LoginDriver loadLoginDriver(String providerKey) {
@@ -221,6 +168,34 @@ public class LoginController {
         return UrlUtils.isValidReturnUrl(returnUrl, allowedHosts.toArray(new String[]{}));
     }
 
+    @GetMapping("{providerKey}/callback")
+    public Mono<ResponseEntity<Object>> callback(
+            @PathVariable(value = "providerKey") String providerKey,
+            ServerWebExchange exchange) {
+        var request = exchange.getRequest();
+        var response = exchange.getResponse();
+
+        // Load login implementation
+        LoginDriver loginDriver = loadLoginDriver(providerKey);
+
+        // Load login state
+        var loginState = loadLoginState(request);
+
+        return ReactiveUtils.runBlockingProcedure(() -> loginDriver.processCallback(request, loginState.getState()))
+                .onErrorMap(AuthenticationException.class, e -> {
+                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+                })
+                .map(userModel -> {
+
+                    // Store session
+                    createSession(providerKey, userModel, response);
+
+                    var redirectUri = loginState.getReturnUrl();
+                    return ResponseEntity.status(302).header("Location", redirectUri).build();
+
+                });
+    }
+
     private LoginStateCookie loadLoginState(ServerHttpRequest request) {
 
         HttpCookie oidcCookie = request.getCookies().getFirst(LoginStateCookie.NAME);
@@ -256,17 +231,42 @@ public class LoginController {
         return NellySessionFilter.getNellySessionFilters(context);
     }
 
+    @GetMapping("logout")
+    public void logout(
+            ServerWebExchange exchange) {
+
+        var request = exchange.getRequest();
+        var response = exchange.getResponse();
+
+        // Logout csrf prevention
+        CsrfProtectionValidation csrfValidation = getCsrfValidationMethod();
+        if (csrfValidation.shouldBlockRequest(exchange, null)) {
+            log.info("Blocked logout request due to csrf protection");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        } else {
+            // Destroy the user session
+            destroySession(exchange);
+
+            // Get redirection url
+            String returnUrl = loadLogoutReturnUrl(request);
+
+            // Redirect the user
+            response.getHeaders().add("Location", returnUrl);
+            response.setRawStatusCode(302);
+        }
+    }
+
     private CsrfProtectionValidation getCsrfValidationMethod() {
 
         return CsrfProtectionValidation.loadValidationImplementation(
                 CsrfSamesiteStrictValidation.NAME, context);
     }
 
-    private void destroySession(ServerHttpResponse response) {
+    private void destroySession(ServerWebExchange exchange) {
 
         var filterContext = new HashMap<String, Object>();
         List<NellySessionFilter> sessionFilters = getNellySessionFilters();
-        sessionFilters.forEach(f -> f.destroySession(filterContext, response));
+        sessionFilters.forEach(f -> f.destroySession(filterContext, exchange));
     }
 
     public String loadLogoutReturnUrl(ServerHttpRequest request) {

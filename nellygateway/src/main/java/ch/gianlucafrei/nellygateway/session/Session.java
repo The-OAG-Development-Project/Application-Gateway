@@ -18,13 +18,15 @@ public class Session {
     private final String provider;
     private final UserModel userModel;
     private final LoginCookie loginCookie;
+    private final String id;
 
-    private Session(long sessionExpSeconds, long remainingTimeSeconds, String provider, UserModel userModel, LoginCookie loginCookie) {
+    private Session(long sessionExpSeconds, long remainingTimeSeconds, String provider, UserModel userModel, LoginCookie loginCookie, String id) {
         this.sessionExpSeconds = sessionExpSeconds;
         this.remainingTimeSeconds = remainingTimeSeconds;
         this.provider = provider;
         this.userModel = userModel;
         this.loginCookie = loginCookie;
+        this.id = id;
     }
 
     public static Optional<Session> fromSessionCookie(LoginCookie cookie, Clock clock) {
@@ -44,7 +46,8 @@ public class Session {
                 remainingTimeSeconds,
                 cookie.getProviderKey(),
                 cookie.getUserModel(),
-                cookie
+                cookie,
+                cookie.getId()
         );
 
         return Optional.of(session);
@@ -58,8 +61,8 @@ public class Session {
         return sessionExpSeconds;
     }
 
-    public long getRemainingTimeSeconds() {
-        return remainingTimeSeconds;
+    public int getRemainingTimeSeconds() {
+        return (int) remainingTimeSeconds;
     }
 
     public UserModel getUserModel() {
@@ -68,5 +71,9 @@ public class Session {
 
     public LoginCookie getLoginCookie() {
         return loginCookie;
+    }
+
+    public String getId() {
+        return id;
     }
 }

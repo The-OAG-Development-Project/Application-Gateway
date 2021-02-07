@@ -12,13 +12,16 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Optional;
 
 @Order(4)
 @Component
-public class SessionRenewalFilter extends GlobalFilterBase {
+public class SessionRenewalFilter implements WebFilter {
 
     private static final Logger log = LoggerFactory.getLogger(SessionRenewalFilter.class);
 
@@ -32,10 +35,11 @@ public class SessionRenewalFilter extends GlobalFilterBase {
     ApplicationContext applicationContext;
 
     @Override
-    public void filter(ServerWebExchange exchange) {
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+
         log.trace("SessionRenewalFilter started");
 
-        Optional<Session> sessionOptional = (Optional<Session>) exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
+        Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
         if (sessionOptional == null) {
             log.debug("SessionRenewalFilter: sessionOptional==null");
         }
@@ -54,6 +58,8 @@ public class SessionRenewalFilter extends GlobalFilterBase {
             if (remainingTime < renewWhenLessThan)
                 renewSession(session, exchange.getResponse());
         }
+
+        return chain.filter(exchange);
     }
 
     private void renewSession(Session session, ServerHttpResponse response) {

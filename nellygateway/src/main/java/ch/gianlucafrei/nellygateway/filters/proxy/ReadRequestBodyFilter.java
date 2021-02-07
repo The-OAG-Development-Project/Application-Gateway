@@ -37,13 +37,13 @@ public abstract class ReadRequestBodyFilter extends RouteAwareFilter {
 
     }
 
+    protected abstract boolean shouldRun(ServerWebExchange exchange, GatewayRouteContext routeContext);
+
+    protected abstract void consumeBody(ServerWebExchange exchange, String body, GatewayRouteContext routeContext);
+
     private Mono<Object> rewrite(Object e, Object s, GatewayRouteContext routeContext) {
 
         consumeBody((ServerWebExchange) e, (String) s, routeContext);
         return Mono.just(s);
     }
-
-    protected abstract boolean shouldRun(ServerWebExchange exchange, GatewayRouteContext routeContext);
-
-    protected abstract void consumeBody(ServerWebExchange exchange, String body, GatewayRouteContext routeContext);
 }

@@ -17,10 +17,8 @@ import java.util.Optional;
 @Component
 public class CsrfValidationFilterWithBody extends ReadRequestBodyFilter {
 
-    private static final Logger log = LoggerFactory.getLogger(CsrfValidationFilterWithBody.class);
-
     public static final String REQUEST_BODY_ATTRIBUTE = "RequestBody";
-
+    private static final Logger log = LoggerFactory.getLogger(CsrfValidationFilterWithBody.class);
     @Autowired
     private ApplicationContext context;
 
@@ -35,7 +33,7 @@ public class CsrfValidationFilterWithBody extends ReadRequestBodyFilter {
             return false;
 
         // Dont do the validation if there is no user session
-        Optional<Session> sessionOptional = (Optional<Session>) exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
+        Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
         if (sessionOptional.isEmpty())
             return false;
 

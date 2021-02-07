@@ -20,14 +20,11 @@ import java.util.stream.Collectors;
 @Configuration
 public class SpringCloudGatewayConfiguration {
 
+    public final static String ATTRIBUTE_ROUTE_NAME = "RouteName";
     private static final Logger log = LoggerFactory.getLogger(SpringCloudGatewayConfiguration.class);
-
     @Autowired
     NellyConfig config;
-
-    public final static String ATTRIBUTE_ROUTE_NAME = "RouteName";
-
-    private ProxyPathMatcher matcher = new ProxyPathMatcher();
+    private final ProxyPathMatcher matcher = new ProxyPathMatcher();
 
     @Bean
     public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {

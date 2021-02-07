@@ -9,8 +9,10 @@ import ch.gianlucafrei.nellygateway.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 public class SessionCookieCreationFilter implements NellySessionFilter {
@@ -50,7 +52,8 @@ public class SessionCookieCreationFilter implements NellySessionFilter {
         int sessionDuration = config.getSessionBehaviour().getSessionDuration();
         int sessionExp = currentTimeSeconds + sessionDuration;
 
-        LoginCookie loginCookie = new LoginCookie(sessionExp, providerKey, model);
+        var sessionId = UUID.randomUUID().toString();
+        LoginCookie loginCookie = new LoginCookie(sessionExp, providerKey, model, sessionId);
 
         // Bind csrf token to encrypted login cookie
         if (filterContext.containsKey("csrfToken")) {
@@ -62,9 +65,9 @@ public class SessionCookieCreationFilter implements NellySessionFilter {
     }
 
     @Override
-    public void destroySession(Map<String, Object> filterContext, ServerHttpResponse response) {
+    public void destroySession(Map<String, Object> filterContext, ServerWebExchange exchange) {
 
         // Override session cookie with new cookie that has max-age = 0
-        response.addCookie(cookieConverter.convertLoginCookie(null, 0));
+        exchange.getResponse().addCookie(cookieConverter.convertLoginCookie(null, 0));
     }
 }

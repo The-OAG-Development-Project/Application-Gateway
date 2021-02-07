@@ -7,6 +7,7 @@ import ch.gianlucafrei.nellygateway.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Map;
 import java.util.UUID;
@@ -44,12 +45,12 @@ public class CsrfCookieCreationFilter implements NellySessionFilter {
     }
 
     @Override
-    public void destroySession(Map<String, Object> filterContext, ServerHttpResponse response) {
+    public void destroySession(Map<String, Object> filterContext, ServerWebExchange exchange) {
 
         // Override csrf cookie with new cookie that has max-age = 0
         var csrfToken = UUID.randomUUID().toString();
         var csrfCookie = new CsrfCookie(csrfToken);
 
-        response.addCookie(cookieConverter.convertCsrfCookie(csrfCookie, 0));
+        exchange.getResponse().addCookie(cookieConverter.convertCsrfCookie(csrfCookie, 0));
     }
 }

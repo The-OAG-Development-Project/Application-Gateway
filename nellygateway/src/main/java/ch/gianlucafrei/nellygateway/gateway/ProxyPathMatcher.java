@@ -6,7 +6,7 @@ import java.util.Comparator;
 
 public class ProxyPathMatcher {
 
-    private AntPathMatcher antPathMatcher;
+    private final AntPathMatcher antPathMatcher;
 
     public ProxyPathMatcher() {
         antPathMatcher = new AntPathMatcher();

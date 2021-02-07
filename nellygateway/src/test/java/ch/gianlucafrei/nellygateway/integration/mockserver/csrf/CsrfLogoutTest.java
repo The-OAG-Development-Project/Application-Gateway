@@ -1,11 +1,11 @@
-package ch.gianlucafrei.nellygateway.reactiveMockServer.csrf;
+package ch.gianlucafrei.nellygateway.integration.mockserver.csrf;
 
 import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.NellyConfigLoader;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.controllers.dto.SessionInformation;
-import ch.gianlucafrei.nellygateway.reactiveMockServer.TestFileConfigLoader;
-import ch.gianlucafrei.nellygateway.reactiveMockServer.WiremockTest;
+import ch.gianlucafrei.nellygateway.integration.testInfrastructure.TestFileConfigLoader;
+import ch.gianlucafrei.nellygateway.integration.testInfrastructure.WiremockTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -18,19 +18,6 @@ class CsrfLogoutTest extends WiremockTest {
 
     @Autowired
     NellyConfig nellyConfig;
-
-
-    @Configuration
-    @Import(NellygatewayApplication.class)
-    public static class TestConfig {
-
-        @Primary
-        @Bean
-        NellyConfigLoader nellyConfigLoader() {
-            return new TestFileConfigLoader("/localServerConfiguration.yaml");
-        }
-    }
-
 
     @Test
     void testLogoutCsrfProtectionBlocksRequest() throws Exception {
@@ -62,5 +49,16 @@ class CsrfLogoutTest extends WiremockTest {
         authenticatedRequest(HttpMethod.GET, "/auth/logout", loginResult)
                 .exchange()
                 .expectStatus().isFound();
+    }
+
+    @Configuration
+    @Import(NellygatewayApplication.class)
+    public static class TestConfig {
+
+        @Primary
+        @Bean
+        NellyConfigLoader nellyConfigLoader() {
+            return new TestFileConfigLoader("/localServerConfiguration.yaml");
+        }
     }
 }

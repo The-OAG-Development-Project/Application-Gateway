@@ -3,12 +3,15 @@ package ch.gianlucafrei.nellygateway;
 import ch.gianlucafrei.nellygateway.config.FileConfigLoader;
 import ch.gianlucafrei.nellygateway.config.NellyConfigLoader;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
+import ch.gianlucafrei.nellygateway.services.blacklist.LocalPersistentBlacklist;
+import ch.gianlucafrei.nellygateway.services.blacklist.SessionBlacklist;
 import ch.gianlucafrei.nellygateway.services.crypto.CookieEncryptor;
 import ch.gianlucafrei.nellygateway.services.crypto.JweEncrypter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,9 +22,12 @@ import java.io.IOException;
 public class NellyBeanConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(NellyBeanConfiguration.class);
-    
+
     @Autowired
     private ApplicationContext context;
+
+    @Autowired
+    private GlobalClockSource clockSource;
 
     @Bean
     public NellyConfig nellyConfig() {
@@ -63,5 +69,10 @@ public class NellyBeanConfiguration {
         } else {
             return JweEncrypter.loadFromFileOrCreateAndStoreNewKey("NELLY.key");
         }
+    }
+
+    @Bean(destroyMethod = "close")
+    public SessionBlacklist sessionBlacklist(@Value("${oag.session-blacklist-file}") String filename) {
+        return new LocalPersistentBlacklist(clockSource, filename);
     }
 }

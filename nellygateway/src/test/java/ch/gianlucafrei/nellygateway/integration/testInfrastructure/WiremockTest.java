@@ -1,33 +1,34 @@
-package ch.gianlucafrei.nellygateway.reactiveMockServer;
+package ch.gianlucafrei.nellygateway.integration.testInfrastructure;
 
 import ch.gianlucafrei.nellygateway.config.configuration.LoginProvider;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.cookies.CsrfCookie;
 import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
 import ch.gianlucafrei.nellygateway.cookies.LoginStateCookie;
+import ch.gianlucafrei.nellygateway.services.blacklist.SessionBlacklist;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseCookie;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.io.IOException;
 import java.net.URI;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = {"spring.main.allow-bean-definition-overriding=true"})
+/**
+ * Base class for all tests that use the gateway functionality.
+ * Adds a mock server on port 7777 with some default methods for testing.
+ */
 @AutoConfigureWireMock(port = 7777)
-public class WiremockTest {
+public class WiremockTest extends IntegrationTest {
 
     public static String TEST_SERVER_URI = "http://localhost:7777";
     public static String TEST_1_ENDPOINT = "/foo";
@@ -37,10 +38,13 @@ public class WiremockTest {
     public static String TEST_NOTFOUND = "/notfound";
 
     @Autowired
-    NellyConfig config;
+    protected NellyConfig config;
 
     @Autowired
     protected WebTestClient webClient;
+
+    @Autowired
+    private SessionBlacklist blacklist;
 
     @BeforeEach
     public void beforeEach() throws Exception {
@@ -86,6 +90,12 @@ public class WiremockTest {
                 .willReturn(aResponse()
                         .withBody(tokenResponse)
                         .withHeader("Content-Type", "application/json;charset=UTF-8")));
+    }
+
+    @AfterAll
+    public void shutdown() throws IOException, InterruptedException {
+        blacklist.close();
+        Thread.sleep(100);
     }
 
     protected LoginResult makeLogin() {

@@ -1,20 +1,16 @@
-package ch.gianlucafrei.nellygateway.reactiveMockServer;
+package ch.gianlucafrei.nellygateway.integration.mockserver;
 
-import ch.gianlucafrei.nellygateway.NellygatewayApplication;
-import ch.gianlucafrei.nellygateway.config.NellyConfigLoader;
 import ch.gianlucafrei.nellygateway.config.configuration.LoginProvider;
 import ch.gianlucafrei.nellygateway.config.configuration.NellyConfig;
 import ch.gianlucafrei.nellygateway.controllers.dto.SessionInformation;
 import ch.gianlucafrei.nellygateway.cookies.CsrfCookie;
 import ch.gianlucafrei.nellygateway.cookies.LoginCookie;
 import ch.gianlucafrei.nellygateway.cookies.LoginStateCookie;
+import ch.gianlucafrei.nellygateway.integration.testInfrastructure.WiremockTest;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpMethod;
 
 import java.net.URI;
 
@@ -25,17 +21,6 @@ class LoginLogoutTest extends WiremockTest {
 
     @Autowired
     NellyConfig nellyConfig;
-
-    @Configuration
-    @Import(NellygatewayApplication.class)
-    public static class TestConfig {
-
-        @Primary
-        @Bean
-        NellyConfigLoader nellyConfigLoader() {
-            return new TestFileConfigLoader("/localServerConfiguration.yaml");
-        }
-    }
 
     @Test
     void testLoginGetRedirectUrl() throws Exception {
@@ -91,6 +76,22 @@ class LoginLogoutTest extends WiremockTest {
         assertEquals(sessionCookie.getName(), sessionCookie2.getName());
         assertEquals(sessionCookie.getPath(), sessionCookie2.getPath());
         assertEquals(sessionCookie.getDomain(), sessionCookie2.getDomain());
+    }
+
+    @Test
+    void testSessionInvalidation() {
+
+        // Arrange: Create session and logout
+        LoginResult loginResult = makeLogin();
+        loginResult.authenticatedRequest(HttpMethod.GET, "/auth/logout")
+                .exchange().expectStatus().isFound();
+
+
+        // ACT: Use session cookie after logout
+        loginResult.authenticatedRequest(HttpMethod.GET, "/auth/session")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody().jsonPath("$.state").isEqualTo(SessionInformation.SESSION_STATE_ANONYMOUS);
     }
 
 

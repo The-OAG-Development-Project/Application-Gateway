@@ -8,35 +8,36 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 // TODO add flag to ignore this filter
 @Order(2)
 @Component
-public class HttpRedirectFilter extends GlobalFilterBase {
+public class HttpRedirectFilter implements WebFilter {
 
     private static final Logger log = LoggerFactory.getLogger(HttpRedirectFilter.class);
 
     @Autowired
     private NellyConfig config;
 
-
     @Override
-    public Mono<Void> filter(ServerWebExchange serverWebExchange, WebFilterChain webFilterChain) {
-        var request = serverWebExchange.getRequest();
-        var response = serverWebExchange.getResponse();
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+
+        var request = exchange.getRequest();
+        var response = exchange.getResponse();
 
         if (config.isHttpsHost()) {
             // We do the request only if we are on https
 
             if (isInsecureRequest(request)) {
-                sendHttpsRedirectResponse(serverWebExchange);
+                sendHttpsRedirectResponse(exchange);
                 log.debug("Redirected insecure request to {}", request.getURI().getPath());
                 return response.setComplete();
             }
         }
-        return webFilterChain.filter(serverWebExchange);
+        return chain.filter(exchange);
     }
 
     public boolean isInsecureRequest(ServerHttpRequest request) {

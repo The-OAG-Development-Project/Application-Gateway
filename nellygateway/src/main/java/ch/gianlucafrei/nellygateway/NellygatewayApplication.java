@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class NellygatewayApplication {
 
-    private static Logger log = LoggerFactory.getLogger(NellygatewayApplication.class);
+    private static final Logger log = LoggerFactory.getLogger(NellygatewayApplication.class);
 
     @Autowired
     NellyConfig config;

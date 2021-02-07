@@ -1,15 +1,16 @@
-package ch.gianlucafrei.nellygateway.config.configuration;
+package ch.gianlucafrei.nellygateway.integration;
 
+import ch.gianlucafrei.nellygateway.config.configuration.LoginProvider;
+import ch.gianlucafrei.nellygateway.config.configuration.LoginProviderSettings;
+import ch.gianlucafrei.nellygateway.integration.testInfrastructure.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest()
-class LoginProvidorValidationTest {
+class LoginProvidorValidationTest extends IntegrationTest {
 
     @Autowired
     ApplicationContext context;

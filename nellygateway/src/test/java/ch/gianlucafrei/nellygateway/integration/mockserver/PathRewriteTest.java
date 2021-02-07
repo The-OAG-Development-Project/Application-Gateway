@@ -1,7 +1,9 @@
-package ch.gianlucafrei.nellygateway.reactiveMockServer;
+package ch.gianlucafrei.nellygateway.integration.mockserver;
 
-import ch.gianlucafrei.nellygateway.NellygatewayApplication;
 import ch.gianlucafrei.nellygateway.config.NellyConfigLoader;
+import ch.gianlucafrei.nellygateway.integration.testInfrastructure.IntegrationTestConfig;
+import ch.gianlucafrei.nellygateway.integration.testInfrastructure.TestFileConfigLoader;
+import ch.gianlucafrei.nellygateway.integration.testInfrastructure.WiremockTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,17 +13,6 @@ import org.springframework.context.annotation.Primary;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 public class PathRewriteTest extends WiremockTest {
-
-    @Configuration
-    @Import(NellygatewayApplication.class)
-    public static class TestConfig {
-
-        @Primary
-        @Bean
-        NellyConfigLoader nellyConfigLoader() {
-            return new TestFileConfigLoader("/rewriteTestConfig.yaml");
-        }
-    }
 
     @Test
     public void urlRewriteTestDefault() {
@@ -102,5 +93,16 @@ public class PathRewriteTest extends WiremockTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody().equals(msg);
+    }
+
+    @Configuration
+    @Import(IntegrationTestConfig.class)
+    public static class PathTestConfig {
+
+        @Primary
+        @Bean
+        NellyConfigLoader nellyConfigLoader() {
+            return new TestFileConfigLoader("/rewriteTestConfig.yaml");
+        }
     }
 }

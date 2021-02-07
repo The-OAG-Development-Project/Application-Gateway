@@ -24,4 +24,9 @@ public class GlobalClockSource {
 
         this.clock = clock;
     }
+
+    public int getEpochSeconds() {
+
+        return Math.toIntExact(clock.instant().getEpochSecond());
+    }
 }

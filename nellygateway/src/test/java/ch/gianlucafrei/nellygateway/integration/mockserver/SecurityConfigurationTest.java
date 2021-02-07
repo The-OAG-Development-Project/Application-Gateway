@@ -1,12 +1,7 @@
-package ch.gianlucafrei.nellygateway.reactiveMockServer;
+package ch.gianlucafrei.nellygateway.integration.mockserver;
 
-import ch.gianlucafrei.nellygateway.NellygatewayApplication;
-import ch.gianlucafrei.nellygateway.config.NellyConfigLoader;
+import ch.gianlucafrei.nellygateway.integration.testInfrastructure.WiremockTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
@@ -48,16 +43,5 @@ class SecurityConfigurationTest extends WiremockTest {
 
         webClient.delete().uri("/static" + TEST_1_ENDPOINT)
                 .exchange().expectStatus().isEqualTo(405);
-    }
-
-    @Configuration
-    @Import(NellygatewayApplication.class)
-    public static class TestConfig {
-
-        @Primary
-        @Bean
-        NellyConfigLoader nellyConfigLoader() {
-            return new TestFileConfigLoader("/localServerConfiguration.yaml");
-        }
     }
 }
