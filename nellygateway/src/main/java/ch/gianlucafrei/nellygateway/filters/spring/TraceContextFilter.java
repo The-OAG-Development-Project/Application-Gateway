@@ -1,8 +1,9 @@
 package ch.gianlucafrei.nellygateway.filters.spring;
 
-import ch.gianlucafrei.nellygateway.logging.W3cTraceContext;
+import ch.gianlucafrei.nellygateway.logging.TraceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -40,9 +41,13 @@ import java.io.IOException;
  */
 @Order(10)
 @Component
-public class W3cTraceContextFilter implements Filter {
+public class TraceContextFilter implements Filter {
 
-    private static final Logger log = LoggerFactory.getLogger(W3cTraceContextFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(TraceContextFilter.class);
+
+    @Autowired
+    private TraceContext traceContext;
+
 
     @Override
     public void doFilter(
@@ -50,7 +55,7 @@ public class W3cTraceContextFilter implements Filter {
             ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
 
-        W3cTraceContext traceCtx = W3cTraceContext.establishNew();
+        traceContext.establishNew();
         try {
             log.debug("Established new correlation id. It might change.");
             if (!(request instanceof HttpServletRequest && response instanceof HttpServletResponse)) {
@@ -60,26 +65,27 @@ public class W3cTraceContextFilter implements Filter {
 
             HttpServletRequest req = (HttpServletRequest) request;
 
-            if (traceCtx.forwardIncomingTrace()) {
+            if (traceContext.forwardIncomingTrace()) {
                 // make sure we take over the passed in traceparent when it is valid
 // TODO: implement
-                if (traceCtx.acceptAdditionalTraceInfo()) {
+                if (traceContext.acceptAdditionalTraceInfo()) {
                     // make sure we take over the trace state if it is valid
 // TODO: implement
                 }
+                // TODO: traceContext.applyExistingTrace(primary, secondary);
             }
 
             chain.doFilter(request, response);
 
             HttpServletResponse res = (HttpServletResponse) response;
-            if (traceCtx.shouldSendResponse()) {
-                ((HttpServletResponse) response).setHeader(traceCtx.getResponseHeader(), traceCtx.getTraceString());
+            if (traceContext.sendTraceResponse()) {
+                ((HttpServletResponse) response).setHeader(traceContext.getResponseHeader(), traceContext.getTraceResponseString());
             }
 
             log.info("Response status code {} for {} {}", res.getStatus(), req.getMethod(), req.getRequestURI());
         } finally {
-            if (traceCtx != null) {
-                traceCtx.teardown();
+            if (traceContext != null) {
+                traceContext.teardown();
             }
         }
 

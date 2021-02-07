@@ -1,4 +1,4 @@
 /**
- * This package contains classes supporting logging and tracing (i.e. W3C Trace Context).
+ * This package contains classes supporting logging and tracing.
  */
 package ch.gianlucafrei.nellygateway.logging;
