@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Implements the W3C Trace Context specification.
+ * It supports only singe tracestate headers as incomming requests
  * See https://w3c.github.io/trace-context/
  * <p>
  * It provides functionality to support trace filters (such as TraceContextFilter) and the log framework.
@@ -24,7 +25,6 @@ public class W3cTraceContext implements TraceContext {
 
     private static ThreadLocal<W3cTraceContextState> currentContext = new ThreadLocal<>();
 
-    //TODO: make sure MDC is really in log files.
     //TODO: Update documentation (on web) with new settings
     @Autowired
     private NellyConfig config;
@@ -116,13 +116,18 @@ public class W3cTraceContext implements TraceContext {
 
     @Override
     public void applyExistingTrace(String primaryTraceInfo, String secondaryTraceInfo) {
-        if (!hasCurrentTraceId()) {
-            establishNew();
-        }
-        String oldTraceId = getTraceString();
-        //TODO: implement trace id change based on provided data, consider to long headers
+        W3cTraceContextState oldState = currentContext.get();
 
-        log.info("Switched trace id {} to this new one.", oldTraceId);
+        try {
+            W3cTraceContextState newState = new W3cTraceContextState(primaryTraceInfo, secondaryTraceInfo);
+            currentContext.set(newState);
+            log.info("Switched old/existing trace id {} to new one provided by caller.", oldState.getTraceString());
+        } catch (TraceException e) {
+            // the passed in data was invalid so we just make sure we have a trace id ond continue
+            if (!hasCurrentTraceId()) {
+                establishNew();
+            }
+        }
     }
 
     @Override

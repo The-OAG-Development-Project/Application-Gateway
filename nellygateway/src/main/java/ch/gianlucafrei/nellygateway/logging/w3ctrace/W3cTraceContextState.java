@@ -1,10 +1,17 @@
 package ch.gianlucafrei.nellygateway.logging.w3ctrace;
 
+import ch.gianlucafrei.nellygateway.logging.TraceException;
+import ch.gianlucafrei.nellygateway.utils.SecureEncoder;
+import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.StringTokenizer;
 
 import static ch.gianlucafrei.nellygateway.logging.TraceContext.MDC_CORRELATION_ID_KEY;
 
@@ -14,6 +21,8 @@ import static ch.gianlucafrei.nellygateway.logging.TraceContext.MDC_CORRELATION_
  */
 class W3cTraceContextState {
 
+    private static final Logger log = LoggerFactory.getLogger(W3cTraceContextState.class);
+
     private static SecureRandom secRandom = new SecureRandom();
 
     // Trace Info (traceparent)
@@ -21,14 +30,116 @@ class W3cTraceContextState {
     private final byte[] traceId = new byte[16];
     private final byte[] parentId = new byte[8];
     private final byte[] flags = {0x1}; // we always log -> 01
+    // the max acceptable traceparent size (usually it is just 3 * "-" but we accept " - " too.
+    private final int traceparentMaxStringLength = (version.length + traceId.length + parentId.length + flags.length) * 2 + 3 * " - ".length();
     private volatile String cachedString = null; // we do not care when we calculate twice, but intermediate results are not wanted.
     // Secondary Trace Info (tracestate))
-    private String secondaryTraceInfoString = null;
+    private final String secondaryTraceInfoString;
 
     W3cTraceContextState() {
         secRandom.nextBytes(traceId);
         secRandom.nextBytes(parentId);
         MDC.put(MDC_CORRELATION_ID_KEY, getTraceString());
+        secondaryTraceInfoString = null;
+    }
+
+    /**
+     * Creates a new trace state based on the passed in existing trace id data and logs as appropriate.
+     *
+     * @param traceparentString the traceparent
+     * @param tracestateString  the tracestate
+     * @throws ch.gianlucafrei.nellygateway.logging.TraceException when the passed in data is invalid.
+     */
+    public W3cTraceContextState(String traceparentString, String tracestateString) {
+        // traceparent part
+        if (traceparentString == null || traceparentString.length() == 0) {
+            log.info("No primary trace id provided, will not take over any data.");
+            throw new TraceException("traceparent not provided.");
+        }
+
+        if (traceparentString.length() > traceparentMaxStringLength) {
+            log.info("Bad trace format, traceparent is to long. Ignoring incoming trace id {}.", SecureEncoder.encodeStringForLog(traceparentString, traceparentMaxStringLength));
+            throw new TraceException("traceparent to long.");
+        }
+
+        StringTokenizer parts = new StringTokenizer(traceparentString, "-", false);
+        if (parts.countTokens() != 4) {
+            log.info("Bad trace format, traceparent is not specification compliant (see https://w3c.github.io/trace-context/). Ignoring incoming trace id {}.", SecureEncoder.encodeStringForLog(traceparentString, traceparentMaxStringLength));
+            throw new TraceException("traceparent format wrong.");
+        }
+
+        try {
+            convertTokenToByteArray(traceparentString, parts, version, "version");
+            convertTokenToByteArray(traceparentString, parts, traceId, "traceId");
+            convertTokenToByteArray(traceparentString, parts, parentId, "parentId");
+            convertTokenToByteArray(traceparentString, parts, flags, "flags");
+        } catch (Exception e) {
+            log.info("Bad trace format, traceparent is not specification compliant (see https://w3c.github.io/trace-context/). Error was {}. Ignoring incoming trace id {}.", e.getMessage(), SecureEncoder.encodeStringForLog(traceparentString, traceparentMaxStringLength));
+            throw new TraceException("traceparent format wrong");
+        }
+
+        if (allZero(traceId) || allZero(parentId)) {
+            log.info("Bad trace format, traceparent is not specification compliant (see https://w3c.github.io/trace-context/). TraceId or ParentId are all 0 which is not allowed. Ignoring incoming trace id {}.", SecureEncoder.encodeStringForLog(traceparentString, traceparentMaxStringLength));
+            throw new TraceException("traceparent format wrong");
+        }
+
+        // tracestate part (note: size that should be supported according to spec is 512, that is why we limit log to this
+        String tmpSecondaryTraceInfo = null;
+        try {
+            if (tracestateString == null || tracestateString.length() == 0) {
+                log.debug("No secondary trace info provided.");
+            } else {
+                // tracestate must be key=value pairs (list of these) if we have truncated them, we must make sure it ends with a clean pair
+                if (StringUtils.countMatches(tracestateString, "=") <= StringUtils.countMatches(tracestateString, ",")) {
+                    // no well formated tracestate
+                    // maybe it was truncated when reading, try to fix that by falling back to the last ,
+                    if (tracestateString.lastIndexOf(",") == -1) {
+                        log.info("secondary trace info was invalid. Ignoring value provided: {}", SecureEncoder.encodeStringForLog(tracestateString, 512));
+                    } else {
+                        String fix = tracestateString.substring(0, tracestateString.lastIndexOf(","));
+                        if (StringUtils.countMatches(fix, "=") <= StringUtils.countMatches(fix, ",")) {
+                            log.info("secondary trace info was invalid. Ignoring value provided: {}", SecureEncoder.encodeStringForLog(tracestateString, 512));
+                        } else {
+                            tmpSecondaryTraceInfo = fix;
+                        }
+                    }
+                } else {
+                    tmpSecondaryTraceInfo = tracestateString;
+                }
+
+                if (tmpSecondaryTraceInfo != null && StringUtils.countMatches(tmpSecondaryTraceInfo, "=") != StringUtils.countMatches(tmpSecondaryTraceInfo, ",") + 1) {
+                    log.info("secondary trace info was invalid. Ignoring value provided: {}", SecureEncoder.encodeStringForLog(tracestateString, 512));
+                    tmpSecondaryTraceInfo = null;
+                }
+            }
+        } catch (Exception e) {
+            log.info("Bad trace format, tracestate is not specification compliant (see https://w3c.github.io/trace-context/). Error was {}. Ignoring incoming tracestate {}. Just using traceparent part.", e.getMessage(), SecureEncoder.encodeStringForLog(tracestateString, 512));
+        }
+
+        if (tmpSecondaryTraceInfo != null) {
+            log.debug("secondary trace info looks ok, taking it over.");
+        }
+
+        secondaryTraceInfoString = tmpSecondaryTraceInfo;
+    }
+
+    private boolean allZero(byte[] checkForNotNull) {
+        for (byte b : checkForNotNull) {
+            if (b != (byte) 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void convertTokenToByteArray(String traceparentString, StringTokenizer parts, final byte[] tracePart, String tracePartString) throws DecoderException {
+        String tmp = parts.nextToken().trim();
+        byte[] bTmp = Hex.decodeHex(tmp);
+        if (bTmp.length != tracePart.length) {
+            log.info("Bad trace format, traceparent is not specification compliant (see https://w3c.github.io/trace-context/). {} size is wrong. Ignoring incoming trace id {}.", tracePartString, SecureEncoder.encodeStringForLog(traceparentString, traceparentMaxStringLength + 10));
+            throw new TraceException("traceparent format wrong: " + tracePartString);
+        }
+        System.arraycopy(bTmp, 0, tracePart, 0, tracePart.length);
     }
 
     /**

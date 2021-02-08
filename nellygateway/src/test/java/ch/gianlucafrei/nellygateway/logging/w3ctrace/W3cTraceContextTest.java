@@ -1,6 +1,7 @@
-package ch.gianlucafrei.nellygateway.logging;
+package ch.gianlucafrei.nellygateway.logging.w3ctrace;
 
-import ch.gianlucafrei.nellygateway.logging.w3ctrace.W3cTraceContext;
+import ch.gianlucafrei.nellygateway.logging.TraceContext;
+import ch.gianlucafrei.nellygateway.logging.TraceException;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 
