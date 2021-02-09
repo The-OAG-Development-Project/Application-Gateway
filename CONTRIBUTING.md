@@ -1,13 +1,13 @@
 # Contributing
 
-🎉 First of all, thanks much for contributing to this project! All kind of help, contribution, and support is much appreciated and will make it a little bit easier to build secure web applications!
+🎉 First of all, thanks much for contributing to the OWASP Application Gateway! All kind of help, contribution, and support is much appreciated and will make it a little bit easier to build secure web applications!
 
 ## How to contribute
 
 Nellgateway is still at a very early stage. Therefore you have a wide variety of options on how to contribute to the project:
 
 - Implement new features or fix open bugs: Please check out the GitHub issues; we also mark issues as beginner-friendly if you are new to the project.
-- Propose new features: If you have an idea for a useful feature for Nellygateway, feel free to open a GitHub issue and explain the feature and why you think it would be helpful.  If you have any inputs to the security and software architecture of Nellygateway, please also add a new GitHub issue.
+- Propose new features: If you have an idea for a useful feature for OWAG, feel free to open a GitHub issue and explain the feature and why you think it would be helpful.  If you have any inputs to the security and software architecture of OWAG, please also add a new GitHub issue.
 - Test it: If you used the gateway in your own project, any feedback would be much appreciated.
 - Other: If you have any other idea on how to contribute: Just do it :)
 
@@ -30,8 +30,8 @@ We use semantic version numbers (MAJOR.MINOR.PATCH) except that we didn't yet us
 
 ```bash
 # Clone the repo
-git clone https://github.com/gianlucafrei/nellygateway.git
-cd nellygateway
+git clone https://github.com/gianlucafrei/Application-Gateway.git
+cd Application-Gateway
 
 # Build manually
 cd nellygateway #Inner source folder 
