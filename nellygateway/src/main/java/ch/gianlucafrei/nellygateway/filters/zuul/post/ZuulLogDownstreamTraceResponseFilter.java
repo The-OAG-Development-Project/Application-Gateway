@@ -58,7 +58,7 @@ public class ZuulLogDownstreamTraceResponseFilter extends ZuulFilter {
         List<Pair<String, String>> entriesToRemove = new ArrayList<>();
         for (Pair<String, String> entry : zuulResponseHeaders) {
             if (traceContext.getResponseHeader().equals(entry.first())) {
-                log.info("Downstream system (route: {}) reports having used this trace-id/correlationId: {}.", ctx.getRouteHost(), SecureEncoder.encodeStringForLog(entry.second(), 128));
+                log.info("Downstream system (route: {}) reports having used this trace-id/correlationId: {}.", ctx.getRouteHost(), SecureEncoder.encodeStringForLog(entry.second(), config.getTraceProfile().getMaxLengthIncomingTrace()));
                 entriesToRemove.add(entry);
             }
         }

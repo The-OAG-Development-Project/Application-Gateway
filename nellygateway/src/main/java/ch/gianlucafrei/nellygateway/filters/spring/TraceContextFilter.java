@@ -67,12 +67,13 @@ public class TraceContextFilter implements Filter {
 
             if (traceContext.forwardIncomingTrace()) {
                 // make sure we take over the passed in traceparent when it is valid
-// TODO: implement
+                String primary = req.getHeader(traceContext.getMainRequestHeader());
+                String secondary = null;
                 if (traceContext.acceptAdditionalTraceInfo()) {
                     // make sure we take over the trace state if it is valid
-// TODO: implement
+                    secondary = req.getHeader(traceContext.getSecondaryRequestHeader());
                 }
-                // TODO: traceContext.applyExistingTrace(primary, secondary);
+                traceContext.applyExistingTrace(primary, secondary);
             }
 
             chain.doFilter(request, response);

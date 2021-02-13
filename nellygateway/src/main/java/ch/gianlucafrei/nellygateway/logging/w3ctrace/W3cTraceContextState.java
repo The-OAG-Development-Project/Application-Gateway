@@ -50,7 +50,8 @@ class W3cTraceContextState {
      * @param tracestateString  the tracestate
      * @throws ch.gianlucafrei.nellygateway.logging.TraceException when the passed in data is invalid.
      */
-    public W3cTraceContextState(String traceparentString, String tracestateString) {
+    public W3cTraceContextState(String traceparentString, String tracestateString, int maxTraceStateLength) {
+
         // traceparent part
         if (traceparentString == null || traceparentString.length() == 0) {
             log.info("No primary trace id provided, will not take over any data.");
@@ -83,22 +84,27 @@ class W3cTraceContextState {
             throw new TraceException("traceparent format wrong");
         }
 
-        // tracestate part (note: size that should be supported according to spec is 512, that is why we limit log to this
+        // tracestate part (note: size that should be supported according to spec is 512, that is why we limit log to this when 0 is set accidentially.
+        final int maxTraceStateSize = (maxTraceStateLength != 0) ? maxTraceStateLength : 512;
+        final int maxLogSize = 64;
         String tmpSecondaryTraceInfo = null;
         try {
             if (tracestateString == null || tracestateString.length() == 0) {
                 log.debug("No secondary trace info provided.");
             } else {
+                if (maxTraceStateSize < tracestateString.length()) {
+                    tracestateString = tracestateString.substring(0, maxTraceStateSize);
+                }
                 // tracestate must be key=value pairs (list of these) if we have truncated them, we must make sure it ends with a clean pair
                 if (StringUtils.countMatches(tracestateString, "=") <= StringUtils.countMatches(tracestateString, ",")) {
                     // no well formated tracestate
                     // maybe it was truncated when reading, try to fix that by falling back to the last ,
                     if (tracestateString.lastIndexOf(",") == -1) {
-                        log.info("secondary trace info was invalid. Ignoring value provided: {}", SecureEncoder.encodeStringForLog(tracestateString, 512));
+                        log.info("secondary trace info was invalid. Ignoring value provided: {}", SecureEncoder.encodeStringForLog(tracestateString, maxLogSize));
                     } else {
                         String fix = tracestateString.substring(0, tracestateString.lastIndexOf(","));
                         if (StringUtils.countMatches(fix, "=") <= StringUtils.countMatches(fix, ",")) {
-                            log.info("secondary trace info was invalid. Ignoring value provided: {}", SecureEncoder.encodeStringForLog(tracestateString, 512));
+                            log.info("secondary trace info was invalid. Ignoring value provided: {}", SecureEncoder.encodeStringForLog(tracestateString, maxLogSize));
                         } else {
                             tmpSecondaryTraceInfo = fix;
                         }
@@ -108,12 +114,12 @@ class W3cTraceContextState {
                 }
 
                 if (tmpSecondaryTraceInfo != null && StringUtils.countMatches(tmpSecondaryTraceInfo, "=") != StringUtils.countMatches(tmpSecondaryTraceInfo, ",") + 1) {
-                    log.info("secondary trace info was invalid. Ignoring value provided: {}", SecureEncoder.encodeStringForLog(tracestateString, 512));
+                    log.info("secondary trace info was invalid. Ignoring value provided: {}", SecureEncoder.encodeStringForLog(tracestateString, maxLogSize));
                     tmpSecondaryTraceInfo = null;
                 }
             }
         } catch (Exception e) {
-            log.info("Bad trace format, tracestate is not specification compliant (see https://w3c.github.io/trace-context/). Error was {}. Ignoring incoming tracestate {}. Just using traceparent part.", e.getMessage(), SecureEncoder.encodeStringForLog(tracestateString, 512));
+            log.info("Bad trace format, tracestate is not specification compliant (see https://w3c.github.io/trace-context/). Error was {}. Ignoring incoming tracestate {}. Just using traceparent part.", e.getMessage(), SecureEncoder.encodeStringForLog(tracestateString, maxLogSize));
         }
 
         if (tmpSecondaryTraceInfo != null) {

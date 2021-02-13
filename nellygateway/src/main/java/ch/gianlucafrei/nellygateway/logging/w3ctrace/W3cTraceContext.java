@@ -13,7 +13,12 @@ import org.springframework.stereotype.Component;
  * It supports only singe tracestate headers as incomming requests
  * See https://w3c.github.io/trace-context/
  * <p>
- * It provides functionality to support trace filters (such as TraceContextFilter) and the log framework.
+ * Configue in the main config with:
+ * <code>
+ * traceProfile:
+ * type: w3cTrace
+ * </code>
+ * It does not support any traceImplSpecificSettings in the configuration and ignores the maxLengthIncomingTrace setting as this is defined by the specification.
  */
 @Component("w3cTrace")
 public class W3cTraceContext implements TraceContext {
@@ -25,10 +30,8 @@ public class W3cTraceContext implements TraceContext {
 
     private static ThreadLocal<W3cTraceContextState> currentContext = new ThreadLocal<>();
 
-    //TODO: Update documentation (on web) with new settings
     @Autowired
     private NellyConfig config;
-
 
     /**
      * Establishes a new CorrelationId in the system. This is typically used when a new request hits the OAGW.
@@ -119,7 +122,7 @@ public class W3cTraceContext implements TraceContext {
         W3cTraceContextState oldState = currentContext.get();
 
         try {
-            W3cTraceContextState newState = new W3cTraceContextState(primaryTraceInfo, secondaryTraceInfo);
+            W3cTraceContextState newState = new W3cTraceContextState(primaryTraceInfo, secondaryTraceInfo, config.getTraceProfile().getMaxLengthAdditionalTraceInfo());
             currentContext.set(newState);
             log.info("Switched old/existing trace id {} to new one provided by caller.", oldState.getTraceString());
         } catch (TraceException e) {

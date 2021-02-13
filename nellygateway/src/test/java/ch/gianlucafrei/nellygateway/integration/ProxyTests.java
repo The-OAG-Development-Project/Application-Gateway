@@ -63,16 +63,6 @@ class ProxyTests {
     }
 
     @Test
-    void testProxyAddsTraceId() throws Exception {
-
-        // Makes a request through zuul and check if the security headers are applied
-        //TODO: Add test that verifies that outgoing downstream-request contains traceid... this here only check the response added by the proxy..
-        //this.mockMvc.perform(
-        //        get("/"))
-        //        .andExpect(header().exists("traceparent"));
-    }
-
-    @Test
     void testProxyAddsNotTraceResponse() throws Exception {
 
         // Makes a request through zuul and check if the security headers are fine

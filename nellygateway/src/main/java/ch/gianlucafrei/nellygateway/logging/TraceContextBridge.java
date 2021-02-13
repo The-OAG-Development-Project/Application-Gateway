@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 /**
- * This class bridges to the concrete trace context implementation that was configured in the main config yaml.
+ * This class bridges to the concrete trace context implementation that was configured in the main config yaml (section traceProfile).
  */
 @Component
 @Primary

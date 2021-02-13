@@ -1,6 +1,8 @@
 package ch.gianlucafrei.nellygateway.config.configuration;
 
 import ch.gianlucafrei.nellygateway.config.ErrorValidation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
@@ -12,6 +14,8 @@ import java.util.Map;
  * Provides access to the configured TraceProfile section in the config file
  */
 public class TraceProfile implements ErrorValidation {
+
+    private static final Logger log = LoggerFactory.getLogger(TraceProfile.class);
 
     private Boolean forwardIncomingTrace;
     private Integer maxLengthIncomingTrace;
@@ -114,8 +118,11 @@ public class TraceProfile implements ErrorValidation {
             errors.add("'type' not specified. Must be the bean name of a TraceContext implementation such as w3cTrace. Specify 'noTrace' to disable correlation Logging.");
 
 
-        if (context != null && !context.containsBean(type))
+        if (context != null && !context.containsBean(type)) {
             errors.add("Specified type '" + type + "' does not match a trace/correlation log implementation. Must be the bean name of a TraceContext implementation such as w3cTrace. Specify 'noTrace' to disable correlation Logging.");
+        } else {
+            log.info("Using log trace / correlation implementation of {}.", type);
+        }
 
         return errors;
     }
