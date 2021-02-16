@@ -9,6 +9,9 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logInfo;
+import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logTrace;
+
 @Order(1)
 @Component
 public class SimpleLogFilter implements WebFilter {
@@ -18,29 +21,20 @@ public class SimpleLogFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 
-        beforeRequest(exchange);
-
-        return chain.filter(exchange)
-                .doOnSuccess((d) -> afterRequestProcessed(exchange));
-    }
-
-    public void beforeRequest(ServerWebExchange exchange) {
+        logTrace(log, exchange, "Execute SimpleLogFilter");
 
         var request = exchange.getRequest();
-
-        log.info("Request to {} {}",
+        logInfo(log, exchange, "Request to {} {}",
                 request.getMethod(),
                 request.getURI());
-    }
 
-    protected void afterRequestProcessed(ServerWebExchange exchange) {
-
-        var request = exchange.getRequest();
-        var response = exchange.getResponse();
-
-        log.info("Response status code {} for {} {}",
-                response.getRawStatusCode(),
-                request.getMethodValue(),
-                request.getURI());
+        return chain.filter(exchange)
+                .doOnSuccess((u) -> {
+                    var response = exchange.getResponse();
+                    logInfo(log, exchange, "Response status code {} for {} {}",
+                       response.getRawStatusCode(),
+                       request.getMethodValue(),
+                       request.getURI());
+                });
     }
 }

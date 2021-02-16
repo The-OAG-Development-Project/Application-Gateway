@@ -12,6 +12,8 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logTrace;
+
 // TODO add flag to ignore this filter
 @Order(2)
 @Component
@@ -24,6 +26,8 @@ public class HttpRedirectFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+
+        logTrace(log, exchange, "Execute HttpRedirectFilter");
 
         var request = exchange.getRequest();
         var response = exchange.getResponse();

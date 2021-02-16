@@ -26,7 +26,7 @@ public class NellygatewayApplication {
     public CommandLineRunner commandLineRunner() {
 
         return args -> {
-            log.info("Gateway started with {} routes", config.getRoutes().size());
+            log.info("OWASP Application Gateway started with {} routes", config.getRoutes().size());
         };
     }
 }

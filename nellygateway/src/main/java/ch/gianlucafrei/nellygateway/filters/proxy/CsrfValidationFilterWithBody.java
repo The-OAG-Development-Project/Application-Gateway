@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,6 +15,10 @@ import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Optional;
 
+import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logInfo;
+import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logTrace;
+
+@Order(31)
 @Component
 public class CsrfValidationFilterWithBody extends ReadRequestBodyFilter {
 
@@ -47,6 +52,8 @@ public class CsrfValidationFilterWithBody extends ReadRequestBodyFilter {
     @Override
     protected void consumeBody(ServerWebExchange exchange, String body, GatewayRouteContext routeContext) {
 
+        logTrace(log, exchange, "Execute ExtractAuthenticationFilterWithBody");
+
         String csrfProtectionMethod = routeContext.getSecurityProfile().getCsrfProtection();
         CsrfProtectionValidation csrfValidation = CsrfProtectionValidation.loadValidationImplementation(csrfProtectionMethod, context);
 
@@ -57,7 +64,7 @@ public class CsrfValidationFilterWithBody extends ReadRequestBodyFilter {
 
         if (shouldBlock) {
 
-            log.info("Blocked request due to csrf protection, route={}, reqMethod={}, csrfMethod={}",
+            logInfo(log, exchange,"Blocked request due to csrf protection, route={}, reqMethod={}, csrfMethod={}",
                     routeContext.getRouteName(),
                     exchange.getRequest().getMethodValue(),
                     csrfProtectionMethod);

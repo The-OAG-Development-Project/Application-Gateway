@@ -19,6 +19,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
+import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.*;
+
 @Order(3)
 @Component
 public class ExtractAuthenticationFilter implements WebFilter {
@@ -50,12 +52,13 @@ public class ExtractAuthenticationFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 
+        logTrace(log, exchange, "Execute ExtractAuthenticationFilter");
+
         return extractAndStoreAuthentication(exchange)
                 .then(chain.filter(exchange));
     }
 
     protected Mono<Void> extractAndStoreAuthentication(ServerWebExchange exchange) {
-        log.trace("ExtractAuthenticationFilter started");
 
         exchange.getAttributes().put(NELLY_SESSION, Optional.empty());
 
@@ -71,10 +74,15 @@ public class ExtractAuthenticationFilter implements WebFilter {
                 .doOnSuccess(isInvalidated -> {
 
                     if (isInvalidated) {
-                        log.info("Received invalidated session cookie with id: {} user-id: {}", loginCookie.getId(), loginCookie.getUserModel().getId());
+                        logInfo(log, exchange, "Received invalidated session cookie with id: {} user-id: {}", loginCookie.getId(), loginCookie.getUserModel().getId());
                     } else {
 
                         var sessionOptional = Session.fromSessionCookie(loginCookie, globalClockSource.getGlobalClock());
+
+                        if(sessionOptional.isEmpty()){
+                            logDebug(log, exchange, "Received invalid session cookie, maybe expired");
+                        }
+
                         // Extract csrf token from session cookie and store in context
                         exchange.getAttributes().put(NELLY_SESSION_CSRF_TOKEN, loginCookie.getCsrfToken());
                         // Store session optional in http request object
@@ -100,7 +108,7 @@ public class ExtractAuthenticationFilter implements WebFilter {
 
         } catch (CookieDecryptionException e) {
 
-            log.info("Received invalid session cookie");
+            logInfo(log, exchange,"Received invalid session cookie");
         }
 
         return Optional.ofNullable(loginCookie);

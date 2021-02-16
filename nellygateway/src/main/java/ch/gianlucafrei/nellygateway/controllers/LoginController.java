@@ -42,6 +42,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logInfo;
+
 @RestController
 @RequestMapping("/auth")
 public class LoginController {
@@ -86,8 +88,6 @@ public class LoginController {
         // This might be blocking, encapsulate it in mono
         return ReactiveUtils.runBlockingProcedure(() -> loginDriver.startLogin())
                 .map(loginDriverResult -> {
-
-                    log.debug("Controller Callback: " + Thread.currentThread().getName());
 
                     // Store login state
                     String returnUrl = loadLoginReturnUrl(request);
@@ -241,7 +241,7 @@ public class LoginController {
         // Logout csrf prevention
         CsrfProtectionValidation csrfValidation = getCsrfValidationMethod();
         if (csrfValidation.shouldBlockRequest(exchange, null)) {
-            log.info("Blocked logout request due to csrf protection");
+            logInfo(log, exchange, "Blocked logout request due to csrf protection");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         } else {
             // Destroy the user session

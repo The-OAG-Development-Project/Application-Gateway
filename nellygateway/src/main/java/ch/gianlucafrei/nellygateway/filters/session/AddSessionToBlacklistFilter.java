@@ -13,6 +13,9 @@ import org.springframework.web.server.ServerWebExchange;
 import java.util.Map;
 import java.util.Optional;
 
+import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logDebug;
+import static ch.gianlucafrei.nellygateway.utils.ReactiveUtils.subscribeAsynchronously;
+
 @Component
 public class AddSessionToBlacklistFilter implements NellySessionFilter {
 
@@ -43,9 +46,11 @@ public class AddSessionToBlacklistFilter implements NellySessionFilter {
 
         // Session will be stored in asynchronously in session blacklist
         sessionOptional.ifPresent(session -> {
-            sessionBlacklist.invalidateSession(session.getId(), session.getRemainingTimeSeconds())
-                    .doOnSuccess((unused) -> log.debug("Session {} invalidated", session.getId()))
-                    .subscribe();
+
+            subscribeAsynchronously(
+                    sessionBlacklist.invalidateSession(session.getId(), session.getRemainingTimeSeconds())
+                    .doOnSuccess((unused) -> logDebug(log, exchange,"Session {} invalidated", session.getId()))
+                    ,exchange);
         });
     }
 }

@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logTrace;
+
 /**
  * This class initializes the Spring Cloud Gateway. It creates the "gatewayRoutes" which contains all the routing information.
  */
@@ -63,8 +65,9 @@ public class SpringCloudGatewayConfiguration {
                 var path = r.predicate(exchange -> {
                     exchange.getAttributes().put(ATTRIBUTE_ROUTE_NAME, routeName);
                     var requestUrl = exchange.getRequest().getURI().getPath();
-                    log.trace("Evaluate route {} for {}", routeName, requestUrl);
-                    return matcher.matchesPath(requestUrl, routePath);
+                    var isMatch = matcher.matchesPath(requestUrl, routePath);
+                    logTrace(log, exchange, "Evaluate route {} for {} -> {}", routeName, requestUrl, isMatch ? "match" : "false");
+                    return isMatch;
                 });
 
                 var rewriteConfig = route.getRewrite().build(route);

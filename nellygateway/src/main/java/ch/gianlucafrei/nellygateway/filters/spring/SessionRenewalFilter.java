@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -18,6 +17,9 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Optional;
+
+import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logDebug;
+import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logTrace;
 
 @Order(4)
 @Component
@@ -37,17 +39,10 @@ public class SessionRenewalFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 
-        log.trace("SessionRenewalFilter started");
+        logTrace(log, exchange, "Execute SessionRenewalFilter");
 
         Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.NELLY_SESSION);
-        if (sessionOptional == null) {
-            log.debug("SessionRenewalFilter: sessionOptional==null");
-        }
-
         var sessionBehavior = config.getSessionBehaviour();
-        if (sessionBehavior == null) {
-            log.debug("sessionBehavior == null");
-        }
 
         if (sessionOptional.isPresent() && sessionBehavior.getRenewWhenLessThan() > 0) // Feature switch if renewal time is <= 0
         {
@@ -56,17 +51,17 @@ public class SessionRenewalFilter implements WebFilter {
             int renewWhenLessThan = sessionBehavior.getRenewWhenLessThan();
 
             if (remainingTime < renewWhenLessThan)
-                renewSession(session, exchange.getResponse());
+                renewSession(session, exchange);
         }
 
         return chain.filter(exchange);
     }
 
-    private void renewSession(Session session, ServerHttpResponse response) {
+    private void renewSession(Session session, ServerWebExchange exchange) {
 
-        log.debug("Start renewing session");
+        logDebug(log, exchange,"Start renewing session");
         var filterContext = new HashMap<String, Object>();
         filterContext.put("old-session", session);
-        NellySessionFilter.runRenewSessionFilterChain(applicationContext, filterContext, response);
+        NellySessionFilter.runRenewSessionFilterChain(applicationContext, filterContext, exchange.getResponse());
     }
 }

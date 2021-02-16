@@ -15,6 +15,9 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 
+import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.contextual;
+import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logOnNext;
+
 /**
  * Uses a local persisted map to store invalidated identifiers locally.
  * Additionally a bloom filter is used to check for identifiers that are definitely not in the blacklist within o(1)
@@ -82,8 +85,8 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
     @Override
     public Mono<Void> invalidateSession(String identifier, int ttl) {
 
-        log.trace("Invalidate identifier {}", identifier);
-        return ReactiveUtils.runBlockingProcedure(() -> invalidateSessionBlocking(identifier, ttl));
+        return contextual(() -> log.trace("Invalidate identifier {}", identifier))
+                .then(ReactiveUtils.runBlockingProcedure(() -> invalidateSessionBlocking(identifier, ttl)));
     }
 
     private void invalidateSessionBlocking(String identifier, int ttl) {
@@ -104,18 +107,16 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
     @Override
     public Mono<Boolean> isInvalidated(String identifier) {
 
-        log.trace("Check if identifier {} is in bloom filter", identifier);
 
         // Very fast false if the identifier is not in the bloom filter
         if (!bloomFilter.mightContain(identifier)) {
 
-            log.trace("Identifier {} is not in bloom filter", identifier);
-            return Mono.just(false);
+            return Mono.just(false)
+                    .doOnEach(logOnNext((u) -> log.trace("Identifier {} is not in bloom filter", identifier)));
         }
 
-        log.trace("Identifier {} is in bloom filter, start db lookup asynchronously", identifier);
-        return ReactiveUtils.runBlockingProcedure(() -> checkIfInDbBlocking(identifier));
-
+        return contextual(() -> log.trace("Identifier {} is in bloom filter, start db lookup asynchronously", identifier))
+                .then(ReactiveUtils.runBlockingProcedure(() -> checkIfInDbBlocking(identifier)));
     }
 
     private boolean checkIfInDbBlocking(String identifier) {

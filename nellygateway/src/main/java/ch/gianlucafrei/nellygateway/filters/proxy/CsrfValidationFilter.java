@@ -7,11 +7,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logInfo;
+import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logTrace;
+
+@Order(30)
 @Component
 public class CsrfValidationFilter extends RouteAwareFilter {
 
@@ -26,6 +31,7 @@ public class CsrfValidationFilter extends RouteAwareFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain, GatewayRouteContext routeContext) {
 
+        logTrace(log, exchange, "Execute CsrfValidationFilter");
         var securityProfile = routeContext.getSecurityProfile();
 
         // Load security profile
@@ -45,7 +51,7 @@ public class CsrfValidationFilter extends RouteAwareFilter {
 
             if (shouldBlock) {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                log.info("Blocked request due to csrf protection, route={}, reqMethod={}, csrfMethod={}",
+                logInfo(log, exchange,"Blocked request due to csrf protection, route={}, reqMethod={}, csrfMethod={}",
                         routeContext.getRouteName(),
                         reqMethod,
                         csrfProtectionMethod);
