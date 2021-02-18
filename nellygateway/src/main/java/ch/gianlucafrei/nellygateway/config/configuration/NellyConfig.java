@@ -16,11 +16,12 @@ public class NellyConfig implements ErrorValidation {
     private String nellyApiKey;
     private List<String> trustedRedirectHosts;
     private SessionBehaviour sessionBehaviour;
+    private TraceProfile traceProfile;
 
     public NellyConfig() {
     }
 
-    public NellyConfig(Map<String, LoginProvider> loginProviders, Map<String, NellyRoute> routes, Map<String, SecurityProfile> securityProfiles, String hostUri, String nellyApiKey, List<String> trustedRedirectHosts, SessionBehaviour sessionBehaviour) {
+    public NellyConfig(Map<String, LoginProvider> loginProviders, Map<String, NellyRoute> routes, Map<String, SecurityProfile> securityProfiles, String hostUri, String nellyApiKey, List<String> trustedRedirectHosts, SessionBehaviour sessionBehaviour, TraceProfile traceProfile) {
         this.loginProviders = loginProviders;
         this.routes = routes;
         this.securityProfiles = securityProfiles;
@@ -28,6 +29,7 @@ public class NellyConfig implements ErrorValidation {
         this.nellyApiKey = nellyApiKey;
         this.trustedRedirectHosts = trustedRedirectHosts;
         this.sessionBehaviour = sessionBehaviour;
+        this.traceProfile = traceProfile;
     }
 
     public Map<String, NellyRoute> getRoutes() {
@@ -94,28 +96,39 @@ public class NellyConfig implements ErrorValidation {
         this.sessionBehaviour = sessionBehaviour;
     }
 
+    public TraceProfile getTraceProfile() {
+        return traceProfile;
+    }
+
+    public void setTraceProfile(TraceProfile traceProfile) {
+        this.traceProfile = traceProfile;
+    }
+
     @Override
     public List<String> getErrors(ApplicationContext context) {
 
         var errors = new ArrayList<String>();
 
         if (loginProviders == null)
-            errors.add("NellyConfig: loginProviders not defined");
+            errors.add("Config: loginProviders not defined");
 
         if (routes == null)
-            errors.add("NellyConfig: routes not defined");
+            errors.add("Config: routes not defined");
 
         if (hostUri == null)
-            errors.add("NellyConfig: hostUri not defined");
+            errors.add("Config: hostUri not defined");
 
         if (securityProfiles == null)
-            errors.add("NellyConfig: securityProfiles not defined");
+            errors.add("Config: securityProfiles not defined");
 
         if (trustedRedirectHosts == null)
-            errors.add("NellyConfig: trustedRedirectHosts not defined");
+            errors.add("Config: trustedRedirectHosts not defined");
 
         if (sessionBehaviour == null)
-            errors.add("NellyConfig: sessionBehaviour not defined");
+            errors.add("Config: sessionBehaviour not defined");
+
+        if (traceProfile == null)
+            errors.add("Config: traceProfile not defined");
 
         if (!errors.isEmpty())
             return errors;
@@ -125,6 +138,7 @@ public class NellyConfig implements ErrorValidation {
         securityProfiles.values().forEach(s -> errors.addAll(s.getErrors(context)));
         routes.values().forEach(s -> errors.addAll(s.getErrors(context)));
         errors.addAll(sessionBehaviour.getErrors(context));
+        errors.addAll(traceProfile.getErrors(context));
 
         if (!errors.isEmpty())
             return errors;

@@ -21,7 +21,7 @@ import java.util.Optional;
 
 import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.*;
 
-@Order(3)
+@Order(40)
 @Component
 public class ExtractAuthenticationFilter implements WebFilter {
 

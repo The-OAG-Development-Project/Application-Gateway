@@ -66,3 +66,14 @@ securityProfiles:
   csrf-samesite-strict:
     allowedMethods: [ "GET", "PUT", "POST" ]
     csrfProtection: samesite-strict-cookie
+
+
+traceProfile:
+  forwardIncomingTrace: yes
+  maxLengthIncomingTrace: 254
+  acceptAdditionalTraceInfo: no
+  maxLengthAdditionalTraceInfo: 254
+  sendTraceResponse: yes
+  type: simpleTrace
+  traceImplSpecificSettings:
+    traceImplSpecificParameter: "not used"

@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
-import static ch.gianlucafrei.nellygateway.filters.spring.LogCorrelationFilter.CONTEXT_KEY;
+import static ch.gianlucafrei.nellygateway.filters.spring.TraceContextFilter.CONTEXT_KEY;
 
 /**
  * Provides method for contextual logging. The way this works is that the context is put into the mdc before the log statement

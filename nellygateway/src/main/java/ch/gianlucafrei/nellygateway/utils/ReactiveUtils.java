@@ -8,7 +8,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.concurrent.Callable;
 
-import static ch.gianlucafrei.nellygateway.filters.spring.LogCorrelationFilter.CONTEXT_KEY;
+import static ch.gianlucafrei.nellygateway.filters.spring.TraceContextFilter.CONTEXT_KEY;
 import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.wrapMdc;
 
 public class ReactiveUtils {

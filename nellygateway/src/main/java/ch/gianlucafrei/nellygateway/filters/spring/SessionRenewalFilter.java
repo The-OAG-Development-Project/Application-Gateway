@@ -21,7 +21,8 @@ import java.util.Optional;
 import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logDebug;
 import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logTrace;
 
-@Order(4)
+
+@Order(50)
 @Component
 public class SessionRenewalFilter implements WebFilter {
 

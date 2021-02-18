@@ -73,6 +73,12 @@
             <version>3.0.8</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.11</version>
+        </dependency>
+
         <!-- End manual dependencies-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>

@@ -11,6 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NellyConfigurationValidationTest {
 
+    private TraceProfile defaultTraceProfile = new TraceProfile(false, 254, false, 254, false, "w3cTrace", null);
+
     @Test
     public void testValidConfiguration() {
 
@@ -21,6 +23,7 @@ class NellyConfigurationValidationTest {
                 "/",
                 "/",
                 "/");
+
         NellyConfig config = new NellyConfig(
                 new HashMap<>(),
                 new HashMap<>(),
@@ -28,7 +31,8 @@ class NellyConfigurationValidationTest {
                 "hosturi.org",
                 null,
                 new ArrayList<>(),
-                sessionBehaviour);
+                sessionBehaviour,
+                defaultTraceProfile);
 
         // Act
         var errors = config.getErrors(null);
@@ -54,7 +58,8 @@ class NellyConfigurationValidationTest {
                 "hosturi.org",
                 null,
                 new ArrayList<>(),
-                sessionBehaviour);
+                sessionBehaviour,
+                defaultTraceProfile);
 
         // Act
         var errors = config.getErrors(null);
@@ -83,7 +88,8 @@ class NellyConfigurationValidationTest {
                 "hosturi.org",
                 null,
                 new ArrayList<>(),
-                sessionBehaviour);
+                sessionBehaviour,
+                defaultTraceProfile);
 
         // Act
         var errors = config.getErrors(null);
@@ -104,13 +110,14 @@ class NellyConfigurationValidationTest {
                 null,
                 null,
                 null,
+                null,
                 null);
 
         // Act
         var errors = config.getErrors(null);
 
         // Assert
-        assertEquals(6, errors.size());
+        assertEquals(7, errors.size());
     }
 
 

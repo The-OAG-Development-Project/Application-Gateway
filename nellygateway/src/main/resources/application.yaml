@@ -24,9 +24,11 @@ logging:
     ch:
       gianlucafrei: INFO
 
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %cyan(%X{oag.CorrId}) [%-22.22thread] %highlight(%-5level) - %msg%n"
+    file:    "%d{yyyy-MM-dd HH:mm:ss} %X{oag.CorrId} [%thread] %-5level %logger{36} - %msg%n"
   file:
-    path: nelly.log
-
+    path: oag.log
 
 oag:
   session-blacklist-file: "session-blacklist.db"

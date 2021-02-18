@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logTrace;
 
 // TODO add flag to ignore this filter
-@Order(2)
+@Order(30)
 @Component
 public class HttpRedirectFilter implements WebFilter {
 

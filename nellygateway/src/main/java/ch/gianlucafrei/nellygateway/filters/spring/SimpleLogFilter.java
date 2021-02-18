@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logInfo;
 import static ch.gianlucafrei.nellygateway.utils.LoggingUtils.logTrace;
 
-@Order(1)
+@Order(20)
 @Component
 public class SimpleLogFilter implements WebFilter {
 
