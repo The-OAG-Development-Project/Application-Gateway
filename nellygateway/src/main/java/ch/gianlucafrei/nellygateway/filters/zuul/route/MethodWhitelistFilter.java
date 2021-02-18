@@ -31,7 +31,7 @@ public class MethodWhitelistFilter extends ZuulFilter {
 
     @Override
     public int filterOrder() {
-        return 1;
+        return 10;
     }
 
     @Override

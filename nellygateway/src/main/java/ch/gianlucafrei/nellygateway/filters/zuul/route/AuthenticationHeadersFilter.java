@@ -25,7 +25,7 @@ public class AuthenticationHeadersFilter extends ZuulFilter {
 
     @Override
     public int filterOrder() {
-        return 3;
+        return 30;
     }
 
     @Override

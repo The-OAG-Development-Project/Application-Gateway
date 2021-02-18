@@ -59,3 +59,13 @@ securityProfiles:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
     csrfProtection: none
     responseHeaders:
+
+traceProfile:
+  forwardIncomingTrace: false
+  maxLengthIncomingTrace: 254
+  acceptAdditionalTraceInfo: false
+  maxLengthAdditionalTraceInfo: 254
+  sendTraceResponse: false
+  type: w3cTrace
+  traceImplSpecificSettings:
+    traceImplSpecificParameter: "not used"

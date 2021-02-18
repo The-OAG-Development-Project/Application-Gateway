@@ -63,6 +63,15 @@ class ProxyTests {
     }
 
     @Test
+    void testProxyAddsNotTraceResponse() throws Exception {
+
+        // Makes a request through zuul and check if the security headers are fine
+        this.mockMvc.perform(
+                get("/"))
+                .andExpect(header().doesNotExist("traceresponse"));
+    }
+
+    @Test
     void testProxyBlocksWhenAllowAnonymous() throws Exception {
 
         // Checks if allowAnonymous: yes works

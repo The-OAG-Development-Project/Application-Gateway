@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Optional;
 
-@Order(4)
+@Order(50)
 @Component
 public class SessionRenewalFilter implements Filter {
 

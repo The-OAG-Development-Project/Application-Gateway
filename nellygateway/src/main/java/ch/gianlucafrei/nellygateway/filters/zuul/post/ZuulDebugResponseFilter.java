@@ -26,7 +26,7 @@ public class ZuulDebugResponseFilter extends ZuulFilter {
 
     @Override
     public int filterOrder() {
-        return 2;
+        return 20;
     }
 
     @Override

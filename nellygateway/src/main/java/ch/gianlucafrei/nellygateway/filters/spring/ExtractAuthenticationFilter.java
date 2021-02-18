@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Optional;
 
-@Order(3)
+@Order(40)
 @Component
 public class ExtractAuthenticationFilter implements Filter {
 

@@ -26,7 +26,7 @@ public class ZuulRouteLogFilter extends ZuulFilter {
 
     @Override
     public int filterOrder() {
-        return 10;
+        return 100;
     }
 
     @Override

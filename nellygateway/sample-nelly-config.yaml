@@ -45,3 +45,14 @@ securityProfiles:
       Content-Security-Policy: base-uri 'self';object-src 'self'
       Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
       Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+
+traceProfile:
+  forwardIncomingTrace: false
+  maxLengthIncomingTrace: 254
+  acceptAdditionalTraceInfo: false
+  maxLengthAdditionalTraceInfo: 254
+  sendTraceResponse: false
+  type: w3cTrace
+  traceImplSpecificSettings:
+    traceImplSpecificParameter: "not used"
