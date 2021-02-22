@@ -14,15 +14,15 @@ jobs:
       with:
         java-version: 15
     - name: Build with Maven
-      run: mvn -B package --file nellygateway/pom.xml 
+      run: mvn -B package --file oag/pom.xml 
     - name: Create Artifact Folder
-      run: mkdir nellygateway/target/artifact/ && cp nellygateway/target/nellygateway*.jar nellygateway/target/artifact/nellygateway.jar && cp nellygateway/sample-nelly-config.yaml nellygateway/target/artifact/sample-nelly-config.yaml
+      run: mkdir oag/target/artifact/ && cp oag/target/oag*.jar oag/target/artifact/oag.jar && cp oag/sample-config.yaml oag/target/artifact/sample-config.yaml
     - name: Add commit hash to artifact
-      run: echo $GITHUB_SHA >> nellygateway/target/artifact/commit-hash.txt
+      run: echo $GITHUB_SHA >> oag/target/artifact/commit-hash.txt
     - name: Publish Artifact
       uses: actions/upload-artifact@v2
       with:
-          path: nellygateway/target/artifact/
+          path: oag/target/artifact/
 
     - name: Get the version
       id: get_version
@@ -30,9 +30,9 @@ jobs:
 
     - uses: papeloto/action-zip@v1
       with:
-        files: nellygateway/target/artifact/
+        files: oag/target/artifact/
         recursive: false
-        dest: nellygateway-${{ steps.get_version.outputs.VERSION }}.zip
+        dest: oag-${{ steps.get_version.outputs.VERSION }}.zip
 
     - name: Get release
       id: get_release
@@ -47,14 +47,14 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.get_release.outputs.upload_url }}
-        asset_path: ./nellygateway-${{ steps.get_version.outputs.VERSION }}.zip
-        asset_name: nellygateway-${{ steps.get_version.outputs.VERSION }}.zip
+        asset_path: ./oag-${{ steps.get_version.outputs.VERSION }}.zip
+        asset_name: oag-${{ steps.get_version.outputs.VERSION }}.zip
         asset_content_type: application/gzip
         
     # Docker build
     - name: Docker Build
-      run: docker build -t gianlucafrei/nellygateway:${{ steps.get_version.outputs.VERSION }} -t gianlucafrei/nellygateway:latest .
+      run: docker build -t gianlucafrei/oag:${{ steps.get_version.outputs.VERSION }} -t gianlucafrei/oag:latest .
     - name: Docker Login
       run: docker login --username gianlucafrei --password ${{ secrets.DOCKER_PASSWORD }}
     - name: Docker Push
-      run: docker push gianlucafrei/nellygateway:${{ steps.get_version.outputs.VERSION }}
+      run: docker push gianlucafrei/oag:${{ steps.get_version.outputs.VERSION }}
