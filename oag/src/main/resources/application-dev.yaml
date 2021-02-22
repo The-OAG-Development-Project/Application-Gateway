@@ -1,0 +1,7 @@
+logging:
+  level:
+    root: WARN
+    org:
+      owasp: TRACE
+  file:
+    path: oag-dev.log

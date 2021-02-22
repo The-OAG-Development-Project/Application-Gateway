@@ -1,11 +1,11 @@
+*.key
+*.log
+
 HELP.md
 target/
-*.log
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-.DS_Store
-env.list
 
 ### STS ###
 .apt_generated
@@ -34,3 +34,4 @@ build/
 
 ### VS Code ###
 .vscode/
+/nelly-dev.log/
