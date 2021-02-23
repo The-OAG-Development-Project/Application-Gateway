@@ -27,7 +27,7 @@ public class IntegrationTestConfig {
      */
     @Primary
     @Bean
-    ConfigLoader nellyConfigLoader() {
+    ConfigLoader configLoader() {
         return new TestFileConfigLoader("/localServerConfiguration.yaml");
     }
 

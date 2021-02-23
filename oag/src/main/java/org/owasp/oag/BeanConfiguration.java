@@ -30,11 +30,11 @@ public class BeanConfiguration {
     private GlobalClockSource clockSource;
 
     @Bean
-    public MainConfig nellyConfig() {
+    public MainConfig mainConfig() {
 
         try {
 
-            ConfigLoader loader = nellyConfigLoader();
+            ConfigLoader loader = configLoader();
             MainConfig config = loader.loadConfiguration();
 
             var configErrors = config.getErrors(context);
@@ -47,17 +47,17 @@ public class BeanConfiguration {
             return config;
 
         } catch (JsonProcessingException e) {
-            log.error("Nelly configuration file is invalid: {}", e.getMessage());
-            throw new RuntimeException("Nelly configuration file is invalid", e);
+            log.error("OAG configuration file is invalid: {}", e.getMessage());
+            throw new RuntimeException("OAG configuration file is invalid", e);
         } catch (IOException e) {
 
-            log.error("Could not load nelly configuration {}", e.getMessage());
-            throw new RuntimeException("Could not load nelly configuration", e);
+            log.error("Could not load OAG configuration {}", e.getMessage());
+            throw new RuntimeException("Could not load OAG configuration", e);
         }
     }
 
     @Bean
-    ConfigLoader nellyConfigLoader() {
+    ConfigLoader configLoader() {
         return new FileConfigLoader();
     }
 

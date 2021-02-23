@@ -1,5 +1,4 @@
 hostUri: http://localhost:8080
-nellyApiKey: env:OAG_API_KEY
 
 routes:
 

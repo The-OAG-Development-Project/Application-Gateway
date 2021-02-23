@@ -1,5 +1,4 @@
 hostUri: localhost:8080
-nellyApiKey: "nelly-api-key"
 
 routes:
 

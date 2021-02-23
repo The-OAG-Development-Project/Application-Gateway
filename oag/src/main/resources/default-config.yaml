@@ -1,4 +1,5 @@
 trustedRedirectHosts: [ ]
+downstreamApiKey: env:OAG_API_KEY
 
 sessionBehaviour:
   sessionDuration: 3600

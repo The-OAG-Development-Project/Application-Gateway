@@ -13,11 +13,11 @@ public interface SessionHook {
 
     static void runRenewSessionFilterChain(ApplicationContext context, Map<String, Object> filterContext, ServerHttpResponse response) {
 
-        var filters = getNellySessionFilters(context);
+        var filters = getSessionHooks(context);
         filters.forEach(f -> f.renewSession(filterContext, response));
     }
 
-    static List<SessionHook> getNellySessionFilters(ApplicationContext context) {
+    static List<SessionHook> getSessionHooks(ApplicationContext context) {
 
         var filters = context.getBeansOfType(SessionHook.class);
 

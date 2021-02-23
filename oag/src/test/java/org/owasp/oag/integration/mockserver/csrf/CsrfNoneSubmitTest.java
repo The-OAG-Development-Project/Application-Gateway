@@ -35,7 +35,7 @@ class CsrfNoneSubmitTest extends WiremockTest {
 
         @Primary
         @Bean
-        ConfigLoader nellyConfigLoader() {
+        ConfigLoader configLoader() {
             return new TestFileConfigLoader("/localServerConfiguration.yaml");
         }
     }

@@ -220,14 +220,14 @@ public class LoginController {
         filterContext.put("providerKey", providerKey);
         filterContext.put("userModel", model);
 
-        List<SessionHook> sessionFilters = getNellySessionFilters();
+        List<SessionHook> sessionFilters = getSessionHooks();
 
         sessionFilters.forEach(f -> f.createSession(filterContext, response));
     }
 
-    private List<SessionHook> getNellySessionFilters() {
+    private List<SessionHook> getSessionHooks() {
 
-        return SessionHook.getNellySessionFilters(context);
+        return SessionHook.getSessionHooks(context);
     }
 
     @GetMapping("logout")
@@ -264,7 +264,7 @@ public class LoginController {
     private void destroySession(ServerWebExchange exchange) {
 
         var filterContext = new HashMap<String, Object>();
-        List<SessionHook> sessionFilters = getNellySessionFilters();
+        List<SessionHook> sessionFilters = getSessionHooks();
         sessionFilters.forEach(f -> f.destroySession(filterContext, exchange));
     }
 

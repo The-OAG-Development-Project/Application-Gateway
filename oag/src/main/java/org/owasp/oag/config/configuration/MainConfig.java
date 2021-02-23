@@ -13,7 +13,7 @@ public class MainConfig implements ErrorValidation {
     private Map<String, GatewayRoute> routes;
     private Map<String, SecurityProfile> securityProfiles;
     private String hostUri;
-    private String nellyApiKey;
+    private String downstreamApiKey;
     private List<String> trustedRedirectHosts;
     private SessionBehaviour sessionBehaviour;
     private TraceProfile traceProfile;
@@ -21,12 +21,12 @@ public class MainConfig implements ErrorValidation {
     public MainConfig() {
     }
 
-    public MainConfig(Map<String, LoginProvider> loginProviders, Map<String, GatewayRoute> routes, Map<String, SecurityProfile> securityProfiles, String hostUri, String nellyApiKey, List<String> trustedRedirectHosts, SessionBehaviour sessionBehaviour, TraceProfile traceProfile) {
+    public MainConfig(Map<String, LoginProvider> loginProviders, Map<String, GatewayRoute> routes, Map<String, SecurityProfile> securityProfiles, String hostUri, String downstreamApiKey, List<String> trustedRedirectHosts, SessionBehaviour sessionBehaviour, TraceProfile traceProfile) {
         this.loginProviders = loginProviders;
         this.routes = routes;
         this.securityProfiles = securityProfiles;
         this.hostUri = hostUri;
-        this.nellyApiKey = nellyApiKey;
+        this.downstreamApiKey = downstreamApiKey;
         this.trustedRedirectHosts = trustedRedirectHosts;
         this.sessionBehaviour = sessionBehaviour;
         this.traceProfile = traceProfile;
@@ -72,12 +72,12 @@ public class MainConfig implements ErrorValidation {
         this.securityProfiles = securityProfiles;
     }
 
-    public String getNellyApiKey() {
-        return nellyApiKey;
+    public String getDownstreamApiKey() {
+        return downstreamApiKey;
     }
 
-    private void setNellyApiKey(String nellyApiKey) {
-        this.nellyApiKey = nellyApiKey;
+    private void setDownstreamApiKey(String downstreamApiKey) {
+        this.downstreamApiKey = downstreamApiKey;
     }
 
     public List<String> getTrustedRedirectHosts() {

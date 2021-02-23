@@ -24,7 +24,7 @@ public class FileConfigLoader implements ConfigLoader {
 
     private static final Logger log = LoggerFactory.getLogger(FileConfigLoader.class);
 
-    @Value("${nelly.configPath}")
+    @Value("${oag.configPath}")
     private String configPath;
 
 

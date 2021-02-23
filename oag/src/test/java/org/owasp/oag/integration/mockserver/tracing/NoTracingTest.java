@@ -21,7 +21,7 @@ public class NoTracingTest extends WiremockTest {
 
         @Primary
         @Bean
-        ConfigLoader nellyConfigLoader() {
+        ConfigLoader configLoader() {
             return new TestFileConfigLoader("/noTracingConfiguration.yaml");
         }
     }

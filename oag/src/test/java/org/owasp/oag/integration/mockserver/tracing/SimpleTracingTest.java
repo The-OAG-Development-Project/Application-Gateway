@@ -26,7 +26,7 @@ public class SimpleTracingTest extends WiremockTest {
 
         @Primary
         @Bean
-        ConfigLoader nellyConfigLoader() {
+        ConfigLoader configLoader() {
             return new TestFileConfigLoader("/simpleTracingConfiguration.yaml");
         }
     }

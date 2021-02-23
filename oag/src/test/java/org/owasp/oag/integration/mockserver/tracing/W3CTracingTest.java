@@ -21,7 +21,7 @@ public class W3CTracingTest extends WiremockTest {
 
         @Primary
         @Bean
-        ConfigLoader nellyConfigLoader() {
+        ConfigLoader configLoader() {
             return new TestFileConfigLoader("/W3CTracingConfiguration.yaml");
         }
     }

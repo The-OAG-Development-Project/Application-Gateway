@@ -1,5 +1,6 @@
-nelly:
+oag:
   configPath: ${NELLY_CONFIG_PATH:sample-config.yaml}
+  session-blacklist-file: "session-blacklist.db"
 
 server:
   port: 8080
@@ -13,11 +14,6 @@ ribbon:
   eureka:
     enabled: false
 
-org:
-  springframework:
-    web:
-      filter:
-        CommonsRequestLoggingFilter: INFO
 logging:
   level:
     root: WARN
@@ -30,5 +26,3 @@ logging:
   file:
     path: oag.log
 
-oag:
-  session-blacklist-file: "session-blacklist.db"
