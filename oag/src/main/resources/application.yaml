@@ -1,5 +1,5 @@
 oag:
-  configPath: ${NELLY_CONFIG_PATH:sample-config.yaml}
+  configPath: ${OAG_CONFIG_PATH:sample-config.yaml}
   session-blacklist-file: "session-blacklist.db"
 
 server:
