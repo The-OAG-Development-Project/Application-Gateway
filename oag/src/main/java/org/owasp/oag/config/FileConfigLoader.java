@@ -31,7 +31,7 @@ public class FileConfigLoader implements ConfigLoader {
     @Override
     public MainConfig loadConfiguration() throws IOException {
 
-        log.info("Load nelly configuration from: {}", configPath);
+        log.info("Load configuration from: {}", configPath);
 
         File userConfigFile = new File(configPath);
         InputStream userConfigInputStream = new FileInputStream(userConfigFile);

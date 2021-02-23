@@ -62,7 +62,7 @@ public class JweEncrypter implements CookieEncryptor {
         String key = System.getenv(variableName);
 
         if (key == null)
-            throw new IllegalStateException("NELLY-KEY is not defined");
+            throw new IllegalStateException("JWE encryption key is not defined");
 
         // decode the base64 encoded string
         byte[] decodedKey = Base64.getDecoder().decode(key);
@@ -77,7 +77,7 @@ public class JweEncrypter implements CookieEncryptor {
             return Base64.getEncoder().encodeToString(secretKey.getEncoded());
 
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("AES key coule not be generated", e);
+            throw new RuntimeException("AES key could not be generated", e);
         }
     }
 
