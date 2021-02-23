@@ -40,7 +40,7 @@ cd nellygateway #Inner source folder
 
 ### IntelliJ
 
-If you use IntelliJ you just import the inner source folder (`...repo/nellygateway/`) and everything should work out of the box.
+If you use IntelliJ you just import the inner source folder (`...repo/oag/`) and everything should work out of the box.
 
 Please use the following code style file:
 
@@ -50,9 +50,8 @@ It is also recommended to use the "Save Actions" plugin to automatically optimiz
 
 We currently use the following tools for CI/CD
 
-- GitHub Actions for automatic build and releases (See https://github.com/gianlucafrei/nellygateway/actions)
-- Codacy for static analysis (See https://app.codacy.com/gh/gianlucafrei/nellygateway/dashboard)
-- Dockle for container security analysis (Within build pipelines: https://github.com/gianlucafrei/nellygateway/blob/main/.github/workflows/main.yml, https://github.com/goodwithtech/dockle)
+- GitHub Actions for automatic build and releases (See https://github.com/gianlucafrei/Application-Gateway/actions)
+- Dockle for container security analysis (Within build pipelines: https://github.com/gianlucafrei/Application-Gateway/blob/main/.github/workflows/main.yml, https://github.com/goodwithtech/dockle)
 
 
 ## Varia
