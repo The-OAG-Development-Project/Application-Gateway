@@ -3,17 +3,18 @@
 [![OWASP Incubator](https://img.shields.io/badge/owasp-incubator-blue.svg)](https://owasp.org/www-project-application-gateway/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/gianlucafrei/nellygateway)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/5eaa206a103e4b28be9da2ba857d1653)](https://app.codacy.com/gh/gianlucafrei/nellygateway?utm_source=github.com&utm_medium=referral&utm_content=gianlucafrei/nellygateway&utm_campaign=Badge_Grade)
 ![Java CI with Maven](https://github.com/gianlucafrei/nellygateway/workflows/Java%20CI%20with%20Maven/badge.svg)
 
 🏗️ **OWASP Application Gateway is work-in-progress. No productive version has been released yet.**
 
-<a href="https://owasp.org/www-project-application-gateway/"><img src="https://owasp.org/www-policy/branding-assets/OWASP-Combination-mark-r.png" width="500" /></a>
 
+<a href="https://owasp.org/www-project-application-gateway/"><img src="https://github.com/gianlucafrei/Application-Gateway/blob/main/doc/pictures/Banner.png" width="500" /></a>
+
+<a href="https://owasp.org/www-project-application-gateway/"><img src="https://owasp.org/www-policy/branding-assets/OWASP-Combination-mark-r.png" width="150" /></a>
 
 OWASP Application Gateway is an HTTP reverse proxy that sits between your web application and the client and handles Oauth2 login and session management. For you, as a developer, OWASP Application Gateway removes the hassle to implement complicated oauth2 logic in the backend and frontend so you can focus totally on your applications logic.
 
-<img src="https://github.com/gianlucafrei/nellygateway/blob/main/doc/overview.png?raw=true" data-canonical-src="https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png" width="500" />
+<img src="https://github.com/gianlucafrei/Application-Gateway/blob/main/doc/OAG-Overrview.png?raw=true" width="500" />
 
 ## Table of Contents
 
@@ -29,6 +30,7 @@ OWASP Application Gateway is an HTTP reverse proxy that sits between your web ap
     - [Jar release](#jar-release)
     - [Compile it Yourself](#compile-it-yourself)
   - [Functionality](#functionality)
+- [Mascot](#mascot)
 
 
 ## Design Principles
@@ -50,17 +52,17 @@ OWASP Application Gateway's behavior is controlled with a central configuration 
 OWASP Application Gateway is fully configured with a simple and easy to understand configuration file. Details are documented in the [GitHub wiki](https://github.com/gianlucafrei/nellygateway/wiki).
 
 ```yaml
-hostUri: http://example.com
+hostUri: https://example.com
 
 routes:
-  default:
+  httpbin:
     type: webapplication
     path: /**
-    url: https://nellydemoapp.azurewebsites.net
+    url: https://httpbin.org
     allowAnonymous: yes
-  authenticated:
+  echo:
     type: webapplication
-    path: /secure/**
+    path: /echo/**
     url: https://nellydemoapp.azurewebsites.net
     allowAnonymous: no
 
@@ -83,36 +85,32 @@ loginProviders:
       clientSecret: env:GITHUB_CLIENT_SECRET
       scopes: [ "user", "email" ]
 
-sessionBehaviour:
-  sessionDuration: 3600
-  renewWhenLessThan: 1800
-  redirectLoginSuccess: /app
-  redirectLoginFailure: /uups
-  redirectLogout: /
-
 securityProfiles:
   webapplication:
-    allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
-    csrfProtection: samesite-strict-cookie
     responseHeaders:
       Server: <<remove>>
       X-Powered-By: <<remove>>
-      X-XSS-Protection: 1; mode=block;
+      X-XSS-Protection: 1;mode=block;
       X-Frame-Options: SAMEORIGIN
       X-Content-Type-Options: nosniff
       Referrer-Policy: strict-origin-when-cross-origin
-      Content-Security-Policy: upgrade-insecure-requests;base-uri 'self';object-src 'self'
+      Content-Security-Policy: base-uri 'self';object-src 'self'
       Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
       Strict-Transport-Security: max-age=31536000; includeSubDomains
 
-logoutRedirectUri: http://example.com/
-nellyApiKey: env:NELLY_API_KEY
-trustedRedirectHosts: [subdomain.example.com]
+
+traceProfile:
+  forwardIncomingTrace: true
+  maxLengthIncomingTrace: 254
+  acceptAdditionalTraceInfo: false
+  maxLengthAdditionalTraceInfo: 254
+  sendTraceResponse: true
+  type: w3cTrace
 ```
 
 ## How to run
 
-You have two options on how to run OWASP Application Gateway: There is an official docker image that you can just works out of the box. You just need to mount the nelly config file via docker volumes. If you don't want to use docker you can also use the download the released jar file. Of course you can also build OWASP Application Gateway by yourself with Maven.
+You have two options on how to run OWASP Application Gateway: There is an official docker image that you can just works out of the box. You just need to mount the config file via docker volumes. If you don't want to use docker you can also use the download the released jar file. Of course you can also build OWASP Application Gateway by yourself with Maven.
 
 ### Docker Release
 
@@ -133,11 +131,31 @@ docker run -e NELLY_CONFIG_PATH=/app/config.nelly -v ${PWD}/nelly-config.yaml:/a
 
 ### Jar release
 
-todo
+```bash
+curl -s https://api.github.com/repos/gianlucafrei/Application-Gateway/releases/latest \
+| grep "browser_download_url.*zip" \
+| cut -d : -f 2,3 \
+| tr -d \" \
+| wget -qi -
+unzip nellygateway*.zip
+cd nellygateway/target
+java -jar nellygateway.jar
+```
 
 ### Compile it Yourself
 
-todo
+The easiest way is to use Docker to build OWASP Application Gateway.
+
+```bash
+docker build -t owasp/application-gateway:SNAPSHOT .
+docker run -p 8080:8080 owasp/application-gateway:SNAPSHOT
+```
+
+If you don't want to use Docker you can build the jar by yourself with Maven:
+
+```bash
+mvn package -f oag/pom.xml -Dmaven.test.skip=true
+```
 
 ## Functionality
 
@@ -161,3 +179,7 @@ Ideas:
 - [ ] Report URI Endpoint
 - [ ] Default configuration
 - [ ] ...
+
+# Mascot
+
+<img src="https://raw.githubusercontent.com/gianlucafrei/Application-Gateway/main/doc/pictures/Mascot.svg" width="500" />

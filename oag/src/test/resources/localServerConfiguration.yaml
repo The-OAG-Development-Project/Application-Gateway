@@ -1,0 +1,79 @@
+hostUri: localhost:8080
+downstreamApiKey: "TESTAPIKEY"
+
+routes:
+  local:
+    type: webapplication
+    path: /**
+    url: http://localhost:7777/
+    allowAnonymous: yes
+
+  local-static:
+    type: static
+    path: /static/**
+    url: http://localhost:7777/
+    allowAnonymous: yes
+
+  secured:
+    type: webapplication
+    path: /secure/**
+    url: http://localhost:7777/
+    allowAnonymous: no
+
+  csrf-double-submit:
+    type: csrf-double-submit
+    path: /csrfDoubleSubmit/**
+    url: http://localhost:7777/
+    allowAnonymous: yes
+
+  csrf-samesite-strict:
+    type: csrf-samesite-strict
+    path: /csrf-samesite-strict/**
+    url: http://localhost:7777/
+    allowAnonymous: no
+
+  csrf-none:
+    type: csrf-none
+    path: /csrf-none/**
+    url: http://localhost:7777/
+    allowAnonymous: no
+
+  rewriteTest:
+    type: webapplication
+    path: /rewrite/**
+    url: http://localhost:7777/rewritten/
+    allowAnonymous: yes
+
+loginProviders:
+  local:
+    type: oidc
+    with:
+      authEndpoint: http://localhost:7777/oidc/auth
+      tokenEndpoint: http://localhost:7777/oidc/token
+      clientId: sample-client-id
+      clientSecret: thisIsASeceret
+      scopes: [ "openid", "email" ]
+
+securityProfiles:
+  csrf-double-submit:
+    allowedMethods: [ "GET", "PUT", "POST" ]
+    csrfProtection: double-submit-cookie-with-body
+
+  csrf-none:
+    allowedMethods: [ "GET", "PUT", "POST" ]
+    csrfProtection: none
+
+  csrf-samesite-strict:
+    allowedMethods: [ "GET", "PUT", "POST" ]
+    csrfProtection: samesite-strict-cookie
+
+
+traceProfile:
+  forwardIncomingTrace: yes
+  maxLengthIncomingTrace: 254
+  acceptAdditionalTraceInfo: no
+  maxLengthAdditionalTraceInfo: 254
+  sendTraceResponse: yes
+  type: simpleTrace
+  traceImplSpecificSettings:
+    traceImplSpecificParameter: "not used"

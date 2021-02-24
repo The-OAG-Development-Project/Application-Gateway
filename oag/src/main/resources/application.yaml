@@ -1,0 +1,28 @@
+oag:
+  configPath: ${OAG_CONFIG_PATH:sample-config.yaml}
+  session-blacklist-file: "session-blacklist.db"
+
+server:
+  port: 8080
+spring:
+  application:
+    name: OWASP Application Gateway
+  banner:
+    location: banner.txt
+
+ribbon:
+  eureka:
+    enabled: false
+
+logging:
+  level:
+    root: WARN
+    org:
+      owasp: INFO
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %cyan(%X{oag.CorrId}) [%-22.22thread] %highlight(%-5level) - %msg%n"
+    file:    "%d{yyyy-MM-dd HH:mm:ss} %X{oag.CorrId} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    path: oag.log
+

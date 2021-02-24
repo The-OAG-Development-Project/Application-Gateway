@@ -1,0 +1,56 @@
+hostUri: http://localhost:8080
+
+routes:
+
+  httpbin:
+    type: webapplication
+    path: /**
+    url: https://httpbin.org
+    allowAnonymous: yes
+
+  echo:
+    type: webapplication
+    path: /echo/**
+    url: https://nellydemoapp.azurewebsites.net
+    allowAnonymous: no
+
+loginProviders:
+  google:
+    type: oidc
+    with:
+      authEndpoint: https://accounts.google.com/o/oauth2/auth
+      tokenEndpoint: https://oauth2.googleapis.com/token
+      clientId: 372143946338-48et57uhmcumku7am3ocvva0idc7u0td.apps.googleusercontent.com
+      clientSecret: env:GOOGLE_CLIENT_SECRET
+      scopes: [ "openid", "email" ]
+
+  github:
+    type: github
+    with:
+      authEndpoint: https://github.com/login/oauth/authorize
+      tokenEndpoint: https://github.com/login/oauth/access_token
+      clientId: 163ad3b08c3829216ba1
+      clientSecret: env:GITHUB_CLIENT_SECRET
+      scopes: [ "user", "email" ]
+
+securityProfiles:
+  webapplication:
+    responseHeaders:
+      Server: <<remove>>
+      X-Powered-By: <<remove>>
+      X-XSS-Protection: 1;mode=block;
+      X-Frame-Options: SAMEORIGIN
+      X-Content-Type-Options: nosniff
+      Referrer-Policy: strict-origin-when-cross-origin
+      Content-Security-Policy: base-uri 'self';object-src 'self'
+      Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
+      Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+
+traceProfile:
+  forwardIncomingTrace: true
+  maxLengthIncomingTrace: 254
+  acceptAdditionalTraceInfo: false
+  maxLengthAdditionalTraceInfo: 254
+  sendTraceResponse: true
+  type: w3cTrace
