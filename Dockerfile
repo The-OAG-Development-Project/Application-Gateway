@@ -2,10 +2,11 @@
 # Build stage
 #
 FROM maven:3.6.3-openjdk-15 AS build
+
 COPY oag/src /home/app/src
 COPY oag/pom.xml /home/app
-COPY oag/*.yaml /home/app
-COPY oag/*.txt /home/app
+COPY oag/*.yaml oag/*.txt /home/app
+
 RUN mvn dependency:go-offline -B -f /home/app/pom.xml
 RUN mvn package -f /home/app/pom.xml
 
@@ -19,7 +20,6 @@ RUN mkdir -p /app
 RUN chown app /app
 
 COPY --from=build /home/app/target/* /home/app/*.yaml /home/app/*.txt /app/
-
 RUN mv /app/*.jar /app/oag.jar
 
 USER app
