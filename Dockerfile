@@ -3,11 +3,13 @@
 #
 FROM maven:3.6.3-openjdk-15 AS build
 
-COPY oag/src /home/app/src
-COPY oag/pom.xml /home/app
-COPY oag/*.yaml oag/*.txt /home/app
-
+# Copy POM file and download dependencies -> allows faster build because this step can be cached
+COPY oag/pom.xml /home/app/pom.xml
 RUN mvn dependency:go-offline -B -f /home/app/pom.xml
+
+# Copy rest of the sources and compile
+COPY oag/src /home/app/src
+COPY oag/*.yaml oag/*.txt /home/app
 RUN mvn package -f /home/app/pom.xml
 
 #
@@ -19,7 +21,7 @@ RUN useradd --user-group --system --create-home --no-log-init app
 RUN mkdir -p /app
 RUN chown app /app
 
-COPY --from=build /home/app/target/* /home/app/*.yaml /home/app/*.txt /app/
+COPY --from=build /home/app/target/*.jar /home/app/*.yaml /home/app/*.txt /app/
 RUN mv /app/*.jar /app/oag.jar
 
 USER app

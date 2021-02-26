@@ -5,7 +5,7 @@ name: CI/CD
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ dev, main ]
 
 jobs:
   build-docker:
@@ -13,22 +13,54 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      #############
+      # Preparation
       - uses: actions/checkout@v2
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
 
+      - name: Get branch name
+        run: branch="${GITHUB_REF##*/}"
+
+      - name: Add commit hash to artifact
+        run: echo $GITHUB_SHA >> oag/commit-hash.txt
+
+      - name: "Compile container tag"
+        run: tag="owasp/application-gateway:$branch-SNAPSHOT"
+
+      #############
       # Docker build
       - name: Docker Build
-        run: docker build -t owasp/application-gateway:dev-SNAPSHOT .
+        run: docker build -t $tag .
 
       # Dockle Check
       - name: Install Dockle
         run: VERSION=$(curl --silent "https://api.github.com/repos/goodwithtech/dockle/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/') && curl -L -o dockle.tar.gz https://github.com/goodwithtech/dockle/releases/download/v${VERSION}/dockle_${VERSION}_Linux-64bit.tar.gz &&  tar zxvf dockle.tar.gz
       - name: Run Dockle Tests
-        run: ./dockle --exit-code 1 owasp/application-gateway:dev-SNAPSHOT
-      
+        run: ./dockle --exit-code 1 $tag
+
       # Docker Push
       - name: Docker Login
         run: docker login --username gianlucafrei --password ${{ secrets.DOCKER_PASSWORD }}
       - name: Docker Push
-        run: docker push owasp/application-gateway:dev-SNAPSHOT
+        run: docker push $tag
+
+      #############
+      # Post build: extract binary from docker build and publish artifact
+      - name: Docker create
+        run: docker create --name build $tag
+      
+      - name: Create build folder
+        run: mkdir build
+
+      - name: Copy binary from container
+        run: docker cp "build:/app/" build/ 
+
+      - name: Clean up container
+        run: docker rm build
+
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v2
+        with:
+            path: build
+            retention-days: 5
