@@ -9,7 +9,7 @@ RUN mvn dependency:go-offline -B -f /home/app/pom.xml
 
 # Copy rest of the sources and compile
 COPY oag/src /home/app/src
-COPY oag/*.yaml oag/*.txt /home/app
+COPY oag/*.yaml oag/*.txt /home/app/
 RUN mvn package -f /home/app/pom.xml
 
 #
