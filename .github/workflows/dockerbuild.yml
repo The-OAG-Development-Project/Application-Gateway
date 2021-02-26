@@ -41,12 +41,6 @@ jobs:
       - name: Run Dockle Tests
         run: ./dockle --exit-code 1 ${{ env.tag }}
 
-      # Docker Push
-      - name: Docker Login
-        run: docker login --username gianlucafrei --password ${{ secrets.DOCKER_PASSWORD }}
-      - name: Docker Push
-        run: docker push ${{ env.tag }}
-
       #############
       # Post build: extract binary from docker build and publish artifact
       - name: Docker create
@@ -66,3 +60,9 @@ jobs:
         with:
             path: build
             retention-days: 5
+
+      # Docker Push
+      - name: Docker Login
+        run: docker login --username gianlucafrei --password ${{ secrets.DOCKER_PASSWORD }}
+      - name: Docker Push
+        run: docker push ${{ env.tag }}
