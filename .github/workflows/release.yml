@@ -29,6 +29,11 @@ jobs:
       - name: "Compile container tag"
         run: echo "tag=owasp/application-gateway:${{ steps.get_version.outputs.version }}-SNAPSHOT" >> $GITHUB_ENV
 
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       #############
       # Docker build
