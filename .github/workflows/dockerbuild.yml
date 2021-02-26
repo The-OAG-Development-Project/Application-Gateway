@@ -19,14 +19,11 @@ jobs:
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
 
-      - name: Get branch name
-        run: branch="${GITHUB_REF##*/}"
-
       - name: Add commit hash to artifact
         run: echo $GITHUB_SHA >> oag/commit-hash.txt
 
       - name: "Compile container tag"
-        run: tag="owasp/application-gateway:$branch-SNAPSHOT"
+        run: tag="owasp/application-gateway:${GITHUB_REF##*/}-SNAPSHOT"
 
       #############
       # Docker build
