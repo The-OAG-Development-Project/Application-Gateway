@@ -28,29 +28,29 @@ jobs:
         run: echo $GITHUB_SHA >> oag/commit-hash.txt
 
       - name: "Compile container tag"
-        run: tag="owasp/application-gateway:${{ steps.extract_branch.outputs.branch }}-SNAPSHOT"
+        run: echo "tag=owasp/application-gateway:${{ steps.extract_branch.outputs.branch }}-SNAPSHOT" >> $GITHUB_ENV
 
       #############
       # Docker build
       - name: Docker Build
-        run: docker build -t $tag .
+        run: docker build -t ${{ env.tag }} .
 
       # Dockle Check
       - name: Install Dockle
         run: VERSION=$(curl --silent "https://api.github.com/repos/goodwithtech/dockle/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/') && curl -L -o dockle.tar.gz https://github.com/goodwithtech/dockle/releases/download/v${VERSION}/dockle_${VERSION}_Linux-64bit.tar.gz &&  tar zxvf dockle.tar.gz
       - name: Run Dockle Tests
-        run: ./dockle --exit-code 1 $tag
+        run: ./dockle --exit-code 1 ${{ env.tag }}
 
       # Docker Push
       - name: Docker Login
         run: docker login --username gianlucafrei --password ${{ secrets.DOCKER_PASSWORD }}
       - name: Docker Push
-        run: docker push $tag
+        run: docker push ${{ env.tag }}
 
       #############
       # Post build: extract binary from docker build and publish artifact
       - name: Docker create
-        run: docker create --name build $tag
+        run: docker create --name build ${{ env.tag }}
       
       - name: Create build folder
         run: mkdir build
