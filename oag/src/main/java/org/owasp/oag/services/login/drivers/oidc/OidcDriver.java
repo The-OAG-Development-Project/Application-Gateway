@@ -1,9 +1,5 @@
 package org.owasp.oag.services.login.drivers.oidc;
 
-import org.owasp.oag.config.configuration.LoginProviderSettings;
-import org.owasp.oag.services.login.drivers.AuthenticationException;
-import org.owasp.oag.services.login.drivers.UserModel;
-import org.owasp.oag.services.login.drivers.oauth.Oauth2Driver;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.*;
@@ -15,6 +11,10 @@ import com.nimbusds.oauth2.sdk.token.Tokens;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
+import org.owasp.oag.config.configuration.LoginProviderSettings;
+import org.owasp.oag.services.login.drivers.AuthenticationException;
+import org.owasp.oag.services.login.drivers.UserModel;
+import org.owasp.oag.services.login.drivers.oauth.Oauth2Driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -27,8 +27,8 @@ public class OidcDriver extends Oauth2Driver {
 
     private static final Logger log = LoggerFactory.getLogger(OidcDriver.class);
 
-    public OidcDriver(LoginProviderSettings settings, URI callbackURI) {
-        super(settings, callbackURI);
+    public OidcDriver(LoginProviderSettings settings) {
+        super(settings);
     }
 
     @Override

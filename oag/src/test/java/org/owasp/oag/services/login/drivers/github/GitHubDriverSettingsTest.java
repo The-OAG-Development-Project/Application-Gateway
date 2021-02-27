@@ -1,12 +1,10 @@
 package org.owasp.oag.services.login.drivers.github;
 
-import org.owasp.oag.config.configuration.LoginProviderSettings;
 import org.junit.jupiter.api.Test;
+import org.owasp.oag.config.configuration.LoginProviderSettings;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class GitHubDriverSettingsTest {
 
@@ -37,12 +35,7 @@ class GitHubDriverSettingsTest {
 
     public static GitHubDriver getDriver(LoginProviderSettings settings) {
 
-        try {
-            return new GitHubDriver(settings, new URI("http://localhost:7777"));
-        } catch (URISyntaxException e) {
-            fail("Should not happen");
-            return null;
-        }
+        return new GitHubDriver(settings);
     }
 
     @Test

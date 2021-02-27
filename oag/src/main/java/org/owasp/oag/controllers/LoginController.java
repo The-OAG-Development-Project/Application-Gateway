@@ -85,9 +85,10 @@ public class LoginController {
 
         // Load login implementation
         LoginDriver loginDriver = loadLoginDriver(providerKey);
+        URI callbackURI = loadCallbackURI(providerKey);
 
         // This might be blocking, encapsulate it in mono
-        return ReactiveUtils.runBlockingProcedure(() -> loginDriver.startLogin())
+        return ReactiveUtils.runBlockingProcedure(() -> loginDriver.startLogin(callbackURI))
                 .map(loginDriverResult -> {
 
                     // Store login state
@@ -104,11 +105,10 @@ public class LoginController {
 
         // Load settings
         LoginProvider provider = loadProvider(providerKey);
-        URI callbackURI = loadCallbackURI(providerKey);
         String driverName = provider.getType();
 
         try {
-            return loginDriverFactory.loadDriverByKey(driverName, callbackURI, provider.getWith());
+            return loginDriverFactory.loadDriverByKey(driverName, provider.getWith());
         } catch (Exception e) {
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR, "could not find login driver", e);
@@ -178,11 +178,12 @@ public class LoginController {
 
         // Load login implementation
         LoginDriver loginDriver = loadLoginDriver(providerKey);
+        URI callbackURI = loadCallbackURI(providerKey);
 
         // Load login state
         var loginState = loadLoginState(request);
 
-        return ReactiveUtils.runBlockingProcedure(() -> loginDriver.processCallback(request, loginState.getState()))
+        return ReactiveUtils.runBlockingProcedure(() -> loginDriver.processCallback(request, loginState.getState(), callbackURI))
                 .onErrorMap(AuthenticationException.class, e -> {
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
                 })

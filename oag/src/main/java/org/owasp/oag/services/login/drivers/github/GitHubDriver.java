@@ -1,9 +1,5 @@
 package org.owasp.oag.services.login.drivers.github;
 
-import org.owasp.oag.config.configuration.LoginProviderSettings;
-import org.owasp.oag.services.login.drivers.AuthenticationException;
-import org.owasp.oag.services.login.drivers.UserModel;
-import org.owasp.oag.services.login.drivers.oauth.Oauth2Driver;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.oauth2.sdk.AuthorizationGrant;
@@ -12,6 +8,10 @@ import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
+import org.owasp.oag.config.configuration.LoginProviderSettings;
+import org.owasp.oag.services.login.drivers.AuthenticationException;
+import org.owasp.oag.services.login.drivers.UserModel;
+import org.owasp.oag.services.login.drivers.oauth.Oauth2Driver;
 
 import java.io.IOException;
 import java.net.URI;
@@ -23,8 +23,8 @@ import java.util.Optional;
 
 public class GitHubDriver extends Oauth2Driver {
 
-    public GitHubDriver(LoginProviderSettings settings, URI callbackURI) {
-        super(settings, callbackURI);
+    public GitHubDriver(LoginProviderSettings settings) {
+        super(settings);
     }
 
     @Override

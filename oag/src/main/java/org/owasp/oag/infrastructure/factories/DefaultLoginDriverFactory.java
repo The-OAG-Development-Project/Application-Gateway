@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import java.net.URI;
-
 @Component
 public class DefaultLoginDriverFactory implements LoginDriverFactory {
 
@@ -20,13 +18,13 @@ public class DefaultLoginDriverFactory implements LoginDriverFactory {
     }
 
     @Override
-    public LoginDriver loadDriverByKey(String driverName, URI callbackURI, LoginProviderSettings settings) {
+    public LoginDriver loadDriverByKey(String driverName, LoginProviderSettings settings) {
 
         if ("oidc".equals(driverName))
-            return new OidcDriver(settings, callbackURI);
+            return new OidcDriver(settings);
 
         if ("github".equals(driverName))
-            return new GitHubDriver(settings, callbackURI);
+            return new GitHubDriver(settings);
 
         throw new RuntimeException("Login driver with name " + driverName + " not found");
     }

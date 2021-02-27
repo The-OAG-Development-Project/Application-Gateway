@@ -6,7 +6,6 @@ import org.owasp.oag.services.login.drivers.InvalidProviderSettingsException;
 import org.owasp.oag.services.login.drivers.LoginDriver;
 import org.springframework.context.ApplicationContext;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,7 +55,7 @@ public class LoginProvider implements ErrorValidation {
         // Check if we can load the driver
         LoginDriverFactory factory = LoginDriverFactory.get(context);
         try {
-            LoginDriver loginDriver = factory.loadDriverByKey(type, URI.create("/callback"), with);
+            LoginDriver loginDriver = factory.loadDriverByKey(type, with);
         } catch (InvalidProviderSettingsException e) {
             var settingErrors = e.getSettingErrors();
             errors.addAll(settingErrors);

@@ -1,10 +1,5 @@
 package org.owasp.oag.services.login.drivers.oauth;
 
-import org.owasp.oag.config.configuration.LoginProviderSettings;
-import org.owasp.oag.services.login.drivers.AuthenticationException;
-import org.owasp.oag.services.login.drivers.LoginDriverBase;
-import org.owasp.oag.services.login.drivers.LoginDriverResult;
-import org.owasp.oag.services.login.drivers.UserModel;
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
@@ -15,6 +10,11 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.Tokens;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
+import org.owasp.oag.config.configuration.LoginProviderSettings;
+import org.owasp.oag.services.login.drivers.AuthenticationException;
+import org.owasp.oag.services.login.drivers.LoginDriverBase;
+import org.owasp.oag.services.login.drivers.LoginDriverResult;
+import org.owasp.oag.services.login.drivers.UserModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ResponseStatusException;
@@ -27,12 +27,12 @@ import java.util.List;
 public abstract class Oauth2Driver extends LoginDriverBase {
 
 
-    public Oauth2Driver(LoginProviderSettings settings, URI callbackURI) {
-        super(settings, callbackURI);
+    public Oauth2Driver(LoginProviderSettings settings) {
+        super(settings);
     }
 
     @Override
-    public LoginDriverResult startLogin() {
+    public LoginDriverResult startLogin(URI callbackUri) {
 
         var settings = getSettings();
 
@@ -40,7 +40,6 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         URI authzEndpoint = getAuthEndpoint(settings);
         ClientID clientID = getClientId(settings);
         Scope scope = getScopes(settings);
-        URI callback = getCallbackUri();
 
         // Generate random state string for pairing the response to the request
         State state = new State();
@@ -50,7 +49,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
                 new ResponseType(ResponseType.Value.CODE), clientID)
                 .scope(scope)
                 .state(state)
-                .redirectionURI(callback)
+                .redirectionURI(callbackUri)
                 .endpointURI(authzEndpoint)
                 .build();
 
@@ -95,7 +94,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
     }
 
     @Override
-    public UserModel processCallback(ServerHttpRequest request, String stateFromLoginStep) throws AuthenticationException {
+    public UserModel processCallback(ServerHttpRequest request, String stateFromLoginStep, URI callbackUri) throws AuthenticationException {
 
         var settings = getSettings();
 
@@ -117,7 +116,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
                 getClientSecret(settings));
 
         URI tokenEndpoint = getTokenEndpoint(settings);
-        AuthorizationGrant codeGrant = new AuthorizationCodeGrant(code, getCallbackUri());
+        AuthorizationGrant codeGrant = new AuthorizationCodeGrant(code, callbackUri);
 
         Tokens tokens = loadTokens(clientAuth, tokenEndpoint, codeGrant);
 
