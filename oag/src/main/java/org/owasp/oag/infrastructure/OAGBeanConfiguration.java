@@ -8,7 +8,6 @@ import org.owasp.oag.services.blacklist.LocalPersistentBlacklist;
 import org.owasp.oag.services.blacklist.SessionBlacklist;
 import org.owasp.oag.services.crypto.CookieEncryptor;
 import org.owasp.oag.services.crypto.JweEncrypter;
-import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,17 +77,5 @@ public class OAGBeanConfiguration {
     @Bean(destroyMethod = "close")
     public SessionBlacklist sessionBlacklist(@Value("${oag.session-blacklist-file}") String filename) {
         return new LocalPersistentBlacklist(clockSource, filename);
-    }
-
-    public static CsrfProtectionValidation loadCsrfValidationImplementation(String csrfProtectionMethod, ApplicationContext context) {
-
-        String beanname = "csrf-" + csrfProtectionMethod + "-validation";
-        CsrfProtectionValidation validationImplementation = context.getBean(beanname, CsrfProtectionValidation.class);
-
-        if (validationImplementation == null) {
-            throw new RuntimeException("csrf validation implementation not found: " + beanname);
-        }
-
-        return validationImplementation;
     }
 }

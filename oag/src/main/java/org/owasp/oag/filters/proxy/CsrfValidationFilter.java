@@ -1,13 +1,12 @@
 package org.owasp.oag.filters.proxy;
 
 import org.owasp.oag.config.configuration.MainConfig;
-import org.owasp.oag.infrastructure.OAGBeanConfiguration;
+import org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -27,7 +26,7 @@ public class CsrfValidationFilter extends RouteAwareFilter {
     private MainConfig config;
 
     @Autowired
-    private ApplicationContext context;
+    private CsrfValidationImplementationFactory csrfValidationImplementationFactory;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain, GatewayRouteContext routeContext) {
@@ -43,7 +42,7 @@ public class CsrfValidationFilter extends RouteAwareFilter {
         if (!isSafeMethod) {
 
             String csrfProtectionMethod = securityProfile.getCsrfProtection();
-            CsrfProtectionValidation csrfValidation = OAGBeanConfiguration.loadCsrfValidationImplementation(csrfProtectionMethod, context);
+            CsrfProtectionValidation csrfValidation = csrfValidationImplementationFactory.loadCsrfValidationImplementation(csrfProtectionMethod);
 
             if (csrfValidation.needsRequestBody())
                 return chain.filter(exchange); // will be done by CsrfValidationFilterWithBody instead

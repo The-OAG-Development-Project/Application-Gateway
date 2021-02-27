@@ -2,7 +2,8 @@ package org.owasp.oag.config.configuration;
 
 import com.google.common.collect.Lists;
 import org.owasp.oag.config.ErrorValidation;
-import org.owasp.oag.infrastructure.OAGBeanConfiguration;
+import org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory;
+import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 
@@ -73,8 +74,9 @@ public class SecurityProfile implements ErrorValidation {
         if (responseHeaders == null)
             errors.add("'responseHeaders' not specified");
 
+        var factory = CsrfValidationImplementationFactory.get(context);
         try {
-            OAGBeanConfiguration.loadCsrfValidationImplementation(csrfProtection, context);
+            CsrfProtectionValidation implementation = factory.loadCsrfValidationImplementation(csrfProtection);
         } catch (NoSuchBeanDefinitionException ex) {
             errors.add("No csrf implementation found for '" + csrfProtection + "'");
         }

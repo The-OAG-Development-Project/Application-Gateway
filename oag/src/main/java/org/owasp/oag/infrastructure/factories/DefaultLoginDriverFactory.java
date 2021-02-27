@@ -1,8 +1,9 @@
-package org.owasp.oag.services.login.drivers.oidc;
+package org.owasp.oag.infrastructure.factories;
 
 import org.owasp.oag.config.configuration.LoginProviderSettings;
 import org.owasp.oag.services.login.drivers.LoginDriver;
 import org.owasp.oag.services.login.drivers.github.GitHubDriver;
+import org.owasp.oag.services.login.drivers.oidc.OidcDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -10,14 +11,15 @@ import org.springframework.stereotype.Component;
 import java.net.URI;
 
 @Component
-public class LoginDriverLoader {
+public class DefaultLoginDriverFactory implements LoginDriverFactory {
 
     private final ApplicationContext context;
 
-    public LoginDriverLoader(@Autowired ApplicationContext context) {
+    public DefaultLoginDriverFactory(@Autowired ApplicationContext context) {
         this.context = context;
     }
 
+    @Override
     public LoginDriver loadDriverByKey(String driverName, URI callbackURI, LoginProviderSettings settings) {
 
         if ("oidc".equals(driverName))

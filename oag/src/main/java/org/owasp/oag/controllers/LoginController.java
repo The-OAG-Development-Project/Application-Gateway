@@ -7,14 +7,14 @@ import org.owasp.oag.cookies.CookieConverter;
 import org.owasp.oag.cookies.LoginStateCookie;
 import org.owasp.oag.filters.spring.ExtractAuthenticationFilter;
 import org.owasp.oag.hooks.session.SessionHookChain;
-import org.owasp.oag.infrastructure.OAGBeanConfiguration;
+import org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory;
+import org.owasp.oag.infrastructure.factories.LoginDriverFactory;
 import org.owasp.oag.services.crypto.CookieDecryptionException;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.owasp.oag.services.csrf.CsrfSamesiteStrictValidation;
 import org.owasp.oag.services.login.drivers.AuthenticationException;
 import org.owasp.oag.services.login.drivers.LoginDriver;
 import org.owasp.oag.services.login.drivers.LoginDriverResult;
-import org.owasp.oag.services.login.drivers.oidc.LoginDriverLoader;
 import org.owasp.oag.session.Session;
 import org.owasp.oag.utils.LoggingUtils;
 import org.owasp.oag.utils.ReactiveUtils;
@@ -51,11 +51,13 @@ public class LoginController {
     @Autowired
     private MainConfig config;
     @Autowired
-    private LoginDriverLoader loginDriverLoader;
+    private LoginDriverFactory loginDriverFactory;
     @Autowired
     private CookieConverter cookieConverter;
     @Autowired
     private SessionHookChain sessionHookChain;
+    @Autowired
+    private CsrfValidationImplementationFactory csrfValidationImplementationFactory;
 
     @GetMapping("session")
     public SessionInformation sessionInfo(ServerWebExchange exchange) {
@@ -106,7 +108,7 @@ public class LoginController {
         String driverName = provider.getType();
 
         try {
-            return loginDriverLoader.loadDriverByKey(driverName, callbackURI, provider.getWith());
+            return loginDriverFactory.loadDriverByKey(driverName, callbackURI, provider.getWith());
         } catch (Exception e) {
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR, "could not find login driver", e);
@@ -240,8 +242,7 @@ public class LoginController {
 
     private CsrfProtectionValidation getCsrfValidationMethod() {
 
-        return OAGBeanConfiguration.loadCsrfValidationImplementation(
-                CsrfSamesiteStrictValidation.NAME, context);
+        return csrfValidationImplementationFactory.loadCsrfValidationImplementation(CsrfSamesiteStrictValidation.NAME);
     }
 
     public String loadLogoutReturnUrl(ServerHttpRequest request) {

@@ -1,9 +1,9 @@
 package org.owasp.oag.config.configuration;
 
 import org.owasp.oag.config.ErrorValidation;
+import org.owasp.oag.infrastructure.factories.LoginDriverFactory;
 import org.owasp.oag.services.login.drivers.InvalidProviderSettingsException;
 import org.owasp.oag.services.login.drivers.LoginDriver;
-import org.owasp.oag.services.login.drivers.oidc.LoginDriverLoader;
 import org.springframework.context.ApplicationContext;
 
 import java.net.URI;
@@ -54,9 +54,9 @@ public class LoginProvider implements ErrorValidation {
             return errors;
 
         // Check if we can load the driver
-        LoginDriverLoader loader = context.getBean(LoginDriverLoader.class);
+        LoginDriverFactory factory = LoginDriverFactory.get(context);
         try {
-            LoginDriver loginDriver = loader.loadDriverByKey(type, URI.create("/callback"), with);
+            LoginDriver loginDriver = factory.loadDriverByKey(type, URI.create("/callback"), with);
         } catch (InvalidProviderSettingsException e) {
             var settingErrors = e.getSettingErrors();
             errors.addAll(settingErrors);

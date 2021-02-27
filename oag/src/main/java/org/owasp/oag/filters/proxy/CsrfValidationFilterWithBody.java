@@ -1,13 +1,12 @@
 package org.owasp.oag.filters.proxy;
 
 import org.owasp.oag.filters.spring.ExtractAuthenticationFilter;
-import org.owasp.oag.infrastructure.OAGBeanConfiguration;
+import org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.owasp.oag.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -25,8 +24,9 @@ public class CsrfValidationFilterWithBody extends ReadRequestBodyFilter {
 
     public static final String REQUEST_BODY_ATTRIBUTE = "RequestBody";
     private static final Logger log = LoggerFactory.getLogger(CsrfValidationFilterWithBody.class);
+
     @Autowired
-    private ApplicationContext context;
+    private CsrfValidationImplementationFactory csrfValidationImplementationFactory;
 
     @Override
     protected boolean shouldRun(ServerWebExchange exchange, GatewayRouteContext routeContext) {
@@ -45,7 +45,7 @@ public class CsrfValidationFilterWithBody extends ReadRequestBodyFilter {
 
         // Only execute if body is needed for csrf validation, otherwise validation is done by CsrfValidationFilter
         String csrfProtectionMethod = routeContext.getSecurityProfile().getCsrfProtection();
-        CsrfProtectionValidation csrfValidation = OAGBeanConfiguration.loadCsrfValidationImplementation(csrfProtectionMethod, context);
+        CsrfProtectionValidation csrfValidation = csrfValidationImplementationFactory.loadCsrfValidationImplementation(csrfProtectionMethod);
 
         return csrfValidation.needsRequestBody();
     }
@@ -56,7 +56,7 @@ public class CsrfValidationFilterWithBody extends ReadRequestBodyFilter {
         logTrace(log, exchange, "Execute ExtractAuthenticationFilterWithBody");
 
         String csrfProtectionMethod = routeContext.getSecurityProfile().getCsrfProtection();
-        CsrfProtectionValidation csrfValidation = OAGBeanConfiguration.loadCsrfValidationImplementation(csrfProtectionMethod, context);
+        CsrfProtectionValidation csrfValidation = csrfValidationImplementationFactory.loadCsrfValidationImplementation(csrfProtectionMethod);
 
         // In the case that we have a post request but no body
         body = body == null ? "" : body;
