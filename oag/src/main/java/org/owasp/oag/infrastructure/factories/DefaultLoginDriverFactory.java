@@ -2,8 +2,6 @@ package org.owasp.oag.infrastructure.factories;
 
 import org.owasp.oag.config.configuration.LoginProviderSettings;
 import org.owasp.oag.services.login.drivers.LoginDriver;
-import org.owasp.oag.services.login.drivers.github.GitHubDriver;
-import org.owasp.oag.services.login.drivers.oidc.OidcDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -20,12 +18,14 @@ public class DefaultLoginDriverFactory implements LoginDriverFactory {
     @Override
     public LoginDriver loadDriverByKey(String driverName, LoginProviderSettings settings) {
 
-        if ("oidc".equals(driverName))
-            return new OidcDriver(settings);
+        try{
+            var driverFactory = context.getBean(driverName + "-driver-factory",
+                    org.owasp.oag.services.login.drivers.LoginDriverFactory.class);
 
-        if ("github".equals(driverName))
-            return new GitHubDriver(settings);
-
-        throw new RuntimeException("Login driver with name " + driverName + " not found");
+            return driverFactory.load(settings);
+        }
+        catch (Exception ex){
+            throw new RuntimeException("Login driver factory with name " + driverName + " not found", ex);
+        }
     }
 }
