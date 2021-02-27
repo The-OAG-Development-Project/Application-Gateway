@@ -1,5 +1,6 @@
 package org.owasp.oag.filters.proxy;
 
+import org.owasp.oag.OAGBeanConfiguration;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.slf4j.Logger;
@@ -42,7 +43,7 @@ public class CsrfValidationFilter extends RouteAwareFilter {
         if (!isSafeMethod) {
 
             String csrfProtectionMethod = securityProfile.getCsrfProtection();
-            CsrfProtectionValidation csrfValidation = CsrfProtectionValidation.loadValidationImplementation(csrfProtectionMethod, context);
+            CsrfProtectionValidation csrfValidation = OAGBeanConfiguration.loadCsrfValidationImplementation(csrfProtectionMethod, context);
 
             if (csrfValidation.needsRequestBody())
                 return chain.filter(exchange); // will be done by CsrfValidationFilterWithBody instead

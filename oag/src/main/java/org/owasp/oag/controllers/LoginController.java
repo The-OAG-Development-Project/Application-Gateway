@@ -1,19 +1,19 @@
 package org.owasp.oag.controllers;
 
+import org.owasp.oag.OAGBeanConfiguration;
 import org.owasp.oag.config.configuration.LoginProvider;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.controllers.dto.SessionInformation;
 import org.owasp.oag.cookies.CookieConverter;
 import org.owasp.oag.cookies.LoginStateCookie;
 import org.owasp.oag.filters.spring.ExtractAuthenticationFilter;
-import org.owasp.oag.hooks.session.SessionHook;
+import org.owasp.oag.hooks.session.SessionHookChain;
 import org.owasp.oag.services.crypto.CookieDecryptionException;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.owasp.oag.services.csrf.CsrfSamesiteStrictValidation;
 import org.owasp.oag.services.login.drivers.AuthenticationException;
 import org.owasp.oag.services.login.drivers.LoginDriver;
 import org.owasp.oag.services.login.drivers.LoginDriverResult;
-import org.owasp.oag.services.login.drivers.UserModel;
 import org.owasp.oag.services.login.drivers.oidc.LoginDriverLoader;
 import org.owasp.oag.session.Session;
 import org.owasp.oag.utils.LoggingUtils;
@@ -39,8 +39,6 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -56,6 +54,8 @@ public class LoginController {
     private LoginDriverLoader loginDriverLoader;
     @Autowired
     private CookieConverter cookieConverter;
+    @Autowired
+    private SessionHookChain sessionHookChain;
 
     @GetMapping("session")
     public SessionInformation sessionInfo(ServerWebExchange exchange) {
@@ -187,7 +187,7 @@ public class LoginController {
                 .map(userModel -> {
 
                     // Store session
-                    createSession(providerKey, userModel, response);
+                    sessionHookChain.createSession(providerKey, userModel, response);
 
                     var redirectUri = loginState.getReturnUrl();
                     return ResponseEntity.status(302).header("Location", redirectUri).build();
@@ -213,23 +213,6 @@ public class LoginController {
         }
     }
 
-    private void createSession(String providerKey, UserModel model, ServerHttpResponse response) {
-
-        var filterContext = new HashMap<String, Object>();
-
-        filterContext.put("providerKey", providerKey);
-        filterContext.put("userModel", model);
-
-        List<SessionHook> sessionFilters = getSessionHooks();
-
-        sessionFilters.forEach(f -> f.createSession(filterContext, response));
-    }
-
-    private List<SessionHook> getSessionHooks() {
-
-        return SessionHook.getSessionHooks(context);
-    }
-
     @GetMapping("logout")
     public void logout(
             ServerWebExchange exchange) {
@@ -244,7 +227,7 @@ public class LoginController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         } else {
             // Destroy the user session
-            destroySession(exchange);
+            sessionHookChain.destroySession(exchange);
 
             // Get redirection url
             String returnUrl = loadLogoutReturnUrl(request);
@@ -257,15 +240,8 @@ public class LoginController {
 
     private CsrfProtectionValidation getCsrfValidationMethod() {
 
-        return CsrfProtectionValidation.loadValidationImplementation(
+        return OAGBeanConfiguration.loadCsrfValidationImplementation(
                 CsrfSamesiteStrictValidation.NAME, context);
-    }
-
-    private void destroySession(ServerWebExchange exchange) {
-
-        var filterContext = new HashMap<String, Object>();
-        List<SessionHook> sessionFilters = getSessionHooks();
-        sessionFilters.forEach(f -> f.destroySession(filterContext, exchange));
     }
 
     public String loadLogoutReturnUrl(ServerHttpRequest request) {

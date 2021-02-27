@@ -1,7 +1,7 @@
 package org.owasp.oag.filters.spring;
 
 import org.owasp.oag.config.configuration.MainConfig;
-import org.owasp.oag.hooks.session.SessionHook;
+import org.owasp.oag.hooks.session.SessionHookChain;
 import org.owasp.oag.services.crypto.CookieEncryptor;
 import org.owasp.oag.session.Session;
 import org.owasp.oag.utils.LoggingUtils;
@@ -16,7 +16,6 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
 import java.util.Optional;
 
 
@@ -34,6 +33,9 @@ public class SessionRenewalFilter implements WebFilter {
 
     @Autowired
     ApplicationContext applicationContext;
+
+    @Autowired
+    SessionHookChain sessionHookChain;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -59,8 +61,6 @@ public class SessionRenewalFilter implements WebFilter {
     private void renewSession(Session session, ServerWebExchange exchange) {
 
         LoggingUtils.logDebug(log, exchange,"Start renewing session");
-        var filterContext = new HashMap<String, Object>();
-        filterContext.put("old-session", session);
-        SessionHook.runRenewSessionFilterChain(applicationContext, filterContext, exchange.getResponse());
+        sessionHookChain.renewSession(session, exchange.getResponse());
     }
 }

@@ -1,5 +1,6 @@
 package org.owasp.oag.filters.proxy;
 
+import org.owasp.oag.OAGBeanConfiguration;
 import org.owasp.oag.filters.spring.ExtractAuthenticationFilter;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.owasp.oag.session.Session;
@@ -44,7 +45,7 @@ public class CsrfValidationFilterWithBody extends ReadRequestBodyFilter {
 
         // Only execute if body is needed for csrf validation, otherwise validation is done by CsrfValidationFilter
         String csrfProtectionMethod = routeContext.getSecurityProfile().getCsrfProtection();
-        CsrfProtectionValidation csrfValidation = CsrfProtectionValidation.loadValidationImplementation(csrfProtectionMethod, context);
+        CsrfProtectionValidation csrfValidation = OAGBeanConfiguration.loadCsrfValidationImplementation(csrfProtectionMethod, context);
 
         return csrfValidation.needsRequestBody();
     }
@@ -55,7 +56,7 @@ public class CsrfValidationFilterWithBody extends ReadRequestBodyFilter {
         logTrace(log, exchange, "Execute ExtractAuthenticationFilterWithBody");
 
         String csrfProtectionMethod = routeContext.getSecurityProfile().getCsrfProtection();
-        CsrfProtectionValidation csrfValidation = CsrfProtectionValidation.loadValidationImplementation(csrfProtectionMethod, context);
+        CsrfProtectionValidation csrfValidation = OAGBeanConfiguration.loadCsrfValidationImplementation(csrfProtectionMethod, context);
 
         // In the case that we have a post request but no body
         body = body == null ? "" : body;
