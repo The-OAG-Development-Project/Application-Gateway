@@ -1,7 +1,7 @@
 package org.owasp.oag.filters.proxy;
 
-import org.owasp.oag.OAGBeanConfiguration;
 import org.owasp.oag.config.configuration.MainConfig;
+import org.owasp.oag.infrastructure.OAGBeanConfiguration;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package org.owasp.oag;
+package org.owasp.oag.infrastructure;
 
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.config.configuration.TraceProfile;
@@ -8,6 +8,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configures all non-trivial beans that need the main configuration for initialization
+ */
 @Configuration
 public class PostConfigBeanConfiguration {
 

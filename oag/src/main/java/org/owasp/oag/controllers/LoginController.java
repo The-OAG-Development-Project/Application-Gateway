@@ -1,6 +1,5 @@
 package org.owasp.oag.controllers;
 
-import org.owasp.oag.OAGBeanConfiguration;
 import org.owasp.oag.config.configuration.LoginProvider;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.controllers.dto.SessionInformation;
@@ -8,6 +7,7 @@ import org.owasp.oag.cookies.CookieConverter;
 import org.owasp.oag.cookies.LoginStateCookie;
 import org.owasp.oag.filters.spring.ExtractAuthenticationFilter;
 import org.owasp.oag.hooks.session.SessionHookChain;
+import org.owasp.oag.infrastructure.OAGBeanConfiguration;
 import org.owasp.oag.services.crypto.CookieDecryptionException;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.owasp.oag.services.csrf.CsrfSamesiteStrictValidation;

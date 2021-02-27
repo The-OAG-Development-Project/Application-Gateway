@@ -1,9 +1,13 @@
-package org.owasp.oag;
+package org.owasp.oag.infrastructure;
 
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
 
+/**
+ * This bean is a global source of a Clock object. It is for testing to change the system wide time.
+ * All parts of OAG should use this bean to access the current time.
+ */
 @Component
 public class GlobalClockSource {
 

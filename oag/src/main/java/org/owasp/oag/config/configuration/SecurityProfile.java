@@ -1,8 +1,8 @@
 package org.owasp.oag.config.configuration;
 
 import com.google.common.collect.Lists;
-import org.owasp.oag.OAGBeanConfiguration;
 import org.owasp.oag.config.ErrorValidation;
+import org.owasp.oag.infrastructure.OAGBeanConfiguration;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 

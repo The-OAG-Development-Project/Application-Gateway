@@ -1,8 +1,8 @@
 package org.owasp.oag.integration.testInfrastructure;
 
-import org.owasp.oag.GlobalClockSource;
-import org.owasp.oag.services.blacklist.LocalPersistentBlacklist;
 import org.mapdb.DBMaker;
+import org.owasp.oag.infrastructure.GlobalClockSource;
+import org.owasp.oag.services.blacklist.LocalPersistentBlacklist;
 
 /**
  * This implementation of the local session blacklist uses only a in-memory database

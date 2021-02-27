@@ -1,4 +1,4 @@
-package org.owasp.oag;
+package org.owasp.oag.infrastructure;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.owasp.oag.config.ConfigLoader;
@@ -19,6 +19,9 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 
+/**
+ * Configures all non-trivial beans that can be instanced before the main configuration is loaded
+ */
 @Configuration
 public class OAGBeanConfiguration {
 

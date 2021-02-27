@@ -1,9 +1,9 @@
 package org.owasp.oag.hooks.session;
 
-import org.owasp.oag.GlobalClockSource;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.cookies.CookieConverter;
 import org.owasp.oag.cookies.LoginCookie;
+import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.services.login.drivers.UserModel;
 import org.owasp.oag.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
