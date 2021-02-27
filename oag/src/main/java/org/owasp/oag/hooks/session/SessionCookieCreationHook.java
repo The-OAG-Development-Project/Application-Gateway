@@ -11,8 +11,8 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
+import java.security.SecureRandom;
 import java.util.Map;
-import java.util.UUID;
 
 @Component
 public class SessionCookieCreationHook implements SessionHook {
@@ -51,8 +51,7 @@ public class SessionCookieCreationHook implements SessionHook {
         int currentTimeSeconds = (int) (globalClockSource.getGlobalClock().millis() / 1000);
         int sessionDuration = config.getSessionBehaviour().getSessionDuration();
         int sessionExp = currentTimeSeconds + sessionDuration;
-
-        var sessionId = UUID.randomUUID().toString();
+        var sessionId = createNewSessionId();
         LoginCookie loginCookie = new LoginCookie(sessionExp, providerKey, model, sessionId);
 
         // Bind csrf token to encrypted login cookie
@@ -69,5 +68,13 @@ public class SessionCookieCreationHook implements SessionHook {
 
         // Override session cookie with new cookie that has max-age = 0
         exchange.getResponse().addCookie(cookieConverter.convertLoginCookie(null, 0));
+    }
+
+    private String createNewSessionId(){
+
+        SecureRandom secureRandom = new SecureRandom();
+        var id = secureRandom.nextLong();
+        var idStr = Long.toHexString(id);
+        return idStr;
     }
 }
