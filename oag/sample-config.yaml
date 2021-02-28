@@ -48,7 +48,7 @@ securityProfiles:
 
 
 traceProfile:
-  forwardIncomingTrace: true
+  forwardIncomingTrace: false
   maxLengthIncomingTrace: 254
   acceptAdditionalTraceInfo: false
   maxLengthAdditionalTraceInfo: 254

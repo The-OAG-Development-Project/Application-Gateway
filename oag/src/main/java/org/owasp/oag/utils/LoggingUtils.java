@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
-import static org.owasp.oag.filters.spring.TraceContextFilter.CONTEXT_KEY;
+import static org.owasp.oag.filters.spring.TraceContextFilter.TRACE_ID_CONTEXT_KEY;
 
 /**
  * Provides method for contextual logging. The way this works is that the context is put into the mdc before the log statement
@@ -44,10 +44,10 @@ public class LoggingUtils {
         return signal -> {
             if (!signal.isOnNext()) return;
 
-            Optional<String> toPutInMdc = signal.getContextView().getOrEmpty(CONTEXT_KEY);
+            Optional<String> toPutInMdc = signal.getContextView().getOrEmpty(TRACE_ID_CONTEXT_KEY);
 
             toPutInMdc.ifPresentOrElse(tpim -> {
-                        try (MDC.MDCCloseable cMdc = MDC.putCloseable(CONTEXT_KEY, tpim)) {
+                        try (MDC.MDCCloseable cMdc = MDC.putCloseable(TRACE_ID_CONTEXT_KEY, tpim)) {
                             logStatement.accept(signal.get());
                         }
                     },
@@ -77,13 +77,13 @@ public class LoggingUtils {
 
         return Mono.deferContextual(ctx -> {
 
-            Optional<String> toPutInMdc = ctx.getOrEmpty(CONTEXT_KEY);
+            Optional<String> toPutInMdc = ctx.getOrEmpty(TRACE_ID_CONTEXT_KEY);
             if(toPutInMdc.isEmpty()) {
                 return Mono.fromCallable(method);
             }
             else {
                 Callable<T> wrapped = () -> {
-                    try (MDC.MDCCloseable cMdc = MDC.putCloseable(CONTEXT_KEY, toPutInMdc.get())) {
+                    try (MDC.MDCCloseable cMdc = MDC.putCloseable(TRACE_ID_CONTEXT_KEY, toPutInMdc.get())) {
                         return method.call();
                     } catch (Exception e) {
                         throw new RuntimeException(e);
@@ -104,14 +104,14 @@ public class LoggingUtils {
 
         return Mono.deferContextual(ctx -> {
 
-            Optional<String> toPutInMdc = ctx.getOrEmpty(CONTEXT_KEY);
+            Optional<String> toPutInMdc = ctx.getOrEmpty(TRACE_ID_CONTEXT_KEY);
             if(toPutInMdc.isEmpty()) {
                 method.run();
                 return Mono.empty();
             }
             else{
                 Runnable wrapped = () -> {
-                    try (MDC.MDCCloseable cMdc = MDC.putCloseable(CONTEXT_KEY, toPutInMdc.get())) {
+                    try (MDC.MDCCloseable cMdc = MDC.putCloseable(TRACE_ID_CONTEXT_KEY, toPutInMdc.get())) {
                         method.run();
                     }
                 };
@@ -133,8 +133,8 @@ public class LoggingUtils {
         if(! logger.isTraceEnabled())
             return;
 
-        String context = exchange.getAttribute(CONTEXT_KEY);
-        try (MDC.MDCCloseable cMdc = MDC.putCloseable(CONTEXT_KEY, context)){
+        String context = exchange.getAttribute(TRACE_ID_CONTEXT_KEY);
+        try (MDC.MDCCloseable cMdc = MDC.putCloseable(TRACE_ID_CONTEXT_KEY, context)){
             logger.trace(msg, args);
         }
     }
@@ -151,8 +151,8 @@ public class LoggingUtils {
         if(! logger.isDebugEnabled())
             return;
 
-        String context = exchange.getAttribute(CONTEXT_KEY);
-        try (MDC.MDCCloseable cMdc = MDC.putCloseable(CONTEXT_KEY, context)){
+        String context = exchange.getAttribute(TRACE_ID_CONTEXT_KEY);
+        try (MDC.MDCCloseable cMdc = MDC.putCloseable(TRACE_ID_CONTEXT_KEY, context)){
             logger.debug(msg, args);
         }
     }
@@ -169,8 +169,8 @@ public class LoggingUtils {
         if(! logger.isInfoEnabled())
             return;
 
-        String context = exchange.getAttribute(CONTEXT_KEY);
-        try (MDC.MDCCloseable cMdc = MDC.putCloseable(CONTEXT_KEY, context)){
+        String context = exchange.getAttribute(TRACE_ID_CONTEXT_KEY);
+        try (MDC.MDCCloseable cMdc = MDC.putCloseable(TRACE_ID_CONTEXT_KEY, context)){
             logger.info(msg, args);
         }
     }
@@ -187,8 +187,8 @@ public class LoggingUtils {
         if(! logger.isWarnEnabled())
             return;
 
-        String context = exchange.getAttribute(CONTEXT_KEY);
-        try (MDC.MDCCloseable cMdc = MDC.putCloseable(CONTEXT_KEY, context)){
+        String context = exchange.getAttribute(TRACE_ID_CONTEXT_KEY);
+        try (MDC.MDCCloseable cMdc = MDC.putCloseable(TRACE_ID_CONTEXT_KEY, context)){
             logger.warn(msg, args);
         }
     }
@@ -205,8 +205,8 @@ public class LoggingUtils {
         if(! logger.isErrorEnabled())
             return;
 
-        String context = exchange.getAttribute(CONTEXT_KEY);
-        try (MDC.MDCCloseable cMdc = MDC.putCloseable(CONTEXT_KEY, context)){
+        String context = exchange.getAttribute(TRACE_ID_CONTEXT_KEY);
+        try (MDC.MDCCloseable cMdc = MDC.putCloseable(TRACE_ID_CONTEXT_KEY, context)){
             logger.error(msg, args);
         }
     }
