@@ -8,7 +8,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.concurrent.Callable;
 
-import static org.owasp.oag.filters.spring.TraceContextFilter.CONTEXT_KEY;
+import static org.owasp.oag.filters.spring.TraceContextFilter.TRACE_ID_CONTEXT_KEY;
 import static org.owasp.oag.utils.LoggingUtils.wrapMdc;
 
 public class ReactiveUtils {
@@ -41,8 +41,8 @@ public class ReactiveUtils {
 
     public static <T> Mono<T> copyContext(Mono<T> mono, ServerWebExchange exchange){
 
-        var context = exchange.getAttribute(CONTEXT_KEY);
-        return mono.contextWrite(c -> c.put(CONTEXT_KEY, context));
+        var context = exchange.getAttribute(TRACE_ID_CONTEXT_KEY);
+        return mono.contextWrite(c -> c.put(TRACE_ID_CONTEXT_KEY, context));
     }
 
     public static void subscribeAsynchronously(Mono<?> mono, ServerWebExchange exchange){

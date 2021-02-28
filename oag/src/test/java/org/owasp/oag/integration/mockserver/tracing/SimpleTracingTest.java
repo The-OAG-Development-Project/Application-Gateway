@@ -40,10 +40,10 @@ public class SimpleTracingTest extends WiremockTest {
 
        var result = webClient.get().uri(TEST_1_ENDPOINT)
                .exchange()
-               .expectHeader().exists("X-Correlation-Id")
+               .expectHeader().exists("TRACE-ID")
                .returnResult(String.class);
 
-       var traceString = result.getResponseHeaders().getFirst("X-Correlation-Id");
+       var traceString = result.getResponseHeaders().getFirst("TRACE-ID");
 
        assertNotNull(traceString);
 
@@ -62,10 +62,10 @@ public class SimpleTracingTest extends WiremockTest {
        var result = webClient.get().uri(TEST_1_ENDPOINT)
                .header("TRACE-ID", traceId)
                .exchange()
-               .expectHeader().exists("X-Correlation-Id")
+               .expectHeader().exists("TRACE-ID")
                .returnResult(String.class);
 
-       var traceString = result.getResponseHeaders().getFirst("X-Correlation-Id");
+       var traceString = result.getResponseHeaders().getFirst("TRACE-ID");
 
        assertNotNull(traceString);
 
