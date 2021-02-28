@@ -8,6 +8,8 @@ import org.owasp.oag.utils.SecureEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -29,6 +31,7 @@ import java.util.UUID;
  * It does not support additional trace info and ignores these configured values.
  */
 @Component("simpleTrace")
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class SimpleTraceContext implements TraceContext {
     /**
      * Name of the traceImplSpecificSettings setting that contains the header name that should be used instead of  the default.
@@ -41,60 +44,79 @@ public class SimpleTraceContext implements TraceContext {
 
     private static final Logger log = LoggerFactory.getLogger(SimpleTraceContext.class);
 
-    private volatile String appliedHeaderName = null;
+    private String appliedHeaderName = null;
+
+    private String traceId;
 
     @Autowired
     private MainConfig config;
 
     @Override
-    public ServerWebExchange processExchange(ServerWebExchange exchange) {
-
-        // Load trace id from request or create new
-        String traceId;
-        if (forwardIncomingTrace()) {
-            // make sure we take over the passed in traceparent when it is valid
-            String header = exchange.getRequest().getHeaders().getFirst(getMainRequestHeader());
-            traceId = applyExistingTrace(header, exchange);
-        }
-        else {
-            traceId = establishNew();
-        }
-
-        // Add TraceID to exchange
-        exchange.getAttributes().put(TraceContextFilter.CONTEXT_KEY, traceId);
-
-        // Add trace if to downstream request
-        if (forwardIncomingTrace()) {
-            var mutatedRequest = exchange.getRequest().mutate().header(getMainRequestHeader(), traceId).build();
-            exchange = exchange.mutate().request(mutatedRequest).build();
-        }
-
-        // Add trace id to response
-        if (sendTraceResponse()) {
-            LoggingUtils.logDebug(log, exchange, "Adding trace id to response");
-            exchange.getResponse().getHeaders().put(getResponseHeader(), new ArrayList<>(Collections.singleton(traceId)));
-        }
-
-        return exchange;
+    public void generateNewTraceId() {
+        traceId = UUID.randomUUID().toString();
     }
 
-    public String establishNew() {
-        return UUID.randomUUID().toString();
-    }
-
-    public String applyExistingTrace(String primaryTraceInfo, ServerWebExchange exchange) {
+    @Override
+    public void applyExistingTrace(String primaryTraceInfo, String secondaryTraceInfo) {
         if (primaryTraceInfo == null || primaryTraceInfo.length() < 4 || primaryTraceInfo.length() > config.getTraceProfile().getMaxLengthIncomingTrace()) {
-            log.debug("No or to short/long traceId ({}) provided by caller, using my own instead.", SecureEncoder.encodeStringForLog(primaryTraceInfo, config.getTraceProfile().getMaxLengthIncomingTrace()));
-            return establishNew();
+            generateNewTraceId();
+            log.info("Passed in trace id: {} could not be applied. Using this new one instead: {}.", SecureEncoder.encodeStringForLog(primaryTraceInfo, 128), getTraceString());
         } else {
-            log.debug("Applied incoming trace/correlation id.");
-            return SecureEncoder.encodeStringForLog(primaryTraceInfo, config.getTraceProfile().getMaxLengthIncomingTrace());
+            traceId = primaryTraceInfo;
+            log.debug("Applied incoming trace/correlation id: {}", getTraceString());
         }
     }
 
+    @Override
+    public boolean sendTraceDownstream() {
+        return true;
+    }
+
+    @Override
     public String getMainRequestHeader() {
         return getHeaderName();
     }
+
+    @Override
+    public String getSecondaryRequestHeader() {
+        return "n/a";
+    }
+
+    @Override
+    public String getResponseHeader() {
+        return getHeaderName();
+    }
+
+    @Override
+    public String getTraceString() {
+        return traceId;
+    }
+
+    @Override
+    public String getSecondaryTraceInfoString() {
+        return null;
+    }
+
+    @Override
+    public String getTraceResponseString() {
+        return getTraceString();
+    }
+
+    @Override
+    public boolean forwardIncomingTrace() {
+        return config.getTraceProfile().getForwardIncomingTrace();
+    }
+
+    @Override
+    public boolean acceptAdditionalTraceInfo() {
+        return false;
+    }
+
+    @Override
+    public boolean sendTraceResponse() {
+        return config.getTraceProfile().getSendTraceResponse();
+    }
+
 
     private String getHeaderName() {
         if (appliedHeaderName == null) {
@@ -111,25 +133,5 @@ public class SimpleTraceContext implements TraceContext {
             }
         }
         return appliedHeaderName;
-    }
-
-    public String getSecondaryRequestHeader() {
-        return "n/a";
-    }
-
-    public String getResponseHeader() {
-        return DEFAULT_HEADER;
-    }
-
-    public boolean forwardIncomingTrace() {
-        return config.getTraceProfile().getForwardIncomingTrace();
-    }
-
-    public boolean acceptAdditionalTraceInfo() {
-        return false;
-    }
-
-    public boolean sendTraceResponse() {
-        return config.getTraceProfile().getSendTraceResponse();
     }
 }

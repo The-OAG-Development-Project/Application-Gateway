@@ -5,9 +5,13 @@ import org.owasp.oag.filters.spring.TraceContextFilter;
 import org.owasp.oag.logging.TraceContext;
 import org.owasp.oag.logging.TraceException;
 import org.owasp.oag.utils.LoggingUtils;
+import org.owasp.oag.utils.SecureEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -24,6 +28,7 @@ import org.springframework.web.server.ServerWebExchange;
  * It does not support any traceImplSpecificSettings in the configuration and ignores the maxLengthIncomingTrace setting as this is defined by the specification.
  */
 @Component("w3cTrace")
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class W3cTraceContext implements TraceContext {
     private static final String W3C_MAIN_RESPONSE_HEADER_NAME = "traceresponse";
     private static final String W3C_MAIN_HEADER_NAME = "traceparent";
@@ -31,58 +36,51 @@ public class W3cTraceContext implements TraceContext {
 
     private static final Logger log = LoggerFactory.getLogger(W3cTraceContext.class);
 
+    private W3cTraceContextState state;
+
     @Autowired
     private MainConfig config;
 
     @Override
-    public ServerWebExchange processExchange(ServerWebExchange exchange) {
+    public void generateNewTraceId() {
+        state = new W3cTraceContextState();
+    }
 
-        // Load trace id from request or create new
-        W3cTraceContextState ctx;
-        if (forwardIncomingTrace()) {
-            // make sure we take over the passed in traceparent when it is valid
-            String primary = exchange.getRequest().getHeaders().getFirst(getMainRequestHeader());
-            String secondary = null;
-            if (acceptAdditionalTraceInfo()) {
-                // make sure we take over the trace state if it is valid
-                secondary = exchange.getRequest().getHeaders().getFirst(getSecondaryRequestHeader());
-            }
-            try{
-                ctx = new W3cTraceContextState(primary, secondary, config.getTraceProfile().getMaxLengthAdditionalTraceInfo());
-            }
-            catch (TraceException e){
-                ctx = new W3cTraceContextState();
-            }
+    @Override
+    public void applyExistingTrace(String primaryTraceInfo, String secondaryTraceInfo) {
+        try {
+            state = new W3cTraceContextState(primaryTraceInfo, secondaryTraceInfo, config.getTraceProfile().getMaxLengthAdditionalTraceInfo());
+        } catch(Exception e){
+            // could not take over data, making sure we have anyway a trace id. Reason is logged din state.
+            generateNewTraceId();
+            log.info("Passed in trace id: {} could not be applied. Using this new one instead: {}.", SecureEncoder.encodeStringForLog(primaryTraceInfo, 128), getTraceString());
         }
-        else {
-            ctx = new W3cTraceContextState();
-        }
+    }
 
-        // Add TraceID to exchange
-        exchange.getAttributes().put(TraceContextFilter.CONTEXT_KEY, ctx.getTraceString());
+    @Override
+    public boolean sendTraceDownstream() {
+        return true;
+    }
 
-        // Add trace if to downstream request
-        if (forwardIncomingTrace()) {
+    @Override
+    public String getTraceString() {
+        return state.getTraceString();
+    }
 
-            var mutatedRequest = exchange.getRequest().mutate()
-                    .header(getMainRequestHeader(), ctx.getTraceString())
-                    .header(getSecondaryRequestHeader(), ctx.getSecondaryTraceInfoString()).build();
+    @Override
+    public String getSecondaryTraceInfoString() {
+        return state.getSecondaryTraceInfoString();
+    }
 
-            exchange = exchange.mutate().request(mutatedRequest).build();
-        }
-
-        // Add trace id to response
-        if (sendTraceResponse()) {
-            LoggingUtils.logDebug(log, exchange, "Adding trace id to response");
-            exchange.getResponse().getHeaders().add(getResponseHeader(), ctx.getTraceString());
-        }
-
-        return exchange;
+    @Override
+    public String getTraceResponseString() {
+        return state.getTraceString();
     }
 
     /**
      * @return the header that should be used when a client sends a correlationId
      */
+    @Override
     public String getMainRequestHeader() {
         return W3C_MAIN_HEADER_NAME;
     }
@@ -90,6 +88,7 @@ public class W3cTraceContext implements TraceContext {
     /**
      * @return the header that should be used when a client sends secondary information (i.e. vendor specific) for a trace
      */
+    @Override
     public String getSecondaryRequestHeader() {
         return W3C_SUB_HEADER_NAME;
     }
@@ -97,6 +96,7 @@ public class W3cTraceContext implements TraceContext {
     /**
      * @return the header that should be used when we respond the correlation id upstream
      */
+    @Override
     public String getResponseHeader() {
         return W3C_MAIN_RESPONSE_HEADER_NAME;
     }
@@ -104,6 +104,7 @@ public class W3cTraceContext implements TraceContext {
     /**
      * @return true when a passed in traceparent should be re-used and passed on downstream
      */
+    @Override
     public boolean forwardIncomingTrace() {
         return config.getTraceProfile().getForwardIncomingTrace();
     }
@@ -111,6 +112,7 @@ public class W3cTraceContext implements TraceContext {
     /**
      * @return true when also the tracestate passed in should be forwarded downstream
      */
+    @Override
     public boolean acceptAdditionalTraceInfo() {
         return config.getTraceProfile().getAcceptAdditionalTraceInfo();
     }
@@ -118,6 +120,7 @@ public class W3cTraceContext implements TraceContext {
     /**
      * @return true when we send the caller the correlation id (traceparent) we used
      */
+    @Override
     public boolean sendTraceResponse() {
         return config.getTraceProfile().getSendTraceResponse();
     }
