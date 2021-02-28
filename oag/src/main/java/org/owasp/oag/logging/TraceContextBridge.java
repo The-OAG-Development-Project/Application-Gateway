@@ -1,16 +1,11 @@
 package org.owasp.oag.logging;
 
-import org.owasp.oag.config.configuration.MainConfig;
-import org.owasp.oag.config.configuration.TraceProfile;
 import org.owasp.oag.filters.spring.TraceContextFilter;
-import org.owasp.oag.logging.w3ctrace.W3cTraceContext;
-import org.owasp.oag.logging.w3ctrace.W3cTraceContextState;
 import org.owasp.oag.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Primary;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -18,31 +13,15 @@ import org.springframework.web.server.ServerWebExchange;
  * This class bridges to the concrete trace context implementation that was configured in the main config yaml (section traceProfile).
  */
 @Component
-@Primary
 public class TraceContextBridge {
 
     private static final Logger log = LoggerFactory.getLogger(TraceContextBridge.class);
 
+    @Qualifier("traceContext")
     @Autowired
-    private ApplicationContext context;
-
-    @Autowired
-    private MainConfig config;
-
-
-    private TraceContext loadBean() {
-        TraceProfile traceProfile = config.getTraceProfile();
-        TraceContext implClass = context.getBean(traceProfile.getType(), TraceContext.class);
-
-        if (implClass == null) {
-            throw new RuntimeException("Trace implementation class not found: " + traceProfile.getType());
-        }
-        return implClass;
-    }
+    private TraceContext implClass;
 
     public ServerWebExchange processExchange(ServerWebExchange exchange) {
-
-        final TraceContext implClass = loadBean();
 
         if (implClass.forwardIncomingTrace()) {
             // make sure we take over the passed in traceparent when it is valid
