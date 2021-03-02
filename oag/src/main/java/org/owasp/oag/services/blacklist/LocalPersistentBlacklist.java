@@ -1,7 +1,5 @@
 package org.owasp.oag.services.blacklist;
 
-import org.owasp.oag.GlobalClockSource;
-import org.owasp.oag.utils.ReactiveUtils;
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;
 import kotlin.text.Charsets;
@@ -9,7 +7,9 @@ import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
 import org.mapdb.Serializer;
+import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.utils.LoggingUtils;
+import org.owasp.oag.utils.ReactiveUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;

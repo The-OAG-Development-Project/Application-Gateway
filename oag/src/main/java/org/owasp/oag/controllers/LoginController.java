@@ -6,15 +6,15 @@ import org.owasp.oag.controllers.dto.SessionInformation;
 import org.owasp.oag.cookies.CookieConverter;
 import org.owasp.oag.cookies.LoginStateCookie;
 import org.owasp.oag.filters.spring.ExtractAuthenticationFilter;
-import org.owasp.oag.hooks.session.SessionHook;
+import org.owasp.oag.hooks.session.SessionHookChain;
+import org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory;
+import org.owasp.oag.infrastructure.factories.LoginDriverFactory;
 import org.owasp.oag.services.crypto.CookieDecryptionException;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.owasp.oag.services.csrf.CsrfSamesiteStrictValidation;
 import org.owasp.oag.services.login.drivers.AuthenticationException;
 import org.owasp.oag.services.login.drivers.LoginDriver;
 import org.owasp.oag.services.login.drivers.LoginDriverResult;
-import org.owasp.oag.services.login.drivers.UserModel;
-import org.owasp.oag.services.login.drivers.oidc.LoginDriverLoader;
 import org.owasp.oag.session.Session;
 import org.owasp.oag.utils.LoggingUtils;
 import org.owasp.oag.utils.ReactiveUtils;
@@ -39,8 +39,6 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -53,9 +51,13 @@ public class LoginController {
     @Autowired
     private MainConfig config;
     @Autowired
-    private LoginDriverLoader loginDriverLoader;
+    private LoginDriverFactory loginDriverFactory;
     @Autowired
     private CookieConverter cookieConverter;
+    @Autowired
+    private SessionHookChain sessionHookChain;
+    @Autowired
+    private CsrfValidationImplementationFactory csrfValidationImplementationFactory;
 
     @GetMapping("session")
     public SessionInformation sessionInfo(ServerWebExchange exchange) {
@@ -83,9 +85,10 @@ public class LoginController {
 
         // Load login implementation
         LoginDriver loginDriver = loadLoginDriver(providerKey);
+        URI callbackURI = loadCallbackURI(providerKey);
 
         // This might be blocking, encapsulate it in mono
-        return ReactiveUtils.runBlockingProcedure(() -> loginDriver.startLogin())
+        return ReactiveUtils.runBlockingProcedure(() -> loginDriver.startLogin(callbackURI))
                 .map(loginDriverResult -> {
 
                     // Store login state
@@ -102,11 +105,10 @@ public class LoginController {
 
         // Load settings
         LoginProvider provider = loadProvider(providerKey);
-        URI callbackURI = loadCallbackURI(providerKey);
         String driverName = provider.getType();
 
         try {
-            return loginDriverLoader.loadDriverByKey(driverName, callbackURI, provider.getWith());
+            return loginDriverFactory.loadDriverByKey(driverName, provider.getWith());
         } catch (Exception e) {
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR, "could not find login driver", e);
@@ -176,18 +178,19 @@ public class LoginController {
 
         // Load login implementation
         LoginDriver loginDriver = loadLoginDriver(providerKey);
+        URI callbackURI = loadCallbackURI(providerKey);
 
         // Load login state
         var loginState = loadLoginState(request);
 
-        return ReactiveUtils.runBlockingProcedure(() -> loginDriver.processCallback(request, loginState.getState()))
+        return ReactiveUtils.runBlockingProcedure(() -> loginDriver.processCallback(request, loginState.getState(), callbackURI))
                 .onErrorMap(AuthenticationException.class, e -> {
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
                 })
                 .map(userModel -> {
 
                     // Store session
-                    createSession(providerKey, userModel, response);
+                    sessionHookChain.createSession(providerKey, userModel, response);
 
                     var redirectUri = loginState.getReturnUrl();
                     return ResponseEntity.status(302).header("Location", redirectUri).build();
@@ -213,23 +216,6 @@ public class LoginController {
         }
     }
 
-    private void createSession(String providerKey, UserModel model, ServerHttpResponse response) {
-
-        var filterContext = new HashMap<String, Object>();
-
-        filterContext.put("providerKey", providerKey);
-        filterContext.put("userModel", model);
-
-        List<SessionHook> sessionFilters = getSessionHooks();
-
-        sessionFilters.forEach(f -> f.createSession(filterContext, response));
-    }
-
-    private List<SessionHook> getSessionHooks() {
-
-        return SessionHook.getSessionHooks(context);
-    }
-
     @GetMapping("logout")
     public void logout(
             ServerWebExchange exchange) {
@@ -244,7 +230,7 @@ public class LoginController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         } else {
             // Destroy the user session
-            destroySession(exchange);
+            sessionHookChain.destroySession(exchange);
 
             // Get redirection url
             String returnUrl = loadLogoutReturnUrl(request);
@@ -257,15 +243,7 @@ public class LoginController {
 
     private CsrfProtectionValidation getCsrfValidationMethod() {
 
-        return CsrfProtectionValidation.loadValidationImplementation(
-                CsrfSamesiteStrictValidation.NAME, context);
-    }
-
-    private void destroySession(ServerWebExchange exchange) {
-
-        var filterContext = new HashMap<String, Object>();
-        List<SessionHook> sessionFilters = getSessionHooks();
-        sessionFilters.forEach(f -> f.destroySession(filterContext, exchange));
+        return csrfValidationImplementationFactory.loadCsrfValidationImplementation(CsrfSamesiteStrictValidation.NAME);
     }
 
     public String loadLogoutReturnUrl(ServerHttpRequest request) {

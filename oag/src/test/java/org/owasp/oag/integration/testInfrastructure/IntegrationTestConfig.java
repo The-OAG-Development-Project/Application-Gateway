@@ -1,8 +1,8 @@
 package org.owasp.oag.integration.testInfrastructure;
 
-import org.owasp.oag.GlobalClockSource;
 import org.owasp.oag.OWASPApplicationGatewayApplication;
 import org.owasp.oag.config.ConfigLoader;
+import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.services.blacklist.SessionBlacklist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;

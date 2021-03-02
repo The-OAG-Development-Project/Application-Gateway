@@ -1,11 +1,11 @@
 package org.owasp.oag.integration.mockserver;
 
-import org.owasp.oag.GlobalClockSource;
-import org.owasp.oag.controllers.dto.SessionInformation;
-import org.owasp.oag.cookies.LoginCookie;
-import org.owasp.oag.integration.testInfrastructure.WiremockTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.owasp.oag.controllers.dto.SessionInformation;
+import org.owasp.oag.cookies.LoginCookie;
+import org.owasp.oag.infrastructure.GlobalClockSource;
+import org.owasp.oag.integration.testInfrastructure.WiremockTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Clock;

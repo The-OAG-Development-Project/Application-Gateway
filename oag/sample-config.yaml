@@ -12,7 +12,7 @@ routes:
     type: webapplication
     path: /echo/**
     url: https://nellydemoapp.azurewebsites.net
-    allowAnonymous: no
+    allowAnonymous: yes
 
 loginProviders:
   google:

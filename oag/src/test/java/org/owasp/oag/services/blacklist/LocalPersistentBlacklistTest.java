@@ -1,7 +1,7 @@
 package org.owasp.oag.services.blacklist;
 
-import org.owasp.oag.GlobalClockSource;
 import org.junit.jupiter.api.Test;
+import org.owasp.oag.infrastructure.GlobalClockSource;
 
 import java.io.File;
 import java.io.IOException;
