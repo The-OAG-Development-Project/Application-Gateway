@@ -17,11 +17,12 @@ public class MainConfig implements ErrorValidation {
     private List<String> trustedRedirectHosts;
     private SessionBehaviour sessionBehaviour;
     private TraceProfile traceProfile;
+    private DownstreamAuthenticationConfig downstreamAuthentication;
 
     public MainConfig() {
     }
 
-    public MainConfig(Map<String, LoginProvider> loginProviders, Map<String, GatewayRoute> routes, Map<String, SecurityProfile> securityProfiles, String hostUri, String downstreamApiKey, List<String> trustedRedirectHosts, SessionBehaviour sessionBehaviour, TraceProfile traceProfile) {
+    public MainConfig(Map<String, LoginProvider> loginProviders, Map<String, GatewayRoute> routes, Map<String, SecurityProfile> securityProfiles, String hostUri, String downstreamApiKey, List<String> trustedRedirectHosts, SessionBehaviour sessionBehaviour, TraceProfile traceProfile, DownstreamAuthenticationConfig downstreamAuthentication) {
         this.loginProviders = loginProviders;
         this.routes = routes;
         this.securityProfiles = securityProfiles;
@@ -30,6 +31,7 @@ public class MainConfig implements ErrorValidation {
         this.trustedRedirectHosts = trustedRedirectHosts;
         this.sessionBehaviour = sessionBehaviour;
         this.traceProfile = traceProfile;
+        this.downstreamAuthentication = downstreamAuthentication;
     }
 
     public Map<String, GatewayRoute> getRoutes() {
@@ -130,6 +132,9 @@ public class MainConfig implements ErrorValidation {
         if (traceProfile == null)
             errors.add("Config: traceProfile not defined");
 
+        if (downstreamAuthentication == null)
+            errors.add("Config: downstreamAuthentication not defined");
+
         if (!errors.isEmpty())
             return errors;
 
@@ -139,6 +144,7 @@ public class MainConfig implements ErrorValidation {
         routes.values().forEach(s -> errors.addAll(s.getErrors(context)));
         errors.addAll(sessionBehaviour.getErrors(context));
         errors.addAll(traceProfile.getErrors(context));
+        errors.addAll(downstreamAuthentication.getErrors(context));
 
         if (!errors.isEmpty())
             return errors;
@@ -152,5 +158,13 @@ public class MainConfig implements ErrorValidation {
         });
 
         return errors;
+    }
+
+    public DownstreamAuthenticationConfig getDownstreamAuthentication() {
+        return downstreamAuthentication;
+    }
+
+    public void setDownstreamAuthentication(DownstreamAuthenticationConfig downstreamAuthentication) {
+        this.downstreamAuthentication = downstreamAuthentication;
     }
 }

@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class MainConfigurationValidationTest {
 
     private TraceProfile defaultTraceProfile = new TraceProfile(false, 254, false, 254, false, "w3cTrace", null);
+    private DownstreamAuthenticationConfig defaultDownstreamAuthenticationConfig = new DownstreamAuthenticationConfig(new DownstreamAuthenticationConfig.TokenMappingConfig());
 
     @Test
     public void testValidConfiguration() {
@@ -24,6 +25,8 @@ class MainConfigurationValidationTest {
                 "/",
                 "/");
 
+
+
         MainConfig config = new MainConfig(
                 new HashMap<>(),
                 new HashMap<>(),
@@ -32,7 +35,8 @@ class MainConfigurationValidationTest {
                 null,
                 new ArrayList<>(),
                 sessionBehaviour,
-                defaultTraceProfile);
+                defaultTraceProfile,
+                defaultDownstreamAuthenticationConfig);
 
         // Act
         var errors = config.getErrors(null);
@@ -59,7 +63,8 @@ class MainConfigurationValidationTest {
                 null,
                 new ArrayList<>(),
                 sessionBehaviour,
-                defaultTraceProfile);
+                defaultTraceProfile,
+                defaultDownstreamAuthenticationConfig);
 
         // Act
         var errors = config.getErrors(null);
@@ -89,7 +94,8 @@ class MainConfigurationValidationTest {
                 null,
                 new ArrayList<>(),
                 sessionBehaviour,
-                defaultTraceProfile);
+                defaultTraceProfile,
+                defaultDownstreamAuthenticationConfig);
 
         // Act
         var errors = config.getErrors(null);
@@ -111,13 +117,14 @@ class MainConfigurationValidationTest {
                 null,
                 null,
                 null,
+                null,
                 null);
 
         // Act
         var errors = config.getErrors(null);
 
         // Assert
-        assertEquals(7, errors.size());
+        assertEquals(8, errors.size());
     }
 
 

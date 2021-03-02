@@ -8,6 +8,19 @@ sessionBehaviour:
   redirectLoginFailure: /
   redirectLogout: /
 
+downstreamAuthentication:
+  tokenMapping:
+    implementation: "jwt-mapping"
+    settings:
+      headerName:   "Authorization"
+      headerPrefix: "Bearer "
+      audience:     "<<route-url>>"
+      issuer:       "<<hostUri>>"
+      tokenLifetimeSeconds: 30
+      signatureImplementation: "stub"
+      signatureSettings:
+        foo: bar
+
 securityProfiles:
 
   static:

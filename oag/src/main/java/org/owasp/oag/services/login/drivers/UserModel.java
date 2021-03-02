@@ -1,6 +1,7 @@
 package org.owasp.oag.services.login.drivers;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class UserModel {
 
@@ -39,5 +40,19 @@ public class UserModel {
 
     public String get(String key) {
         return mappings.get(key);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserModel userModel = (UserModel) o;
+        return Objects.equals(getId(), userModel.getId()) &&
+                Objects.equals(getMappings(), userModel.getMappings());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getMappings());
     }
 }
