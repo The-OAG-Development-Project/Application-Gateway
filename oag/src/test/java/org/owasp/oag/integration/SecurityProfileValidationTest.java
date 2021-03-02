@@ -1,8 +1,9 @@
-package org.owasp.oag.config.configuration;
+package org.owasp.oag.integration;
 
 import org.junit.jupiter.api.Test;
+import org.owasp.oag.config.configuration.SecurityProfile;
+import org.owasp.oag.integration.testInfrastructure.IntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
@@ -10,8 +11,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest()
-class SecurityProfileValidationTest {
+class SecurityProfileValidationTest extends IntegrationTest {
 
     @Autowired
     ApplicationContext context;

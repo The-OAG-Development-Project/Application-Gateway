@@ -1,9 +1,7 @@
 package org.owasp.oag.logging.simpleTrace;
 
 import org.owasp.oag.config.configuration.MainConfig;
-import org.owasp.oag.filters.spring.TraceContextFilter;
 import org.owasp.oag.logging.TraceContext;
-import org.owasp.oag.utils.LoggingUtils;
 import org.owasp.oag.utils.SecureEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.UUID;
 
 /**
@@ -60,7 +55,7 @@ public class SimpleTraceContext implements TraceContext {
     public void applyExistingTrace(String primaryTraceInfo, String secondaryTraceInfo) {
         if (primaryTraceInfo == null || primaryTraceInfo.length() < 4 || primaryTraceInfo.length() > config.getTraceProfile().getMaxLengthIncomingTrace()) {
             generateNewTraceId();
-            log.info("Passed in trace id: {} could not be applied. Using this new one instead: {}.", SecureEncoder.encodeStringForLog(primaryTraceInfo, 128), getTraceString());
+            log.debug("Passed in trace id: {} could not be applied. Using this new one instead: {}.", SecureEncoder.encodeStringForLog(primaryTraceInfo, 128), getTraceString());
         } else {
             traceId = primaryTraceInfo;
             log.debug("Applied incoming trace/correlation id: {}", getTraceString());

@@ -1,19 +1,14 @@
 package org.owasp.oag.logging.w3ctrace;
 
 import org.owasp.oag.config.configuration.MainConfig;
-import org.owasp.oag.filters.spring.TraceContextFilter;
 import org.owasp.oag.logging.TraceContext;
-import org.owasp.oag.logging.TraceException;
-import org.owasp.oag.utils.LoggingUtils;
 import org.owasp.oag.utils.SecureEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
 
 /**
  * Implements the W3C Trace Context specification.
@@ -53,7 +48,7 @@ public class W3cTraceContext implements TraceContext {
         } catch(Exception e){
             // could not take over data, making sure we have anyway a trace id. Reason is logged din state.
             generateNewTraceId();
-            log.info("Passed in trace id: {} could not be applied. Using this new one instead: {}.", SecureEncoder.encodeStringForLog(primaryTraceInfo, 128), getTraceString());
+            log.debug("Passed in trace id: {} could not be applied. Using this new one instead: {}.", SecureEncoder.encodeStringForLog(primaryTraceInfo, 128), getTraceString());
         }
     }
 
