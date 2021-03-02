@@ -1,0 +1,37 @@
+hostUri: localhost:8080
+
+routes:
+
+  rewriteTest1:
+    type: webapplication
+    path: /rewrite1/**
+    url: http://localhost:7777/rewritten/
+    allowAnonymous: yes
+
+  rewriteTest2:
+    type: webapplication
+    path: /rewrite2/**
+    url: http://localhost:7777/rewritten/
+    allowAnonymous: yes
+    rewrite:
+      regex: "/rewrite2/abc.txt"
+      replacement: "/abc/def.ghi"
+
+  rewriteTest3:
+    type: webapplication
+    path: /rewrite3/**
+    url: http://localhost:7777/rewritten/
+    allowAnonymous: yes
+    rewrite:
+      regex: "^(.)*$"
+      replacement: "/index.html"
+
+loginProviders:
+  local:
+    type: oidc
+    with:
+      authEndpoint: http://localhost:7777/oidc/auth
+      tokenEndpoint: http://localhost:7777/oidc/token
+      clientId: sample-client-id
+      clientSecret: thisIsASeceret
+      scopes: [ "openid", "email" ]

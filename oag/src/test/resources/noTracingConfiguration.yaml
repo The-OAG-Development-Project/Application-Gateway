@@ -1,0 +1,28 @@
+hostUri: localhost:8080
+
+routes:
+  local:
+    type: webapplication
+    path: /**
+    url: http://localhost:7777/
+    allowAnonymous: yes
+
+loginProviders:
+  local:
+    type: oidc
+    with:
+      authEndpoint: http://localhost:7777/oidc/auth
+      tokenEndpoint: http://localhost:7777/oidc/token
+      clientId: sample-client-id
+      clientSecret: thisIsASeceret
+      scopes: [ "openid", "email" ]
+
+traceProfile:
+  forwardIncomingTrace: yes
+  maxLengthIncomingTrace: 254
+  acceptAdditionalTraceInfo: yes
+  maxLengthAdditionalTraceInfo: 254
+  sendTraceResponse: yes
+  type: noTrace
+  traceImplSpecificSettings:
+    headerName: "TRACE-ID"
