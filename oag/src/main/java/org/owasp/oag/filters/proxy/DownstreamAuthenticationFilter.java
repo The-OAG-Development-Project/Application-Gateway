@@ -1,6 +1,7 @@
 package org.owasp.oag.filters.proxy;
 
-import org.owasp.oag.services.tokenMapping.TokenMapper;
+import org.owasp.oag.filters.GatewayRouteContext;
+import org.owasp.oag.services.tokenMapping.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class DownstreamAuthenticationFilter extends RouteAwareFilter{
     private static final Logger log = LoggerFactory.getLogger(DownstreamAuthenticationFilter.class);
 
     @Autowired
-    private TokenMapper tokenMapper;
+    private UserMapper tokenMapper;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain, GatewayRouteContext routeContext) {

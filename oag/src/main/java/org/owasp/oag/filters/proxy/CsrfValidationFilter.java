@@ -1,6 +1,7 @@
 package org.owasp.oag.filters.proxy;
 
 import org.owasp.oag.config.configuration.MainConfig;
+import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.slf4j.Logger;

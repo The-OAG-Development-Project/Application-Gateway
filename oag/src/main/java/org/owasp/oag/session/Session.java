@@ -1,7 +1,6 @@
 package org.owasp.oag.session;
 
 import org.owasp.oag.cookies.LoginCookie;
-import org.owasp.oag.services.login.drivers.UserModel;
 
 import java.time.Clock;
 import java.util.Optional;
