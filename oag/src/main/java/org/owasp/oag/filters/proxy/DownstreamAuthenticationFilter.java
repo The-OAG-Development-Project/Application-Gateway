@@ -27,7 +27,7 @@ public class DownstreamAuthenticationFilter extends RouteAwareFilter{
 
         logTrace(log, exchange, "Execute DownstreamAuthenticationFilter");
 
-        var potentiallyMutatedExchange = tokenMapper.mapToken(exchange, routeContext);
+        var potentiallyMutatedExchange = tokenMapper.mapUserToRequest(exchange, routeContext);
 
         return potentiallyMutatedExchange.flatMap(exg -> chain.filter(exg));
     }

@@ -2,7 +2,7 @@ package org.owasp.oag.integration.mockserver;
 
 import org.junit.jupiter.api.Test;
 import org.owasp.oag.controllers.dto.SessionInformation;
-import org.owasp.oag.filters.proxy.UpstreamHeaderFilter;
+import org.owasp.oag.filters.proxy.DownstreamHeaderFilter;
 import org.owasp.oag.integration.testInfrastructure.WiremockTest;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -22,9 +22,8 @@ public class UpstreamAuthenticationTest extends WiremockTest {
                 .expectStatus().isOk();
 
         verify(getRequestedFor(urlEqualTo("/testHeaders"))
-                .withHeader(UpstreamHeaderFilter.X_PROXY, equalTo(UpstreamHeaderFilter.X_PROXY_VALUE))
-                .withHeader(UpstreamHeaderFilter.X_OAG_API_KEY, equalTo(config.getDownstreamApiKey()))
-                .withHeader(UpstreamHeaderFilter.X_OAG_STATUS, equalTo(SessionInformation.SESSION_STATE_ANONYMOUS)));
+                .withHeader(DownstreamHeaderFilter.X_PROXY, equalTo(DownstreamHeaderFilter.X_PROXY_VALUE))
+                .withHeader(DownstreamHeaderFilter.X_OAG_STATUS, equalTo(SessionInformation.SESSION_STATE_ANONYMOUS)));
     }
 
     @Test
@@ -41,9 +40,8 @@ public class UpstreamAuthenticationTest extends WiremockTest {
                 .expectStatus().isOk();
 
         verify(getRequestedFor(urlEqualTo("/testHeaders"))
-                .withHeader(UpstreamHeaderFilter.X_PROXY, equalTo(UpstreamHeaderFilter.X_PROXY_VALUE))
-                .withHeader(UpstreamHeaderFilter.X_OAG_API_KEY, equalTo(config.getDownstreamApiKey()))
-                .withHeader(UpstreamHeaderFilter.X_OAG_STATUS, equalTo(SessionInformation.SESSION_STATE_AUTHENTICATED)));
+                .withHeader(DownstreamHeaderFilter.X_PROXY, equalTo(DownstreamHeaderFilter.X_PROXY_VALUE))
+                .withHeader(DownstreamHeaderFilter.X_OAG_STATUS, equalTo(SessionInformation.SESSION_STATE_AUTHENTICATED)));
     }
 
 }

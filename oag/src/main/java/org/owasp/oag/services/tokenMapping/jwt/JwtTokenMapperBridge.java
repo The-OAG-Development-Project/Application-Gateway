@@ -39,7 +39,7 @@ public class JwtTokenMapperBridge implements UserMapper {
     }
 
     @Override
-    public Mono<ServerWebExchange> mapToken(ServerWebExchange exchange, GatewayRouteContext context) {
-        return mapper.mapToken(exchange, context);
+    public Mono<ServerWebExchange> mapUserToRequest(ServerWebExchange exchange, GatewayRouteContext context) {
+        return mapper.mapUserToRequest(exchange, context);
     }
 }

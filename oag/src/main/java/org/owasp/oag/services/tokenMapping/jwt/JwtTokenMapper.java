@@ -60,7 +60,7 @@ public class JwtTokenMapper implements UserMapper {
     }
 
     @Override
-    public Mono<ServerWebExchange> mapToken(ServerWebExchange exchange, GatewayRouteContext context) {
+    public Mono<ServerWebExchange> mapUserToRequest(ServerWebExchange exchange, GatewayRouteContext context) {
 
         // Only add downstream authentication if there is a user session
         if (context.getSessionOptional().isPresent()) {

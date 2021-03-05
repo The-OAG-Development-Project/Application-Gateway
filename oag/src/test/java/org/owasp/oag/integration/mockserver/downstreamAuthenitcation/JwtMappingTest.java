@@ -6,7 +6,7 @@ import org.springframework.http.HttpMethod;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
-public class DownstreamAuthenticationTest extends WiremockTest{
+public class JwtMappingTest extends WiremockTest{
 
     @Test
     public void testDownstreamAuthentication(){

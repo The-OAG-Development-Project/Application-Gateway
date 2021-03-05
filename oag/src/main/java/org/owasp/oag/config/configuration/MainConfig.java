@@ -13,7 +13,6 @@ public class MainConfig implements ErrorValidation {
     private Map<String, GatewayRoute> routes;
     private Map<String, SecurityProfile> securityProfiles;
     private String hostUri;
-    private String downstreamApiKey;
     private List<String> trustedRedirectHosts;
     private SessionBehaviour sessionBehaviour;
     private TraceProfile traceProfile;
@@ -22,12 +21,11 @@ public class MainConfig implements ErrorValidation {
     public MainConfig() {
     }
 
-    public MainConfig(Map<String, LoginProvider> loginProviders, Map<String, GatewayRoute> routes, Map<String, SecurityProfile> securityProfiles, String hostUri, String downstreamApiKey, List<String> trustedRedirectHosts, SessionBehaviour sessionBehaviour, TraceProfile traceProfile, DownstreamAuthenticationConfig downstreamAuthentication) {
+    public MainConfig(Map<String, LoginProvider> loginProviders, Map<String, GatewayRoute> routes, Map<String, SecurityProfile> securityProfiles, String hostUri, List<String> trustedRedirectHosts, SessionBehaviour sessionBehaviour, TraceProfile traceProfile, DownstreamAuthenticationConfig downstreamAuthentication) {
         this.loginProviders = loginProviders;
         this.routes = routes;
         this.securityProfiles = securityProfiles;
         this.hostUri = hostUri;
-        this.downstreamApiKey = downstreamApiKey;
         this.trustedRedirectHosts = trustedRedirectHosts;
         this.sessionBehaviour = sessionBehaviour;
         this.traceProfile = traceProfile;
@@ -72,14 +70,6 @@ public class MainConfig implements ErrorValidation {
 
     private void setSecurityProfiles(Map<String, SecurityProfile> securityProfiles) {
         this.securityProfiles = securityProfiles;
-    }
-
-    public String getDownstreamApiKey() {
-        return downstreamApiKey;
-    }
-
-    private void setDownstreamApiKey(String downstreamApiKey) {
-        this.downstreamApiKey = downstreamApiKey;
     }
 
     public List<String> getTrustedRedirectHosts() {
