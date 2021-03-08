@@ -137,9 +137,11 @@ curl -s https://api.github.com/repos/gianlucafrei/Application-Gateway/releases/l
 | cut -d : -f 2,3 \
 | tr -d \" \
 | wget -qi -
+
 unzip oag*.zip
 cd build/app
 java -jar oag.jar
+
 ```
 
 ### Compile it Yourself
@@ -173,6 +175,7 @@ mvn package -f oag/pom.xml -Dmaven.test.skip=true
 - [x] CSRF protection
 - [x] Rolling sessions
 - [x] W3C compliant request tracing  
+
 
 Ideas:
 
