@@ -119,14 +119,14 @@ You can find the Docker image at https://hub.docker.com/r/gianlucafrei/nellygate
 Download and Start:
 ```bash
 # Download image of nelly
-docker pull gianlucafrei/nellygateway:main-SNAPSHOT
+docker pull owasp/application-gateway:main-SNAPSHOT
 
 # Download sample config and adapt it to your needs
-curl https://raw.githubusercontent.com/gianlucafrei/nellygateway/main/nellygateway/sample-nelly-config.yaml >> nelly-config.yaml
-vim nelly-config.yaml
+curl https://raw.githubusercontent.com/gianlucafrei/Application-Gateway/main/oag/sample-config.yaml >> oag-config.yaml
+vim oag-config.yaml
 
 # Start the container
-docker run -e NELLY_CONFIG_PATH=/app/config.nelly -v ${PWD}/nelly-config.yaml:/app/config.nelly gianlucafrei/nellygateway:main-SNAPSHOT
+docker run -e NELLY_CONFIG_PATH=/app/oag-config.yaml -v ${PWD}/oag-config.yaml:/app/oag-config.yaml owasp/application-gateway:main-SNAPSHOT
 ```
 
 ### Jar release
@@ -137,9 +137,9 @@ curl -s https://api.github.com/repos/gianlucafrei/Application-Gateway/releases/l
 | cut -d : -f 2,3 \
 | tr -d \" \
 | wget -qi -
-unzip nellygateway*.zip
-cd nellygateway/target
-java -jar nellygateway.jar
+unzip oag*.zip
+cd build/app
+java -jar oag.jar
 ```
 
 ### Compile it Yourself
@@ -171,7 +171,8 @@ mvn package -f oag/pom.xml -Dmaven.test.skip=true
 - [x] GitHub Login support
 - [x] Method whitelisting
 - [x] CSRF protection
-- [x] Rolling sessions 
+- [x] Rolling sessions
+- [x] W3C compliant request tracing  
 
 Ideas:
 
