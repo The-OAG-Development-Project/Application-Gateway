@@ -2,6 +2,7 @@ package org.owasp.oag.services.tokenMapping.header;
 
 import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.services.tokenMapping.UserMapper;
+import org.owasp.oag.services.tokenMapping.UserMapperUtils;
 import org.owasp.oag.session.Session;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -21,6 +22,14 @@ public class RequestHeaderUserMapping implements UserMapper {
     public static final String X_OAG_PROVIDER = "X-OAG-Provider";
     public static final String X_OAG_USER_PREFIX = "X-OAG-USER-";
 
+    private RequestHeaderUserMappingSettings settings;
+
+
+    public RequestHeaderUserMapping(RequestHeaderUserMappingSettings settings) {
+        this.settings = settings;
+        settings.requireValidSettings();
+    }
+
     @Override
     public Mono<ServerWebExchange> mapUserToRequest(ServerWebExchange exchange, GatewayRouteContext context) {
 
@@ -31,11 +40,10 @@ public class RequestHeaderUserMapping implements UserMapper {
             Session session = sessionOptional.get();
             HashMap<String, String> userMappings = session.getUserModel().getMappings();
 
-            request = request.header(X_OAG_PROVIDER, session.getProvider());
-            request = request.header(X_OAG_USER_PREFIX + "ID", session.getUserModel().getId());
+            for (var entry: settings.mappings.entrySet()){
 
-            for (var mapping : userMappings.entrySet()) {
-                request = request.header(X_OAG_USER_PREFIX + mapping.getKey(), mapping.getValue());
+                var value = UserMapperUtils.getMappingFromUserModel(context, entry.getValue());
+                request.header(entry.getKey(), value);
             }
 
             exchange = exchange.mutate().request(request.build()).build();

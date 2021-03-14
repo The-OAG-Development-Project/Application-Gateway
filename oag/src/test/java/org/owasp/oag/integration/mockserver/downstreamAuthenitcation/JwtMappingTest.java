@@ -18,6 +18,7 @@ public class JwtMappingTest extends WiremockTest{
         authenticatedRequest(HttpMethod.GET, TEST_1_ENDPOINT, loginResult)
                 .exchange()
                 .expectStatus().isOk();
+
         // We do it twice to also cover the cached case
         authenticatedRequest(HttpMethod.GET, TEST_1_ENDPOINT, loginResult)
                 .exchange()

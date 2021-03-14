@@ -7,6 +7,7 @@ import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.services.crypto.JwtSigner;
 import org.owasp.oag.services.tokenMapping.UserMapper;
+import org.owasp.oag.services.tokenMapping.UserMapperUtils;
 import org.owasp.oag.session.UserModel;
 import org.owasp.oag.utils.ReactiveUtils;
 import org.slf4j.Logger;
@@ -74,7 +75,7 @@ public class JwtTokenMapper implements UserMapper {
 
             // Load token from cache or create a new one
             // Tokens are cached by userModel, audience and login provider
-            Mono<String> tokenMono = getTokenMono(userModel, audience, provider, exchange);
+            Mono<String> tokenMono = getTokenMono(userModel, audience, provider, exchange, context);
 
             // Add token to request
             return tokenMono.map(token -> {
@@ -89,7 +90,7 @@ public class JwtTokenMapper implements UserMapper {
         return Mono.just(exchange);
     }
 
-    public Mono<String> getTokenMono(UserModel model, String audience, String provider, ServerWebExchange exchange) {
+    public Mono<String> getTokenMono(UserModel model, String audience, String provider, ServerWebExchange exchange, GatewayRouteContext context) {
 
         var cacheKey = new CacheKey(model, audience, provider);
         var cachedToken = tokenCache.getIfPresent(cacheKey);
@@ -101,22 +102,20 @@ public class JwtTokenMapper implements UserMapper {
         } else {
             logTrace(log, exchange, "Create new downstream token");
             tokenMono = ReactiveUtils
-                    .runBlockingProcedure(() -> mapUserModelToToken(cacheKey.userModel, cacheKey.audience, cacheKey.provider))
+                    .runBlockingProcedure(() -> mapUserModelToToken(context, cacheKey.audience, cacheKey.provider))
                     .doOnSuccess(token -> tokenCache.put(cacheKey, token));
         }
         return tokenMono;
     }
 
-    public String mapUserModelToToken(UserModel model, String audience, String provider) {
+    public String mapUserModelToToken(GatewayRouteContext context, String audience, String provider) {
 
         // Assemble claims set
         var now = clockSource.getGlobalClock().instant();
         var exp = now.plusSeconds(settings.tokenLifetimeSeconds);
         var tokenId = createJti();
         var claimsBuilder = new JWTClaimsSet.Builder();
-
-        // Add fields from user model
-        model.getMappings().forEach((key, value) -> claimsBuilder.claim(key, value));
+        var model = context.getSessionOptional().get().getUserModel();
 
         // Add mandatory claims
         claimsBuilder.subject(model.getId())
@@ -127,6 +126,12 @@ public class JwtTokenMapper implements UserMapper {
                 .expirationTime(Date.from(exp))
                 .claim("provider", provider)
                 .jwtID(tokenId);
+
+        for(var entry: this.settings.mappings.entrySet()){
+
+            var value = UserMapperUtils.getMappingFromUserModel(context, entry.getValue());
+            claimsBuilder = claimsBuilder.claim(entry.getKey(), value);
+        }
 
         // Sign claims set
         JWTClaimsSet claimsSet = claimsBuilder.build();

@@ -39,6 +39,7 @@ public class HeaderMappingTest extends WiremockTest{
 
         // Assert
         verify(getRequestedFor(urlEqualTo(TEST_1_ENDPOINT))
-                .withHeader("X-OAG-USER-ID", matching(loginResult.id)));
+                .withHeader("X-USER-ID", matching(loginResult.id))
+                .withHeader("X-USER-PROVIDER", matching("local")));
     }
 }

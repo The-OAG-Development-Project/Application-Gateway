@@ -13,7 +13,7 @@ public class Session {
     private final LoginCookie loginCookie;
     private final String id;
 
-    private Session(long sessionExpSeconds, long remainingTimeSeconds, String provider, UserModel userModel, LoginCookie loginCookie, String id) {
+    public Session(long sessionExpSeconds, long remainingTimeSeconds, String provider, UserModel userModel, LoginCookie loginCookie, String id) {
         this.sessionExpSeconds = sessionExpSeconds;
         this.remainingTimeSeconds = remainingTimeSeconds;
         this.provider = provider;

@@ -11,7 +11,10 @@ securityProfiles:
   webapplication:
     userMapping:
       type: "header-mapping"
-      settings: { }
+      settings:
+        mappings:
+          X-USER-PROVIDER: <<login-provider>>
+          X-USER-ID: <<user-id>>
 
 loginProviders:
   local:
