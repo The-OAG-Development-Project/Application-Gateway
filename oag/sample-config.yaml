@@ -12,15 +12,6 @@ routes:
     path: /echo/**
     url: https://nellydemoapp.azurewebsites.net
     allowAnonymous: yes
-    userMapper: jwt-mapper
-    userMapperRouteSettings:
-      headerName: "Authorization"
-      headerPrefix: "Bearer "
-      audience: "<<route-url>>"
-      issuer: "<<hostUri>>"
-      mappings:
-        email: email
-        email-verified: email-verified
 
 
 loginProviders:
