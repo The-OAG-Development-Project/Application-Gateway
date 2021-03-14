@@ -23,6 +23,7 @@ class JwtTokenMappingTest {
     private String userId = "alice";
     private String userEmail = "alice@example.com";
     private String userPhone = "000 000 789";
+    private String provider = "IAM";
 
     private UserModel model;
     private GatewayRouteContext routeContext;
@@ -35,7 +36,7 @@ class JwtTokenMappingTest {
         model.getMappings().put("phone", userPhone);
 
         var route = new GatewayRoute("/api/**", routeUrl, "type", true);
-        var session = new Session(300, 300, "provider", model, null, "sessionId");
+        var session = new Session(300, 300, provider, model, null, "sessionId");
         routeContext = new GatewayRouteContext("routeName", route, null, "https://request/uri", "https://upstream/url", Optional.of(session));
     }
 
@@ -46,9 +47,9 @@ class JwtTokenMappingTest {
         var mappingSettingsMappings = new HashMap<String, String>();
         mappingSettingsMappings.put("email-claim", "userModel:email");
         mappingSettingsMappings.put("constant-claim", "constant:abc");
+        mappingSettingsMappings.put("provider", "<<login-provider>>");
         var mappingSettings = new JwtTokenMappingSettings("Authorization", "Bearer", "<<route-url>>", "<<hostUri>>", 30, "stub", new HashMap<>(), mappingSettingsMappings);
         var mapper = new JwtTokenMapper(new StubJwtSigner(), new GlobalClockSource(), mappingSettings, hostUri);
-        var provider = "iam";
 
         // Act
         var jwt = mapper.mapUserModelToToken(routeContext, routeUrl, provider);
