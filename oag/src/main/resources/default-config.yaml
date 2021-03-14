@@ -7,19 +7,6 @@ sessionBehaviour:
   redirectLoginFailure: /
   redirectLogout: /
 
-downstreamAuthentication:
-  tokenMapping:
-    implementation: "jwt-mapping"
-    settings:
-      headerName:   "Authorization"
-      headerPrefix: "Bearer "
-      audience:     "<<route-url>>"
-      issuer:       "<<hostUri>>"
-      tokenLifetimeSeconds: 30
-      signatureImplementation: "stub"
-      signatureSettings:
-        foo: bar
-
 securityProfiles:
 
   static:
@@ -35,6 +22,10 @@ securityProfiles:
       Content-Security-Policy: upgrade-insecure-requests;base-uri 'self';object-src 'self'
       Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
       Strict-Transport-Security: max-age=31536000; includeSubDomains
+    userMapping:
+      type: "no-mapping"
+      settings: {}
+
 
   webapplication:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
@@ -49,6 +40,19 @@ securityProfiles:
       Content-Security-Policy: upgrade-insecure-requests;base-uri 'self';object-src 'self'
       Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
       Strict-Transport-Security: max-age=31536000; includeSubDomains
+    userMapping:
+      type: "jwt-mapping"
+      settings:
+        headerName: "Authorization"
+        headerPrefix: "Bearer "
+        audience: "<<route-url>>"
+        issuer: "<<hostUri>>"
+        tokenLifetimeSeconds: 30
+        signatureImplementation: "stub"
+        signatureSettings: {}
+        mappings:
+          id: sub
+          email: email
 
   apiforspa:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
@@ -60,6 +64,19 @@ securityProfiles:
       Referrer-Policy: no-referrer
       Content-Security-Policy: upgrade-insecure-requests; default-src 'none'; base-uri 'self'; frame-ancestors 'none'
       Strict-Transport-Security: max-age=31536000; includeSubDomains
+    userMapping:
+      type: "jwt-mapping"
+      settings:
+        headerName: "Authorization"
+        headerPrefix: "Bearer "
+        audience: "<<route-url>>"
+        issuer: "<<hostUri>>"
+        tokenLifetimeSeconds: 30
+        signatureImplementation: "stub"
+        signatureSettings: { }
+        mappings:
+          id: sub
+          email: email
 
   apiforexternal:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
@@ -67,11 +84,17 @@ securityProfiles:
     responseHeaders:
       Server: <<remove>>
       X-Powered-By: <<remove>>
+    userMapping:
+      type: "no-mapping"
+      settings: {}
 
   raw-proxy:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
     csrfProtection: none
-    responseHeaders:
+    responseHeaders: {}
+    userMapping:
+      type: "no-mapping"
+      settings: {}
 
 traceProfile:
   forwardIncomingTrace: false

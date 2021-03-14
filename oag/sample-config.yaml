@@ -1,7 +1,6 @@
 hostUri: http://localhost:8080
 
 routes:
-
   httpbin:
     type: webapplication
     path: /**
@@ -13,6 +12,16 @@ routes:
     path: /echo/**
     url: https://nellydemoapp.azurewebsites.net
     allowAnonymous: yes
+    userMapper: jwt-mapper
+    userMapperRouteSettings:
+      headerName: "Authorization"
+      headerPrefix: "Bearer "
+      audience: "<<route-url>>"
+      issuer: "<<hostUri>>"
+      mappings:
+        email: email
+        email-verified: email-verified
+
 
 loginProviders:
   google:
@@ -45,7 +54,6 @@ securityProfiles:
       Content-Security-Policy: base-uri 'self';object-src 'self'
       Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
       Strict-Transport-Security: max-age=31536000; includeSubDomains
-
 
 traceProfile:
   forwardIncomingTrace: false

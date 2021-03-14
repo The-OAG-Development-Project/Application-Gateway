@@ -3,7 +3,6 @@ package org.owasp.oag.services.tokenMapping.header;
 import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.services.tokenMapping.UserMapper;
 import org.owasp.oag.session.Session;
-import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -17,7 +16,6 @@ import java.util.HashMap;
  * if the downstream system can only extract the user principal from the header. In that case one must make sure that
  * OAg cannot be bypassed because an attacker could easily craft this header by theirs own.
  */
-@Component("header-mapping")
 public class RequestHeaderUserMapping implements UserMapper {
 
     public static final String X_OAG_PROVIDER = "X-OAG-Provider";

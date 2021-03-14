@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class MainConfigurationValidationTest {
 
     private TraceProfile defaultTraceProfile = new TraceProfile(false, 254, false, 254, false, "w3cTrace", null);
-    private DownstreamAuthenticationConfig defaultDownstreamAuthenticationConfig = new DownstreamAuthenticationConfig(new DownstreamAuthenticationConfig.TokenMappingConfig());
 
     @Test
     public void testValidConfiguration() {
@@ -34,8 +33,7 @@ class MainConfigurationValidationTest {
                 "hosturi.org",
                 new ArrayList<>(),
                 sessionBehaviour,
-                defaultTraceProfile,
-                defaultDownstreamAuthenticationConfig);
+                defaultTraceProfile);
 
         // Act
         var errors = config.getErrors(null);
@@ -61,8 +59,7 @@ class MainConfigurationValidationTest {
                 "hosturi.org",
                 new ArrayList<>(),
                 sessionBehaviour,
-                defaultTraceProfile,
-                defaultDownstreamAuthenticationConfig);
+                defaultTraceProfile);
 
         // Act
         var errors = config.getErrors(null);
@@ -91,8 +88,7 @@ class MainConfigurationValidationTest {
                 "hosturi.org",
                 new ArrayList<>(),
                 sessionBehaviour,
-                defaultTraceProfile,
-                defaultDownstreamAuthenticationConfig);
+                defaultTraceProfile);
 
         // Act
         var errors = config.getErrors(null);
@@ -113,14 +109,13 @@ class MainConfigurationValidationTest {
                 null,
                 null,
                 null,
-                null,
                 null);
 
         // Act
         var errors = config.getErrors(null);
 
         // Assert
-        assertEquals(8, errors.size());
+        assertEquals(7, errors.size());
     }
 
 

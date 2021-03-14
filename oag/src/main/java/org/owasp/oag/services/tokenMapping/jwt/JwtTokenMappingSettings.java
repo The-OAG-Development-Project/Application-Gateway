@@ -11,6 +11,7 @@ public class JwtTokenMappingSettings{
     public int tokenLifetimeSeconds;
     public String signatureImplementation;
     public Map<String, Object> signatureSettings;
+    public Map<String, String> mappings;
 
     public JwtTokenMappingSettings() {
     }

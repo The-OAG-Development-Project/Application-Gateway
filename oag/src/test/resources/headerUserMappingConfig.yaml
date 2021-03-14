@@ -7,10 +7,11 @@ routes:
     url: http://localhost:7777/
     allowAnonymous: yes
 
-downstreamAuthentication:
-  tokenMapping:
-    implementation: "header-mapping"
-
+securityProfiles:
+  webapplication:
+    userMapping:
+      type: "header-mapping"
+      settings: { }
 
 loginProviders:
   local:
