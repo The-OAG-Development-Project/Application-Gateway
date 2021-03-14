@@ -1,6 +1,7 @@
 package org.owasp.oag.services.tokenMapping.jwt;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.owasp.oag.services.tokenMapping.UserMapperUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,5 +48,13 @@ public class JwtTokenMappingSettings{
 
         if (this.signatureImplementation == null)
             throw new RuntimeException("Config: JwtTokenMapper signatureImplementation is invalid");
+
+        if (this.mappings == null)
+            throw new RuntimeException("Config: JwtTokenMapper mappings is invalid");
+
+        for (var entry: this.mappings.entrySet()){
+            if(! UserMapperUtils.isValidMapping(entry.getValue()))
+                throw new RuntimeException("Config: JwtTokenMapper invalid mapping: " + entry.getKey() + " -> " + entry.getValue());
+        }
     }
 }

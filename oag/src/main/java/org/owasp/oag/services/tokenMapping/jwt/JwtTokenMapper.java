@@ -124,7 +124,6 @@ public class JwtTokenMapper implements UserMapper {
                 .issueTime(Date.from(now))
                 .notBeforeTime(Date.from(now))
                 .expirationTime(Date.from(exp))
-                .claim("provider", provider)
                 .jwtID(tokenId);
 
         for(var entry: this.settings.mappings.entrySet()){

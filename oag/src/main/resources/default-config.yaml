@@ -51,6 +51,7 @@ securityProfiles:
         signatureImplementation: "stub"
         signatureSettings: {}
         mappings:
+          provider:       <<login-provider>>
           email_verified: userModel:email_verified
           email:          userModel:email
 
