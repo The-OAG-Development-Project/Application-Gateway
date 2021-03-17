@@ -1,7 +1,7 @@
 package org.owasp.oag.logging.w3ctrace;
 
-import org.owasp.oag.logging.TraceException;
 import org.junit.jupiter.api.Test;
+import org.owasp.oag.exception.TraceException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

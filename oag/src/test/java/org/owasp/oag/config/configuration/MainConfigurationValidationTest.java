@@ -11,7 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MainConfigurationValidationTest {
 
-    private TraceProfile defaultTraceProfile = new TraceProfile(false, 254, false, 254, false, "w3cTrace", null);
+    private final TraceProfile defaultTraceProfile = new TraceProfile(false, 254, false, 254, false, "w3cTrace", null);
+    private final KeyManagementProfile defaultKeyManagementProfile = new KeyManagementProfile(new JwkStoreProfile("localRsaJwkStore", new HashMap<>()), new KeyGeneratorProfile("rsaKeyGenerator", 4096, new HashMap<>()), true, 1);
 
     @Test
     public void testValidConfiguration() {
@@ -32,7 +33,8 @@ class MainConfigurationValidationTest {
                 null,
                 new ArrayList<>(),
                 sessionBehaviour,
-                defaultTraceProfile);
+                defaultTraceProfile,
+                defaultKeyManagementProfile);
 
         // Act
         var errors = config.getErrors(null);
@@ -59,7 +61,8 @@ class MainConfigurationValidationTest {
                 null,
                 new ArrayList<>(),
                 sessionBehaviour,
-                defaultTraceProfile);
+                defaultTraceProfile,
+                defaultKeyManagementProfile);
 
         // Act
         var errors = config.getErrors(null);
@@ -89,7 +92,8 @@ class MainConfigurationValidationTest {
                 null,
                 new ArrayList<>(),
                 sessionBehaviour,
-                defaultTraceProfile);
+                defaultTraceProfile,
+                defaultKeyManagementProfile);
 
         // Act
         var errors = config.getErrors(null);
@@ -104,6 +108,7 @@ class MainConfigurationValidationTest {
 
         // Arrange
         MainConfig config = new MainConfig(
+                null,
                 null,
                 null,
                 null,

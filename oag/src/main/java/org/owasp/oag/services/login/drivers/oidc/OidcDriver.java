@@ -12,7 +12,7 @@ import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 import org.owasp.oag.config.configuration.LoginProviderSettings;
-import org.owasp.oag.services.login.drivers.AuthenticationException;
+import org.owasp.oag.exception.AuthenticationException;
 import org.owasp.oag.services.login.drivers.UserModel;
 import org.owasp.oag.services.login.drivers.oauth.Oauth2Driver;
 import org.slf4j.Logger;

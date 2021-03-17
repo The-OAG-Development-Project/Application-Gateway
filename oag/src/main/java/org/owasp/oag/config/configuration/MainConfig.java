@@ -17,11 +17,14 @@ public class MainConfig implements ErrorValidation {
     private List<String> trustedRedirectHosts;
     private SessionBehaviour sessionBehaviour;
     private TraceProfile traceProfile;
+    private KeyManagementProfile keyManagementProfile;
 
     public MainConfig() {
     }
 
-    public MainConfig(Map<String, LoginProvider> loginProviders, Map<String, GatewayRoute> routes, Map<String, SecurityProfile> securityProfiles, String hostUri, String downstreamApiKey, List<String> trustedRedirectHosts, SessionBehaviour sessionBehaviour, TraceProfile traceProfile) {
+    public MainConfig(Map<String, LoginProvider> loginProviders, Map<String, GatewayRoute> routes, Map<String,
+            SecurityProfile> securityProfiles, String hostUri, String downstreamApiKey, List<String> trustedRedirectHosts,
+                      SessionBehaviour sessionBehaviour, TraceProfile traceProfile, KeyManagementProfile keyManagementProfile) {
         this.loginProviders = loginProviders;
         this.routes = routes;
         this.securityProfiles = securityProfiles;
@@ -30,6 +33,7 @@ public class MainConfig implements ErrorValidation {
         this.trustedRedirectHosts = trustedRedirectHosts;
         this.sessionBehaviour = sessionBehaviour;
         this.traceProfile = traceProfile;
+        this.keyManagementProfile = keyManagementProfile;
     }
 
     public Map<String, GatewayRoute> getRoutes() {
@@ -104,6 +108,14 @@ public class MainConfig implements ErrorValidation {
         this.traceProfile = traceProfile;
     }
 
+    public KeyManagementProfile getKeyManagementProfile() {
+        return keyManagementProfile;
+    }
+
+    public void setKeyManagementProfile(KeyManagementProfile keyManagementProfile) {
+        this.keyManagementProfile = keyManagementProfile;
+    }
+
     @Override
     public List<String> getErrors(ApplicationContext context) {
 
@@ -130,6 +142,9 @@ public class MainConfig implements ErrorValidation {
         if (traceProfile == null)
             errors.add("Config: traceProfile not defined");
 
+        if (keyManagementProfile == null)
+            errors.add("Config: keyManagementProfile not defined");
+
         if (!errors.isEmpty())
             return errors;
 
@@ -139,6 +154,7 @@ public class MainConfig implements ErrorValidation {
         routes.values().forEach(s -> errors.addAll(s.getErrors(context)));
         errors.addAll(sessionBehaviour.getErrors(context));
         errors.addAll(traceProfile.getErrors(context));
+        errors.addAll(keyManagementProfile.getErrors(context));
 
         if (!errors.isEmpty())
             return errors;

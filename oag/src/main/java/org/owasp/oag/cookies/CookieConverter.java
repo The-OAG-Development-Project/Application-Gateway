@@ -1,7 +1,7 @@
 package org.owasp.oag.cookies;
 
 import org.owasp.oag.config.configuration.MainConfig;
-import org.owasp.oag.services.crypto.CookieDecryptionException;
+import org.owasp.oag.exception.CookieDecryptionException;
 import org.owasp.oag.services.crypto.CookieEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;

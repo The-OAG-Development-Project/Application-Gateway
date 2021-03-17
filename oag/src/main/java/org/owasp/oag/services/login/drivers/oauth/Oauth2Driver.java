@@ -11,7 +11,8 @@ import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.Tokens;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
 import org.owasp.oag.config.configuration.LoginProviderSettings;
-import org.owasp.oag.services.login.drivers.AuthenticationException;
+import org.owasp.oag.exception.AuthenticationException;
+import org.owasp.oag.exception.ConfigurationException;
 import org.owasp.oag.services.login.drivers.LoginDriverBase;
 import org.owasp.oag.services.login.drivers.LoginDriverResult;
 import org.owasp.oag.services.login.drivers.UserModel;
@@ -63,7 +64,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         try {
             return new URI((String) settings.get("authEndpoint"));
         } catch (Exception e) {
-            throw new RuntimeException("Invalid auth endpoint");
+            throw new ConfigurationException("Invalid auth endpoint", null);
         }
     }
 
@@ -72,7 +73,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         try {
             return new ClientID((String) settings.get("clientId"));
         } catch (Exception e) {
-            throw new RuntimeException("Invalid clientId");
+            throw new ConfigurationException("Invalid clientId", null);
         }
     }
 
@@ -89,7 +90,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
             return new Scope(scopesList.toArray(new String[]{}));
 
         } catch (Exception e) {
-            throw new RuntimeException("Invalid scope");
+            throw new ConfigurationException("Invalid scope", null);
         }
     }
 
@@ -152,7 +153,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         try {
             return new Secret((String) settings.get("clientSecret"));
         } catch (Exception e) {
-            throw new RuntimeException("Invalid clientId");
+            throw new ConfigurationException("Invalid clientSecret", null);
         }
     }
 
@@ -161,7 +162,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         try {
             return new URI((String) settings.get("tokenEndpoint"));
         } catch (Exception e) {
-            throw new RuntimeException("Invalid token endpoint");
+            throw new ConfigurationException("Invalid token endpoint", null);
         }
     }
 

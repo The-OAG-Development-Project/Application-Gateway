@@ -1,9 +1,9 @@
 package org.owasp.oag.filters.spring;
 
 import org.owasp.oag.cookies.LoginCookie;
+import org.owasp.oag.exception.CookieDecryptionException;
 import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.services.blacklist.SessionBlacklist;
-import org.owasp.oag.services.crypto.CookieDecryptionException;
 import org.owasp.oag.services.crypto.CookieEncryptor;
 import org.owasp.oag.session.Session;
 import org.owasp.oag.utils.LoggingUtils;

@@ -1,6 +1,7 @@
 package org.owasp.oag.infrastructure.factories;
 
 import org.owasp.oag.config.configuration.LoginProviderSettings;
+import org.owasp.oag.exception.ConfigurationException;
 import org.owasp.oag.services.login.drivers.LoginDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -25,7 +26,7 @@ public class DefaultLoginDriverFactory implements LoginDriverFactory {
             return driverFactory.load(settings);
         }
         catch (Exception ex){
-            throw new RuntimeException("Login driver factory with name " + driverName + " not found", ex);
+            throw new ConfigurationException("Login driver factory with name " + driverName + " not found", ex);
         }
     }
 }

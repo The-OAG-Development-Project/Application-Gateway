@@ -115,9 +115,9 @@ public class SimpleTraceContext implements TraceContext {
 
     private String getHeaderName() {
         if (appliedHeaderName == null) {
-            if (config.getTraceProfile().getTraceImplSpecificSettings() != null && config.getTraceProfile().getTraceImplSpecificSettings().containsKey(HEADER_NAME)) {
-                if (config.getTraceProfile().getTraceImplSpecificSettings().get(HEADER_NAME) != null && config.getTraceProfile().getTraceImplSpecificSettings().get(HEADER_NAME) instanceof String) {
-                    appliedHeaderName = (String) config.getTraceProfile().getTraceImplSpecificSettings().get(HEADER_NAME);
+            if (config.getTraceProfile().getImplSpecificSettings() != null && config.getTraceProfile().getImplSpecificSettings().containsKey(HEADER_NAME)) {
+                if (config.getTraceProfile().getImplSpecificSettings().get(HEADER_NAME) != null && config.getTraceProfile().getImplSpecificSettings().get(HEADER_NAME) instanceof String) {
+                    appliedHeaderName = (String) config.getTraceProfile().getImplSpecificSettings().get(HEADER_NAME);
                 } else {
                     log.warn("Invalid Header Name provided for trace/correlation logging in config, using default name instead.");
                     appliedHeaderName = DEFAULT_HEADER;

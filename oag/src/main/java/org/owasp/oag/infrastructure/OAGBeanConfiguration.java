@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.owasp.oag.config.ConfigLoader;
 import org.owasp.oag.config.FileConfigLoader;
 import org.owasp.oag.config.configuration.MainConfig;
+import org.owasp.oag.exception.ConfigurationException;
 import org.owasp.oag.services.blacklist.LocalPersistentBlacklist;
 import org.owasp.oag.services.blacklist.SessionBlacklist;
 import org.owasp.oag.services.crypto.CookieEncryptor;
@@ -44,18 +45,18 @@ public class OAGBeanConfiguration {
             if (!configErrors.isEmpty()) {
                 String message = "Configuration file contains errors: " + configErrors.toString();
                 log.error(message);
-                throw new RuntimeException(message);
+                throw new ConfigurationException(message, null);
             }
 
             return config;
 
         } catch (JsonProcessingException e) {
             log.error("OAG configuration file is invalid: {}", e.getMessage());
-            throw new RuntimeException("OAG configuration file is invalid", e);
+            throw new ConfigurationException("OAG configuration file is invalid", e);
         } catch (IOException e) {
 
             log.error("Could not load OAG configuration {}", e.getMessage());
-            throw new RuntimeException("Could not load OAG configuration", e);
+            throw new ConfigurationException("Could not load OAG configuration", e);
         }
     }
 
