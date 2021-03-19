@@ -5,7 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.infrastructure.GlobalClockSource;
-import org.owasp.oag.services.crypto.JwtSigner;
+import org.owasp.oag.services.crypto.jwt.JwtSigner;
 import org.owasp.oag.services.tokenMapping.UserMapper;
 import org.owasp.oag.services.tokenMapping.UserMapperUtils;
 import org.owasp.oag.session.UserModel;

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.owasp.oag.config.configuration.GatewayRoute;
 import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.infrastructure.GlobalClockSource;
+import org.owasp.oag.services.crypto.jwt.StubJwtSignerFactory;
 import org.owasp.oag.services.tokenMapping.jwt.JwtTokenMapper;
 import org.owasp.oag.services.tokenMapping.jwt.JwtTokenMappingSettings;
 import org.owasp.oag.session.Session;
@@ -49,7 +50,7 @@ class JwtTokenMappingTest {
         mappingSettingsMappings.put("constant-claim", "constant:abc");
         mappingSettingsMappings.put("provider", "<<login-provider>>");
         var mappingSettings = new JwtTokenMappingSettings("Authorization", "Bearer", "<<route-url>>", "<<hostUri>>", 30, "stub", new HashMap<>(), mappingSettingsMappings);
-        var mapper = new JwtTokenMapper(new StubJwtSigner(), new GlobalClockSource(), mappingSettings, hostUri);
+        var mapper = new JwtTokenMapper(new StubJwtSignerFactory().create(null), new GlobalClockSource(), mappingSettings, hostUri);
 
         // Act
         var jwt = mapper.mapUserModelToToken(routeContext, routeUrl, provider);
@@ -72,7 +73,7 @@ class JwtTokenMappingTest {
         // Arrange
         var clockSource = new GlobalClockSource();
         var mappingSettings = new JwtTokenMappingSettings("Authorization", "Bearer", "<<route-url>>", "<<hostUri>>", 30, "stub", new HashMap<>(), new HashMap<>());
-        var mapper = new JwtTokenMapper(new StubJwtSigner(), clockSource, mappingSettings, hostUri);
+        var mapper = new JwtTokenMapper(new StubJwtSignerFactory().create(null), clockSource, mappingSettings, hostUri);
         var provider = "iam";
 
         // Act
