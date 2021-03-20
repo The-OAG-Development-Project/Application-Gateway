@@ -45,9 +45,9 @@ class JwtTokenMappingTest {
 
         // Arrange
         var mappingSettingsMappings = new HashMap<String, String>();
-        mappingSettingsMappings.put("email-claim", "userModel:email");
-        mappingSettingsMappings.put("constant-claim", "constant:abc");
-        mappingSettingsMappings.put("provider", "<<login-provider>>");
+        mappingSettingsMappings.put("email-claim", "<mappings.email>");
+        mappingSettingsMappings.put("constant-claim", "abc");
+        mappingSettingsMappings.put("provider", "<session.provider>");
         var mappingSettings = new JwtTokenMappingSettings("Authorization", "Bearer", "<<route-url>>", "<<hostUri>>", 30, "stub", new HashMap<>(), mappingSettingsMappings);
         var mapper = new JwtTokenMapper(new StubJwtSignerFactory().create(null), new GlobalClockSource(), mappingSettings, hostUri);
 

@@ -58,10 +58,10 @@ securityProfiles:
           secretKey: deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef
           keyId: Sample Key
         mappings:
-          provider:       <<login-provider>>
-          email_verified: userModel:email_verified
-          email:          userModel:email
-          proxy:          "constant:OWASP Application Gateway"
+          provider:       <session.provider>
+          email_verified: <mappings.email_verified>
+          email:          <mappings.email>
+          proxy:          "OWASP Application Gateway"
 
 traceProfile:
   forwardIncomingTrace: false

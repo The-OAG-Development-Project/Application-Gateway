@@ -13,8 +13,8 @@ securityProfiles:
       type: "header-mapping"
       settings:
         mappings:
-          X-USER-PROVIDER: <<login-provider>>
-          X-USER-ID: <<user-id>>
+          X-USER-PROVIDER: <session.provider>
+          X-USER-ID: <session.userId>
 
 loginProviders:
   local:

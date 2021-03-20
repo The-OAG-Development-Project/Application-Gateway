@@ -2,7 +2,7 @@ package org.owasp.oag.services.tokenMapping.jwt;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.owasp.oag.config.InvalidOAGSettingsException;
-import org.owasp.oag.services.tokenMapping.UserMapperUtils;
+import org.owasp.oag.services.tokenMapping.UserMappingTemplatingEngine;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +54,7 @@ public class JwtTokenMappingSettings{
             throw new InvalidOAGSettingsException("Config: JwtTokenMapper mappings is invalid");
 
         for (var entry: this.mappings.entrySet()){
-            if(! UserMapperUtils.isValidMapping(entry.getValue()))
+            if(! UserMappingTemplatingEngine.isValidTemplate(entry.getValue()))
                 throw new InvalidOAGSettingsException("Config: JwtTokenMapper invalid mapping: " + entry.getKey() + " -> " + entry.getValue());
         }
     }

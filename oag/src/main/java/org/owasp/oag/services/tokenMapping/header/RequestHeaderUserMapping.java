@@ -3,7 +3,7 @@ package org.owasp.oag.services.tokenMapping.header;
 import org.owasp.oag.config.InvalidOAGSettingsException;
 import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.services.tokenMapping.UserMapper;
-import org.owasp.oag.services.tokenMapping.UserMapperUtils;
+import org.owasp.oag.services.tokenMapping.UserMappingTemplatingEngine;
 import org.owasp.oag.session.Session;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -41,9 +41,10 @@ public class RequestHeaderUserMapping implements UserMapper {
             Session session = sessionOptional.get();
             HashMap<String, String> userMappings = session.getUserModel().getMappings();
 
+            var engine = new UserMappingTemplatingEngine(session);
             for (var entry: settings.mappings.entrySet()){
 
-                var value = UserMapperUtils.getMappingFromUserModel(context, entry.getValue());
+                var value = engine.processTemplate(entry.getValue());
                 request.header(entry.getKey(), value);
             }
 

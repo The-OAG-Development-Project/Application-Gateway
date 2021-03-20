@@ -8,7 +8,7 @@ import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.services.crypto.jwt.JwtSigner;
 import org.owasp.oag.services.tokenMapping.UserMapper;
-import org.owasp.oag.services.tokenMapping.UserMapperUtils;
+import org.owasp.oag.services.tokenMapping.UserMappingTemplatingEngine;
 import org.owasp.oag.session.UserModel;
 import org.owasp.oag.utils.ReactiveUtils;
 import org.slf4j.Logger;
@@ -127,9 +127,11 @@ public class JwtTokenMapper implements UserMapper {
                 .expirationTime(Date.from(exp))
                 .jwtID(tokenId);
 
+
+        var mappingEngine = new UserMappingTemplatingEngine(context.getSessionOptional().get());
         for(var entry: this.settings.mappings.entrySet()){
 
-            var value = UserMapperUtils.getMappingFromUserModel(context, entry.getValue());
+            var value = mappingEngine.processTemplate(entry.getValue());
             claimsBuilder = claimsBuilder.claim(entry.getKey(), value);
         }
 

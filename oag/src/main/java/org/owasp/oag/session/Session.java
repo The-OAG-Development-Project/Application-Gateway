@@ -107,10 +107,19 @@ public class Session {
     }
 
     /**
-     * Returns the is of the session (Not id of the user, check the user model for that)
+     * Returns the is of the session (Not id of the user)
      * @return
      */
     public String getId() {
         return id;
+    }
+
+    /**
+     * Returns the id of the user
+     * @return
+     */
+    public String getUserId() {
+
+        return userModel.getId();
     }
 }
