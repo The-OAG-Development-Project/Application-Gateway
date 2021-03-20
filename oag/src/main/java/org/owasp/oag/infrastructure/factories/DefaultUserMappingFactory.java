@@ -1,5 +1,6 @@
 package org.owasp.oag.infrastructure.factories;
 
+import org.owasp.oag.config.InvalidOAGSettingsException;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.config.configuration.SecurityProfile;
 import org.owasp.oag.services.tokenMapping.UserMapper;
@@ -18,17 +19,21 @@ public class DefaultUserMappingFactory implements UserMappingFactory{
     private Map<String, UserMapper> mapperMap;
 
     @Autowired
-    public DefaultUserMappingFactory(MainConfig config, ApplicationContext context) {
+    public DefaultUserMappingFactory(MainConfig config, ApplicationContext context) throws InvalidOAGSettingsException {
 
         // Get all security profiles that are actually used
         var usedProfiles = config.getUsedSecurityProfiles();
         this.mapperMap = new HashMap<>();
 
         // Init the user mapper for each of it
-        usedProfiles.forEach((profileName, profile) -> initUserMapper(profileName, profile, context));
+        for (var entry : usedProfiles.entrySet()) {
+            String profileName = entry.getKey();
+            SecurityProfile profile = entry.getValue();
+            initUserMapper(profileName, profile, context);
+        }
     }
 
-    private void initUserMapper(String profileName, SecurityProfile profile, ApplicationContext context){
+    private void initUserMapper(String profileName, SecurityProfile profile, ApplicationContext context) throws InvalidOAGSettingsException {
 
         var userMappingSettings = profile.getUserMapping();
         var userMappingType = userMappingSettings.getType();

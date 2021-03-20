@@ -3,6 +3,7 @@ package org.owasp.oag.services.tokenMapping.jwt;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.nimbusds.jwt.JWTClaimsSet;
+import org.owasp.oag.config.InvalidOAGSettingsException;
 import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.services.crypto.jwt.JwtSigner;
@@ -39,7 +40,7 @@ public class JwtTokenMapper implements UserMapper {
     private final String issuer;
 
 
-    public JwtTokenMapper(JwtSigner jwtSigner, GlobalClockSource clockSource, JwtTokenMappingSettings settings, String hostUri) {
+    public JwtTokenMapper(JwtSigner jwtSigner, GlobalClockSource clockSource, JwtTokenMappingSettings settings, String hostUri) throws InvalidOAGSettingsException {
 
         this.jwtSigner = jwtSigner;
         this.clockSource = clockSource;

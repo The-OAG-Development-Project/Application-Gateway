@@ -1,6 +1,7 @@
 package org.owasp.oag.services.tokenMapping.header;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.owasp.oag.config.InvalidOAGSettingsException;
 import org.owasp.oag.services.tokenMapping.UserMapperUtils;
 
 import java.util.HashMap;
@@ -11,14 +12,14 @@ public class RequestHeaderUserMappingSettings {
 
     public Map<String, String> mappings = new HashMap<>();
 
-    public void requireValidSettings() {
+    public void requireValidSettings() throws InvalidOAGSettingsException {
 
-        mappings.entrySet().forEach((entry) -> {
-
+        for(var entry : mappings.entrySet())
+        {
             if(!UserMapperUtils.isValidMapping(entry.getValue())){
 
-                throw new RuntimeException("Invalid mapping in RequestHeaderUserMappingSettings: " + entry.getKey() + " -> " + entry.getValue());
+                throw new InvalidOAGSettingsException("Invalid mapping in RequestHeaderUserMappingSettings: " + entry.getKey() + " -> " + entry.getValue());
             }
-        });
+        }
     }
 }

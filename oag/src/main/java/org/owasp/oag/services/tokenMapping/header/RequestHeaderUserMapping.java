@@ -1,5 +1,6 @@
 package org.owasp.oag.services.tokenMapping.header;
 
+import org.owasp.oag.config.InvalidOAGSettingsException;
 import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.services.tokenMapping.UserMapper;
 import org.owasp.oag.services.tokenMapping.UserMapperUtils;
@@ -25,7 +26,7 @@ public class RequestHeaderUserMapping implements UserMapper {
     private RequestHeaderUserMappingSettings settings;
 
 
-    public RequestHeaderUserMapping(RequestHeaderUserMappingSettings settings) {
+    public RequestHeaderUserMapping(RequestHeaderUserMappingSettings settings) throws InvalidOAGSettingsException {
         this.settings = settings;
         settings.requireValidSettings();
     }

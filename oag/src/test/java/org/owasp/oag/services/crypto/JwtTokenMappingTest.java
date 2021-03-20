@@ -11,7 +11,6 @@ import org.owasp.oag.services.tokenMapping.jwt.JwtTokenMappingSettings;
 import org.owasp.oag.session.Session;
 import org.owasp.oag.session.UserModel;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -42,7 +41,7 @@ class JwtTokenMappingTest {
     }
 
     @Test
-    void testTokenMapping() throws ParseException {
+    void testTokenMapping() throws Exception {
 
         // Arrange
         var mappingSettingsMappings = new HashMap<String, String>();
@@ -68,7 +67,7 @@ class JwtTokenMappingTest {
     }
 
     @Test
-    void testTokenMappingCache(){
+    void testTokenMappingCache() throws Exception{
 
         // Arrange
         var clockSource = new GlobalClockSource();

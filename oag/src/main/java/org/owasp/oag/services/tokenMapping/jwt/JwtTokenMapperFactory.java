@@ -1,5 +1,6 @@
 package org.owasp.oag.services.tokenMapping.jwt;
 
+import org.owasp.oag.config.InvalidOAGSettingsException;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.services.crypto.jwt.JwtSignerFactory;
@@ -28,7 +29,7 @@ public class JwtTokenMapperFactory implements UserMappingFactory {
     MainConfig mainConfig;
 
     @Override
-    public UserMapper load(Map<String, Object> settings) {
+    public UserMapper load(Map<String, Object> settings)  throws InvalidOAGSettingsException {
 
         // Load settings
         JwtTokenMappingSettings jwtTokenMappingSettings;
@@ -36,7 +37,7 @@ public class JwtTokenMapperFactory implements UserMappingFactory {
             jwtTokenMappingSettings = SettingsUtils.settingsFromMap(settings, JwtTokenMappingSettings.class);
         }
         catch(Exception ex){
-            throw new RuntimeException("Cannot deserialize jwt-mapping settings", ex);
+            throw new InvalidOAGSettingsException("Cannot deserialize jwt-mapping settings", ex);
         }
         jwtTokenMappingSettings.requireValidSettings();
 
@@ -45,7 +46,7 @@ public class JwtTokenMapperFactory implements UserMappingFactory {
         var factory = context.getBean(factoryName, JwtSignerFactory.class);
 
         if(factory == null)
-            throw new RuntimeException("No implementation found for singature implementation: " + jwtTokenMappingSettings.signatureImplementation);
+            throw new InvalidOAGSettingsException("No implementation found for singature implementation: " + jwtTokenMappingSettings.signatureImplementation);
 
         var signer = factory.create(jwtTokenMappingSettings.signatureSettings);
 

@@ -1,6 +1,7 @@
 package org.owasp.oag.services.tokenMapping.jwt;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.owasp.oag.config.InvalidOAGSettingsException;
 import org.owasp.oag.services.tokenMapping.UserMapperUtils;
 
 import java.util.HashMap;
@@ -32,29 +33,29 @@ public class JwtTokenMappingSettings{
         this.mappings = mappings;
     }
 
-    public void requireValidSettings(){
+    public void requireValidSettings() throws InvalidOAGSettingsException{
 
         if (this.headerName == null || "".equals(this.headerName))
-            throw new RuntimeException("Config: JwtTokenMapper headerName is invalid");
+            throw new InvalidOAGSettingsException("Config: JwtTokenMapper headerName is invalid");
 
         if (this.headerPrefix == null)
-            throw new RuntimeException("Config: JwtTokenMapper headerPrefix is invalid");
+            throw new InvalidOAGSettingsException("Config: JwtTokenMapper headerPrefix is invalid");
 
         if (this.audience == null)
-            throw new RuntimeException("Config: JwtTokenMapper audience is invalid");
+            throw new InvalidOAGSettingsException("Config: JwtTokenMapper audience is invalid");
 
         if (this.issuer == null)
-            throw new RuntimeException("Config: JwtTokenMapper issuer is invalid");
+            throw new InvalidOAGSettingsException("Config: JwtTokenMapper issuer is invalid");
 
         if (this.signatureImplementation == null)
-            throw new RuntimeException("Config: JwtTokenMapper signatureImplementation is invalid");
+            throw new InvalidOAGSettingsException("Config: JwtTokenMapper signatureImplementation is invalid");
 
         if (this.mappings == null)
-            throw new RuntimeException("Config: JwtTokenMapper mappings is invalid");
+            throw new InvalidOAGSettingsException("Config: JwtTokenMapper mappings is invalid");
 
         for (var entry: this.mappings.entrySet()){
             if(! UserMapperUtils.isValidMapping(entry.getValue()))
-                throw new RuntimeException("Config: JwtTokenMapper invalid mapping: " + entry.getKey() + " -> " + entry.getValue());
+                throw new InvalidOAGSettingsException("Config: JwtTokenMapper invalid mapping: " + entry.getKey() + " -> " + entry.getValue());
         }
     }
 }
