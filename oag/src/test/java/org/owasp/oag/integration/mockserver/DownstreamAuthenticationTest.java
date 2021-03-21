@@ -14,10 +14,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 /**
  * This test test if the gateway correctly transforms the cookie into a JWT token and attaches it to the server
  */
-public class UpstreamAuthenticationTest extends WiremockTest {
+public class DownstreamAuthenticationTest extends WiremockTest {
 
     @Test
-    void testUpstreamHeaderAnonymous() {
+    void testDownstreamHeaderAnonymous() {
 
         stubFor(get("/testHeaders").willReturn(aResponse().withStatus(200)));
 
@@ -31,7 +31,7 @@ public class UpstreamAuthenticationTest extends WiremockTest {
     }
 
     @Test
-    void testUpstreamHeaderAuthenticated() {
+    void testDownstreamHeaderAuthenticated() {
 
         // Arrange
         var loginResult = makeLogin();
@@ -72,5 +72,4 @@ public class UpstreamAuthenticationTest extends WiremockTest {
                 .withCookie("custom", equalTo("foo2"))
                 .withHeader(DownstreamHeaderFilter.X_OAG_STATUS, equalTo(SessionInformation.SESSION_STATE_AUTHENTICATED)));
     }
-
 }
