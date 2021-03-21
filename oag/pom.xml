@@ -110,12 +110,6 @@
             <artifactId>netty-transport</artifactId>
             <version>4.1.60.Final</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/io.netty/netty-transport-native-epoll -->
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-transport-native-epoll</artifactId>
-            <version>4.1.60.Final</version>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/io.netty/netty-codec-http2 -->
         <dependency>
             <groupId>io.netty</groupId>
