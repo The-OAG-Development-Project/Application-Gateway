@@ -1,5 +1,6 @@
 *.key
 *.log
+*.db
 
 HELP.md
 target/

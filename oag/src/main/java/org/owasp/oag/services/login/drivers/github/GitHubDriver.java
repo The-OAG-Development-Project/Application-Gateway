@@ -11,8 +11,8 @@ import com.nimbusds.oauth2.sdk.token.Tokens;
 import org.owasp.oag.config.configuration.LoginProviderSettings;
 import org.owasp.oag.exception.ApplicationException;
 import org.owasp.oag.exception.AuthenticationException;
-import org.owasp.oag.services.login.drivers.UserModel;
 import org.owasp.oag.services.login.drivers.oauth.Oauth2Driver;
+import org.owasp.oag.session.UserModel;
 
 import java.io.IOException;
 import java.net.URI;

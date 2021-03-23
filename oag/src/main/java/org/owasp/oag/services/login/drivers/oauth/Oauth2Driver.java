@@ -15,7 +15,7 @@ import org.owasp.oag.exception.AuthenticationException;
 import org.owasp.oag.exception.ConfigurationException;
 import org.owasp.oag.services.login.drivers.LoginDriverBase;
 import org.owasp.oag.services.login.drivers.LoginDriverResult;
-import org.owasp.oag.services.login.drivers.UserModel;
+import org.owasp.oag.session.UserModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ResponseStatusException;

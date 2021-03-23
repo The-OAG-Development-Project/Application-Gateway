@@ -8,6 +8,7 @@ import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.cookies.LoginStateCookie;
+import org.owasp.oag.exception.ApplicationException;
 import org.owasp.oag.services.blacklist.SessionBlacklist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
@@ -126,9 +127,12 @@ public class WiremockTest extends IntegrationTest {
                     .expectStatus().isFound()
                     .returnResult(String.class);
 
-            return new LoginResult(callbackResult);
+            var result = new LoginResult(callbackResult);
+            result.id = "248289761001"; // id from jwt token
+
+            return result;
         } catch (Exception e) {
-            throw new RuntimeException("Login Failed", e);
+            throw new ApplicationException("Login Failed", e);
         }
     }
 
@@ -147,6 +151,7 @@ public class WiremockTest extends IntegrationTest {
 
         public ResponseCookie sessionCookie;
         public ResponseCookie csrfCookie;
+        public String id;
 
         public LoginResult(FluxExchangeResult<String> callbackResult) {
 

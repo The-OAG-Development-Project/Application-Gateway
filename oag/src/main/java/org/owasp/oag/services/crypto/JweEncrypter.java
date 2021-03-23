@@ -110,7 +110,7 @@ public class JweEncrypter implements CookieEncryptor {
             return jweObject.serialize();
 
         } catch (JOSEException e) {
-            throw new RuntimeException("JWE could not be encrypted", e);
+            throw new ConfigurationException("JWE could not be encrypted", e);
         }
     }
 

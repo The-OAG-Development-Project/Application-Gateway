@@ -1,7 +1,7 @@
 package org.owasp.oag.hooks.session;
 
-import org.owasp.oag.services.login.drivers.UserModel;
 import org.owasp.oag.session.Session;
+import org.owasp.oag.session.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Component
 public class SessionHookChain {
 
-    private List<SessionHook> hooks;
+    private final List<SessionHook> hooks;
 
     public SessionHookChain(@Autowired ApplicationContext context){
 

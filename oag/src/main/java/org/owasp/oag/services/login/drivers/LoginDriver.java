@@ -2,6 +2,7 @@ package org.owasp.oag.services.login.drivers;
 
 import org.owasp.oag.config.configuration.LoginProviderSettings;
 import org.owasp.oag.exception.AuthenticationException;
+import org.owasp.oag.session.UserModel;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 
 import java.net.URI;
