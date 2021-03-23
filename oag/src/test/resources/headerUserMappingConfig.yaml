@@ -1,0 +1,27 @@
+hostUri: localhost:8080
+
+routes:
+  local:
+    type: webapplication
+    path: /**
+    url: http://localhost:7777/
+    allowAnonymous: yes
+
+securityProfiles:
+  webapplication:
+    userMapping:
+      type: "header-mapping"
+      settings:
+        mappings:
+          X-USER-PROVIDER: <session.provider>
+          X-USER-ID: <session.userId>
+
+loginProviders:
+  local:
+    type: oidc
+    with:
+      authEndpoint: http://localhost:7777/oidc/auth
+      tokenEndpoint: http://localhost:7777/oidc/token
+      clientId: sample-client-id
+      clientSecret: thisIsASeceret
+      scopes: [ "openid", "email" ]

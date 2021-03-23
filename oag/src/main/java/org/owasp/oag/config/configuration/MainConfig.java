@@ -6,6 +6,8 @@ import org.springframework.context.ApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MainConfig implements ErrorValidation {
 
@@ -13,7 +15,6 @@ public class MainConfig implements ErrorValidation {
     private Map<String, GatewayRoute> routes;
     private Map<String, SecurityProfile> securityProfiles;
     private String hostUri;
-    private String downstreamApiKey;
     private List<String> trustedRedirectHosts;
     private SessionBehaviour sessionBehaviour;
     private TraceProfile traceProfile;
@@ -21,12 +22,11 @@ public class MainConfig implements ErrorValidation {
     public MainConfig() {
     }
 
-    public MainConfig(Map<String, LoginProvider> loginProviders, Map<String, GatewayRoute> routes, Map<String, SecurityProfile> securityProfiles, String hostUri, String downstreamApiKey, List<String> trustedRedirectHosts, SessionBehaviour sessionBehaviour, TraceProfile traceProfile) {
+    public MainConfig(Map<String, LoginProvider> loginProviders, Map<String, GatewayRoute> routes, Map<String, SecurityProfile> securityProfiles, String hostUri, List<String> trustedRedirectHosts, SessionBehaviour sessionBehaviour, TraceProfile traceProfile) {
         this.loginProviders = loginProviders;
         this.routes = routes;
         this.securityProfiles = securityProfiles;
         this.hostUri = hostUri;
-        this.downstreamApiKey = downstreamApiKey;
         this.trustedRedirectHosts = trustedRedirectHosts;
         this.sessionBehaviour = sessionBehaviour;
         this.traceProfile = traceProfile;
@@ -46,6 +46,19 @@ public class MainConfig implements ErrorValidation {
             return false;
 
         return getHostUri().startsWith("https://");
+    }
+
+    public Map<String, SecurityProfile> getUsedSecurityProfiles() {
+
+        var profiles = getSecurityProfiles();
+        var routes = getRoutes();
+
+        Set<String> usedProfileNames = routes.values().stream().map(route -> route.getType()).collect(Collectors.toSet());
+        var usedProfiles = profiles.entrySet()
+                .stream().filter(entry -> usedProfileNames.contains(entry.getKey()))
+                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+
+        return usedProfiles;
     }
 
     public String getHostUri() {
@@ -70,14 +83,6 @@ public class MainConfig implements ErrorValidation {
 
     private void setSecurityProfiles(Map<String, SecurityProfile> securityProfiles) {
         this.securityProfiles = securityProfiles;
-    }
-
-    public String getDownstreamApiKey() {
-        return downstreamApiKey;
-    }
-
-    private void setDownstreamApiKey(String downstreamApiKey) {
-        this.downstreamApiKey = downstreamApiKey;
     }
 
     public List<String> getTrustedRedirectHosts() {

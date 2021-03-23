@@ -126,7 +126,10 @@ public class WiremockTest extends IntegrationTest {
                     .expectStatus().isFound()
                     .returnResult(String.class);
 
-            return new LoginResult(callbackResult);
+            var result = new LoginResult(callbackResult);
+            result.id = "248289761001"; // id from jwt token
+
+            return result;
         } catch (Exception e) {
             throw new RuntimeException("Login Failed", e);
         }
@@ -147,6 +150,7 @@ public class WiremockTest extends IntegrationTest {
 
         public ResponseCookie sessionCookie;
         public ResponseCookie csrfCookie;
+        public String id;
 
         public LoginResult(FluxExchangeResult<String> callbackResult) {
 

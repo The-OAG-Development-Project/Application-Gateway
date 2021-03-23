@@ -63,7 +63,7 @@ class SecurityProfileValidationTest extends IntegrationTest {
         List<String> errors = profile.getErrors(context);
 
         // Assert
-        assertEquals(3, errors.size());
+        assertEquals(2, errors.size());
     }
 
 }

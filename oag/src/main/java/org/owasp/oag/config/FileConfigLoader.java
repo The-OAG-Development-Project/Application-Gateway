@@ -53,8 +53,7 @@ public class FileConfigLoader implements ConfigLoader {
         om.registerModule(module);
 
         // Load default configuration
-        TypeReference<LinkedHashMap<String, Object>> mapType = new TypeReference<>() {
-        };
+        TypeReference<LinkedHashMap<String, Object>> mapType = new TypeReference<>() {};
         Map<String, Object> defaultConfigMap = om.readValue(defaultSettingsStream, mapType);
 
         // Load config

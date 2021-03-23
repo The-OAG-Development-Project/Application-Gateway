@@ -1,5 +1,4 @@
 trustedRedirectHosts: [ ]
-downstreamApiKey: env:OAG_API_KEY
 
 sessionBehaviour:
   sessionDuration: 3600
@@ -23,6 +22,10 @@ securityProfiles:
       Content-Security-Policy: upgrade-insecure-requests;base-uri 'self';object-src 'self'
       Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
       Strict-Transport-Security: max-age=31536000; includeSubDomains
+    userMapping:
+      type: "no-mapping"
+      settings: {}
+
 
   webapplication:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
@@ -37,6 +40,20 @@ securityProfiles:
       Content-Security-Policy: upgrade-insecure-requests;base-uri 'self';object-src 'self'
       Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
       Strict-Transport-Security: max-age=31536000; includeSubDomains
+    userMapping:
+      type: "jwt-mapping"
+      settings:
+        headerName: "Authorization"
+        headerPrefix: "Bearer "
+        audience: "<<route-url>>"
+        issuer: "<<hostUri>>"
+        tokenLifetimeSeconds: 30
+        signatureImplementation: "stub"
+        signatureSettings: {}
+        mappings:
+          provider:       <session.provider>
+          email_verified: <mappings.email_verified>
+          email:          <mappings.email>
 
   apiforspa:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
@@ -48,6 +65,19 @@ securityProfiles:
       Referrer-Policy: no-referrer
       Content-Security-Policy: upgrade-insecure-requests; default-src 'none'; base-uri 'self'; frame-ancestors 'none'
       Strict-Transport-Security: max-age=31536000; includeSubDomains
+    userMapping:
+      type: "jwt-mapping"
+      settings:
+        headerName: "Authorization"
+        headerPrefix: "Bearer "
+        audience: "<<route-url>>"
+        issuer: "<<hostUri>>"
+        tokenLifetimeSeconds: 30
+        signatureImplementation: "stub"
+        signatureSettings: { }
+        mappings:
+          email_verified: userModel:email_verified
+          email: userModel:email
 
   apiforexternal:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
@@ -55,11 +85,17 @@ securityProfiles:
     responseHeaders:
       Server: <<remove>>
       X-Powered-By: <<remove>>
+    userMapping:
+      type: "no-mapping"
+      settings: {}
 
   raw-proxy:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
     csrfProtection: none
-    responseHeaders:
+    responseHeaders: {}
+    userMapping:
+      type: "no-mapping"
+      settings: {}
 
 traceProfile:
   forwardIncomingTrace: false

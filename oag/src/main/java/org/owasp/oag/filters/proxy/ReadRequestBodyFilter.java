@@ -1,5 +1,6 @@
 package org.owasp.oag.filters.proxy;
 
+import org.owasp.oag.filters.GatewayRouteContext;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;

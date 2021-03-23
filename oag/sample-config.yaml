@@ -1,7 +1,6 @@
 hostUri: http://localhost:8080
 
 routes:
-
   httpbin:
     type: webapplication
     path: /**
@@ -13,6 +12,7 @@ routes:
     path: /echo/**
     url: https://nellydemoapp.azurewebsites.net
     allowAnonymous: yes
+
 
 loginProviders:
   google:
@@ -45,7 +45,23 @@ securityProfiles:
       Content-Security-Policy: base-uri 'self';object-src 'self'
       Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
       Strict-Transport-Security: max-age=31536000; includeSubDomains
-
+    userMapping:
+      type: "jwt-mapping"
+      settings:
+        headerName: "Authorization"
+        headerPrefix: "Bearer "
+        audience: "<<route-url>>"
+        issuer: "<<hostUri>>"
+        tokenLifetimeSeconds: 30
+        signatureImplementation: "hmac"
+        signatureSettings:
+          secretKey: deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef
+          keyId: Sample Key
+        mappings:
+          provider:       <session.provider>
+          email_verified: <mappings.email_verified>
+          email:          <mappings.email>
+          proxy:          "OWASP Application Gateway"
 
 traceProfile:
   forwardIncomingTrace: false

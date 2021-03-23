@@ -1,6 +1,6 @@
 package org.owasp.oag.cookies;
 
-import org.owasp.oag.services.login.drivers.UserModel;
+import org.owasp.oag.session.UserModel;
 
 public class LoginCookie {
 
