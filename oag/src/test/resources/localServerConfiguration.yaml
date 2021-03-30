@@ -1,5 +1,6 @@
-hostUri: localhost:8080
+hostUri: http://localhost:8080
 downstreamApiKey: "TESTAPIKEY"
+trustedRedirectHosts: ["www.whitelisteddomain.tld"]
 
 routes:
   local:
