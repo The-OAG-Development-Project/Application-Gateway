@@ -61,6 +61,7 @@ securityProfiles:
           provider:       <session.provider>
           email_verified: <mappings.email_verified>
           email:          <mappings.email>
+          picture:        <mappings.picture>
           proxy:          "OWASP Application Gateway"
 
 traceProfile:
