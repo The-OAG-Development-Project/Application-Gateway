@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -22,7 +23,7 @@ public class SimpleLogFilter implements WebFilter {
         LoggingUtils.logTrace(log, exchange, "Execute SimpleLogFilter");
 
         var request = exchange.getRequest();
-        LoggingUtils.logInfo(log, exchange, "Request to {} {}",
+        LoggingUtils.logDebug(log, exchange, "Request to {} {}",
                 request.getMethod(),
                 request.getURI());
 
@@ -33,6 +34,15 @@ public class SimpleLogFilter implements WebFilter {
                        response.getRawStatusCode(),
                        request.getMethodValue(),
                        request.getURI());
+                })
+                .doOnError(ResponseStatusException.class, e -> {
+
+                    LoggingUtils.logInfo(log, exchange, "Response status code {} for {} {} errorReason: '{}'",
+                        e.getRawStatusCode(),
+                        request.getMethodValue(),
+                        request.getURI(),
+                        e.getReason());
+                    throw e;
                 });
     }
 }
