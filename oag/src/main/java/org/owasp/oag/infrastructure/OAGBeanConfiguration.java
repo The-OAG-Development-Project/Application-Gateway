@@ -3,6 +3,7 @@ package org.owasp.oag.infrastructure;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.owasp.oag.config.ConfigLoader;
 import org.owasp.oag.config.FileConfigLoader;
+import org.owasp.oag.config.InvalidOAGSettingsException;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.services.blacklist.LocalPersistentBlacklist;
 import org.owasp.oag.services.blacklist.SessionBlacklist;
@@ -33,7 +34,7 @@ public class OAGBeanConfiguration {
     private GlobalClockSource clockSource;
 
     @Bean
-    public MainConfig mainConfig() {
+    public MainConfig mainConfig() throws InvalidOAGSettingsException {
 
         try {
 
@@ -44,7 +45,7 @@ public class OAGBeanConfiguration {
             if (!configErrors.isEmpty()) {
                 String message = "Configuration file contains errors: " + configErrors.toString();
                 log.error(message);
-                throw new RuntimeException(message);
+                throw new InvalidOAGSettingsException(message);
             }
 
             return config;

@@ -1,6 +1,5 @@
 package org.owasp.oag.config.configuration;
 
-import com.google.common.collect.Lists;
 import org.owasp.oag.config.ErrorValidation;
 import org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
@@ -16,8 +15,9 @@ public class SecurityProfile implements ErrorValidation {
 
     private List<String> allowedMethods;
     private String csrfProtection;
-    private List<String> csrfSafeMethods = Lists.asList("GET", new String[]{"HEAD", "OPTIONS"});
-    private Map<String, String> responseHeaders = new HashMap<>();
+    private List<String> csrfSafeMethods = DefaultConfigValues.csrfSafeMethods();
+    private Map<String, String> responseHeaders = DefaultConfigValues.responseHeaders();
+    private UserMappingConfig userMapping = DefaultConfigValues.userMapping();
 
     public List<String> getAllowedMethods() {
         return allowedMethods;
@@ -37,6 +37,14 @@ public class SecurityProfile implements ErrorValidation {
 
     public Map<String, String> getResponseHeaders() {
         return responseHeaders;
+    }
+
+    public UserMappingConfig getUserMapping() {
+        return userMapping;
+    }
+
+    public void setUserMapping(UserMappingConfig userMapping) {
+        this.userMapping = userMapping;
     }
 
     private void setResponseHeaders(Map<String, String> headers) {
@@ -63,16 +71,27 @@ public class SecurityProfile implements ErrorValidation {
         var errors = new ArrayList<String>();
 
         if (allowedMethods == null)
-            errors.add("'allowedMethods' not specified");
+            errors.add("Config Security Profile: 'allowedMethods' not specified");
 
         if (csrfProtection == null)
-            errors.add("'csrfProtection' not specified");
+            errors.add("Config Security Profile: 'csrfProtection' not specified");
 
         if (csrfSafeMethods == null)
-            errors.add("'csrfSafeMethods' not specified");
+            errors.add("Config Security Profile: 'csrfSafeMethods' not specified");
 
         if (responseHeaders == null)
-            errors.add("'responseHeaders' not specified");
+            errors.add("Config Security Profile: 'responseHeaders' not specified");
+
+        if (userMapping == null)
+            errors.add("Config Security Profile: 'userMapping' not specified");
+
+        if (errors.size() > 0)
+            return errors;
+
+        errors.addAll(userMapping.getErrors(context));
+
+        if (errors.size() > 0)
+            return errors;
 
         var factory = CsrfValidationImplementationFactory.get(context);
         try {
