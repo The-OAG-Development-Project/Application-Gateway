@@ -240,8 +240,22 @@ public class LoginController {
             // Destroy the user session
             sessionHookChain.destroySession(exchange);
 
-            // Get redirection url
+            // Get default redirection url
             String returnUrl = loadLogoutReturnUrl(request);
+
+            // To load the federated logout url we need the instance of the login provider
+            Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
+            if(sessionOptional.isPresent()){
+                var session = sessionOptional.get();
+                var provider = session.getProvider();
+                var userModel = session.getUserModel();
+
+                LoginDriver loginDriver = loadLoginDriver(provider);
+                var federatedLogoutUrl = loginDriver.processFederatedLogout(userModel);
+
+                if(federatedLogoutUrl != null)
+                    returnUrl = federatedLogoutUrl.toString();
+            }
 
             // Redirect the user
             response.getHeaders().add("Location", returnUrl);

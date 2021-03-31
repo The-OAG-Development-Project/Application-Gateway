@@ -33,6 +33,16 @@ loginProviders:
       clientSecret: env:GITHUB_CLIENT_SECRET
       scopes: [ "user", "email" ]
 
+  auth0:
+    type: oidc
+    with:
+      authEndpoint: https://dev-b6-eperz.eu.auth0.com/authorize
+      tokenEndpoint: https://dev-b6-eperz.eu.auth0.com/oauth/token
+      clientId: ShvOJHRoa1dH35Oqq17GNcchZDbEmgcz
+      clientSecret: env:AUTH0_CLIENT_SECRET
+      scopes: [ "openid", "email" ]
+      federatedLogoutUrl: https://dev-b6-eperz.eu.auth0.com/v2/logout?client_id=ShvOJHRoa1dH35Oqq17GNcchZDbEmgcz&returnTo=http%3A%2F%2Flocalhost%3A8080
+
 securityProfiles:
   webapplication:
     responseHeaders:
