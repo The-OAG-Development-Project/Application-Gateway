@@ -117,6 +117,19 @@
             <version>4.1.61.Final</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-kotlin</artifactId>
+            <version>2.12.0</version>
+        </dependency>
+
         <!-- End manual dependencies-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
