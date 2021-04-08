@@ -5,6 +5,7 @@ import org.owasp.oag.config.ConfigLoader;
 import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
 import org.owasp.oag.integration.testInfrastructure.TestFileConfigLoader;
 import org.owasp.oag.integration.testInfrastructure.WiremockTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -12,6 +13,12 @@ import org.springframework.context.annotation.Primary;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {
+                "spring.main.allow-bean-definition-overriding=true",
+                "logging.level.ch.gianlucafrei=TRACE"}
+        ,classes = {IntegrationTestConfig.class, PathRewriteTest.PathTestConfig.class}
+)
 public class PathRewriteTest extends WiremockTest {
 
     @Test
@@ -101,7 +108,7 @@ public class PathRewriteTest extends WiremockTest {
 
         @Primary
         @Bean
-        ConfigLoader configLoader() {
+        ConfigLoader configLoaderPathRewrite() {
             return new TestFileConfigLoader("/rewriteTestConfig.yaml");
         }
     }

@@ -90,7 +90,7 @@ public class SecurityProfile implements ErrorValidation {
 
         errors.addAll(userMapping.getErrors(context));
 
-        if (errors.size() > 0)
+        if (errors.size() > 0 || context == null)
             return errors;
 
         var factory = CsrfValidationImplementationFactory.get(context);

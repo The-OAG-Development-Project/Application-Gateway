@@ -8,8 +8,11 @@ import org.owasp.oag.controllers.dto.SessionInformation;
 import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.cookies.LoginStateCookie;
+import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
+import org.owasp.oag.integration.testInfrastructure.LocalServerTestConfig;
 import org.owasp.oag.integration.testInfrastructure.WiremockTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 
 import java.net.URI;
@@ -17,6 +20,10 @@ import java.net.URI;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {"spring.main.allow-bean-definition-overriding=true",
+                "logging.level.ch.gianlucafrei=TRACE"},
+        classes = {IntegrationTestConfig.class, LocalServerTestConfig.class})
 class LoginLogoutTest extends WiremockTest {
 
     @Autowired

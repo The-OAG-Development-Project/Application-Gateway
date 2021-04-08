@@ -23,7 +23,7 @@ import java.io.IOException;
  * Configures all non-trivial beans that can be instanced before the main configuration is loaded
  */
 @Configuration
-@ComponentScan(basePackages={"org.owasp.oag"})
+@ComponentScan(basePackages={"org.owasp.oag.controllers", "org.owasp.oag.filters", "org.owasp.oag.gateway", "org.owasp.oag.hooks", "org.owasp.oag.infrastructure", "org.owasp.oag.logging", "org.owasp.oag.services"})
 public class OAGBeanConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(OAGBeanConfiguration.class);
@@ -49,6 +49,7 @@ public class OAGBeanConfiguration {
             throw new RuntimeException("Could not load OAG configuration", e);
         }
     }
+
 
     @Lazy
     @Bean
