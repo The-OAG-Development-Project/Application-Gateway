@@ -11,6 +11,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
+import java.util.stream.Collectors;
+
 @SpringBootApplication
 public class OWASPApplicationGatewayApplication {
 
@@ -32,8 +34,21 @@ public class OWASPApplicationGatewayApplication {
 
         return args -> {
             validateConfiguration();
+            logInfo();
             log.info("OWASP Application Gateway started with {} routes", config.getRoutes().size());
         };
+    }
+
+
+    private void logInfo() {
+
+        // Log login providers
+        var providers = config.getLoginProviders().entrySet().stream()
+                .map(e -> String.format("%s: type=%s", e.getKey(), e.getValue().getType()))
+                .collect(Collectors.joining(", "));
+
+        log.info("Login Providers: [{}]", providers);
+
     }
 
     private void validateConfiguration() throws InvalidOAGSettingsException{

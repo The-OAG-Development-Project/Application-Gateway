@@ -13,7 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 import java.io.IOException;
 
@@ -21,6 +23,7 @@ import java.io.IOException;
  * Configures all non-trivial beans that can be instanced before the main configuration is loaded
  */
 @Configuration
+@ComponentScan(basePackages={"org.owasp.oag"})
 public class OAGBeanConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(OAGBeanConfiguration.class);
@@ -28,12 +31,12 @@ public class OAGBeanConfiguration {
     @Autowired
     private GlobalClockSource clockSource;
 
+    @Autowired
     @Bean
-    public MainConfig mainConfig(){
+    public MainConfig mainConfig(ConfigLoader loader){
 
         try {
 
-            ConfigLoader loader = configLoader();
             MainConfig config = loader.loadConfiguration();
             return config;
 
@@ -47,9 +50,11 @@ public class OAGBeanConfiguration {
         }
     }
 
+    @Lazy
     @Bean
-    ConfigLoader configLoader() {
-        return new FileConfigLoader();
+    ConfigLoader configLoader(@Value("${oag.configPath}") String configPath) {
+
+        return new FileConfigLoader(configPath);
     }
 
     @Bean
