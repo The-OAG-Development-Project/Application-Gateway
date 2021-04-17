@@ -3,7 +3,6 @@ package org.owasp.oag.infrastructure;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.owasp.oag.config.ConfigLoader;
 import org.owasp.oag.config.FileConfigLoader;
-import org.owasp.oag.config.InvalidOAGSettingsException;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.services.blacklist.LocalPersistentBlacklist;
 import org.owasp.oag.services.blacklist.SessionBlacklist;
@@ -13,9 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 import java.io.IOException;
 
@@ -23,31 +23,21 @@ import java.io.IOException;
  * Configures all non-trivial beans that can be instanced before the main configuration is loaded
  */
 @Configuration
+@ComponentScan(basePackages={"org.owasp.oag.controllers", "org.owasp.oag.cookies","org.owasp.oag.filters", "org.owasp.oag.gateway", "org.owasp.oag.hooks", "org.owasp.oag.infrastructure", "org.owasp.oag.logging", "org.owasp.oag.services"})
 public class OAGBeanConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(OAGBeanConfiguration.class);
 
     @Autowired
-    private ApplicationContext context;
-
-    @Autowired
     private GlobalClockSource clockSource;
 
+    @Autowired
     @Bean
-    public MainConfig mainConfig() throws InvalidOAGSettingsException {
+    public MainConfig mainConfig(ConfigLoader loader){
 
         try {
 
-            ConfigLoader loader = configLoader();
             MainConfig config = loader.loadConfiguration();
-
-            var configErrors = config.getErrors(context);
-            if (!configErrors.isEmpty()) {
-                String message = "Configuration file contains errors: " + configErrors.toString();
-                log.error(message);
-                throw new InvalidOAGSettingsException(message);
-            }
-
             return config;
 
         } catch (JsonProcessingException e) {
@@ -60,9 +50,12 @@ public class OAGBeanConfiguration {
         }
     }
 
+
+    @Lazy
     @Bean
-    ConfigLoader configLoader() {
-        return new FileConfigLoader();
+    ConfigLoader configLoader(@Value("${oag.configPath}") String configPath) {
+
+        return new FileConfigLoader(configPath);
     }
 
     @Bean

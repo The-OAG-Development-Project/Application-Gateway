@@ -5,12 +5,19 @@ import org.junit.jupiter.api.Test;
 import org.owasp.oag.controllers.dto.SessionInformation;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.infrastructure.GlobalClockSource;
+import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
+import org.owasp.oag.integration.testInfrastructure.LocalServerTestConfig;
 import org.owasp.oag.integration.testInfrastructure.WiremockTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Clock;
 import java.time.Duration;
 
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {"spring.main.allow-bean-definition-overriding=true",
+                "logging.level.ch.gianlucafrei=TRACE"},
+        classes = {IntegrationTestConfig.class, LocalServerTestConfig.class})
 class SessionRenewallTest extends WiremockTest {
 
     @Autowired

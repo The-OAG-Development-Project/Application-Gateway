@@ -1,14 +1,12 @@
 package org.owasp.oag.integration.testInfrastructure;
 
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.owasp.oag.config.configuration.LoginProvider;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.cookies.LoginStateCookie;
-import org.owasp.oag.services.blacklist.SessionBlacklist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpMethod;
@@ -16,7 +14,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import java.io.IOException;
 import java.net.URI;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -28,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Adds a mock server on port 7777 with some default methods for testing.
  */
 @AutoConfigureWireMock(port = 7777)
-public class WiremockTest extends IntegrationTest {
+public abstract class WiremockTest {
 
     public static String TEST_SERVER_URI = "http://localhost:7777";
     public static String TEST_1_ENDPOINT = "/foo";
@@ -42,9 +39,6 @@ public class WiremockTest extends IntegrationTest {
 
     @Autowired
     protected WebTestClient webClient;
-
-    @Autowired
-    private SessionBlacklist blacklist;
 
     @BeforeEach
     public void beforeEach() throws Exception {
@@ -90,12 +84,6 @@ public class WiremockTest extends IntegrationTest {
                 .willReturn(aResponse()
                         .withBody(tokenResponse)
                         .withHeader("Content-Type", "application/json;charset=UTF-8")));
-    }
-
-    @AfterAll
-    public void shutdown() throws IOException, InterruptedException {
-        blacklist.close();
-        Thread.sleep(100);
     }
 
     protected LoginResult makeLogin() {

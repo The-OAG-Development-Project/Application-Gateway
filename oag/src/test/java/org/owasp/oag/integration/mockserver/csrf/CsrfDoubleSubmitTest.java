@@ -4,9 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.owasp.oag.OWASPApplicationGatewayApplication;
 import org.owasp.oag.config.ConfigLoader;
 import org.owasp.oag.cookies.CsrfCookie;
+import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
 import org.owasp.oag.integration.testInfrastructure.TestFileConfigLoader;
 import org.owasp.oag.integration.testInfrastructure.WiremockTest;
 import org.owasp.oag.services.csrf.CsrfDoubleSubmitValidation;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -16,6 +18,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.reactive.function.BodyInserters;
 
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {"spring.main.allow-bean-definition-overriding=true",
+                "logging.level.ch.gianlucafrei=TRACE"},
+        classes = {IntegrationTestConfig.class, CsrfDoubleSubmitTest.TestConfig.class})
 class CsrfDoubleSubmitTest extends WiremockTest {
 
     @Test

@@ -1,4 +1,5 @@
-hostUri: localhost:8080
+hostUri: http://localhost:8080
+trustedRedirectHosts: ["www.whitelisteddomain.tld"]
 
 routes:
   local:
