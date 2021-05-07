@@ -9,6 +9,7 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,28 @@ public class SpringCloudGatewayConfiguration {
         initRoutesFromConfig(routes);
 
         return routes.build();
+    }
+
+    // used for key rotation
+    @Bean(name = "keyRotationScheduler")
+    public ThreadPoolTaskScheduler keyRotationThreadPoolTaskScheduler() {
+        ThreadPoolTaskScheduler threadPoolTaskScheduler
+                = new ThreadPoolTaskScheduler();
+        threadPoolTaskScheduler.setPoolSize(2);
+        threadPoolTaskScheduler.setThreadNamePrefix("keyRotate");
+        threadPoolTaskScheduler.initialize();
+        return threadPoolTaskScheduler;
+    }
+
+    // used for cleanup scheduling: e.g. of old signing key's
+    @Bean(name = "cleanupScheduler")
+    public ThreadPoolTaskScheduler cleanupThreadPoolTaskScheduler() {
+        ThreadPoolTaskScheduler threadPoolTaskScheduler
+                = new ThreadPoolTaskScheduler();
+        threadPoolTaskScheduler.setPoolSize(2);
+        threadPoolTaskScheduler.setThreadNamePrefix("keyCleanup");
+        threadPoolTaskScheduler.initialize();
+        return threadPoolTaskScheduler;
     }
 
     private RouteLocatorBuilder.Builder initRoutesFromConfig(RouteLocatorBuilder.Builder routesBuilder) {

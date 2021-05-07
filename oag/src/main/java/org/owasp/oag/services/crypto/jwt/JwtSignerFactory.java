@@ -15,8 +15,9 @@ public interface JwtSignerFactory {
     /**
      * Should return a instance of a jwt signer object
      *
+     * @param hostUri  The host Uri
      * @param settings A map of settings from the configuration file
      * @return A jwt signer object
      */
-    JwtSigner create(Map<String, Object> settings);
+    JwtSigner create(String hostUri, Map<String, Object> settings);
 }

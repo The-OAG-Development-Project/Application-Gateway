@@ -17,18 +17,15 @@ public class KeyManagementProfile implements ErrorValidation {
 
     private JwkStoreProfile jwkStoreProfile;
     private KeyGeneratorProfile keyGeneratorProfile;
-    private Boolean useSigningKeyRotation;
-    private Integer signingKeyRotationHours;
+    private KeyRotationProfile keyRotationProfile;
 
     public KeyManagementProfile() {
     }
 
-    public KeyManagementProfile(JwkStoreProfile jwkStoreProfile, KeyGeneratorProfile keyGeneratorProfile, Boolean useSigningKeyRotation,
-                                Integer signingKeyRotationHours) {
+    public KeyManagementProfile(JwkStoreProfile jwkStoreProfile, KeyGeneratorProfile keyGeneratorProfile, KeyRotationProfile keyRotationProfile) {
         this.jwkStoreProfile = jwkStoreProfile;
         this.keyGeneratorProfile = keyGeneratorProfile;
-        this.useSigningKeyRotation = useSigningKeyRotation;
-        this.signingKeyRotationHours = signingKeyRotationHours;
+        this.keyRotationProfile = keyRotationProfile;
     }
 
     public JwkStoreProfile getJwkStoreProfile() {
@@ -47,20 +44,12 @@ public class KeyManagementProfile implements ErrorValidation {
         this.keyGeneratorProfile = keyGeneratorProfile;
     }
 
-    public Boolean getUseSigningKeyRotation() {
-        return useSigningKeyRotation;
+    public KeyRotationProfile getKeyRotationProfile() {
+        return keyRotationProfile;
     }
 
-    public void setUseSigningKeyRotation(Boolean useSigningKeyRotation) {
-        this.useSigningKeyRotation = useSigningKeyRotation;
-    }
-
-    public Integer getSigningKeyRotationHours() {
-        return signingKeyRotationHours;
-    }
-
-    public void setSigningKeyRotationHours(Integer signingKeyRotationHours) {
-        this.signingKeyRotationHours = signingKeyRotationHours;
+    public void setKeyRotationProfile(KeyRotationProfile keyRotationProfile) {
+        this.keyRotationProfile = keyRotationProfile;
     }
 
     @Override
@@ -74,18 +63,15 @@ public class KeyManagementProfile implements ErrorValidation {
         if (keyGeneratorProfile == null)
             errors.add("'keyGeneratorProfile' not specified in section keyManagementProfile");
 
-        if (useSigningKeyRotation == null)
-            errors.add("'useSigningKeyRotation' not specified in section keyManagementProfile");
-        else {
-            if (useSigningKeyRotation && (signingKeyRotationHours == null || signingKeyRotationHours < 1))
-                errors.add("'signingKeyRotationHours' not specified in section keyManagementProfile or value <1 (must be 1 or more).");
-        }
+        if (keyRotationProfile == null)
+            errors.add("'keyRotationProfile' not specified in section keyManagementProfile");
 
         if (!errors.isEmpty())
             return errors;
 
         errors.addAll(jwkStoreProfile.getErrors(context));
         errors.addAll(keyGeneratorProfile.getErrors(context));
+        errors.addAll(keyRotationProfile.getErrors(context));
 
         return errors;
     }

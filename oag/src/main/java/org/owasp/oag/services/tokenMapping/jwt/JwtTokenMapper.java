@@ -35,7 +35,9 @@ public class JwtTokenMapper implements UserMapper {
     private final JwtTokenMappingSettings settings;
     private final SecureRandom secureRandom;
     private final String issuer;
+    private final String hostUri;
     private Cache<CacheKey, String> tokenCache;
+
 
 
     public JwtTokenMapper(JwtSigner jwtSigner, GlobalClockSource clockSource, JwtTokenMappingSettings settings, String hostUri) {
@@ -45,6 +47,7 @@ public class JwtTokenMapper implements UserMapper {
         this.settings = settings;
         this.secureRandom = new SecureRandom();
         this.issuer = "<<hostUri>>".equals(settings.issuer) ? hostUri : settings.issuer;
+        this.hostUri = hostUri;
 
         settings.requireValidSettings();
         initCache();
@@ -125,7 +128,6 @@ public class JwtTokenMapper implements UserMapper {
                 .expirationTime(Date.from(exp))
                 .jwtID(tokenId);
 
-
         var mappingEngine = new UserMappingTemplatingEngine(context.getSessionOptional().get());
         for (var entry : this.settings.mappings.entrySet()) {
 
@@ -135,12 +137,11 @@ public class JwtTokenMapper implements UserMapper {
 
         // Sign claims set
         JWTClaimsSet claimsSet = claimsBuilder.build();
-        var signedJWT = jwtSigner.signJwt(claimsSet);
+        var signedJWT = jwtSigner.createSignedJwt(claimsSet);
         return signedJWT;
     }
 
     private String createJti() {
-
         return Long.toHexString(secureRandom.nextLong());
     }
 

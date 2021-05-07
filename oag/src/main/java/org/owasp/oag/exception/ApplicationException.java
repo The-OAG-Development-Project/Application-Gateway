@@ -12,11 +12,30 @@ public class ApplicationException extends AbstractException {
     /**
      * creates a new exception logged at default Info level
      *
+     * @param message the message to log
+     */
+    public ApplicationException(String message) {
+        this(message, null);
+    }
+
+    /**
+     * creates a new exception logged at default Info level
+     *
      * @param message         the message to log
      * @param parentException the parent exception if available.
      */
     public ApplicationException(String message, Throwable parentException) {
         super(message, parentException, ExceptionLogLevel.INFO);
+    }
+
+    /**
+     * creates a new exception logged at higher warn level level
+     *
+     * @param message          the message to log
+     * @param elevatedLogLevel set to true to log with WARN level, else logs with Debug Level
+     */
+    public ApplicationException(String message, boolean elevatedLogLevel) {
+        this(message, null, elevatedLogLevel);
     }
 
     /**

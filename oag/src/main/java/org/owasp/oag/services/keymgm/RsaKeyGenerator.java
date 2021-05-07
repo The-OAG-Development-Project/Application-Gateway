@@ -15,15 +15,18 @@ import java.security.NoSuchAlgorithmException;
 @Component("rsaKeyGenerator")
 public class RsaKeyGenerator implements KeyGenerator {
 
-    private final int keySize;
+    private final MainConfig config;
 
     @Autowired
     public RsaKeyGenerator(MainConfig config) {
-        keySize = config.getKeyManagementProfile().getKeyGeneratorProfile().getKeySize();
+        this.config = config;
+        // verify key size is configured, else fails at bean creation time. Note: do not store keySize, so that it can be changed at runtime if later required
+        assert (config.getKeyManagementProfile().getKeyGeneratorProfile().getKeySize() > 0);
     }
 
     @Override
     public GeneratedKey generateJWTSigningKey() {
+        int keySize = config.getKeyManagementProfile().getKeyGeneratorProfile().getKeySize();
         try {
             KeyPairGenerator factory = KeyPairGenerator.getInstance("RSA");
             factory.initialize(keySize);

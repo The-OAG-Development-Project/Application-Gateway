@@ -5,6 +5,6 @@ package org.owasp.oag.exception;
  */
 public class TraceException extends SystemException {
     public TraceException(String msg) {
-        super(msg, null);
+        super(msg);
     }
 }

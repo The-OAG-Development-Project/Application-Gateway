@@ -12,7 +12,16 @@ package org.owasp.oag.exception;
 public class SystemException extends AbstractException {
 
     /**
-     * creates a new exception logged at default Info level
+     * creates a new exception logged at default Warning level
+     *
+     * @param message the message to log
+     */
+    public SystemException(String message) {
+        this(message, null);
+    }
+
+    /**
+     * creates a new exception logged at default Warning level
      *
      * @param message         the message to log
      * @param parentException the parent exception if available.
@@ -22,7 +31,17 @@ public class SystemException extends AbstractException {
     }
 
     /**
-     * creates a new exception logged at higher warn level level
+     * creates a new exception logged at higher Error level or lower Info level
+     *
+     * @param message          the message to log
+     * @param elevatedLogLevel set to true to log with Error level, else logs with Info Level
+     */
+    public SystemException(String message, boolean elevatedLogLevel) {
+        this(message, null, elevatedLogLevel);
+    }
+
+    /**
+     * creates a new exception logged at higher Error level or lower Info level
      *
      * @param message          the message to log
      * @param parentException  the parent exception if available.

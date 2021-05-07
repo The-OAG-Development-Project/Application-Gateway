@@ -11,7 +11,7 @@ import static org.owasp.oag.services.crypto.jwt.JwtSignerFactory.JWT_SIGNER_FACT
 @Component("stub" + JWT_SIGNER_FACTORY_BEAN_POSTFIX)
 public class StubJwtSignerFactory implements JwtSignerFactory {
 
-    public JwtSigner create(Map<String, Object> settings) {
+    public JwtSigner create(String hostUri, Map<String, Object> settings) {
 
         // Generate a new random in-memory key
         SecureRandom random = new SecureRandom();

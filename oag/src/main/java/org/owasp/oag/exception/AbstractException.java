@@ -18,7 +18,7 @@ import java.util.UUID;
  */
 public class AbstractException extends RuntimeException {
 
-    private static final Logger log = LoggerFactory.getLogger(AbstractException.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final String exceptionId = UUID.randomUUID().toString();
 

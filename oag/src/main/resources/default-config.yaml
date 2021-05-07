@@ -108,8 +108,11 @@ traceProfile:
     traceImplSpecificParameter: "not used"
 
 keyManagementProfile:
-  useSigningKeyRotation: true
-  signingKeyRotationHours: 240
+  keyRotationProfile:
+    type: defaultKeyRotation
+    useSigningKeyRotation: true
+    signingKeyRotationSeconds: 28800
+    cleanupFrequencySeconds: 10000
   jwkStoreProfile:
     type: localRsaJwkStore
     implSpecificSettings:

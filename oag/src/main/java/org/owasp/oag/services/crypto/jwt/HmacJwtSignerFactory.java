@@ -10,7 +10,7 @@ import static org.owasp.oag.services.crypto.jwt.JwtSignerFactory.JWT_SIGNER_FACT
 @Component("hmac" + JWT_SIGNER_FACTORY_BEAN_POSTFIX)
 public class HmacJwtSignerFactory implements JwtSignerFactory {
 
-    public JwtSigner create(Map<String, Object> settings) {
+    public JwtSigner create(String hostUri, Map<String, Object> settings) {
 
         var sharedKey = settings.getOrDefault("secretKey", null);
         var keyId = settings.getOrDefault("keyId", null);

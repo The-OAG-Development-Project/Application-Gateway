@@ -9,4 +9,8 @@ public class ConfigurationException extends SystemException {
         super(message, parentException);
     }
 
+    public ConfigurationException(String message) {
+        super(message);
+    }
+
 }

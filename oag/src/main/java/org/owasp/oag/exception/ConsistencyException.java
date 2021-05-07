@@ -10,8 +10,18 @@ package org.owasp.oag.exception;
  */
 public final class ConsistencyException extends AbstractException {
 
+
     /**
-     * creates a new exception logged at default Info level
+     * creates a new exception logged at default error level
+     *
+     * @param message the message to log
+     */
+    public ConsistencyException(String message) {
+        this(message, null);
+    }
+
+    /**
+     * creates a new exception logged at default error level
      *
      * @param message         the message to log
      * @param parentException the parent exception if available.
@@ -21,13 +31,23 @@ public final class ConsistencyException extends AbstractException {
     }
 
     /**
-     * creates a new exception logged at lower level if elevated is false.
+     * creates a new exception logged at lower level if lowerLevel is true. Else logs at default level error.
      *
-     * @param message          the message to log
-     * @param parentException  the parent exception if available.
-     * @param elevatedLogLevel set to true to log with Error level, setting to false logs with Warn Level
+     * @param message    the message to log
+     * @param lowerLevel set to true to log with Warning level, setting to false logs with Error Level
      */
-    public ConsistencyException(String message, Throwable parentException, boolean elevatedLogLevel) {
-        super(message, parentException, (elevatedLogLevel ? ExceptionLogLevel.ERROR : ExceptionLogLevel.WARNING));
+    public ConsistencyException(String message, boolean lowerLevel) {
+        this(message, null, lowerLevel);
+    }
+
+    /**
+     * creates a new exception logged at lower level if lowerLevel is true. Else logs at default level error.
+     *
+     * @param message         the message to log
+     * @param parentException the parent exception if available.
+     * @param lowerLevel      set to true to log with Warning level, setting to false logs with default Error Level
+     */
+    public ConsistencyException(String message, Throwable parentException, boolean lowerLevel) {
+        super(message, parentException, (lowerLevel ? ExceptionLogLevel.WARNING : ExceptionLogLevel.ERROR));
     }
 }

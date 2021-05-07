@@ -17,6 +17,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
+import static org.owasp.oag.utils.SharedConstants.JWKS_BASE_URI;
+
 /**
  * Provides "public" (to down stream systems) access to the JWT signer keys currently in use.
  * It does this as a well-known URI (defined in https://tools.ietf.org/html/rfc8615) yet uses
@@ -24,8 +26,6 @@ import java.util.Map;
  */
 @RestController
 public class JwksController {
-    private static final String JWKS_BASE_URI = "/.well-known/jwks";
-
     private static final Logger log = LoggerFactory.getLogger(JwksController.class);
 
     private final JwkStore jwkStore;

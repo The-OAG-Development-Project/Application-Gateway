@@ -6,7 +6,7 @@ package org.owasp.oag.exception;
 public class CookieDecryptionException extends ApplicationException {
 
     public CookieDecryptionException(String message) {
-        super(message, null);
+        super(message);
     }
 
     public CookieDecryptionException(String message, Throwable cause) {

@@ -1,0 +1,44 @@
+hostUri: localhost:8080
+
+routes:
+  local:
+    type: webapplication
+    path: /**
+    url: http://localhost:7777/
+    allowAnonymous: yes
+
+securityProfiles:
+  webapplication:
+    userMapping:
+      type: "header-mapping"
+      settings:
+        mappings:
+          X-USER-PROVIDER: <session.provider>
+          X-USER-ID: <session.userId>
+
+loginProviders:
+  local:
+    type: oidc
+    with:
+      authEndpoint: http://localhost:7777/oidc/auth
+      tokenEndpoint: http://localhost:7777/oidc/token
+      clientId: sample-client-id
+      clientSecret: thisIsASeceret
+      scopes: [ "openid", "email" ]
+
+
+keyManagementProfile:
+  keyRotationProfile:
+    type: defaultKeyRotation
+    useSigningKeyRotation: true
+    signingKeyRotationSeconds: 2
+    cleanupFrequencySeconds: 10000
+  jwkStoreProfile:
+    type: localRsaJwkStore
+    implSpecificSettings:
+      exampleParameter: "not used"
+  keyGeneratorProfile:
+    type: rsaKeyGenerator
+    keySize: 4096
+    implSpecificSettings:
+      exampleParameter: "not used"
