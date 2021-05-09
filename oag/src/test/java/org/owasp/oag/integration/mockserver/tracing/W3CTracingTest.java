@@ -5,6 +5,7 @@ import org.owasp.oag.config.ConfigLoader;
 import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
 import org.owasp.oag.integration.testInfrastructure.TestFileConfigLoader;
 import org.owasp.oag.integration.testInfrastructure.WiremockTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -13,6 +14,10 @@ import org.springframework.context.annotation.Primary;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {"spring.main.allow-bean-definition-overriding=true",
+                "logging.level.ch.gianlucafrei=TRACE"},
+        classes = {IntegrationTestConfig.class, W3CTracingTest.PathTestConfig.class})
 public class W3CTracingTest extends WiremockTest {
 
     @Configuration
@@ -21,7 +26,7 @@ public class W3CTracingTest extends WiremockTest {
 
         @Primary
         @Bean
-        ConfigLoader configLoader() {
+        ConfigLoader testConfigLoader2() {
             return new TestFileConfigLoader("/W3CTracingConfiguration.yaml");
         }
     }

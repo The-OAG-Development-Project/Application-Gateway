@@ -11,7 +11,6 @@ import org.owasp.oag.config.customDeserializer.StringEnvironmentVariableDeserial
 import org.owasp.oag.utils.MapTreeUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,9 +23,12 @@ public class FileConfigLoader implements ConfigLoader {
 
     private static final Logger log = LoggerFactory.getLogger(FileConfigLoader.class);
 
-    @Value("${oag.configPath}")
+
     private String configPath;
 
+    public FileConfigLoader(String configPath) {
+        this.configPath = configPath;
+    }
 
     @Override
     public MainConfig loadConfiguration() throws IOException {
@@ -53,8 +55,7 @@ public class FileConfigLoader implements ConfigLoader {
         om.registerModule(module);
 
         // Load default configuration
-        TypeReference<LinkedHashMap<String, Object>> mapType = new TypeReference<>() {
-        };
+        TypeReference<LinkedHashMap<String, Object>> mapType = new TypeReference<>() {};
         Map<String, Object> defaultConfigMap = om.readValue(defaultSettingsStream, mapType);
 
         // Load config

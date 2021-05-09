@@ -24,12 +24,13 @@ class MainConfigurationValidationTest {
                 "/",
                 "/");
 
+
+
         MainConfig config = new MainConfig(
                 new HashMap<>(),
                 new HashMap<>(),
                 new HashMap<>(),
-                "hosturi.org",
-                null,
+                "https://hosturi.org",
                 new ArrayList<>(),
                 sessionBehaviour,
                 defaultTraceProfile);
@@ -55,8 +56,7 @@ class MainConfigurationValidationTest {
                 new HashMap<>(),
                 new HashMap<>(),
                 new HashMap<>(),
-                "hosturi.org",
-                null,
+                "https://hosturi.org",
                 new ArrayList<>(),
                 sessionBehaviour,
                 defaultTraceProfile);
@@ -85,8 +85,7 @@ class MainConfigurationValidationTest {
                 new HashMap<>(),
                 routes,
                 new HashMap<>(),
-                "hosturi.org",
-                null,
+                "https://hosturi.org",
                 new ArrayList<>(),
                 sessionBehaviour,
                 defaultTraceProfile);
@@ -104,7 +103,6 @@ class MainConfigurationValidationTest {
 
         // Arrange
         MainConfig config = new MainConfig(
-                null,
                 null,
                 null,
                 null,

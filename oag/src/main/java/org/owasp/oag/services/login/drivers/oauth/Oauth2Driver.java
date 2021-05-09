@@ -14,13 +14,15 @@ import org.owasp.oag.config.configuration.LoginProviderSettings;
 import org.owasp.oag.services.login.drivers.AuthenticationException;
 import org.owasp.oag.services.login.drivers.LoginDriverBase;
 import org.owasp.oag.services.login.drivers.LoginDriverResult;
-import org.owasp.oag.services.login.drivers.UserModel;
+import org.owasp.oag.session.UserModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -144,6 +146,23 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         if (!settings.containsKey("authEndpoint"))
             errors.add("auth endpoint missing");
 
+        if (settings.containsKey("federatedLogoutUrl")){
+
+            var federatedLogoutUrl = settings.get("federatedLogoutUrl");
+
+            if(! (federatedLogoutUrl instanceof String))
+                errors.add("federatedLogoutUrl must be a valid url");
+            else {
+
+                try {
+                    new URL((String) federatedLogoutUrl);
+                } catch (MalformedURLException e) {
+                    errors.add("federatedLogoutUrl must be a valid url");
+                }
+            }
+
+        }
+
         return errors;
     }
 
@@ -198,5 +217,21 @@ public abstract class Oauth2Driver extends LoginDriverBase {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Token response parse error");
         }
         return tokenResponse;
+    }
+    
+    @Override
+    public URL processFederatedLogout(UserModel userModel) {
+
+        String federatedLogoutUrl = (String) getSettings().getOrDefault("federatedLogoutUrl", null);
+
+        if(federatedLogoutUrl == null)
+            return null;
+
+        try {
+            return new URL(federatedLogoutUrl);
+        } catch (MalformedURLException e) {
+
+            throw new RuntimeException("Invalid federatedLogoutUrl, should have be verified in getSettingsErrors");
+        }
     }
 }
