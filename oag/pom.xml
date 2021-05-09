@@ -8,12 +8,45 @@
         <version>2.4.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
+
     <groupId>org.owasp</groupId>
     <artifactId>oag</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.4</version>
+
     <name>OWASP Application Gateway</name>
     <description>An elephant strong web application gateway that handles oauth2 authentication and session management.
     </description>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>OWASP</name>
+        <url>http://www.owasp.org</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>gianlucafrei</id>
+            <name>Gian-Luca Frei</name>
+            <email>gian-luca.frei@owasp.org</email>
+        </developer>
+        <developer>
+            <id>Padi-owasp</id>
+            <name>Patrick Steger</name>
+            <email>padi.steger@owasp.org</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/gianlucafrei/Application-Gateway.git</connection>
+        <developerConnection>scm:git:ssh://github.com/gianlucafrei/Application-Gateway.git</developerConnection>
+        <url>https://github.com/gianlucafrei/Application-Gateway</url>
+    </scm>
 
     <properties>
         <java.version>11</java.version>
