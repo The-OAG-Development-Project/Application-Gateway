@@ -35,7 +35,7 @@ class JwtTokenMappingTest {
         model.getMappings().put("email", userEmail);
         model.getMappings().put("phone", userPhone);
 
-        var route = new GatewayRoute("/api/**", routeUrl, "type", true);
+        var route = new GatewayRoute("/api/**", routeUrl, "type", true, null);
         var session = new Session(300, 300, provider, model, null, "sessionId");
         routeContext = new GatewayRouteContext("routeName", route, null, "https://request/uri", "https://upstream/url", Optional.of(session));
     }

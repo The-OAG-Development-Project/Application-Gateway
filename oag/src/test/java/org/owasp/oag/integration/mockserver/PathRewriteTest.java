@@ -2,9 +2,11 @@ package org.owasp.oag.integration.mockserver;
 
 import org.junit.jupiter.api.Test;
 import org.owasp.oag.config.ConfigLoader;
+import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
 import org.owasp.oag.integration.testInfrastructure.TestFileConfigLoader;
 import org.owasp.oag.integration.testInfrastructure.WiremockTest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +22,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
         ,classes = {IntegrationTestConfig.class, PathRewriteTest.PathTestConfig.class}
 )
 public class PathRewriteTest extends WiremockTest {
+
+    @Autowired
+    MainConfig config;
 
     @Test
     public void urlRewriteTestDefault() {
