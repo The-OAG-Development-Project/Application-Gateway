@@ -233,7 +233,7 @@
 
     <build>
         <plugins>
-            <!--<plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <executions>
@@ -248,7 +248,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>-->
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -309,7 +309,7 @@
 
     <profiles>
         <profile>
-            <id>ci-cd</id>
+            <id>gpg-sign</id>
             <build>
                 <plugins>
                     <plugin>
@@ -350,5 +350,19 @@
         </repository>
     </distributionManagement>
 
-    <!-- Usage: mvn -B clean deploy -Pci-cd -DskipTests -Dgpg.passphrase="..." -Dgpg.keyname="..." -X -DrepositoryID=ossrh -->
+
+
+    <!--
+        Build OAG executable and library:
+        > mvn -B clean package
+
+        Output: - oag-exec.jar (Executable JAR)
+                - oag-<VERSION>.jar (Extension library)
+
+        ===================
+        Build OAG library and deploy to maven central:
+        > mvn -B deploy -Pgpg-sign -DskipTests -DrepositoryID=ossrh
+        
+        Properties gpg.passphrase and gpg.keyname must be set (command line or settings.xml)
+        -->
 </project>
