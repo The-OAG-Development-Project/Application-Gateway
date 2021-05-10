@@ -71,7 +71,6 @@ public class SpringCloudGatewayConfiguration {
                 });
 
                 var rewriteConfig = route.getRewrite().build(route);
-                log.info("Route {}: Pattern {} will be replaced with {}", routeName, rewriteConfig.getRegex(), rewriteConfig.getReplacement());
                 var filters = path.filters(rw -> rw.rewritePath(rewriteConfig.getRegex(), rewriteConfig.getReplacement()));
 
                 return filters.uri(routeUrl);

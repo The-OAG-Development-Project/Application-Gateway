@@ -47,9 +47,7 @@ public class UserMappingConfig implements ErrorValidation {
 
         // Check if we can load the token mapping implementation
         if (!context.containsBean(this.type  + USER_MAPPER_TYPE_POSTFIX)) {
-            errors.add("Specified type '" + this.type + "' does not match a user mapping implementation. Must be the bean name of a TokenMapper implementation such as jwt-mapping.");
-        } else {
-            log.debug("Using token mapping implementation of {}.", this.type);
+            errors.add("Specified type '" + this.type + "' does not match a user mapping implementation. Must be the bean name of a UserMapper implementation such as jwt-mapping.");
         }
 
         return errors;
