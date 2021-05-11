@@ -111,7 +111,7 @@ jobs:
       run: echo $GITHUB_SHA >> oag/commit-hash.txt
 
     - name: Update maven version
-      run: mvn versions:set -DnewVersion=${{ steps.get_version.outputs.version }} -DgenerateBackupPoms=false
+      run: mvn versions:set --file oag/pom.xml -DnewVersion=${{ steps.get_version.outputs.version }} -DgenerateBackupPoms=false
 
     - name: Build & Publish to Apache Maven Central
       run: mvn -B deploy --file oag/pom.xml -Pgpg-sign -DrepositoryID=ossrh -DskipTests
