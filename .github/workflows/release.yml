@@ -27,7 +27,7 @@ jobs:
         run: echo $GITHUB_SHA >> oag/commit-hash.txt
 
       - name: "Compile container tag"
-        run: echo "tag=owasp/application-gateway:${{ steps.get_version.outputs.version }}" >> $GITHUB_ENV
+        run: echo "tag=owasp/application-gateway:v${{ steps.get_version.outputs.version }}" >> $GITHUB_ENV
 
       - name: Get release
         id: get_release
