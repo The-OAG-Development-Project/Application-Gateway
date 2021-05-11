@@ -117,7 +117,7 @@ jobs:
       run: mvn versions:set -DnewVersion=${{ steps.get_version.outputs.version }} -DgenerateBackupPoms=false
 
     - name: Build & Publish to Apache Maven Central
-      run: mvn -B deploy -Pgpg-sign -DrepositoryID=ossrh -DskipTests
+      run: mvn -B deploy --file oag/pom.xml -Pgpg-sign -DrepositoryID=ossrh -DskipTests
       env:
         MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
         MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_TOKEN }}
