@@ -20,9 +20,6 @@ jobs:
         run: echo "##[set-output name=version;]$(echo ${GITHUB_REF/refs\/tags\//} | sed -ne 's/[^0-9]*\(\([0-9]\.\)\{0,4\}[0-9]\(-[a-zA-Z]*\)*\).*/\1/p')" 
         id: get_version
 
-      - name: check version name
-        run: '[ -z "${{ steps.get_version.outputs.version }}" ] && echo "invalid version" && exit 1'
-
       - name: Add commit hash to artifact
         run: echo $GITHUB_SHA >> oag/commit-hash.txt
 
@@ -109,9 +106,6 @@ jobs:
       shell: bash
       run: echo "##[set-output name=version;]$(echo ${GITHUB_REF/refs\/tags\//} | sed -ne 's/[^0-9]*\(\([0-9]\.\)\{0,4\}[0-9]\(-[a-zA-Z]*\)*\).*/\1/p')" 
       id: get_version
-
-    - name: check version name
-      run: '[ -z "${{ steps.get_version.outputs.version }}" ] && echo "invalid version" && exit 1'
 
     - name: Add commit hash to artifact
       run: echo $GITHUB_SHA >> oag/commit-hash.txt
