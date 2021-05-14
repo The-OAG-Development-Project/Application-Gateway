@@ -14,6 +14,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"spring.main.allow-bean-definition-overriding=true",
-                "logging.level.ch.gianlucafrei=TRACE"})
+                "logging.level.org.owasp.oag=TRACE"})
 public abstract class IntegrationTest {
 }

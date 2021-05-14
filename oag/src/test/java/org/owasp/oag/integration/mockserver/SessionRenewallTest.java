@@ -16,7 +16,7 @@ import java.time.Duration;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"spring.main.allow-bean-definition-overriding=true",
-                "logging.level.ch.gianlucafrei=TRACE"},
+                "logging.level.org.owasp.oag=TRACE"},
         classes = {IntegrationTestConfig.class, LocalServerTestConfig.class})
 class SessionRenewallTest extends WiremockTest {
 

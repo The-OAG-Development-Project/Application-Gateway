@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"spring.main.allow-bean-definition-overriding=true",
-                "logging.level.ch.gianlucafrei=TRACE"},
+                "logging.level.org.owasp.oag=TRACE"},
         classes = {IntegrationTestConfig.class, SimpleTracingTest.PathTestConfig.class})
 public class SimpleTracingTest extends WiremockTest {
 

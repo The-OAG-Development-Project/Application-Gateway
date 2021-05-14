@@ -19,7 +19,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"spring.main.allow-bean-definition-overriding=true",
-                "logging.level.ch.gianlucafrei=TRACE"},
+                "logging.level.org.owasp.oag=TRACE"},
         classes = {IntegrationTestConfig.class, LocalServerTestConfig.class})
 public class DownstreamAuthenticationTest extends WiremockTest {
 

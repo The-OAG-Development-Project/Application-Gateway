@@ -17,7 +17,7 @@ import org.springframework.http.ResponseCookie;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"spring.main.allow-bean-definition-overriding=true",
-                "logging.level.ch.gianlucafrei=TRACE"},
+                "logging.level.org.owasp.oag=TRACE"},
         classes = {IntegrationTestConfig.class, CsrfSamesiteStrictTest.TestConfig.class})
 class CsrfSamesiteStrictTest extends WiremockTest {
 
