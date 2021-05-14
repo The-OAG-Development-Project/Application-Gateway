@@ -1,5 +1,6 @@
 package org.owasp.oag.services.keymgm;
 
+import com.nimbusds.jose.*;
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.junit.jupiter.api.Test;
 import org.owasp.oag.config.ConfigLoader;
@@ -15,10 +16,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 
+import java.text.ParseException;
 import java.util.Date;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.owasp.oag.services.crypto.jwt.JwtSignerFactory.JWT_SIGNER_FACTORY_BEAN_POSTFIX;
 
 public class RSAKeySignerTest extends IntegrationTest {
@@ -30,7 +31,7 @@ public class RSAKeySignerTest extends IntegrationTest {
     private CurrentSigningKeyHolder signingKeyHolder;
 
     @Test
-    public void testBasicSigning() {
+    public void testBasicSigning() throws ParseException {
         JwtSignerFactory factory = (JwtSignerFactory) context.getBean("rsa" + JWT_SIGNER_FACTORY_BEAN_POSTFIX);
         JwtSigner rsaSigner = factory.create("https://fake.oag.owasp.org", null);
 
@@ -53,6 +54,16 @@ public class RSAKeySignerTest extends IntegrationTest {
         String[] parts = compactJwt.split("\\.");
         assertEquals(3, parts.length);
         assertTrue(parts[2].length() > 20);
+
+        JOSEObject jwt = JOSEObject.parse(compactJwt);
+        assertNotNull(jwt);
+        Header header = jwt.getHeader();
+        assertNotNull(header);
+        assertEquals(Algorithm.parse("RS256"), header.getAlgorithm());
+        assertEquals(JOSEObjectType.JWT, header.getType());
+        assertNotNull(((JWSHeader) header).getJWKURL());
+        assertNotNull(((JWSHeader) header).getKeyID());
+        assertTrue(((JWSHeader) header).getJWKURL().getPath().contains(".well-known"));
     }
 
     @Configuration

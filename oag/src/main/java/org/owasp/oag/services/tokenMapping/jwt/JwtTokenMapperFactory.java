@@ -47,9 +47,7 @@ public class JwtTokenMapperFactory implements UserMappingFactory {
         if (factory == null)
             throw new ConfigurationException("No implementation found for singature implementation: " + jwtTokenMappingSettings.signatureImplementation, null);
 
-        var signer = factory.create(mainConfig.getHostUri(), jwtTokenMappingSettings.signatureSettings);
-
         // Create user mapper
-        return new JwtTokenMapper(signer, clockSource, jwtTokenMappingSettings, mainConfig.getHostUri());
+        return new JwtTokenMapper(factory, clockSource, jwtTokenMappingSettings, mainConfig.getHostUri());
     }
 }

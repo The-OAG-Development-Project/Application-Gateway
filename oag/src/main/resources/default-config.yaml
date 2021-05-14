@@ -48,7 +48,7 @@ securityProfiles:
         audience: "<<route-url>>"
         issuer: "<<hostUri>>"
         tokenLifetimeSeconds: 30
-        signatureImplementation: "stub"
+        signatureImplementation: "rsa"
         signatureSettings: { }
         mappings:
           provider: <session.provider>
@@ -73,7 +73,7 @@ securityProfiles:
         audience: "<<route-url>>"
         issuer: "<<hostUri>>"
         tokenLifetimeSeconds: 30
-        signatureImplementation: "stub"
+        signatureImplementation: "rsa"
         signatureSettings: { }
         mappings:
           email_verified: userModel:email_verified

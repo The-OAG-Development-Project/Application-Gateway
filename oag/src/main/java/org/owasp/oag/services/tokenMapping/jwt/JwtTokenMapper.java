@@ -5,7 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.infrastructure.GlobalClockSource;
-import org.owasp.oag.services.crypto.jwt.JwtSigner;
+import org.owasp.oag.services.crypto.jwt.JwtSignerFactory;
 import org.owasp.oag.services.tokenMapping.UserMapper;
 import org.owasp.oag.services.tokenMapping.UserMappingTemplatingEngine;
 import org.owasp.oag.session.UserModel;
@@ -31,7 +31,8 @@ public class JwtTokenMapper implements UserMapper {
 
     private static final Logger log = LoggerFactory.getLogger(JwtTokenMapper.class);
     private final GlobalClockSource clockSource;
-    private final JwtSigner jwtSigner;
+    // Note: Must use factory because each signature must be created with new signer to make sure key rotation etc. is heeded!
+    private final JwtSignerFactory jwtSignerFactory;
     private final JwtTokenMappingSettings settings;
     private final SecureRandom secureRandom;
     private final String issuer;
@@ -39,10 +40,9 @@ public class JwtTokenMapper implements UserMapper {
     private Cache<CacheKey, String> tokenCache;
 
 
+    public JwtTokenMapper(JwtSignerFactory signerFactory, GlobalClockSource clockSource, JwtTokenMappingSettings settings, String hostUri) {
 
-    public JwtTokenMapper(JwtSigner jwtSigner, GlobalClockSource clockSource, JwtTokenMappingSettings settings, String hostUri) {
-
-        this.jwtSigner = jwtSigner;
+        this.jwtSignerFactory = signerFactory;
         this.clockSource = clockSource;
         this.settings = settings;
         this.secureRandom = new SecureRandom();
@@ -137,6 +137,10 @@ public class JwtTokenMapper implements UserMapper {
 
         // Sign claims set
         JWTClaimsSet claimsSet = claimsBuilder.build();
+
+        // Note: in order to allow key rotation use a new signer per request!
+        var jwtSigner = jwtSignerFactory.create(hostUri, settings.signatureSettings);
+
         var signedJWT = jwtSigner.createSignedJwt(claimsSet);
         return signedJWT;
     }

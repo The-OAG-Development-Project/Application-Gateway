@@ -49,7 +49,7 @@ class JwtTokenMappingTest {
         mappingSettingsMappings.put("constant-claim", "abc");
         mappingSettingsMappings.put("provider", "<session.provider>");
         var mappingSettings = new JwtTokenMappingSettings("Authorization", "Bearer", "<<route-url>>", "<<hostUri>>", 30, "stub", new HashMap<>(), mappingSettingsMappings);
-        var mapper = new JwtTokenMapper(new StubJwtSignerFactory().create(hostUri, null), new GlobalClockSource(), mappingSettings, hostUri);
+        var mapper = new JwtTokenMapper(new StubJwtSignerFactory(), new GlobalClockSource(), mappingSettings, hostUri);
 
         // Act
         var jwt = mapper.mapUserModelToToken(routeContext, routeUrl, provider);
@@ -72,7 +72,7 @@ class JwtTokenMappingTest {
         // Arrange
         var clockSource = new GlobalClockSource();
         var mappingSettings = new JwtTokenMappingSettings("Authorization", "Bearer", "<<route-url>>", "<<hostUri>>", 30, "stub", new HashMap<>(), new HashMap<>());
-        var mapper = new JwtTokenMapper(new StubJwtSignerFactory().create(hostUri, null), clockSource, mappingSettings, hostUri);
+        var mapper = new JwtTokenMapper(new StubJwtSignerFactory(), clockSource, mappingSettings, hostUri);
         var provider = "iam";
 
         // Act
