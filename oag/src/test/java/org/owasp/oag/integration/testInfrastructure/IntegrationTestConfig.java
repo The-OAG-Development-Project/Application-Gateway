@@ -1,7 +1,6 @@
 package org.owasp.oag.integration.testInfrastructure;
 
 import org.owasp.oag.OWASPApplicationGatewayApplication;
-import org.owasp.oag.config.ConfigLoader;
 import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.services.blacklist.SessionBlacklist;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,17 +18,6 @@ public class IntegrationTestConfig {
 
     @Autowired
     GlobalClockSource clockSource;
-
-    /**
-     * Returns a custom config file loader that loads the specified test configuration.
-     *
-     * @return
-     */
-    @Primary
-    @Bean
-    ConfigLoader configLoader() {
-        return new TestFileConfigLoader("/localServerConfiguration.yaml");
-    }
 
     /**
      * Uses a in-memory blacklist for sessions

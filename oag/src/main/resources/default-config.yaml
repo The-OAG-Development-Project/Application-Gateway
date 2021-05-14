@@ -76,8 +76,9 @@ securityProfiles:
         signatureImplementation: "rsa"
         signatureSettings: { }
         mappings:
-          email_verified: userModel:email_verified
-          email: userModel:email
+          provider: <session.provider>
+          email_verified: <mappings.email_verified>
+          email: <mappings.email>
 
   apiforexternal:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]

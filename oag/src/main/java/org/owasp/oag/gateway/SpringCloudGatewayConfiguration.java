@@ -101,7 +101,7 @@ public class SpringCloudGatewayConfiguration {
 
             });
 
-            log.info("Initialized gateway route {}", routeName);
+            log.debug("Initialized gateway route {}", routeName);
         }
 
         return routes;

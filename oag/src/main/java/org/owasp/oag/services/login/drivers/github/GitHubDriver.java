@@ -63,12 +63,18 @@ public class GitHubDriver extends Oauth2Driver {
             GitHubUserResponse profileResponse = makeGitHubApiRequest("https://api.github.com/user", accessToken.getValue(), GitHubUserResponse.class);
 
             // Create user model
-            UserModel model = new UserModel(profileResponse.getId());
+            UserModel model = new UserModel(profileResponse.id);
             model.set("email", email);
-            model.set("picture", profileResponse.getAvatar_url());
-            model.set("github-username", profileResponse.getLogin());
-            model.set("access-token", accessToken.toString());
+            model.set("picture", profileResponse.avatar_url);
+            model.set("preferred_username", profileResponse.login);
+            model.set("email_verified", "true");
+            model.set("sub", model.getId());
+            model.set("name", profileResponse.name);
+            model.set("profile", profileResponse.url);
+            model.set("updated_at", profileResponse.updated_at);
+            model.set("created_at", profileResponse.created_at);
 
+            model.set("access-token", accessToken.toString());
             model.set("refreshToken", refreshToken != null ? refreshToken.toString() : null);
 
             return model;

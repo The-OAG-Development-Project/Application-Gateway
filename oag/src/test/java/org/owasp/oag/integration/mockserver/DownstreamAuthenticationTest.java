@@ -7,13 +7,20 @@ import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.cookies.LoginStateCookie;
 import org.owasp.oag.filters.proxy.DownstreamHeaderFilter;
+import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
+import org.owasp.oag.integration.testInfrastructure.LocalServerTestConfig;
 import org.owasp.oag.integration.testInfrastructure.WiremockTest;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 /**
  * This test test if the gateway correctly transforms the cookie into a JWT token and attaches it to the server
  */
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {"spring.main.allow-bean-definition-overriding=true",
+                "logging.level.ch.gianlucafrei=TRACE"},
+        classes = {IntegrationTestConfig.class, LocalServerTestConfig.class})
 public class DownstreamAuthenticationTest extends WiremockTest {
 
     @Test

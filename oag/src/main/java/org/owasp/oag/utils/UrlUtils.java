@@ -11,14 +11,8 @@ public class UrlUtils {
 
         // Check if relative url
         if (isRelativeUrl(returnUrl)) {
-            // Check if we can compose a full url
-            try {
-                URL testUrl = new URL(new URL("https:www.testurl.com"), returnUrl);
-                return true;
-            } catch (MalformedURLException e) {
-                return false;
-            }
-
+            // Relative url are very hard to parse correctly. i.e. "/\t/example.com"
+            return false;
         }
 
         // Absolute urls
@@ -33,11 +27,7 @@ public class UrlUtils {
                 return false;
 
             // Check if protocol is https
-            // but we make a exception for localhost urls
-            if ("localhost".equals(host))
-                return true;
-            else
-                return "https".equals(url.getProtocol());
+            return "https".equals(url.getProtocol());
 
         } catch (MalformedURLException e) {
             return false;

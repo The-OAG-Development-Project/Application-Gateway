@@ -1,4 +1,4 @@
-hostUri: localhost:8080
+hostUri: http://localhost:8080
 
 routes:
 

@@ -38,6 +38,8 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -80,7 +82,6 @@ public class LoginController {
             @PathVariable(value = "providerKey") String providerKey,
             ServerWebExchange exchange) {
 
-        var request = exchange.getRequest();
         var response = exchange.getResponse();
 
         // Load login implementation
@@ -92,7 +93,7 @@ public class LoginController {
                 .map(loginDriverResult -> {
 
                     // Store login state
-                    String returnUrl = loadLoginReturnUrl(request);
+                    String returnUrl = loadLoginReturnUrl(exchange);
                     storeLoginState(providerKey, loginDriverResult, returnUrl, response);
 
                     // Redirect the user
@@ -115,9 +116,9 @@ public class LoginController {
         }
     }
 
-    public String loadLoginReturnUrl(ServerHttpRequest request) {
+    public String loadLoginReturnUrl(ServerWebExchange exchange) {
 
-        String returnUrl = request.getQueryParams().getFirst("returnUrl");
+        String returnUrl = exchange.getRequest().getQueryParams().getFirst("returnUrl");
 
         // Validate return url
         if (returnUrl == null) {
@@ -125,8 +126,11 @@ public class LoginController {
             return config.getSessionBehaviour().getRedirectLoginSuccess();
         }
 
-        if (!isValidReturnUrl(returnUrl))
+        if (!isValidReturnUrl(returnUrl)) {
+            LoggingUtils.logInfo(log, exchange, "Received invalid returnUrl: " + URLEncoder.encode(returnUrl, StandardCharsets.UTF_8));
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid return url");
+        }
+
 
         return returnUrl;
     }
@@ -165,7 +169,7 @@ public class LoginController {
     public boolean isValidReturnUrl(String returnUrl) {
 
         ArrayList<String> allowedHosts = new ArrayList<>(config.getTrustedRedirectHosts());
-        allowedHosts.add(config.getHostUri());
+        allowedHosts.add(config.getHostname());
         return UrlUtils.isValidReturnUrl(returnUrl, allowedHosts.toArray(new String[]{}));
     }
 
@@ -232,8 +236,22 @@ public class LoginController {
             // Destroy the user session
             sessionHookChain.destroySession(exchange);
 
-            // Get redirection url
+            // Get default redirection url
             String returnUrl = loadLogoutReturnUrl(request);
+
+            // To load the federated logout url we need the instance of the login provider
+            Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
+            if (sessionOptional.isPresent()) {
+                var session = sessionOptional.get();
+                var provider = session.getProvider();
+                var userModel = session.getUserModel();
+
+                LoginDriver loginDriver = loadLoginDriver(provider);
+                var federatedLogoutUrl = loginDriver.processFederatedLogout(userModel);
+
+                if (federatedLogoutUrl != null)
+                    returnUrl = federatedLogoutUrl.toString();
+            }
 
             // Redirect the user
             response.getHeaders().add("Location", returnUrl);

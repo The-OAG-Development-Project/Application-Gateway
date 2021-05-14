@@ -15,6 +15,7 @@ public class TestFileConfigLoader extends FileConfigLoader {
     private final String testFileResourceName;
 
     public TestFileConfigLoader(String testFileResourceName) {
+        super(null);
         this.testFileResourceName = testFileResourceName;
     }
 
