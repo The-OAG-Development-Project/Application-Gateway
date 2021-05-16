@@ -6,9 +6,8 @@ import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
 import org.owasp.oag.integration.testInfrastructure.TestFileConfigLoader;
 import org.owasp.oag.integration.testInfrastructure.WiremockTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 
@@ -37,8 +36,7 @@ public class HeaderMappingTest extends WiremockTest {
                 .withHeader("X-USER-PROVIDER", matching("local")));
     }
 
-    @Configuration
-    @Import(IntegrationTestConfig.class)
+    @TestConfiguration
     public static class PathTestConfig {
 
         @Primary

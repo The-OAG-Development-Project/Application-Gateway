@@ -1,7 +1,6 @@
 package org.owasp.oag.integration.mockserver.csrf;
 
 import org.junit.jupiter.api.Test;
-import org.owasp.oag.OWASPApplicationGatewayApplication;
 import org.owasp.oag.config.ConfigLoader;
 import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
@@ -9,9 +8,8 @@ import org.owasp.oag.integration.testInfrastructure.TestFileConfigLoader;
 import org.owasp.oag.integration.testInfrastructure.WiremockTest;
 import org.owasp.oag.services.csrf.CsrfDoubleSubmitValidation;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -93,8 +91,7 @@ class CsrfDoubleSubmitTest extends WiremockTest {
                 .expectStatus().isUnauthorized();
     }
 
-    @Configuration
-    @Import(OWASPApplicationGatewayApplication.class)
+    @TestConfiguration
     public static class TestConfig {
 
         @Primary

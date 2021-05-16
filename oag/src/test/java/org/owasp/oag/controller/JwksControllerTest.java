@@ -9,17 +9,22 @@ import org.owasp.oag.integration.testInfrastructure.IntegrationTest;
 import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
 import org.owasp.oag.integration.testInfrastructure.TestFileConfigLoader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.io.ByteArrayInputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.owasp.oag.utils.SharedConstants.JWKS_BASE_URI;
 
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {"spring.main.allow-bean-definition-overriding=true",
+                "logging.level.org.owasp.oag=TRACE"},
+        classes = {IntegrationTestConfig.class, JwksControllerTest.PathTestConfig.class})
 public class JwksControllerTest extends IntegrationTest {
 
     @Autowired
@@ -32,12 +37,11 @@ public class JwksControllerTest extends IntegrationTest {
         WebTestClient.ResponseSpec resp = webClient.get().uri(JWKS_BASE_URI).exchange();
         JWKSet jwks = JWKSet.load(new ByteArrayInputStream(resp.expectBody().returnResult().getResponseBody()));
 
-        assertEquals(1, jwks.getKeys().size());
+        assertTrue(jwks.getKeys().size() >= 1);
         assertEquals(KeyType.RSA, jwks.getKeys().get(0).getKeyType());
     }
 
-    @Configuration
-    @Import(IntegrationTestConfig.class)
+    @TestConfiguration
     public static class PathTestConfig {
         @Primary
         @Bean

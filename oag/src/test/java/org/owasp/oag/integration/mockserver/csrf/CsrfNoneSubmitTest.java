@@ -1,7 +1,6 @@
 package org.owasp.oag.integration.mockserver.csrf;
 
 import io.github.artsok.RepeatedIfExceptionsTest;
-import org.owasp.oag.OWASPApplicationGatewayApplication;
 import org.owasp.oag.config.ConfigLoader;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
@@ -9,9 +8,8 @@ import org.owasp.oag.integration.testInfrastructure.TestFileConfigLoader;
 import org.owasp.oag.integration.testInfrastructure.WiremockTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 
@@ -35,8 +33,7 @@ class CsrfNoneSubmitTest extends WiremockTest {
                 .expectStatus().isOk();
     }
 
-    @Configuration
-    @Import(OWASPApplicationGatewayApplication.class)
+    @TestConfiguration
     public static class TestConfig {
 
         @Primary

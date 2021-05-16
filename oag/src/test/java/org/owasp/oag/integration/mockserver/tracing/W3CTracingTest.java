@@ -6,9 +6,8 @@ import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
 import org.owasp.oag.integration.testInfrastructure.TestFileConfigLoader;
 import org.owasp.oag.integration.testInfrastructure.WiremockTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -20,8 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
         classes = {IntegrationTestConfig.class, W3CTracingTest.PathTestConfig.class})
 public class W3CTracingTest extends WiremockTest {
 
-    @Configuration
-    @Import(IntegrationTestConfig.class)
+    @TestConfiguration
     public static class PathTestConfig {
 
         @Primary
