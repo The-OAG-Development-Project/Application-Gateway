@@ -1,5 +1,6 @@
 package org.owasp.oag.logging;
 
+import org.owasp.oag.exception.TraceException;
 import org.owasp.oag.filters.spring.TraceContextFilter;
 import org.owasp.oag.infrastructure.factories.TraceContextFactory;
 import org.owasp.oag.utils.LoggingUtils;

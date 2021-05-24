@@ -6,9 +6,8 @@ import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
 import org.owasp.oag.integration.testInfrastructure.TestFileConfigLoader;
 import org.owasp.oag.integration.testInfrastructure.WiremockTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -16,8 +15,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
                 "spring.main.allow-bean-definition-overriding=true",
-                "logging.level.ch.gianlucafrei=TRACE"}
-        ,classes = {IntegrationTestConfig.class, PathRewriteTest.PathTestConfig.class}
+                "logging.level.org.owasp.oag=TRACE"}
+        , classes = {IntegrationTestConfig.class, PathRewriteTest.PathTestConfig.class}
 )
 public class PathRewriteTest extends WiremockTest {
 
@@ -102,8 +101,7 @@ public class PathRewriteTest extends WiremockTest {
                 .expectBody().equals(msg);
     }
 
-    @Configuration
-    @Import(IntegrationTestConfig.class)
+    @TestConfiguration
     public static class PathTestConfig {
 
         @Primary

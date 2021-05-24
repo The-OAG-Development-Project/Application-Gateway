@@ -1,6 +1,9 @@
-package org.owasp.oag.services.crypto;
+package org.owasp.oag.exception;
 
-public class CookieDecryptionException extends Exception {
+/**
+ * Thrown whenever a cooky can not be decrypted, this is usually a user error /attack.
+ */
+public class CookieDecryptionException extends ApplicationException {
 
     public CookieDecryptionException(String message) {
         super(message);

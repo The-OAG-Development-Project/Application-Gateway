@@ -11,7 +11,8 @@ import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.Tokens;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
 import org.owasp.oag.config.configuration.LoginProviderSettings;
-import org.owasp.oag.services.login.drivers.AuthenticationException;
+import org.owasp.oag.exception.AuthenticationException;
+import org.owasp.oag.exception.ConfigurationException;
 import org.owasp.oag.services.login.drivers.LoginDriverBase;
 import org.owasp.oag.services.login.drivers.LoginDriverResult;
 import org.owasp.oag.session.UserModel;
@@ -65,7 +66,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         try {
             return new URI((String) settings.get("authEndpoint"));
         } catch (Exception e) {
-            throw new RuntimeException("Invalid auth endpoint");
+            throw new ConfigurationException("Invalid auth endpoint", null);
         }
     }
 
@@ -74,7 +75,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         try {
             return new ClientID((String) settings.get("clientId"));
         } catch (Exception e) {
-            throw new RuntimeException("Invalid clientId");
+            throw new ConfigurationException("Invalid clientId", null);
         }
     }
 
@@ -91,7 +92,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
             return new Scope(scopesList.toArray(new String[]{}));
 
         } catch (Exception e) {
-            throw new RuntimeException("Invalid scope");
+            throw new ConfigurationException("Invalid scope", null);
         }
     }
 
@@ -146,11 +147,11 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         if (!settings.containsKey("authEndpoint"))
             errors.add("auth endpoint missing");
 
-        if (settings.containsKey("federatedLogoutUrl")){
+        if (settings.containsKey("federatedLogoutUrl")) {
 
             var federatedLogoutUrl = settings.get("federatedLogoutUrl");
 
-            if(! (federatedLogoutUrl instanceof String))
+            if (!(federatedLogoutUrl instanceof String))
                 errors.add("federatedLogoutUrl must be a valid url");
             else {
 
@@ -171,7 +172,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         try {
             return new Secret((String) settings.get("clientSecret"));
         } catch (Exception e) {
-            throw new RuntimeException("Invalid clientId");
+            throw new ConfigurationException("Invalid clientSecret", null);
         }
     }
 
@@ -180,7 +181,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         try {
             return new URI((String) settings.get("tokenEndpoint"));
         } catch (Exception e) {
-            throw new RuntimeException("Invalid token endpoint");
+            throw new ConfigurationException("Invalid token endpoint", null);
         }
     }
 
@@ -218,13 +219,13 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         }
         return tokenResponse;
     }
-    
+
     @Override
     public URL processFederatedLogout(UserModel userModel) {
 
         String federatedLogoutUrl = (String) getSettings().getOrDefault("federatedLogoutUrl", null);
 
-        if(federatedLogoutUrl == null)
+        if (federatedLogoutUrl == null)
             return null;
 
         try {

@@ -13,14 +13,15 @@ public class UserMappingTemplatingEngine {
 
     /**
      * Creates a new instance for a given user session object
+     *
      * @param session
      */
     public UserMappingTemplatingEngine(Session session) {
 
-        if(session == null)
+        if (session == null)
             throw new IllegalArgumentException("Session must not be null for template mapping");
 
-        if(session.getUserModel() == null)
+        if (session.getUserModel() == null)
             throw new IllegalArgumentException("User model must not be null for template mapping");
 
         this.session = session;
@@ -29,15 +30,16 @@ public class UserMappingTemplatingEngine {
     /**
      * Checks if a given string is a valid string template.
      * Does not check if any references are used that do not exist.
+     *
      * @param mappingTemplate
      * @return
      */
-    public static boolean isValidTemplate(String mappingTemplate){
+    public static boolean isValidTemplate(String mappingTemplate) {
 
-        try{
+        try {
             var st = new ST(mappingTemplate);
             return true;
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return false;
         }
 
@@ -45,10 +47,11 @@ public class UserMappingTemplatingEngine {
 
     /**
      * Renders a template and returns the value as a string.
+     *
      * @param mappingTemplate Template to render with the session object from the constructor
      * @return Rendered mapping value
      */
-    public String processTemplate(String mappingTemplate){
+    public String processTemplate(String mappingTemplate) {
 
         ST st = new ST(mappingTemplate);
 

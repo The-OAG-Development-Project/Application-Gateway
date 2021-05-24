@@ -1,6 +1,7 @@
 package org.owasp.oag.services.login.drivers;
 
 import org.owasp.oag.config.configuration.LoginProviderSettings;
+import org.owasp.oag.exception.AuthenticationException;
 import org.owasp.oag.session.UserModel;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 
@@ -20,6 +21,7 @@ public interface LoginDriver {
      * If the method return a URL, the user will be redirected to this url after the OAG session has been destroyed.
      * This is useful for redirection based federated logut.
      * If the method returns null, the user will be redirected to the default redirectLogout from the configuration file.
+     *
      * @param userModel User model of the OAG session (Was returned by processCallback(...))
      * @return null or url to redirect the user to
      */

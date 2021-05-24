@@ -24,3 +24,19 @@ traceProfile:
   maxLengthAdditionalTraceInfo: 254
   sendTraceResponse: yes
   type: w3cTrace
+
+keyManagementProfile:
+  keyRotationProfile:
+    type: defaultKeyRotation
+    useSigningKeyRotation: true
+    signingKeyRotationSeconds: 2
+    cleanupFrequencySeconds: 10000
+  jwkStoreProfile:
+    type: localRsaJwkStore
+    implSpecificSettings:
+      exampleParameter: "not used"
+  keyGeneratorProfile:
+    type: rsaKeyGenerator
+    keySize: 4096
+    implSpecificSettings:
+      exampleParameter: "not used"

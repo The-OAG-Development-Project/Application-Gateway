@@ -18,15 +18,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JwtTokenMappingTest {
 
-    private String hostUri = "https://gateway";
-    private String routeUrl = "https://backend.com";
-    private String userId = "alice";
-    private String userEmail = "alice@example.com";
-    private String userPhone = "000 000 789";
-    private String provider = "IAM";
+    private final String hostUri = "https://gateway";
+    private final String routeUrl = "https://backend.com";
+    private final String userId = "alice";
+    private final String userEmail = "alice@example.com";
+    private final String userPhone = "000 000 789";
+    private final String provider = "IAM";
 
-    private UserModel model;
-    private GatewayRouteContext routeContext;
+    private final UserModel model;
+    private final GatewayRouteContext routeContext;
 
     public JwtTokenMappingTest() {
 
@@ -49,7 +49,7 @@ class JwtTokenMappingTest {
         mappingSettingsMappings.put("constant-claim", "abc");
         mappingSettingsMappings.put("provider", "<session.provider>");
         var mappingSettings = new JwtTokenMappingSettings("Authorization", "Bearer", "<<route-url>>", "<<hostUri>>", 30, "stub", new HashMap<>(), mappingSettingsMappings);
-        var mapper = new JwtTokenMapper(new StubJwtSignerFactory().create(null), new GlobalClockSource(), mappingSettings, hostUri);
+        var mapper = new JwtTokenMapper(new StubJwtSignerFactory(), new GlobalClockSource(), mappingSettings, hostUri);
 
         // Act
         var jwt = mapper.mapUserModelToToken(routeContext, routeUrl, provider);
@@ -67,12 +67,12 @@ class JwtTokenMappingTest {
     }
 
     @Test
-    void testTokenMappingCache() throws Exception{
+    void testTokenMappingCache() throws Exception {
 
         // Arrange
         var clockSource = new GlobalClockSource();
         var mappingSettings = new JwtTokenMappingSettings("Authorization", "Bearer", "<<route-url>>", "<<hostUri>>", 30, "stub", new HashMap<>(), new HashMap<>());
-        var mapper = new JwtTokenMapper(new StubJwtSignerFactory().create(null), clockSource, mappingSettings, hostUri);
+        var mapper = new JwtTokenMapper(new StubJwtSignerFactory(), clockSource, mappingSettings, hostUri);
         var provider = "iam";
 
         // Act

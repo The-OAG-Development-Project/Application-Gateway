@@ -24,7 +24,7 @@ securityProfiles:
       Strict-Transport-Security: max-age=31536000; includeSubDomains
     userMapping:
       type: "no-mapping"
-      settings: {}
+      settings: { }
 
 
   webapplication:
@@ -48,12 +48,12 @@ securityProfiles:
         audience: "<<route-url>>"
         issuer: "<<hostUri>>"
         tokenLifetimeSeconds: 30
-        signatureImplementation: "stub"
-        signatureSettings: {}
+        signatureImplementation: "rsa"
+        signatureSettings: { }
         mappings:
-          provider:       <session.provider>
+          provider: <session.provider>
           email_verified: <mappings.email_verified>
-          email:          <mappings.email>
+          email: <mappings.email>
 
   apiforspa:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
@@ -73,7 +73,7 @@ securityProfiles:
         audience: "<<route-url>>"
         issuer: "<<hostUri>>"
         tokenLifetimeSeconds: 30
-        signatureImplementation: "stub"
+        signatureImplementation: "rsa"
         signatureSettings: { }
         mappings:
           provider: <session.provider>
@@ -88,15 +88,15 @@ securityProfiles:
       X-Powered-By: <<remove>>
     userMapping:
       type: "no-mapping"
-      settings: {}
+      settings: { }
 
   raw-proxy:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
     csrfProtection: none
-    responseHeaders: {}
+    responseHeaders: { }
     userMapping:
       type: "no-mapping"
-      settings: {}
+      settings: { }
 
 traceProfile:
   forwardIncomingTrace: false
@@ -105,5 +105,21 @@ traceProfile:
   maxLengthAdditionalTraceInfo: 254
   sendTraceResponse: false
   type: w3cTrace
-  traceImplSpecificSettings:
+  implSpecificSettings:
     traceImplSpecificParameter: "not used"
+
+keyManagementProfile:
+  keyRotationProfile:
+    type: defaultKeyRotation
+    useSigningKeyRotation: true
+    signingKeyRotationSeconds: 28800
+    cleanupFrequencySeconds: 10000
+  jwkStoreProfile:
+    type: localRsaJwkStore
+    implSpecificSettings:
+      exampleParameter: "not used"
+  keyGeneratorProfile:
+    type: rsaKeyGenerator
+    keySize: 4096
+    implSpecificSettings:
+      exampleParameter: "not used"

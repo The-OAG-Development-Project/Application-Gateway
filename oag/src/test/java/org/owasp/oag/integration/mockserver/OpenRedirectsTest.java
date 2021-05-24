@@ -16,11 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"spring.main.allow-bean-definition-overriding=true",
-                "logging.level.ch.gianlucafrei=TRACE"},
+                "logging.level.org.owasp.oag=TRACE"},
         classes = {IntegrationTestConfig.class, LocalServerTestConfig.class})
 public class OpenRedirectsTest extends WiremockTest {
 
-    private Collection<String> testCases;
+    private final Collection<String> testCases;
 
     public OpenRedirectsTest() throws IOException {
 
@@ -47,16 +47,16 @@ public class OpenRedirectsTest extends WiremockTest {
 
         var failedCases = new ArrayList<>();
 
-        for(var testCase : testCases){
+        for (var testCase : testCases) {
 
             var loginUrl = "/auth/local/login?returnUrl=" + testCase;
             var result = webClient.get().uri(loginUrl).exchange().returnResult(String.class);
             var status = result.getStatus().value();
 
-            if(status == 302)
+            if (status == 302)
                 failedCases.add(testCase);
         }
 
-        assertTrue(failedCases.isEmpty(), "Some openRedirects were not rejected: " + failedCases.toString());
+        assertTrue(failedCases.isEmpty(), "Some openRedirects were not rejected: " + failedCases);
     }
 }

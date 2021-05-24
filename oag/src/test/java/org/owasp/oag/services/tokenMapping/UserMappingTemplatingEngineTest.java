@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserMappingTemplatingEngineTest {
 
-    private UserMappingTemplatingEngine engine;
+    private final UserMappingTemplatingEngine engine;
 
     public UserMappingTemplatingEngineTest() {
 
@@ -21,24 +21,24 @@ class UserMappingTemplatingEngineTest {
     }
 
     @Test
-    public void testSimpleTemplates(){
+    public void testSimpleTemplates() {
 
         // ACT
         assertEquals("abc", engine.processTemplate("abc"));
         assertEquals("user@example.com", engine.processTemplate("<mappings.email>"));
         assertEquals("user-id", engine.processTemplate("<session.userId>"));
         assertEquals("provider", engine.processTemplate("<session.provider>"));
-        assertEquals("ABC=provider",engine.processTemplate("ABC=<session.provider>"));
+        assertEquals("ABC=provider", engine.processTemplate("ABC=<session.provider>"));
     }
 
     @Test
-    public void testInvalidMapping(){
+    public void testInvalidMapping() {
 
         assertEquals("", engine.processTemplate("<doesNotExist>"));
     }
 
     @Test
-    public void testIsValidMapping(){
+    public void testIsValidMapping() {
 
         assertTrue(UserMappingTemplatingEngine.isValidTemplate("<doesNotExist>"));
         assertTrue(UserMappingTemplatingEngine.isValidTemplate("<session.userId>"));

@@ -8,11 +8,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.time.Duration;
+
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = {"spring.main.allow-bean-definition-overriding=true", "logging.level.ch.gianlucafrei=TRACE"},
+        properties = {"spring.main.allow-bean-definition-overriding=true", "logging.level.org.owasp.oag=TRACE"},
         classes = {IntegrationTestConfig.class})
-public class DefaultConfigurationTest{
+public class DefaultConfigurationTest {
 
     @Autowired
     protected WebTestClient webClient;
@@ -22,8 +24,8 @@ public class DefaultConfigurationTest{
      * delivers ok when accessed
      */
     @Test
-    public void testStartWithSampleConfiguration(){
-
+    public void testStartWithSampleConfiguration() {
+        webClient = webClient.mutate().responseTimeout(Duration.ofSeconds(20)).build();
         webClient.get().uri("/").exchange().expectStatus().isOk();
     }
 }

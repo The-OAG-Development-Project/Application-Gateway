@@ -24,13 +24,14 @@ public class MainConfig implements ErrorValidation {
     private List<String> trustedRedirectHosts;
     private SessionBehaviour sessionBehaviour;
     private TraceProfile traceProfile;
+    private KeyManagementProfile keyManagementProfile;
 
     private URL url;
 
     public MainConfig() {
     }
 
-    public MainConfig(Map<String, LoginProvider> loginProviders, Map<String, GatewayRoute> routes, Map<String, SecurityProfile> securityProfiles, String hostUri, List<String> trustedRedirectHosts, SessionBehaviour sessionBehaviour, TraceProfile traceProfile) {
+    public MainConfig(Map<String, LoginProvider> loginProviders, Map<String, GatewayRoute> routes, Map<String, SecurityProfile> securityProfiles, String hostUri, List<String> trustedRedirectHosts, SessionBehaviour sessionBehaviour, TraceProfile traceProfile, KeyManagementProfile keyManagementProfile) {
         this.loginProviders = loginProviders;
         this.routes = routes;
         this.securityProfiles = securityProfiles;
@@ -38,9 +39,10 @@ public class MainConfig implements ErrorValidation {
         this.trustedRedirectHosts = trustedRedirectHosts;
         this.sessionBehaviour = sessionBehaviour;
         this.traceProfile = traceProfile;
+        this.keyManagementProfile = keyManagementProfile;
 
         try {
-            if(hostUri != null)
+            if (hostUri != null)
                 this.url = new URL(hostUri);
         } catch (MalformedURLException e) {
             throw new RuntimeException("Invalid hostUri", e);
@@ -57,7 +59,7 @@ public class MainConfig implements ErrorValidation {
 
     public boolean isHttpsHost() {
 
-        if(this.url == null) {
+        if (this.url == null) {
             try {
                 this.url = new URL(this.hostUri);
             } catch (MalformedURLException e) {
@@ -84,7 +86,7 @@ public class MainConfig implements ErrorValidation {
         return hostUri;
     }
 
-    public String getHostname(){
+    public String getHostname() {
 
         return url.getHost();
     }
@@ -133,6 +135,14 @@ public class MainConfig implements ErrorValidation {
         this.traceProfile = traceProfile;
     }
 
+    public KeyManagementProfile getKeyManagementProfile() {
+        return keyManagementProfile;
+    }
+
+    public void setKeyManagementProfile(KeyManagementProfile keyManagementProfile) {
+        this.keyManagementProfile = keyManagementProfile;
+    }
+
     @Override
     public List<String> getErrors(ApplicationContext context) {
 
@@ -159,16 +169,19 @@ public class MainConfig implements ErrorValidation {
         if (traceProfile == null)
             errors.add("Config: traceProfile not defined");
 
+        if (keyManagementProfile == null)
+            errors.add("Config: keyManagementProfile not defined");
+
         if (!errors.isEmpty())
             return errors;
 
-        try{
+        try {
             URL parsed = new URL(hostUri);
             var protocol = parsed.getProtocol();
 
-            if("http".equals(protocol)){
+            if ("http".equals(protocol)) {
                 log.warn("Protocol is http which should only be used for development purposes");
-            }else if(! "https".equals(protocol)){
+            } else if (!"https".equals(protocol)) {
                 errors.add("Invalid protocol for hostUri: " + protocol);
             }
         } catch (MalformedURLException e) {
@@ -184,6 +197,7 @@ public class MainConfig implements ErrorValidation {
         routes.values().forEach(s -> errors.addAll(s.getErrors(context)));
         errors.addAll(sessionBehaviour.getErrors(context));
         errors.addAll(traceProfile.getErrors(context));
+        errors.addAll(keyManagementProfile.getErrors(context));
 
         if (!errors.isEmpty())
             return errors;

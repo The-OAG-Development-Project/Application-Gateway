@@ -6,6 +6,10 @@ import com.google.common.io.Files;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.DirectDecrypter;
 import com.nimbusds.jose.crypto.DirectEncrypter;
+import org.owasp.oag.exception.ApplicationException;
+import org.owasp.oag.exception.ConfigurationException;
+import org.owasp.oag.exception.ConsistencyException;
+import org.owasp.oag.exception.CookieDecryptionException;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -28,7 +32,7 @@ public class JweEncrypter implements CookieEncryptor {
     public static JweEncrypter loadFromFileOrCreateAndStoreNewKey(String filename) throws IOException {
 
         if (filename == null)
-            throw new IllegalArgumentException("Filename must not be null");
+            throw new ApplicationException("Filename must not be null", null);
 
         File keyFile = new File(filename);
         byte[] keyBytes;
@@ -50,7 +54,7 @@ public class JweEncrypter implements CookieEncryptor {
                 Files.write(keyBytes, keyFile);
 
             } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("Cloud not create AES key", e);
+                throw new ConsistencyException("Cloud not create AES key", e);
             }
         }
 
@@ -62,7 +66,7 @@ public class JweEncrypter implements CookieEncryptor {
         String key = System.getenv(variableName);
 
         if (key == null)
-            throw new IllegalStateException("JWE encryption key is not defined");
+            throw new ConfigurationException("JWE encryption key is not defined", null);
 
         // decode the base64 encoded string
         byte[] decodedKey = Base64.getDecoder().decode(key);
@@ -77,7 +81,7 @@ public class JweEncrypter implements CookieEncryptor {
             return Base64.getEncoder().encodeToString(secretKey.getEncoded());
 
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("AES key could not be generated", e);
+            throw new ConsistencyException("AES key could not be generated", e);
         }
     }
 
@@ -89,7 +93,7 @@ public class JweEncrypter implements CookieEncryptor {
             return encrypt(payloadString);
 
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Could not encode Json", e);
+            throw new ConsistencyException("Could not encode Json", e);
         }
     }
 
@@ -106,7 +110,7 @@ public class JweEncrypter implements CookieEncryptor {
             return jweObject.serialize();
 
         } catch (JOSEException e) {
-            throw new RuntimeException("JWE could not be encrypted", e);
+            throw new ConfigurationException("JWE could not be encrypted", e);
         }
     }
 

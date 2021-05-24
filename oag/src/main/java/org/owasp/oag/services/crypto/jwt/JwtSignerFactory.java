@@ -10,12 +10,14 @@ public interface JwtSignerFactory {
     /**
      * Bean name postfix for beans of this class.
      */
-    static final String JWT_SIGNER_FACTORY_BEAN_POSTFIX = "-jwt-signer-factory";
+    String JWT_SIGNER_FACTORY_BEAN_POSTFIX = "-jwt-signer-factory";
 
     /**
      * Should return a instance of a jwt signer object
+     *
+     * @param hostUri  The host Uri
      * @param settings A map of settings from the configuration file
      * @return A jwt signer object
      */
-    JwtSigner create(Map<String, Object> settings);
+    JwtSigner create(String hostUri, Map<String, Object> settings);
 }

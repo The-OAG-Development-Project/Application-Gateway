@@ -7,6 +7,7 @@ import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.cookies.LoginStateCookie;
+import org.owasp.oag.exception.ApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpMethod;
@@ -119,7 +120,7 @@ public abstract class WiremockTest {
 
             return result;
         } catch (Exception e) {
-            throw new RuntimeException("Login Failed", e);
+            throw new ApplicationException("Login Failed", e);
         }
     }
 

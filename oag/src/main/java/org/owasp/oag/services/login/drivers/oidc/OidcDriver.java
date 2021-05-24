@@ -12,7 +12,9 @@ import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 import org.owasp.oag.config.configuration.LoginProviderSettings;
-import org.owasp.oag.services.login.drivers.AuthenticationException;
+import org.owasp.oag.exception.ApplicationException;
+import org.owasp.oag.exception.AuthenticationException;
+import org.owasp.oag.exception.SystemException;
 import org.owasp.oag.services.login.drivers.oauth.Oauth2Driver;
 import org.owasp.oag.session.UserModel;
 import org.slf4j.Logger;
@@ -57,7 +59,7 @@ public class OidcDriver extends Oauth2Driver {
             tokenResponse = OIDCTokenResponseParser.parse(httpResponse);
         } catch (IOException | ParseException ex) {
             log.warn("Load token failed: {}", ex.getMessage());
-            throw new RuntimeException("Could not load tokens", ex);
+            throw new SystemException("Could not load tokens", ex);
         }
 
         if (!tokenResponse.indicatesSuccess()) {
@@ -95,12 +97,11 @@ public class OidcDriver extends Oauth2Driver {
             model.set("original-id-token", idToken.getParsedString());
             model.set("original-access-token", accessToken.toString());
 
-            for(String claimName : getMappedClaims()){
+            for (String claimName : getMappedClaims()) {
 
                 Object claim = jwtClaims.getClaim(claimName);
 
-                if (claim != null)
-                {
+                if (claim != null) {
                     model.set(claimName, claim.toString());
                 }
             }
@@ -108,14 +109,13 @@ public class OidcDriver extends Oauth2Driver {
             return model;
 
         } catch (Exception e) {
-            throw new RuntimeException("Could not extract user info", e);
+            throw new ApplicationException("Could not extract user info", e);
         }
     }
 
-    protected List<String> getMappedClaims(){
+    protected List<String> getMappedClaims() {
 
-        return Arrays.asList(new String[]{
-                "sub",
+        return Arrays.asList("sub",
                 "name",
                 "given_name",
                 "family_name",
@@ -134,6 +134,6 @@ public class OidcDriver extends Oauth2Driver {
                 "phone_number",
                 "phone_number_verified",
                 "address",
-                "updated_at"});
+                "updated_at");
     }
 }

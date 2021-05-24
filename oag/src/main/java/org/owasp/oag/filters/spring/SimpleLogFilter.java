@@ -31,17 +31,17 @@ public class SimpleLogFilter implements WebFilter {
                 .doOnSuccess((u) -> {
                     var response = exchange.getResponse();
                     LoggingUtils.logInfo(log, exchange, "Response status code {} for {} {}",
-                       response.getRawStatusCode(),
-                       request.getMethodValue(),
-                       request.getURI());
+                            response.getRawStatusCode(),
+                            request.getMethodValue(),
+                            request.getURI());
                 })
                 .doOnError(ResponseStatusException.class, e -> {
 
                     LoggingUtils.logInfo(log, exchange, "Response status code {} for {} {} errorReason: '{}'",
-                        e.getRawStatusCode(),
-                        request.getMethodValue(),
-                        request.getURI(),
-                        e.getReason());
+                            e.getRawStatusCode(),
+                            request.getMethodValue(),
+                            request.getURI(),
+                            e.getReason());
                     throw e;
                 });
     }

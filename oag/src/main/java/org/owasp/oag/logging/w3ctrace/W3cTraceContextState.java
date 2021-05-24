@@ -1,10 +1,10 @@
 package org.owasp.oag.logging.w3ctrace;
 
-import org.owasp.oag.logging.TraceException;
-import org.owasp.oag.utils.SecureEncoder;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
+import org.owasp.oag.exception.TraceException;
+import org.owasp.oag.utils.SecureEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +20,7 @@ public class W3cTraceContextState {
 
     private static final Logger log = LoggerFactory.getLogger(W3cTraceContextState.class);
 
-    private static SecureRandom secRandom = new SecureRandom();
+    private static final SecureRandom secRandom = new SecureRandom();
 
     // Trace Info (traceparent)
     private final byte[] version = {0x0}; // we only support version 00

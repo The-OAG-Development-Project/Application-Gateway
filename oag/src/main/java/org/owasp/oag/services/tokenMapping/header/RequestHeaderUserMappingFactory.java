@@ -1,6 +1,6 @@
 package org.owasp.oag.services.tokenMapping.header;
 
-import org.owasp.oag.config.InvalidOAGSettingsException;
+import org.owasp.oag.exception.ConfigurationException;
 import org.owasp.oag.services.tokenMapping.UserMapper;
 import org.owasp.oag.services.tokenMapping.UserMappingFactory;
 import org.owasp.oag.utils.SettingsUtils;
@@ -14,15 +14,14 @@ import static org.owasp.oag.services.tokenMapping.UserMappingFactory.USER_MAPPER
 public class RequestHeaderUserMappingFactory implements UserMappingFactory {
 
     @Override
-    public UserMapper load(Map<String, Object> settings) throws InvalidOAGSettingsException{
+    public UserMapper load(Map<String, Object> settings) {
 
         // Load settings
         RequestHeaderUserMappingSettings mappingSettings;
-        try{
+        try {
             mappingSettings = SettingsUtils.settingsFromMap(settings, RequestHeaderUserMappingSettings.class);
-        }
-        catch(Exception ex){
-            throw new InvalidOAGSettingsException("Cannot deserialize header-mapping settings", ex);
+        } catch (Exception ex) {
+            throw new ConfigurationException("Cannot deserialize header-mapping settings", ex);
         }
         mappingSettings.requireValidSettings();
 

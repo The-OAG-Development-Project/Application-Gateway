@@ -35,13 +35,12 @@ public class CsrfDoubleSubmitValidation implements CsrfProtectionValidation {
             String csrfValueFromSession = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION_CSRF_TOKEN);
             String csrfValueFromDoubleSubmit = extractCsrfToken(exchange);
 
-            if (csrfValueFromDoubleSubmit == null)
-            {
+            if (csrfValueFromDoubleSubmit == null) {
                 logInfo(log, exchange, "No csrf double submit value present in request");
                 return true;
             }
 
-            if(! csrfValueFromDoubleSubmit.equals(csrfValueFromSession)){
+            if (!csrfValueFromDoubleSubmit.equals(csrfValueFromSession)) {
 
                 logInfo(log, exchange, "Csrf value from double submit does not equal csrf token from cookie");
                 return true;

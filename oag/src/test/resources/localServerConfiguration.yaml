@@ -1,5 +1,5 @@
 hostUri: http://localhost:8080
-trustedRedirectHosts: ["www.whitelisteddomain.tld"]
+trustedRedirectHosts: [ "www.whitelisteddomain.tld" ]
 
 routes:
   local:
@@ -77,3 +77,19 @@ traceProfile:
   type: simpleTrace
   traceImplSpecificSettings:
     traceImplSpecificParameter: "not used"
+
+keyManagementProfile:
+  keyRotationProfile:
+    type: defaultKeyRotation
+    useSigningKeyRotation: true
+    signingKeyRotationSeconds: 2
+    cleanupFrequencySeconds: 10000
+  jwkStoreProfile:
+    type: localRsaJwkStore
+    implSpecificSettings:
+      exampleParameter: "not used"
+  keyGeneratorProfile:
+    type: rsaKeyGenerator
+    keySize: 4096
+    implSpecificSettings:
+      exampleParameter: "not used"

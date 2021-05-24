@@ -20,6 +20,7 @@ public class Session {
 
     /**
      * Creates a new Session object with all required values
+     *
      * @param sessionExpSeconds
      * @param remainingTimeSeconds
      * @param provider
@@ -39,6 +40,7 @@ public class Session {
     /**
      * Converts a decrypted login cookie into a user session object.
      * Returns an empty optional is the session is expired.
+     *
      * @param cookie
      * @param clock
      * @return
@@ -68,6 +70,7 @@ public class Session {
 
     /**
      * Returns the name of the used login provider
+     *
      * @return
      */
     public String getProvider() {
@@ -76,6 +79,7 @@ public class Session {
 
     /**
      * Returns the end of the session validity as unix timestamp
+     *
      * @return
      */
     public long getSessionExpSeconds() {
@@ -84,6 +88,7 @@ public class Session {
 
     /**
      * Returns the duration until session expiry as seconds
+     *
      * @return
      */
     public int getRemainingTimeSeconds() {
@@ -92,6 +97,7 @@ public class Session {
 
     /**
      * Returns the user model of this session
+     *
      * @return
      */
     public UserModel getUserModel() {
@@ -100,6 +106,7 @@ public class Session {
 
     /**
      * Returns the login cookie that represents this session
+     *
      * @return
      */
     public LoginCookie getLoginCookie() {
@@ -108,6 +115,7 @@ public class Session {
 
     /**
      * Returns the is of the session (Not id of the user)
+     *
      * @return
      */
     public String getId() {
@@ -116,6 +124,7 @@ public class Session {
 
     /**
      * Returns the id of the user
+     *
      * @return
      */
     public String getUserId() {
