@@ -1,23 +1,21 @@
 package org.owasp.oag.integration.mockserver.csrf;
 
 import org.junit.jupiter.api.Test;
-import org.owasp.oag.OWASPApplicationGatewayApplication;
 import org.owasp.oag.config.ConfigLoader;
 import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
 import org.owasp.oag.integration.testInfrastructure.TestFileConfigLoader;
 import org.owasp.oag.integration.testInfrastructure.WiremockTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseCookie;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"spring.main.allow-bean-definition-overriding=true",
-                "logging.level.ch.gianlucafrei=TRACE"},
+                "logging.level.org.owasp.oag=TRACE"},
         classes = {IntegrationTestConfig.class, CsrfSamesiteStrictTest.TestConfig.class})
 class CsrfSamesiteStrictTest extends WiremockTest {
 
@@ -56,8 +54,7 @@ class CsrfSamesiteStrictTest extends WiremockTest {
                 .exchange().expectStatus().isUnauthorized();
     }
 
-    @Configuration
-    @Import(OWASPApplicationGatewayApplication.class)
+    @TestConfiguration
     public static class TestConfig {
 
         @Primary

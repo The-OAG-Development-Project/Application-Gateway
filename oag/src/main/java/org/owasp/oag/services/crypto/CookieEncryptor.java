@@ -1,5 +1,7 @@
 package org.owasp.oag.services.crypto;
 
+import org.owasp.oag.exception.CookieDecryptionException;
+
 public interface CookieEncryptor {
     String encryptObject(Object payload);
 

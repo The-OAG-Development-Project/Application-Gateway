@@ -35,3 +35,19 @@ loginProviders:
       clientId: sample-client-id
       clientSecret: thisIsASeceret
       scopes: [ "openid", "email" ]
+
+keyManagementProfile:
+  keyRotationProfile:
+    type: defaultKeyRotation
+    useSigningKeyRotation: true
+    signingKeyRotationSeconds: 2
+    cleanupFrequencySeconds: 10000
+  jwkStoreProfile:
+    type: localRsaJwkStore
+    implSpecificSettings:
+      exampleParameter: "not used"
+  keyGeneratorProfile:
+    type: rsaKeyGenerator
+    keySize: 4096
+    implSpecificSettings:
+      exampleParameter: "not used"

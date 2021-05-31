@@ -5,14 +5,14 @@ import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.controllers.dto.SessionInformation;
 import org.owasp.oag.cookies.CookieConverter;
 import org.owasp.oag.cookies.LoginStateCookie;
+import org.owasp.oag.exception.AuthenticationException;
+import org.owasp.oag.exception.CookieDecryptionException;
 import org.owasp.oag.filters.spring.ExtractAuthenticationFilter;
 import org.owasp.oag.hooks.session.SessionHookChain;
 import org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory;
 import org.owasp.oag.infrastructure.factories.LoginDriverFactory;
-import org.owasp.oag.services.crypto.CookieDecryptionException;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.owasp.oag.services.csrf.CsrfSamesiteStrictValidation;
-import org.owasp.oag.services.login.drivers.AuthenticationException;
 import org.owasp.oag.services.login.drivers.LoginDriver;
 import org.owasp.oag.services.login.drivers.LoginDriverResult;
 import org.owasp.oag.session.Session;
@@ -36,10 +36,10 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -126,12 +126,8 @@ public class LoginController {
             return config.getSessionBehaviour().getRedirectLoginSuccess();
         }
 
-        if (!isValidReturnUrl(returnUrl)){
-            try {
-                LoggingUtils.logInfo(log, exchange, "Received invalid returnUrl: " + URLEncoder.encode(returnUrl, "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
+        if (!isValidReturnUrl(returnUrl)) {
+            LoggingUtils.logInfo(log, exchange, "Received invalid returnUrl: " + URLEncoder.encode(returnUrl, StandardCharsets.UTF_8));
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid return url");
         }
 
@@ -245,7 +241,7 @@ public class LoginController {
 
             // To load the federated logout url we need the instance of the login provider
             Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
-            if(sessionOptional.isPresent()){
+            if (sessionOptional.isPresent()) {
                 var session = sessionOptional.get();
                 var provider = session.getProvider();
                 var userModel = session.getUserModel();
@@ -253,7 +249,7 @@ public class LoginController {
                 LoginDriver loginDriver = loadLoginDriver(provider);
                 var federatedLogoutUrl = loginDriver.processFederatedLogout(userModel);
 
-                if(federatedLogoutUrl != null)
+                if (federatedLogoutUrl != null)
                     returnUrl = federatedLogoutUrl.toString();
             }
 

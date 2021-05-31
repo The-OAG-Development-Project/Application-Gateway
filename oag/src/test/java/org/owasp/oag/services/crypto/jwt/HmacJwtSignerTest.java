@@ -24,8 +24,8 @@ public class HmacJwtSignerTest {
         JWSVerifier verifier = new MACVerifier(Hex.decodeHex(key));
 
         // Act
-        var jwt = signer.signJwt(claims);
-        
+        var jwt = signer.createSignedJwt(claims);
+
         // Assert
         SignedJWT parsedJwt = SignedJWT.parse(jwt);
         assertEquals(keyId, parsedJwt.getHeader().getKeyID());

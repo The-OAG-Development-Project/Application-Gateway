@@ -1,7 +1,7 @@
 package org.owasp.oag.services.tokenMapping.jwt;
 
-import org.owasp.oag.config.InvalidOAGSettingsException;
 import org.owasp.oag.config.configuration.MainConfig;
+import org.owasp.oag.exception.ConfigurationException;
 import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.services.crypto.jwt.JwtSignerFactory;
 import org.owasp.oag.services.tokenMapping.UserMapper;
@@ -29,15 +29,14 @@ public class JwtTokenMapperFactory implements UserMappingFactory {
     MainConfig mainConfig;
 
     @Override
-    public UserMapper load(Map<String, Object> settings)  throws InvalidOAGSettingsException {
+    public UserMapper load(Map<String, Object> settings) {
 
         // Load settings
         JwtTokenMappingSettings jwtTokenMappingSettings;
-        try{
+        try {
             jwtTokenMappingSettings = SettingsUtils.settingsFromMap(settings, JwtTokenMappingSettings.class);
-        }
-        catch(Exception ex){
-            throw new InvalidOAGSettingsException("Cannot deserialize jwt-mapping settings", ex);
+        } catch (Exception ex) {
+            throw new ConfigurationException("Cannot deserialize jwt-mapping settings", ex);
         }
         jwtTokenMappingSettings.requireValidSettings();
 
@@ -45,12 +44,10 @@ public class JwtTokenMapperFactory implements UserMappingFactory {
         var factoryName = jwtTokenMappingSettings.signatureImplementation + JWT_SIGNER_FACTORY_BEAN_POSTFIX;
         var factory = context.getBean(factoryName, JwtSignerFactory.class);
 
-        if(factory == null)
-            throw new InvalidOAGSettingsException("No implementation found for singature implementation: " + jwtTokenMappingSettings.signatureImplementation);
-
-        var signer = factory.create(jwtTokenMappingSettings.signatureSettings);
+        if (factory == null)
+            throw new ConfigurationException("No implementation found for singature implementation: " + jwtTokenMappingSettings.signatureImplementation, null);
 
         // Create user mapper
-        return new JwtTokenMapper(signer, clockSource, jwtTokenMappingSettings, mainConfig.getHostUri());
+        return new JwtTokenMapper(factory, clockSource, jwtTokenMappingSettings, mainConfig.getHostUri());
     }
 }

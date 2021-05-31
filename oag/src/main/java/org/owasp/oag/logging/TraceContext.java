@@ -1,6 +1,6 @@
 package org.owasp.oag.logging;
 
-import org.springframework.web.server.ServerWebExchange;
+import org.owasp.oag.exception.TraceException;
 
 /**
  * Represents trace implementations (i.e. correlationID implementations) to simlify log correlation and auditing/tracing

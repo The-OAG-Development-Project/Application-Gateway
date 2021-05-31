@@ -1,8 +1,8 @@
 package org.owasp.oag.infrastructure;
 
 import org.owasp.oag.OWASPApplicationGatewayApplication;
-import org.owasp.oag.config.InvalidOAGSettingsException;
 import org.owasp.oag.config.configuration.MainConfig;
+import org.owasp.oag.exception.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,19 +26,18 @@ public class StartupEventListeners {
     ApplicationContext context;
 
     @EventListener(ContextRefreshedEvent.class)
-    public void validateConfigurationAfterContextInitialized() throws InvalidOAGSettingsException {
+    public void validateConfigurationAfterContextInitialized() {
 
         var configErrors = config.getErrors(context);
         if (!configErrors.isEmpty()) {
-            String message = "Configuration file contains errors: " + configErrors.toString();
-            log.error(message);
-            throw new InvalidOAGSettingsException(message);
+            String message = "Configuration file contains errors: " + configErrors;
+            throw new ConfigurationException(message);
         }
 
     }
 
     @EventListener(ApplicationStartedEvent.class)
-    public void logInfo(){
+    public void logInfo() {
 
         // Log login providers
         var providers = config.getLoginProviders().entrySet().stream()

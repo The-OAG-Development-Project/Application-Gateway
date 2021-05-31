@@ -10,8 +10,8 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@Target(value=TYPE)
-@Retention(value=RUNTIME)
+@Target(value = TYPE)
+@Retention(value = RUNTIME)
 @Import({OAGBeanConfiguration.class, PostConfigBeanConfiguration.class})
 public @interface EnableOWASPApplicationGateway {
 }

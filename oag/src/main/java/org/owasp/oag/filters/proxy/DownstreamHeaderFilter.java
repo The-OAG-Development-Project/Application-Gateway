@@ -59,10 +59,9 @@ public class DownstreamHeaderFilter extends RouteAwareFilter {
 
         // Add OAG status headers
         request = request.header(X_PROXY, X_PROXY_VALUE);
-        if (routeContext.getSessionOptional().isPresent()){
+        if (routeContext.getSessionOptional().isPresent()) {
             request = request.header(X_OAG_STATUS, SessionInformation.SESSION_STATE_AUTHENTICATED);
-        }
-        else {
+        } else {
             request = request.header(X_OAG_STATUS, SessionInformation.SESSION_STATE_ANONYMOUS);
         }
         return request;
@@ -74,9 +73,9 @@ public class DownstreamHeaderFilter extends RouteAwareFilter {
         //Remove OAG cookies
         var cookieBlacklist = Set.of(LoginCookie.NAME, CsrfCookie.NAME, LoginStateCookie.NAME);
         List<HttpCookie> filteredCookies = new LinkedList<>();
-        for(var entry: exchange.getRequest().getCookies().entrySet()){
+        for (var entry : exchange.getRequest().getCookies().entrySet()) {
 
-            if(! cookieBlacklist.contains(entry.getKey())){
+            if (!cookieBlacklist.contains(entry.getKey())) {
                 filteredCookies.addAll(entry.getValue());
             }
         }

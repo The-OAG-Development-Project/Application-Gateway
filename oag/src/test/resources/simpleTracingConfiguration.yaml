@@ -26,3 +26,19 @@ traceProfile:
   type: simpleTrace
   traceImplSpecificSettings:
     headerName: "TRACE-ID"
+
+keyManagementProfile:
+  keyRotationProfile:
+    type: defaultKeyRotation
+    useSigningKeyRotation: true
+    signingKeyRotationSeconds: 2
+    cleanupFrequencySeconds: 10000
+  jwkStoreProfile:
+    type: localRsaJwkStore
+    implSpecificSettings:
+      exampleParameter: "not used"
+  keyGeneratorProfile:
+    type: rsaKeyGenerator
+    keySize: 4096
+    implSpecificSettings:
+      exampleParameter: "not used"

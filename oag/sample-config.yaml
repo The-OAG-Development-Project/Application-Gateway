@@ -63,16 +63,14 @@ securityProfiles:
         audience: "<<route-url>>"
         issuer: "<<hostUri>>"
         tokenLifetimeSeconds: 30
-        signatureImplementation: "hmac"
+        signatureImplementation: "rsa"
         signatureSettings:
-          secretKey: deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef
-          keyId: Sample Key
         mappings:
-          provider:       <session.provider>
+          provider: <session.provider>
           email_verified: <mappings.email_verified>
-          email:          <mappings.email>
-          picture:        <mappings.picture>
-          proxy:          "OWASP Application Gateway"
+          email: <mappings.email>
+          picture: <mappings.picture>
+          proxy: "OWASP Application Gateway"
 
 traceProfile:
   forwardIncomingTrace: false
@@ -81,3 +79,19 @@ traceProfile:
   maxLengthAdditionalTraceInfo: 254
   sendTraceResponse: true
   type: w3cTrace
+
+keyManagementProfile:
+  keyRotationProfile:
+    type: defaultKeyRotation
+    useSigningKeyRotation: true
+    signingKeyRotationSeconds: 28800
+    cleanupFrequencySeconds: 10000
+  jwkStoreProfile:
+    type: localRsaJwkStore
+    implSpecificSettings:
+      exampleParameter: "not used"
+  keyGeneratorProfile:
+    type: rsaKeyGenerator
+    keySize: 4096
+    implSpecificSettings:
+      exampleParameter: "not used"

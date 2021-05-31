@@ -3,10 +3,9 @@ package org.owasp.oag.services.tokenMapping.jwt;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.nimbusds.jwt.JWTClaimsSet;
-import org.owasp.oag.config.InvalidOAGSettingsException;
 import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.infrastructure.GlobalClockSource;
-import org.owasp.oag.services.crypto.jwt.JwtSigner;
+import org.owasp.oag.services.crypto.jwt.JwtSignerFactory;
 import org.owasp.oag.services.tokenMapping.UserMapper;
 import org.owasp.oag.services.tokenMapping.UserMappingTemplatingEngine;
 import org.owasp.oag.session.UserModel;
@@ -31,22 +30,24 @@ import static org.owasp.oag.utils.LoggingUtils.logTrace;
 public class JwtTokenMapper implements UserMapper {
 
     private static final Logger log = LoggerFactory.getLogger(JwtTokenMapper.class);
-
-    private Cache<CacheKey, String> tokenCache;
     private final GlobalClockSource clockSource;
-    private final JwtSigner jwtSigner;
+    // Note: Must use factory because each signature must be created with new signer to make sure key rotation etc. is heeded!
+    private final JwtSignerFactory jwtSignerFactory;
     private final JwtTokenMappingSettings settings;
     private final SecureRandom secureRandom;
     private final String issuer;
+    private final String hostUri;
+    private Cache<CacheKey, String> tokenCache;
 
 
-    public JwtTokenMapper(JwtSigner jwtSigner, GlobalClockSource clockSource, JwtTokenMappingSettings settings, String hostUri) throws InvalidOAGSettingsException {
+    public JwtTokenMapper(JwtSignerFactory signerFactory, GlobalClockSource clockSource, JwtTokenMappingSettings settings, String hostUri) {
 
-        this.jwtSigner = jwtSigner;
+        this.jwtSignerFactory = signerFactory;
         this.clockSource = clockSource;
         this.settings = settings;
         this.secureRandom = new SecureRandom();
         this.issuer = "<<hostUri>>".equals(settings.issuer) ? hostUri : settings.issuer;
+        this.hostUri = hostUri;
 
         settings.requireValidSettings();
         initCache();
@@ -127,9 +128,8 @@ public class JwtTokenMapper implements UserMapper {
                 .expirationTime(Date.from(exp))
                 .jwtID(tokenId);
 
-
         var mappingEngine = new UserMappingTemplatingEngine(context.getSessionOptional().get());
-        for(var entry: this.settings.mappings.entrySet()){
+        for (var entry : this.settings.mappings.entrySet()) {
 
             var value = mappingEngine.processTemplate(entry.getValue());
             claimsBuilder = claimsBuilder.claim(entry.getKey(), value);
@@ -137,12 +137,15 @@ public class JwtTokenMapper implements UserMapper {
 
         // Sign claims set
         JWTClaimsSet claimsSet = claimsBuilder.build();
-        var signedJWT = jwtSigner.signJwt(claimsSet);
+
+        // Note: in order to allow key rotation use a new signer per request!
+        var jwtSigner = jwtSignerFactory.create(hostUri, settings.signatureSettings);
+
+        var signedJWT = jwtSigner.createSignedJwt(claimsSet);
         return signedJWT;
     }
 
     private String createJti() {
-
         return Long.toHexString(secureRandom.nextLong());
     }
 

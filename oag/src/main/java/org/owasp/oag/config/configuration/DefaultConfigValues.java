@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class DefaultConfigValues {
 
-    public static UserMappingConfig userMapping(){
+    public static UserMappingConfig userMapping() {
 
         var userMapping = new UserMappingConfig();
         userMapping.setType("no-mapping");
@@ -16,7 +16,7 @@ public class DefaultConfigValues {
         return userMapping;
     }
 
-    public static List<String> csrfSafeMethods(){
+    public static List<String> csrfSafeMethods() {
 
         return Lists.asList("GET", new String[]{"HEAD", "OPTIONS"});
     }

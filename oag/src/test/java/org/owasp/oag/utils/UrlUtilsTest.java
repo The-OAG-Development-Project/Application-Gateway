@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.owasp.oag.integration.mockserver.OpenRedirectsTest;
 
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -49,21 +50,21 @@ class UrlUtilsTest {
         var testCases = OpenRedirectsTest.loadOpenRedirectTestCases();
         var failedCases = new ArrayList<String>();
 
-        for(var testCase : testCases){
+        for (var testCase : testCases) {
 
-            var uriString = URLDecoder.decode(testCase, "UTF-8");
+            var uriString = URLDecoder.decode(testCase, StandardCharsets.UTF_8);
 
-            if(UrlUtils.isValidReturnUrl(uriString, new String[]{"www.whitelisteddomain.tld"}))
+            if (UrlUtils.isValidReturnUrl(uriString, new String[]{"www.whitelisteddomain.tld"}))
                 failedCases.add(testCase);
         }
 
         // This is only used for debugging
-        for(var testCase : failedCases){
+        for (var testCase : failedCases) {
 
-            var uriString = URLDecoder.decode(testCase, "UTF-8");
+            var uriString = URLDecoder.decode(testCase, StandardCharsets.UTF_8);
             UrlUtils.isValidReturnUrl(uriString, new String[]{"www.whitelisteddomain.tld"});
         }
 
-        assertTrue(failedCases.isEmpty(), "Some openRedirects were not rejected: " + failedCases.toString());
+        assertTrue(failedCases.isEmpty(), "Some openRedirects were not rejected: " + failedCases);
     }
 }

@@ -9,7 +9,8 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
 import org.owasp.oag.config.configuration.LoginProviderSettings;
-import org.owasp.oag.services.login.drivers.AuthenticationException;
+import org.owasp.oag.exception.ApplicationException;
+import org.owasp.oag.exception.AuthenticationException;
 import org.owasp.oag.services.login.drivers.oauth.Oauth2Driver;
 import org.owasp.oag.session.UserModel;
 
@@ -78,7 +79,7 @@ public class GitHubDriver extends Oauth2Driver {
 
             return model;
         } catch (IOException | InterruptedException ex) {
-            throw new RuntimeException("Could not load user profile data", ex);
+            throw new ApplicationException("Could not load user profile data", ex);
         }
     }
 
@@ -100,7 +101,7 @@ public class GitHubDriver extends Oauth2Driver {
                 return null;
 
         } catch (Exception e) {
-            throw new RuntimeException("Could not load user profile info", e);
+            throw new ApplicationException("Could not load user profile info", e);
         }
     }
 

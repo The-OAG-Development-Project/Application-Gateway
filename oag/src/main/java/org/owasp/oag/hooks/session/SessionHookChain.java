@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Component
 public class SessionHookChain {
 
-    private List<SessionHook> hooks;
+    private final List<SessionHook> hooks;
 
     public SessionHookChain(@Autowired ApplicationContext context){
 

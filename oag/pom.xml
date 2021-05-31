@@ -14,7 +14,8 @@
     <version>0.5-alpha-test</version>
 
     <name>OWASP Application Gateway</name>
-    <description>An elephant strong web application gateway that handles oauth2 authentication and session management.</description>
+    <description>An elephant strong web application gateway that handles oauth2 authentication and session management.
+    </description>
     <packaging>jar</packaging>
 
     <licenses>

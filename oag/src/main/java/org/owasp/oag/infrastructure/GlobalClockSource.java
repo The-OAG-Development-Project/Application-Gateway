@@ -42,9 +42,10 @@ public class GlobalClockSource {
 
     /**
      * This should be used for testing time dependent functionality only
+     *
      * @param seconds
      */
-    public void putClockForwardSeconds(int seconds){
+    public void putClockForwardSeconds(int seconds) {
 
         setGlobalClock(Clock.offset(clock, Duration.ofSeconds(seconds)));
         log.warn("Put clock {} ahead of time. Its now {}. This is something used for testing only", seconds, clock.instant().toString());

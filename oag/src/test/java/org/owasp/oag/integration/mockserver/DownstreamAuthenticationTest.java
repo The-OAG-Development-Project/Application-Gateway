@@ -19,7 +19,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"spring.main.allow-bean-definition-overriding=true",
-                "logging.level.ch.gianlucafrei=TRACE"},
+                "logging.level.org.owasp.oag=TRACE"},
         classes = {IntegrationTestConfig.class, LocalServerTestConfig.class})
 public class DownstreamAuthenticationTest extends WiremockTest {
 
@@ -56,7 +56,7 @@ public class DownstreamAuthenticationTest extends WiremockTest {
     }
 
     @Test
-    void testDownstreamAuthenticationContainsNoOAGCookies(){
+    void testDownstreamAuthenticationContainsNoOAGCookies() {
 
         // Arrange
         var loginResult = makeLogin();
@@ -71,12 +71,12 @@ public class DownstreamAuthenticationTest extends WiremockTest {
                 .expectStatus().isOk();
 
         WireMock.
-        verify(getRequestedFor(urlEqualTo("/testHeaders"))
-                .withCookie(LoginCookie.NAME, absent())
-                .withCookie(LoginStateCookie.NAME, absent())
-                .withCookie(CsrfCookie.NAME, absent())
-                .withCookie("custom", equalTo("foo1"))
-                .withCookie("custom", equalTo("foo2"))
-                .withHeader(DownstreamHeaderFilter.X_OAG_STATUS, equalTo(SessionInformation.SESSION_STATE_AUTHENTICATED)));
+                verify(getRequestedFor(urlEqualTo("/testHeaders"))
+                        .withCookie(LoginCookie.NAME, absent())
+                        .withCookie(LoginStateCookie.NAME, absent())
+                        .withCookie(CsrfCookie.NAME, absent())
+                        .withCookie("custom", equalTo("foo1"))
+                        .withCookie("custom", equalTo("foo2"))
+                        .withHeader(DownstreamHeaderFilter.X_OAG_STATUS, equalTo(SessionInformation.SESSION_STATE_AUTHENTICATED)));
     }
 }

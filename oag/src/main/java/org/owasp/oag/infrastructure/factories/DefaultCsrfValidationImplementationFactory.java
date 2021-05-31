@@ -1,5 +1,6 @@
 package org.owasp.oag.infrastructure.factories;
 
+import org.owasp.oag.exception.ConfigurationException;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -18,7 +19,7 @@ public class DefaultCsrfValidationImplementationFactory implements CsrfValidatio
         CsrfProtectionValidation validationImplementation = context.getBean(beanname, CsrfProtectionValidation.class);
 
         if (validationImplementation == null) {
-            throw new RuntimeException("csrf validation implementation not found: " + beanname);
+            throw new ConfigurationException("csrf validation implementation not found: " + beanname, null);
         }
 
         return validationImplementation;

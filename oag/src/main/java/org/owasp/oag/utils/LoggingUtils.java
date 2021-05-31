@@ -1,5 +1,7 @@
 package org.owasp.oag.utils;
 
+import org.owasp.oag.exception.AbstractException;
+import org.owasp.oag.exception.ConsistencyException;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.web.server.ServerWebExchange;
@@ -111,8 +113,10 @@ public class LoggingUtils {
                 Callable<T> wrapped = () -> {
                     try (MDC.MDCCloseable cMdc = MDC.putCloseable(TRACE_ID_CONTEXT_KEY, toPutInMdc.get())) {
                         return method.call();
+                    } catch (AbstractException ae) {
+                        throw ae;
                     } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        throw new ConsistencyException("Could not log", e);
                     }
                 };
                 return Mono.fromCallable(wrapped);

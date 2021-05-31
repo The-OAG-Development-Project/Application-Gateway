@@ -23,19 +23,19 @@ public class TraceProfile implements ErrorValidation {
     private Integer maxLengthAdditionalTraceInfo;
     private Boolean sendTraceResponse;
     private String type;
-    private Map<String, Object> traceImplSpecificSettings = new HashMap<>();
+    private Map<String, Object> implSpecificSettings = new HashMap<>();
 
     public TraceProfile() {
     }
 
-    public TraceProfile(Boolean forwardIncomingTrace, Integer maxLengthIncomingTrace, Boolean acceptAdditionalTraceInfo, Integer maxLengthAdditionalTraceInfo, Boolean sendTraceResponse, String type, Map<String, Object> traceImplSpecificSettings) {
+    public TraceProfile(Boolean forwardIncomingTrace, Integer maxLengthIncomingTrace, Boolean acceptAdditionalTraceInfo, Integer maxLengthAdditionalTraceInfo, Boolean sendTraceResponse, String type, Map<String, Object> implSpecificSettings) {
         this.forwardIncomingTrace = forwardIncomingTrace;
         this.maxLengthIncomingTrace = maxLengthIncomingTrace;
         this.acceptAdditionalTraceInfo = acceptAdditionalTraceInfo;
         this.maxLengthAdditionalTraceInfo = maxLengthAdditionalTraceInfo;
         this.sendTraceResponse = sendTraceResponse;
         this.type = type;
-        this.traceImplSpecificSettings = traceImplSpecificSettings;
+        this.implSpecificSettings = implSpecificSettings;
     }
 
     public Boolean getForwardIncomingTrace() {
@@ -86,12 +86,12 @@ public class TraceProfile implements ErrorValidation {
         this.type = type;
     }
 
-    public Map<String, Object> getTraceImplSpecificSettings() {
-        return traceImplSpecificSettings;
+    public Map<String, Object> getImplSpecificSettings() {
+        return implSpecificSettings;
     }
 
-    public void setTraceImplSpecificSettings(Map<String, Object> traceImplSpecificSettings) {
-        this.traceImplSpecificSettings = traceImplSpecificSettings;
+    public void setTraceImplSpecificSettings(Map<String, Object> implSpecificSettings) {
+        this.implSpecificSettings = implSpecificSettings;
     }
 
     @Override
@@ -116,7 +116,6 @@ public class TraceProfile implements ErrorValidation {
 
         if (type == null)
             errors.add("'type' not specified. Must be the bean name of a TraceContext implementation such as w3cTrace. Specify 'noTrace' to disable correlation Logging.");
-
 
         if (context != null && !context.containsBean(type)) {
             errors.add("Specified type '" + type + "' does not match a trace/correlation log implementation. Must be the bean name of a TraceContext implementation such as w3cTrace. Specify 'noTrace' to disable correlation Logging.");

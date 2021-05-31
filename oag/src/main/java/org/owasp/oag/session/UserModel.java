@@ -7,10 +7,10 @@ import java.util.Objects;
  * The userModel is the main representation of the user identity in OAG.
  * The loginProvider issues a UserModel after a successful login. It is then stored within the user session.
  * The userMapper is responsible for transporting information from the user model to the downstream service.
- *
+ * <p>
  * The only required info is a unique user id. For all other information about the user email, phone, roles, ...
  * the user mappings can be used which is effectively a map of String->String which can represent arbitrary information.
- *
+ * <p>
  * Meta information about the user authentication (login time, login provider etc.) are stores within the Session object
  * which also stores the user model.
  */
@@ -29,6 +29,7 @@ public class UserModel {
 
     /**
      * Creates a new user model with a user-id.
+     *
      * @param id
      */
     public UserModel(String id) {
@@ -38,6 +39,7 @@ public class UserModel {
 
     /**
      * Gets the unique id of the user
+     *
      * @return
      */
     public String getId() {
@@ -46,6 +48,7 @@ public class UserModel {
 
     /**
      * Should only be used for deserializing
+     *
      * @param id
      */
     public void setId(String id) {
@@ -54,6 +57,7 @@ public class UserModel {
 
     /**
      * Returns the user mappings map
+     *
      * @return
      */
     public HashMap<String, String> getMappings() {
@@ -62,6 +66,7 @@ public class UserModel {
 
     /**
      * Should only be used for deserializing
+     *
      * @param id
      */
     public void setMappings(HashMap<String, String> mappings) {
@@ -70,6 +75,7 @@ public class UserModel {
 
     /**
      * Sets a specific user mapping
+     *
      * @param key
      * @param value
      */
@@ -79,6 +85,7 @@ public class UserModel {
 
     /**
      * Gets the value of a user mapping
+     *
      * @param key
      * @return
      */

@@ -56,7 +56,7 @@ public class CsrfSamesiteStrictValidation implements CsrfProtectionValidation {
             var originHeader = exchange.getRequest().getHeaders().getOrigin();
             var refererHeader = exchange.getRequest().getHeaders().getFirst("Referer");
             var targetOrigin = mainConfig.getHostUri();
-            if(shouldBlockBasedOnOriginHeader(originHeader, refererHeader, targetOrigin)){
+            if (shouldBlockBasedOnOriginHeader(originHeader, refererHeader, targetOrigin)) {
 
                 logInfo(log, exchange, "Origin/Referer header does not match target origin: originHeader='{}' refererHeader='{}' targetOrigin='{}'",
                         encodeStringForLog(originHeader, 100), encodeStringForLog(refererHeader, 100), targetOrigin);
@@ -88,17 +88,18 @@ public class CsrfSamesiteStrictValidation implements CsrfProtectionValidation {
     /**
      * Returns true if the request should be blocked because the origin header is different than the target origin.
      * Because the samesite-strict cookies are not supported by all browser we use this defense is depth measure.
-     * @param originHeader  Origin header of the request or null if not present
-     * @param refererHeader Referer header of the request or null if not present
+     *
+     * @param originHeader          Origin header of the request or null if not present
+     * @param refererHeader         Referer header of the request or null if not present
      * @param targetOriginUrlString Target origin (HostUri from settings)
      * @return
      */
-    public boolean shouldBlockBasedOnOriginHeader(String originHeader, String refererHeader, String targetOriginUrlString){
+    public boolean shouldBlockBasedOnOriginHeader(String originHeader, String refererHeader, String targetOriginUrlString) {
 
-        if(targetOriginUrlString == null)
+        if (targetOriginUrlString == null)
             return false;
 
-        if(targetOriginUrlString.equals(originHeader))
+        if (targetOriginUrlString.equals(originHeader))
             return false;
 
         URL targetOriginUrl, originalOriginUrl;
@@ -111,11 +112,11 @@ public class CsrfSamesiteStrictValidation implements CsrfProtectionValidation {
         String origin = originHeader;
 
         // fallback to referer if there is no origin header
-        if(origin == null || "null".equals(origin)){
+        if (origin == null || "null".equals(origin)) {
             origin = refererHeader;
         }
 
-        if(origin == null || "null".equals(origin)){
+        if (origin == null || "null".equals(origin)) {
             // If we cannot determine the origin at all teh request is not blocked
             return false;
         }
@@ -127,14 +128,10 @@ public class CsrfSamesiteStrictValidation implements CsrfProtectionValidation {
             return false;
         }
 
-        if(! targetOriginUrl.getProtocol().equals(originalOriginUrl.getProtocol())){
+        if (!targetOriginUrl.getProtocol().equals(originalOriginUrl.getProtocol())) {
             return true;
         }
 
-        if(! targetOriginUrl.getHost().equals(originalOriginUrl.getHost())){
-            return true;
-        }
-
-        return false;
+        return !targetOriginUrl.getHost().equals(originalOriginUrl.getHost());
     }
 }

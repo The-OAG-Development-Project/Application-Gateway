@@ -15,7 +15,7 @@ import static org.owasp.oag.utils.LoggingUtils.logTrace;
 
 @Component
 @Order(42)
-public class UserMappingFilter extends RouteAwareFilter{
+public class UserMappingFilter extends RouteAwareFilter {
 
     private static final Logger log = LoggerFactory.getLogger(UserMappingFilter.class);
 
