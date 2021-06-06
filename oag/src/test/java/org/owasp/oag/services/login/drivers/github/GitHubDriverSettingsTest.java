@@ -2,6 +2,7 @@ package org.owasp.oag.services.login.drivers.github;
 
 import org.junit.jupiter.api.Test;
 import org.owasp.oag.config.configuration.LoginProviderSettings;
+import org.owasp.oag.exception.ConfigurationException;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -46,7 +47,7 @@ class GitHubDriverSettingsTest {
         settings.remove("clientId");
 
         // Act
-        assertThrows(RuntimeException.class, () -> {
+        assertThrows(ConfigurationException.class, () -> {
             getDriver(settings);
         });
     }
@@ -59,7 +60,7 @@ class GitHubDriverSettingsTest {
         settings.remove("clientSecret");
 
         // Act
-        assertThrows(RuntimeException.class, () -> {
+        assertThrows(ConfigurationException.class, () -> {
             getDriver(settings);
         });
     }
@@ -72,7 +73,7 @@ class GitHubDriverSettingsTest {
         settings.remove("authEndpoint");
 
         // Act
-        assertThrows(RuntimeException.class, () -> {
+        assertThrows(ConfigurationException.class, () -> {
             getDriver(settings);
         });
     }
@@ -85,7 +86,7 @@ class GitHubDriverSettingsTest {
         settings.remove("tokenEndpoint");
 
         // Act
-        assertThrows(RuntimeException.class, () -> {
+        assertThrows(ConfigurationException.class, () -> {
             getDriver(settings);
         });
     }
@@ -98,7 +99,7 @@ class GitHubDriverSettingsTest {
         settings.put("scopes", new String[]{"user"}); // no email in scope
 
         // Act
-        assertThrows(RuntimeException.class, () -> {
+        assertThrows(ConfigurationException.class, () -> {
             getDriver(settings);
         });
     }

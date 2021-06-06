@@ -1,8 +1,10 @@
 package org.owasp.oag.services.login.drivers;
 
+import org.owasp.oag.exception.ConfigurationException;
+
 import java.util.List;
 
-public class InvalidProviderSettingsException extends RuntimeException {
+public class InvalidProviderSettingsException extends ConfigurationException {
 
     private List<String> settingErrors;
 
