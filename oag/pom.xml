@@ -8,13 +8,46 @@
         <version>2.4.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
+
     <groupId>org.owasp</groupId>
     <artifactId>oag</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.5-alpha-test</version>
+
     <name>OWASP Application Gateway</name>
     <description>An elephant strong web application gateway that handles oauth2 authentication and session management.
     </description>
     <packaging>jar</packaging>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>OWASP</name>
+        <url>http://www.owasp.org</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>gianlucafrei</id>
+            <name>Gian-Luca Frei</name>
+            <email>gian-luca.frei@owasp.org</email>
+        </developer>
+        <developer>
+            <id>Padi-owasp</id>
+            <name>Patrick Steger</name>
+            <email>padi.steger@owasp.org</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/gianlucafrei/Application-Gateway.git</connection>
+        <developerConnection>scm:git:ssh://github.com/gianlucafrei/Application-Gateway.git</developerConnection>
+        <url>https://github.com/gianlucafrei/Application-Gateway</url>
+    </scm>
 
     <properties>
         <java.version>11</java.version>
@@ -231,6 +264,58 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <additionalOptions>-Xdoclint:none</additionalOptions>
+                    <additionalJOption>-Xdoclint:none</additionalJOption>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.8</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -242,4 +327,61 @@
         </repository>
     </repositories>
 
+    <profiles>
+        <profile>
+            <id>gpg-sign</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <!-- Prevent gpg from using pinentry programs. Fixes: gpg: signing 
+                                        failed: Inappropriate ioctl for device -->
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+
+
+    <!--
+        Update version:
+        > mvn versions:set -DnewVersion=0.0.1-SNAPSHOT -DgenerateBackupPoms=false
+
+        Build OAG executable and library:
+        > mvn -B clean package
+
+        Output: - oag-exec.jar (Executable JAR)
+                - oag-<VERSION>.jar (Extension library)
+
+        ===================
+        Build OAG library and deploy to maven central:
+        > mvn -B deploy -Pgpg-sign -DskipTests -DrepositoryID=ossrh
+        
+        Properties gpg.passphrase and gpg.keyname must be set (command line or settings.xml)
+        -->
 </project>

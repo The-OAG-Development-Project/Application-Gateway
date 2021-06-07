@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Base class for all tests that use the gateway functionality.
  * Adds a mock server on port 7777 with some default methods for testing.
  */
-@AutoConfigureWireMock(port = 7777)
+@AutoConfigureWireMock(port = 0)
 public abstract class WiremockTest {
 
     public static String TEST_SERVER_URI = "http://localhost:7777";

@@ -20,11 +20,14 @@ public class GatewayRoute implements ErrorValidation {
     public GatewayRoute() {
     }
 
-    public GatewayRoute(String path, String url, String type, boolean allowAnonymous) {
+    public GatewayRoute(String path, String url, String type, boolean allowAnonymous, PathRewriteConfig rewrite) {
         this.path = path;
         this.url = url;
         this.type = type;
         this.allowAnonymous = allowAnonymous;
+
+        if(rewrite != null)
+            this.rewrite = rewrite;
     }
 
     public String getPath() {

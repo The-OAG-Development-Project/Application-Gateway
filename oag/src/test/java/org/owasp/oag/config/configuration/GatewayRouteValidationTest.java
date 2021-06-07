@@ -14,7 +14,8 @@ class GatewayRouteValidationTest {
                 "/abc/**",
                 "https://backend/abc",
                 "thetype",
-                false);
+                false,
+                null);
 
         // Act
         var errors = route.getErrors(null);
@@ -31,7 +32,8 @@ class GatewayRouteValidationTest {
                 null,
                 null,
                 null,
-                false);
+                false,
+                null);
 
         // Act
         var errors = route.getErrors(null);
@@ -48,7 +50,8 @@ class GatewayRouteValidationTest {
                 "/abc/**",
                 "/abc",
                 "thetype",
-                false);
+                false,
+                null);
 
         // Act
         var errors = route.getErrors(null);

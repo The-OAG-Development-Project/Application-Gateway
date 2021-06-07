@@ -76,7 +76,7 @@ class MainConfigurationValidationTest {
         // Arrange
         String undefinedSecurityProfileName = "doesnotexistABC";
         Map<String, GatewayRoute> routes = new HashMap<>();
-        routes.put("route1", new GatewayRoute("/**", "http://backend", undefinedSecurityProfileName, true));
+        routes.put("route1", new GatewayRoute("/**", "http://backend", undefinedSecurityProfileName, true, null));
         SessionBehaviour sessionBehaviour = new SessionBehaviour(
                 3600, // inner error
                 300,

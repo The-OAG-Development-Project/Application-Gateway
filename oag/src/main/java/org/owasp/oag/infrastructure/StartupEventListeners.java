@@ -45,6 +45,19 @@ public class StartupEventListeners {
                 .collect(Collectors.joining(", "));
 
         log.info("Login Providers: [{}]", providers);
+
+        // Log current routes
+        config.getRoutes().forEach((name, route) ->{
+
+            log.info("GatewayRoute {} {} => {} type={} allowAnonymous={} rewrite: {} => {}",
+                    String.format("%-25s", name + ":"),
+                    String.format("%-25s", route.getPath()), String.format("%-41s", route.getUrl() + ","),
+                    String.format("%-21s", route.getType() + ","), String.format("%-6s", route.isAllowAnonymous()+","),
+                    route.getRewrite().getRegex(), route.getRewrite().getReplacement());
+
+        });
+
+
         log.info("OWASP Application Gateway started with {} routes", config.getRoutes().size());
     }
 }
