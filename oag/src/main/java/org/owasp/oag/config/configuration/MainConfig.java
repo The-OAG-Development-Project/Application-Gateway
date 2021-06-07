@@ -1,6 +1,7 @@
 package org.owasp.oag.config.configuration;
 
 import org.owasp.oag.config.ErrorValidation;
+import org.owasp.oag.exception.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -45,7 +46,7 @@ public class MainConfig implements ErrorValidation {
             if (hostUri != null)
                 this.url = new URL(hostUri);
         } catch (MalformedURLException e) {
-            throw new RuntimeException("Invalid hostUri", e);
+            throw new ConfigurationException("Invalid hostUri", e);
         }
     }
 
@@ -63,7 +64,7 @@ public class MainConfig implements ErrorValidation {
             try {
                 this.url = new URL(this.hostUri);
             } catch (MalformedURLException e) {
-                throw new RuntimeException("Invalid hostUri", e);
+                throw new ConfigurationException("Invalid hostUri", e);
             }
         }
         return "https".equals(url.getProtocol());

@@ -231,8 +231,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         try {
             return new URL(federatedLogoutUrl);
         } catch (MalformedURLException e) {
-
-            throw new RuntimeException("Invalid federatedLogoutUrl, should have be verified in getSettingsErrors");
+            throw new ConfigurationException("Invalid federatedLogoutUrl, should have been verified in getSettingsErrors");
         }
     }
 }
