@@ -14,6 +14,10 @@ jobs:
       - uses: actions/checkout@v2
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 15
 
       - name: Get version name
         shell: bash
@@ -43,7 +47,6 @@ jobs:
       - name: Run Dockle Tests
         run: ./dockle --exit-code 1 ${{ env.tag }}
 
-      #############
       # Post build: extract binary from docker build and publish artifact
       - name: Docker create
         run: docker create --name build ${{ env.tag }}
@@ -57,13 +60,15 @@ jobs:
       - name: Clean up container
         run: docker rm build
 
+      #############
+      # Publish
       - name: Publish Artifact
         uses: actions/upload-artifact@v2
         with:
             path: build
             retention-days: 5
 
-      # Assemble and upload release assets
+      # Assemble and Upload release assets
       - uses: papeloto/action-zip@v1
         with:
           files: build/
@@ -86,39 +91,19 @@ jobs:
         run: docker login --username gianlucafrei --password ${{ secrets.DOCKER_PASSWORD }}
       - name: Docker Push
         run: docker push ${{ env.tag }}
-  
-  #############
-  # Compiles, signs and deploys OAG to Maven Central
-  deploy-mvn-central:
-    name: Build with maven and deploy to maven central
-    runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
-      with:
-        java-version: 15
+      # Compiles, signs and deploys OAG to Maven Central
+      - name: Update maven version
+        run: mvn versions:set --file oag/pom.xml -DnewVersion=${{ steps.get_version.outputs.version }} -DgenerateBackupPoms=false
 
-    - name: Get version name
-      shell: bash
-      run: echo "##[set-output name=version;]$(echo ${GITHUB_REF/refs\/tags\//} | sed -ne 's/[^0-9]*\(\([0-9]\.\)\{0,4\}[0-9]\(-[a-zA-Z]*\)*\).*/\1/p')" 
-      id: get_version
-
-    - name: Add commit hash to artifact
-      run: echo $GITHUB_SHA >> oag/commit-hash.txt
-
-    - name: Update maven version
-      run: mvn versions:set --file oag/pom.xml -DnewVersion=${{ steps.get_version.outputs.version }} -DgenerateBackupPoms=false
-
-    - name: Release Maven package
-      uses: samuelmeuli/action-maven-publish@v1
-      with:
-        directory: oag
-        maven_profiles: gpg-sign
-        maven_args: "-DskipTests"
-        server_id: ossrh
-        gpg_private_key: ${{ secrets.GPG_KEY }}
-        gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
-        nexus_username: ${{ secrets.MAVEN_USERNAME }}
-        nexus_password: ${{ secrets.MAVEN_TOKEN }}
+      - name: Release Maven package
+        uses: samuelmeuli/action-maven-publish@v1
+        with:
+          directory: oag
+          maven_profiles: gpg-sign
+          maven_args: "-DskipTests"
+          server_id: ossrh
+          gpg_private_key: ${{ secrets.GPG_KEY }}
+          gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          nexus_username: ${{ secrets.MAVEN_USERNAME }}
+          nexus_password: ${{ secrets.MAVEN_TOKEN }}
