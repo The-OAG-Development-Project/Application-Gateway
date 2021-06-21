@@ -24,6 +24,9 @@ jobs:
         run: echo "##[set-output name=version;]$(echo ${GITHUB_REF/refs\/tags\//} | sed -ne 's/[^0-9]*\(\([0-9]\.\)\{0,4\}[0-9]\(-[a-zA-Z]*\)*\).*/\1/p')" 
         id: get_version
 
+      - name: Update maven version
+        run: mvn versions:set --file oag/pom.xml -DnewVersion=${{ steps.get_version.outputs.version }} -DgenerateBackupPoms=false
+
       - name: Add commit hash to artifact
         run: echo $GITHUB_SHA >> oag/commit-hash.txt
 
@@ -93,9 +96,6 @@ jobs:
         run: docker push ${{ env.tag }}
 
       # Compiles, signs and deploys OAG to Maven Central
-      - name: Update maven version
-        run: mvn versions:set --file oag/pom.xml -DnewVersion=${{ steps.get_version.outputs.version }} -DgenerateBackupPoms=false
-
       - name: Release Maven package
         uses: samuelmeuli/action-maven-publish@v1
         with:

@@ -11,7 +11,7 @@
 
     <groupId>org.owasp</groupId>
     <artifactId>oag</artifactId>
-    <version>0.5-alpha-test</version>
+    <version>0.0.1-SNAPSHOT</version>
 
     <name>OWASP Application Gateway</name>
     <description>An elephant strong web application gateway that handles oauth2 authentication and session management.
