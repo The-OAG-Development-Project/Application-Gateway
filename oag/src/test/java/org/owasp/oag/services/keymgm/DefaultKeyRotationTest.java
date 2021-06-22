@@ -1,6 +1,5 @@
 package org.owasp.oag.services.keymgm;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.owasp.oag.config.ConfigLoader;
 import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
@@ -35,7 +34,6 @@ public class DefaultKeyRotationTest extends WiremockTest {
         }
     }
 
-    @Disabled("Sometime fails, please FIX")
     @Test
     void keyRotationTest() throws InterruptedException {
         // here the rotationImpl should be initialized and a valid key set
@@ -44,8 +42,12 @@ public class DefaultKeyRotationTest extends WiremockTest {
         String oldKid = signingKeyHolder.getKid();
         PrivateKey oldKey = signingKeyHolder.getCurrentPrivateKey();
 
-        // we have to wait to let key rotation happen
-        Thread.sleep(4000);
+        // here we have the issue that sometimes Spring-init is quite slow, so we give it more time.
+        long startTime = System.currentTimeMillis();
+        long maxWaitTime = 1 * 60 * 1000; // 1 Minute
+        while (signingKeyHolder.getKid().equals(oldKid) && (maxWaitTime > System.currentTimeMillis() - startTime)) {
+            Thread.sleep(1000);
+        }
 
         assertNotEquals(oldKid, signingKeyHolder.getKid());
         assertNotEquals(oldKey, signingKeyHolder.getCurrentPrivateKey());
