@@ -24,6 +24,6 @@ public class TestFileConfigLoader extends FileConfigLoader {
 
         InputStream userConfigInputStream = TestFileConfigLoader.class.getResourceAsStream(testFileResourceName);
         InputStream defaultConfigStream = OWASPApplicationGatewayApplication.class.getResourceAsStream("/default-config.yaml");
-        return this.load(defaultConfigStream, userConfigInputStream);
+        return this.mergeConfiguration(defaultConfigStream, userConfigInputStream);
     }
 }
