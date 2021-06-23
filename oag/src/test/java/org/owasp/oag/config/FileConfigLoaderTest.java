@@ -31,7 +31,7 @@ class FileConfigLoaderTest {
 
         String configUrl = wireMockServer.baseUrl() + "/oagConfiguration";
         FileConfigLoader loader = new FileConfigLoader(configUrl);
-        loader.enableUnsafeHttps();
+        loader.enableUnsafeHttp();
 
         // Act
         MainConfig mainConfig = loader.loadConfiguration();

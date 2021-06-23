@@ -37,7 +37,7 @@ public class FileConfigLoader implements ConfigLoader {
 
     private final String configPath;
     private final HttpClient httpClient;
-    private boolean allowHttps = false;
+    private boolean allowUnsafeHttp = false;
 
     /**
      * Creates a new FileConfigLoader which will load the given configuration file (disk or https)
@@ -71,13 +71,11 @@ public class FileConfigLoader implements ConfigLoader {
         log.info("Load configuration from: {}", configPath);
 
         InputStream userConfigInputStream;
-        if(configPath.startsWith("https://")){
+        if (configPath.startsWith("https://")) {
             userConfigInputStream = loadRemoteConfigFile();
-        }
-        else if(configPath.startsWith("http://") && this.allowHttps){
+        } else if (configPath.startsWith("http://") && this.allowUnsafeHttp) {
             userConfigInputStream = loadRemoteConfigFile();
-        }
-        else{
+        } else {
             userConfigInputStream = loadConfigFromFile();
         }
 
@@ -164,7 +162,7 @@ public class FileConfigLoader implements ConfigLoader {
     /**
      * Enables support to load configuration file via unsafe https connections.
      */
-    public void enableUnsafeHttps() {
-        this.allowHttps=true;
+    public void enableUnsafeHttp() {
+        this.allowUnsafeHttp = true;
     }
 }
