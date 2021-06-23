@@ -135,7 +135,7 @@ public class LocalRsaJwkStore implements JwkStore {
             try {
                 store.cleanupOldKeys();
             } catch (Exception e) {
-                LoggingUtils.contextual(() -> log.error("Could not generate new signing key (key rotation failed). Consider restarting the service if this happens for a longer time period.", e));
+                LoggingUtils.contextual(() -> log.error("Could not cleanup old signing keys. Consider restarting the service if this happens for a longer time period.", e));
             } finally {
                 startScheduler();
             }
