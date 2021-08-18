@@ -1,6 +1,6 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.config.ErrorValidation;
+import org.owasp.oag.config.Subconfig;
 import org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SecurityProfile implements ErrorValidation {
+public class SecurityProfile implements Subconfig {
 
     private List<String> allowedMethods;
     private String csrfProtection;
@@ -66,7 +66,7 @@ public class SecurityProfile implements ErrorValidation {
     }
 
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors(ApplicationContext context, MainConfig rootConfig) {
 
         var errors = new ArrayList<String>();
 
@@ -88,7 +88,7 @@ public class SecurityProfile implements ErrorValidation {
         if (errors.size() > 0)
             return errors;
 
-        errors.addAll(userMapping.getErrors(context));
+        errors.addAll(userMapping.getErrors(context, rootConfig));
 
         if (errors.size() > 0 || context == null)
             return errors;

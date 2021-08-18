@@ -1,6 +1,5 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.config.ErrorValidation;
 import org.owasp.oag.exception.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class MainConfig implements ErrorValidation {
+public class MainConfig {
 
     private static final Logger log = LoggerFactory.getLogger(MainConfig.class);
 
@@ -144,7 +143,6 @@ public class MainConfig implements ErrorValidation {
         this.keyManagementProfile = keyManagementProfile;
     }
 
-    @Override
     public List<String> getErrors(ApplicationContext context) {
 
         var errors = new ArrayList<String>();
@@ -193,12 +191,12 @@ public class MainConfig implements ErrorValidation {
             return errors;
 
         // Recursive validation
-        loginProviders.values().forEach(s -> errors.addAll(s.getErrors(context)));
-        securityProfiles.values().forEach(s -> errors.addAll(s.getErrors(context)));
-        routes.values().forEach(s -> errors.addAll(s.getErrors(context)));
-        errors.addAll(sessionBehaviour.getErrors(context));
-        errors.addAll(traceProfile.getErrors(context));
-        errors.addAll(keyManagementProfile.getErrors(context));
+        loginProviders.values().forEach(s -> errors.addAll(s.getErrors(context, this)));
+        securityProfiles.values().forEach(s -> errors.addAll(s.getErrors(context, this)));
+        routes.values().forEach(s -> errors.addAll(s.getErrors(context, this)));
+        errors.addAll(sessionBehaviour.getErrors(context, this));
+        errors.addAll(traceProfile.getErrors(context, this));
+        errors.addAll(keyManagementProfile.getErrors(context, this));
 
         if (!errors.isEmpty())
             return errors;

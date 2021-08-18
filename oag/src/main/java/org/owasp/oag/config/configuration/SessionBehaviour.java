@@ -1,12 +1,12 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.config.ErrorValidation;
+import org.owasp.oag.config.Subconfig;
 import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SessionBehaviour implements ErrorValidation {
+public class SessionBehaviour implements Subconfig {
 
     private int sessionDuration;
     private int renewWhenLessThan;
@@ -66,7 +66,7 @@ public class SessionBehaviour implements ErrorValidation {
     }
 
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors(ApplicationContext context, MainConfig rootConfig) {
         var errors = new ArrayList<String>();
 
         if (sessionDuration < 60)

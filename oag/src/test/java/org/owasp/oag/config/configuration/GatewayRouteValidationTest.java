@@ -2,6 +2,9 @@ package org.owasp.oag.config.configuration;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GatewayRouteValidationTest {
@@ -18,7 +21,7 @@ class GatewayRouteValidationTest {
                 null);
 
         // Act
-        var errors = route.getErrors(null);
+        var errors = route.getErrors(null, null);
 
         // Assert
         assertEquals(0, errors.size());
@@ -36,7 +39,7 @@ class GatewayRouteValidationTest {
                 null);
 
         // Act
-        var errors = route.getErrors(null);
+        var errors = route.getErrors(null, null);
 
         // Assert
         assertEquals(3, errors.size());
@@ -54,9 +57,42 @@ class GatewayRouteValidationTest {
                 null);
 
         // Act
-        var errors = route.getErrors(null);
+        var errors = route.getErrors(null, null);
 
         // Assert
         assertEquals(1, errors.size());
+    }
+
+    @Test
+    public void testNonexistentAutoLoginValue(){
+
+        // Arrange
+        GatewayRoute routeInvalid = new GatewayRoute(
+                "/abc/**",
+                "https://backend/abc",
+                "thetype",
+                false,
+                null,
+                "doesnotexist");
+        GatewayRoute routeValid = new GatewayRoute(
+                "/abc/**",
+                "https://backend/abc",
+                "thetype",
+                false,
+                null,
+                "exists");
+
+
+        Map<String, LoginProvider> providers = new HashMap<>();
+        providers.put("exists", null);
+        MainConfig config = new MainConfig(providers, null, null, null, null, null, null, null);
+
+        // Act
+        var errorsInvalid = routeInvalid.getErrors(null, config);
+        var errorsValid = routeValid.getErrors(null, config);
+
+        // Assert
+        assertEquals(1, errorsInvalid.size());
+        assertEquals(0, errorsValid.size());
     }
 }

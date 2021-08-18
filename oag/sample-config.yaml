@@ -13,6 +13,12 @@ routes:
     url: https://nellydemoapp.azurewebsites.net
     allowAnonymous: yes
 
+  secure:
+    type: webapplication
+    path: /secure/**
+    url: https://nellydemoapp.azurewebsites.net
+    allowAnonymous: no
+    autoLogin: google
 
 loginProviders:
   google:

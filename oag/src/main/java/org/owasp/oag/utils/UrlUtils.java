@@ -15,7 +15,7 @@ public class UrlUtils {
      * @param allowedHosts Allowed redirect hosts
      * @return True if the returnUrl is safe to redirect the client to
      */
-    public static boolean isValidReturnUrl(String returnUrl, String[] allowedHosts) {
+    public static boolean isValidReturnUrl(String returnUrl, String[] allowedHosts, boolean httpsEnabled) {
 
         // Check if relative url
         if (isRelativeUrl(returnUrl)) {
@@ -35,7 +35,12 @@ public class UrlUtils {
                 return false;
 
             // Check if protocol is https
-            return "https".equals(url.getProtocol());
+            if(httpsEnabled){
+                return "https".equals(url.getProtocol());
+            }else {
+                return "http".equals(url.getProtocol());
+            }
+
 
         } catch (MalformedURLException e) {
             return false;

@@ -1,6 +1,6 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.config.ErrorValidation;
+import org.owasp.oag.config.Subconfig;
 import org.owasp.oag.utils.UrlUtils;
 import org.springframework.context.ApplicationContext;
 
@@ -9,12 +9,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GatewayRoute implements ErrorValidation {
+public class GatewayRoute implements Subconfig {
 
     private String path;
     private String url;
     private String type;
     private boolean allowAnonymous;
+    private String autoLogin;
     private PathRewriteConfig rewrite = PathRewriteConfig.defaultConfig();
 
     public GatewayRoute() {
@@ -28,6 +29,11 @@ public class GatewayRoute implements ErrorValidation {
 
         if(rewrite != null)
             this.rewrite = rewrite;
+    }
+
+    public GatewayRoute(String path, String url, String type, boolean allowAnonymous, PathRewriteConfig rewrite, String autoLogin) {
+        this(path, url, type, allowAnonymous, rewrite);
+        this.autoLogin = autoLogin;
     }
 
     public String getPath() {
@@ -70,8 +76,12 @@ public class GatewayRoute implements ErrorValidation {
         this.rewrite = rewrite;
     }
 
+    public String getAutoLogin() { return autoLogin; }
+
+    private void setAutoLogin(String autoLogin) { this.autoLogin = autoLogin; }
+
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors(ApplicationContext context, MainConfig rootConfig) {
         var errors = new ArrayList<String>();
 
         if (path == null)
@@ -90,7 +100,16 @@ public class GatewayRoute implements ErrorValidation {
         if (!errors.isEmpty())
             return errors;
 
-        errors.addAll(rewrite.getErrors(context));
+        errors.addAll(rewrite.getErrors(context, rootConfig));
+
+        // Check if autoLogin is set to null or a valid provider
+        if(autoLogin != null){
+
+            var loginProviderDefined = rootConfig.getLoginProviders().keySet().contains(autoLogin);
+            if(!loginProviderDefined){
+                errors.add("Gateway Route: No login provider named " + autoLogin + "defined but referenced as autoLogin method");
+            }
+        }
 
         try {
             new URL(url);

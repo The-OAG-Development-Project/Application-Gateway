@@ -1,6 +1,6 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.config.ErrorValidation;
+import org.owasp.oag.config.Subconfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -11,7 +11,7 @@ import java.util.Map;
 
 import static org.owasp.oag.services.tokenMapping.UserMappingFactory.USER_MAPPER_TYPE_POSTFIX;
 
-public class UserMappingConfig implements ErrorValidation {
+public class UserMappingConfig implements Subconfig {
 
     private static final Logger log = LoggerFactory.getLogger(UserMappingConfig.class);
 
@@ -35,7 +35,7 @@ public class UserMappingConfig implements ErrorValidation {
     }
 
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors(ApplicationContext context, MainConfig rootConfig) {
 
         var errors = new ArrayList<String>();
 

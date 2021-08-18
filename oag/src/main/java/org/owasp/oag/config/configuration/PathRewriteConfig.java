@@ -1,12 +1,12 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.config.ErrorValidation;
+import org.owasp.oag.config.Subconfig;
 import org.springframework.context.ApplicationContext;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class PathRewriteConfig implements ErrorValidation {
+public class PathRewriteConfig implements Subconfig {
 
     private String regex;
     private String replacement;
@@ -55,7 +55,7 @@ public class PathRewriteConfig implements ErrorValidation {
     }
 
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors(ApplicationContext context, MainConfig rootConfig) {
 
         var errors = new LinkedList<String>();
 

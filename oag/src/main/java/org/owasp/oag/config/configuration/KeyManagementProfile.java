@@ -1,6 +1,6 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.config.ErrorValidation;
+import org.owasp.oag.config.Subconfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Provides access to the configured KeyManagement section in the config file
  */
-public class KeyManagementProfile implements ErrorValidation {
+public class KeyManagementProfile implements Subconfig {
 
     private static final Logger log = LoggerFactory.getLogger(KeyManagementProfile.class);
 
@@ -53,7 +53,7 @@ public class KeyManagementProfile implements ErrorValidation {
     }
 
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors(ApplicationContext context, MainConfig rootConfig) {
 
         var errors = new ArrayList<String>();
 
@@ -69,9 +69,10 @@ public class KeyManagementProfile implements ErrorValidation {
         if (!errors.isEmpty())
             return errors;
 
-        errors.addAll(jwkStoreProfile.getErrors(context));
-        errors.addAll(keyGeneratorProfile.getErrors(context));
-        errors.addAll(keyRotationProfile.getErrors(context));
+        // Recursive Validation
+        errors.addAll(jwkStoreProfile.getErrors(context, rootConfig));
+        errors.addAll(keyGeneratorProfile.getErrors(context, rootConfig));
+        errors.addAll(keyRotationProfile.getErrors(context, rootConfig));
 
         return errors;
     }

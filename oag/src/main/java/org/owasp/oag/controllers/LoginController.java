@@ -170,7 +170,7 @@ public class LoginController {
 
         ArrayList<String> allowedHosts = new ArrayList<>(config.getTrustedRedirectHosts());
         allowedHosts.add(config.getHostname());
-        return UrlUtils.isValidReturnUrl(returnUrl, allowedHosts.toArray(new String[]{}));
+        return UrlUtils.isValidReturnUrl(returnUrl, allowedHosts.toArray(new String[]{}), config.isHttpsHost());
     }
 
     @GetMapping("{providerKey}/callback")

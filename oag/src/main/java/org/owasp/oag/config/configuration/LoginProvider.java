@@ -1,6 +1,6 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.config.ErrorValidation;
+import org.owasp.oag.config.Subconfig;
 import org.owasp.oag.infrastructure.factories.LoginDriverFactory;
 import org.owasp.oag.services.login.drivers.InvalidProviderSettingsException;
 import org.owasp.oag.services.login.drivers.LoginDriver;
@@ -9,7 +9,7 @@ import org.springframework.context.ApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoginProvider implements ErrorValidation {
+public class LoginProvider implements Subconfig {
 
     private String type;
     private LoginProviderSettings with;
@@ -40,7 +40,7 @@ public class LoginProvider implements ErrorValidation {
 
 
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors(ApplicationContext context, MainConfig rootConfig) {
 
         var errors = new ArrayList<String>();
 

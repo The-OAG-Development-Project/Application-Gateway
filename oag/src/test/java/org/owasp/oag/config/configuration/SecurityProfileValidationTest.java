@@ -19,11 +19,11 @@ class SecurityProfileValidationTest {
 
         // Act
         profile.setCsrfProtection("double-submit-cookie");
-        List<String> errors1 = profile.getErrors(null);
+        List<String> errors1 = profile.getErrors(null, null);
         profile.setCsrfProtection("samesite-strict-cookie");
-        List<String> errors2 = profile.getErrors(null);
+        List<String> errors2 = profile.getErrors(null, null);
         profile.setCsrfProtection("none");
-        List<String> errors3 = profile.getErrors(null);
+        List<String> errors3 = profile.getErrors(null, null);
 
         // Assert
         assertEquals(0, errors1.size());
@@ -37,7 +37,7 @@ class SecurityProfileValidationTest {
         SecurityProfile profile = new SecurityProfile();
 
         // Act
-        List<String> errors = profile.getErrors(null);
+        List<String> errors = profile.getErrors(null, null);
 
         // Assert
         assertEquals(2, errors.size());

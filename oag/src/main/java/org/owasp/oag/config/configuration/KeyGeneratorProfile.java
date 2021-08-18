@@ -1,6 +1,6 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.config.ErrorValidation;
+import org.owasp.oag.config.Subconfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Provides access to the configured keyGeneratorProfile section in the config file
  */
-public class KeyGeneratorProfile implements ErrorValidation {
+public class KeyGeneratorProfile implements Subconfig {
 
     private static final Logger log = LoggerFactory.getLogger(KeyGeneratorProfile.class);
 
@@ -55,7 +55,7 @@ public class KeyGeneratorProfile implements ErrorValidation {
     }
 
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors(ApplicationContext context, MainConfig rootConfig) {
         var errors = new ArrayList<String>();
 
         if (type == null)

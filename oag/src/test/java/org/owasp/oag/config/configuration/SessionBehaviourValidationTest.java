@@ -18,7 +18,7 @@ class SessionBehaviourValidationTest {
                 "/");
 
         // Act
-        var errors = behaviour.getErrors(null);
+        var errors = behaviour.getErrors(null, null);
 
         // Assert
         assertEquals(0, errors.size());
@@ -36,7 +36,7 @@ class SessionBehaviourValidationTest {
                 null);
 
         // Act
-        var errors = behaviour.getErrors(null);
+        var errors = behaviour.getErrors(null, null);
 
         // Assert
         assertEquals(3, errors.size());
@@ -54,7 +54,7 @@ class SessionBehaviourValidationTest {
                 "/");
 
         // Act
-        var errors = behaviour.getErrors(null);
+        var errors = behaviour.getErrors(null, null);
 
         // Assert
         assertEquals(1, errors.size());
@@ -73,7 +73,7 @@ class SessionBehaviourValidationTest {
                 "/");
 
         // Act
-        var errors = behaviour.getErrors(null);
+        var errors = behaviour.getErrors(null, null);
 
         // Assert
         assertEquals(1, errors.size());

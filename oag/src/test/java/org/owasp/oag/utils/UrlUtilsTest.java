@@ -16,32 +16,35 @@ class UrlUtilsTest {
     public void testIsValidReturnUrl() {
 
         // WhitelistedUrl
-        assertTrue(UrlUtils.isValidReturnUrl("https://user:pass@test.com/abc", new String[]{"abc.ch", "test.com"}));
+        assertTrue(UrlUtils.isValidReturnUrl("https://user:pass@test.com/abc", new String[]{"abc.ch", "test.com"}, true));
 
         // Whitelisted host but different port
-        assertTrue(UrlUtils.isValidReturnUrl("https://user:pass@test.com:8080/abc", new String[]{"abc.ch", "test.com"}));
+        assertTrue(UrlUtils.isValidReturnUrl("https://user:pass@test.com:8080/abc", new String[]{"abc.ch", "test.com"}, true));
+
+        // http but https not enabled
+        assertTrue(UrlUtils.isValidReturnUrl("http://user:pass@test.com/abc", new String[]{"abc.ch", "test.com"}, false));
     }
 
     @Test
     public void testIsInvalidReturnUrl() {
 
         // Unknown host
-        assertFalse(UrlUtils.isValidReturnUrl("https://unknown.com/realtiveUrl", new String[]{"abc.ch", "test.com"}));
+        assertFalse(UrlUtils.isValidReturnUrl("https://unknown.com/realtiveUrl", new String[]{"abc.ch", "test.com"}, true));
 
         // Invalid url
-        assertFalse(UrlUtils.isValidReturnUrl("https://////notvalidUrl/", new String[]{"abc.ch", "test.com"}));
+        assertFalse(UrlUtils.isValidReturnUrl("https://////notvalidUrl/", new String[]{"abc.ch", "test.com"}, true));
 
         // No schema
-        assertFalse(UrlUtils.isValidReturnUrl("test.com/realtiveUrl", new String[]{"abc.ch", "test.com"}));
+        assertFalse(UrlUtils.isValidReturnUrl("test.com/realtiveUrl", new String[]{"abc.ch", "test.com"}, true));
 
         // not https
-        assertFalse(UrlUtils.isValidReturnUrl("http://test.com/realtiveUrl", new String[]{"abc.ch", "test.com"}));
+        assertFalse(UrlUtils.isValidReturnUrl("http://test.com/realtiveUrl", new String[]{"abc.ch", "test.com"}, true));
 
         // RelativeUrl
-        assertFalse(UrlUtils.isValidReturnUrl("/abc?id=45", new String[]{"abc.ch", "test.com"}));
+        assertFalse(UrlUtils.isValidReturnUrl("/abc?id=45", new String[]{"abc.ch", "test.com"}, true));
 
         // Different Port
-        assertFalse(UrlUtils.isValidReturnUrl("https://user:test.com@unknown.com:7777/abc", new String[]{"abc.ch", "test.com"}));
+        assertFalse(UrlUtils.isValidReturnUrl("https://user:test.com@unknown.com:7777/abc", new String[]{"abc.ch", "test.com"}, true));
     }
 
     @Test
@@ -54,7 +57,7 @@ class UrlUtilsTest {
 
             var uriString = URLDecoder.decode(testCase, StandardCharsets.UTF_8);
 
-            if (UrlUtils.isValidReturnUrl(uriString, new String[]{"www.whitelisteddomain.tld"}))
+            if (UrlUtils.isValidReturnUrl(uriString, new String[]{"www.whitelisteddomain.tld"}, true))
                 failedCases.add(testCase);
         }
 
@@ -62,7 +65,7 @@ class UrlUtilsTest {
         for (var testCase : failedCases) {
 
             var uriString = URLDecoder.decode(testCase, StandardCharsets.UTF_8);
-            UrlUtils.isValidReturnUrl(uriString, new String[]{"www.whitelisteddomain.tld"});
+            UrlUtils.isValidReturnUrl(uriString, new String[]{"www.whitelisteddomain.tld"}, true);
         }
 
         assertTrue(failedCases.isEmpty(), "Some openRedirects were not rejected: " + failedCases);
