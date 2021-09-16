@@ -15,7 +15,7 @@ RUN mvn package -f /home/app/pom.xml
 #
 # Package stage
 #
-FROM openjdk:15.0.2-oraclelinux7
+FROM openjdk:15-oraclelinux7
 RUN useradd --user-group --system --create-home --no-log-init app
 
 RUN mkdir -p /app
