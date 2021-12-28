@@ -1,5 +1,6 @@
 package org.owasp.oag.filters.spring;
 
+import org.jetbrains.annotations.NotNull;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.exception.CookieDecryptionException;
 import org.owasp.oag.infrastructure.GlobalClockSource;
@@ -40,16 +41,23 @@ public class ExtractAuthenticationFilter implements WebFilter {
 
     public static Optional<Session> extractSessionFromExchange(ServerWebExchange exchange) {
 
-        var sessionOptional = (Optional<Session>) exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
+        Object sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
 
         if (sessionOptional == null)
             return Optional.empty();
 
-        return sessionOptional;
+        if (sessionOptional instanceof Optional) {
+            //noinspection unchecked
+            return (Optional<Session>) sessionOptional;
+        } else {
+            LoggingUtils.logWarn(log, exchange, "oag-session attribute is of incompatible type!! Fix it.");
+            return  Optional.empty();
+        }
     }
 
+    @NotNull
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+    public Mono<Void> filter(@NotNull ServerWebExchange exchange, WebFilterChain chain) {
 
         LoggingUtils.logTrace(log, exchange, "Execute ExtractAuthenticationFilter");
 
