@@ -159,6 +159,8 @@ If you don't want to use Docker you can build the jar by yourself with Maven:
 mvn package -f oag/pom.xml -Dmaven.test.skip=true
 ```
 
+You may also use your IDE for building OAG. Please see [Setup OAG for development](https://github.com/gianlucafrei/Application-Gateway/wiki/Setup-for-OAG-development) for instructions using IntelliJ as an example.
+
 ## Functionality
 
 - [x] HTTPS Redirection with Proxy Awareness
