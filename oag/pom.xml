@@ -130,7 +130,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <version>4.1.60.Final</version>
+            <version>4.1.63.Final</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/io.netty/netty-common -->
         <dependency>
