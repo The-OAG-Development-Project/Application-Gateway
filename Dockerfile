@@ -1,7 +1,7 @@
 #
 # Build stage
 #
-FROM maven:3.6.3-openjdk-15 AS build
+FROM maven:3.8.4-openjdk-17 AS build
 
 # Copy POM file and download dependencies -> allows faster build because this step can be cached
 COPY oag/pom.xml /home/app/pom.xml
@@ -15,7 +15,7 @@ RUN mvn package -f /home/app/pom.xml
 #
 # Package stage
 #
-FROM openjdk:15-oraclelinux7
+FROM openjdk:18-oraclelinux8
 RUN useradd --user-group --system --create-home --no-log-init app
 
 RUN mkdir -p /app
