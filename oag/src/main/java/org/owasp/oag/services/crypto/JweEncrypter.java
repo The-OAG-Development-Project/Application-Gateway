@@ -88,7 +88,7 @@ public class JweEncrypter implements CookieEncryptor {
 
         try {
             // Create JWT
-            JWEHeader header = new JWEHeader(JWEAlgorithm.DIR, EncryptionMethod.A128GCM);
+            JWEHeader header = new JWEHeader(JWEAlgorithm.DIR, EncryptionMethod.A256GCM);
             Payload jwePayload = new Payload(payload);
             JWEObject jweObject = new JWEObject(header, jwePayload);
             jweObject.encrypt(new DirectEncrypter(secretKey));
