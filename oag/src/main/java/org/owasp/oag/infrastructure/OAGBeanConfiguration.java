@@ -61,7 +61,7 @@ public class OAGBeanConfiguration {
         if (System.getenv("OAG-KEY") != null) {
             return JweEncrypter.loadFromEnvironmentVariable("OAG-KEY");
         } else {
-            return JweEncrypter.loadFromFileOrCreateAndStoreNewKey("OAG.key");
+            return JweEncrypter.loadInMemoryInstance();
         }
     }
 
