@@ -21,44 +21,31 @@ import java.text.ParseException;
 import java.util.Base64;
 
 public class JweEncrypter implements CookieEncryptor {
+    private static final SecretKey currentSecretKey;
+
+    static {
+        try {
+            KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+            keyGen.init(256);
+            currentSecretKey = keyGen.generateKey();
+        } catch (NoSuchAlgorithmException e) {
+            throw new ConsistencyException("Cloud not create AES key", e);
+        }
+    }
 
     private final SecretKey secretKey;
 
     private JweEncrypter(byte[] keyBytes) {
-
         this.secretKey = new SecretKeySpec(keyBytes, 0, keyBytes.length, "AES");
     }
 
-    public static JweEncrypter loadFromFileOrCreateAndStoreNewKey(String filename) throws IOException {
-
-        if (filename == null)
-            throw new ApplicationException("Filename must not be null", null);
-
-        File keyFile = new File(filename);
-        byte[] keyBytes;
-
-        if (keyFile.exists()) {
-            // Read key from file
-            keyBytes = Files.toByteArray(keyFile);
-        } else {
-            // Create new secret key and store it in file
-
-            KeyGenerator keyGen;
+    public synchronized static JweEncrypter loadInMemoryInstance() throws IOException {
             try {
-                keyGen = KeyGenerator.getInstance("AES");
-                keyGen.init(128); // for example
-                SecretKey secretKey = keyGen.generateKey();
-
-                // Store key om file
-                keyBytes = secretKey.getEncoded();
-                Files.write(keyBytes, keyFile);
-
-            } catch (NoSuchAlgorithmException e) {
-                throw new ConsistencyException("Cloud not create AES key", e);
+                byte[] keyBytes = currentSecretKey.getEncoded();
+                return new JweEncrypter(keyBytes);
+            } catch (Exception e) {
+                throw new ConsistencyException("Failed to create JweEncryptor due to bad AESKey.", e);
             }
-        }
-
-        return new JweEncrypter(keyBytes);
     }
 
     public static JweEncrypter loadFromEnvironmentVariable(String variableName) {
