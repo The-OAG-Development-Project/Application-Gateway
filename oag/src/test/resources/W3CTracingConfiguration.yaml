@@ -23,7 +23,7 @@ traceProfile:
   acceptAdditionalTraceInfo: yes
   maxLengthAdditionalTraceInfo: 254
   sendTraceResponse: yes
-  type: w3cTrace
+  type: w3cTraceContext
 
 keyManagementProfile:
   keyRotationProfile:

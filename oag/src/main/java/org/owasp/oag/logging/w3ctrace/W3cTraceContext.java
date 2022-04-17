@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 /**
  * Implements the W3C Trace Context specification.
  * It supports only singe tracestate headers as incomming requests
- * See https://w3c.github.io/trace-context/
+ * See <a href="https://w3c.github.io/trace-context/">https://w3c.github.io/trace-context/</a>
  * <p>
  * Configue in the main config with:
  * <code>
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
  * </code>
  * It does not support any traceImplSpecificSettings in the configuration and ignores the maxLengthIncomingTrace setting as this is defined by the specification.
  */
-@Component("w3cTrace")
+@Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class W3cTraceContext implements TraceContext {
     private static final String W3C_MAIN_RESPONSE_HEADER_NAME = "traceresponse";

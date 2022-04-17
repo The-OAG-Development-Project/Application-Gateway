@@ -6,8 +6,8 @@ import org.owasp.oag.config.configuration.GatewayRoute;
 import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.services.crypto.jwt.StubJwtSignerFactory;
-import org.owasp.oag.services.tokenMapping.jwt.JwtTokenMapper;
-import org.owasp.oag.services.tokenMapping.jwt.JwtTokenMappingSettings;
+import org.owasp.oag.services.tokenMapping.jwt.JwtTokenUserMapper;
+import org.owasp.oag.services.tokenMapping.jwt.JwtTokenUserMappingSettings;
 import org.owasp.oag.session.Session;
 import org.owasp.oag.session.UserModel;
 
@@ -15,8 +15,9 @@ import java.util.HashMap;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-class JwtTokenMappingTest {
+class JwtTokenUserMapperTest {
 
     private final String hostUri = "https://gateway";
     private final String routeUrl = "https://backend.com";
@@ -28,7 +29,7 @@ class JwtTokenMappingTest {
     private final UserModel model;
     private final GatewayRouteContext routeContext;
 
-    public JwtTokenMappingTest() {
+    public JwtTokenUserMapperTest() {
 
         // User Model
         model = new UserModel(userId);
@@ -48,8 +49,8 @@ class JwtTokenMappingTest {
         mappingSettingsMappings.put("email-claim", "<mappings.email>");
         mappingSettingsMappings.put("constant-claim", "abc");
         mappingSettingsMappings.put("provider", "<session.provider>");
-        var mappingSettings = new JwtTokenMappingSettings("Authorization", "Bearer", "<<route-url>>", "<<hostUri>>", 30, "stub", new HashMap<>(), mappingSettingsMappings);
-        var mapper = new JwtTokenMapper(new StubJwtSignerFactory(), new GlobalClockSource(), mappingSettings, hostUri);
+        var mappingSettings = new JwtTokenUserMappingSettings("Authorization", "Bearer", "<<route-url>>", "<<hostUri>>", 30, "stub", new HashMap<>(), mappingSettingsMappings);
+        var mapper = new JwtTokenUserMapper(new StubJwtSignerFactory(), new GlobalClockSource(), mappingSettings, hostUri);
 
         // Act
         var jwt = mapper.mapUserModelToToken(routeContext, routeUrl, provider);
@@ -62,17 +63,17 @@ class JwtTokenMappingTest {
         assertEquals(hostUri, claims.getIssuer());
         assertEquals(userEmail, claims.getClaim("email-claim"));
         assertEquals("abc", claims.getClaim("constant-claim"));
-        assertEquals(null, claims.getClaim("phone"));
+        assertNull(claims.getClaim("phone"));
         assertEquals(provider, claims.getClaim("provider"));
     }
 
     @Test
-    void testTokenMappingCache() throws Exception {
+    void testTokenMappingCache() {
 
         // Arrange
         var clockSource = new GlobalClockSource();
-        var mappingSettings = new JwtTokenMappingSettings("Authorization", "Bearer", "<<route-url>>", "<<hostUri>>", 30, "stub", new HashMap<>(), new HashMap<>());
-        var mapper = new JwtTokenMapper(new StubJwtSignerFactory(), clockSource, mappingSettings, hostUri);
+        var mappingSettings = new JwtTokenUserMappingSettings("Authorization", "Bearer", "<<route-url>>", "<<hostUri>>", 30, "stub", new HashMap<>(), new HashMap<>());
+        var mapper = new JwtTokenUserMapper(new StubJwtSignerFactory(), clockSource, mappingSettings, hostUri);
         var provider = "iam";
 
         // Act

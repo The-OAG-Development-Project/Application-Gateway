@@ -13,6 +13,7 @@ import java.util.Map;
 
 import static org.owasp.oag.services.tokenMapping.UserMappingFactory.USER_MAPPER_TYPE_POSTFIX;
 
+
 @Component
 public class DefaultUserMappingFactory implements UserMappingFactory {
 
@@ -40,7 +41,7 @@ public class DefaultUserMappingFactory implements UserMappingFactory {
         var factoryName = userMappingType + USER_MAPPER_TYPE_POSTFIX;
         var factory = context.getBean(factoryName, org.owasp.oag.services.tokenMapping.UserMappingFactory.class);
 
-        if (factory == null) {
+        if (factory == null) { // <-- TODO should not be necessary, due to .getBean throwing NoSuchBeanExceptions
             throw new ConfigurationException("Cannot find factory for UserMapper of type '" + userMappingType + "'", null);
         }
 

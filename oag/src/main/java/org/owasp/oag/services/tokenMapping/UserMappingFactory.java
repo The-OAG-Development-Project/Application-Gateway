@@ -14,7 +14,7 @@ public interface UserMappingFactory {
     /**
      * Name postfix for beans of this type.
      */
-    String USER_MAPPER_TYPE_POSTFIX = "-userMapping-factory";
+    String USER_MAPPER_TYPE_POSTFIX = "UserMappingFactory";
 
     /**
      * Must return a instance of a user mapper class.

@@ -25,7 +25,7 @@ import java.util.UUID;
  * </code>
  * It does not support additional trace info and ignores these configured values.
  */
-@Component("simpleTrace")
+@Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class SimpleTraceContext implements TraceContext {
     /**

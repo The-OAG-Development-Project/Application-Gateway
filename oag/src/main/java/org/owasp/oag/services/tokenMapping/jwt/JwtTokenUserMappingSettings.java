@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class JwtTokenMappingSettings {
+public class JwtTokenUserMappingSettings {
 
     public String headerName;
     public String headerPrefix;
@@ -19,10 +19,10 @@ public class JwtTokenMappingSettings {
     public Map<String, Object> signatureSettings = new HashMap<>();
     public Map<String, String> mappings = new HashMap<>();
 
-    public JwtTokenMappingSettings() {
+    public JwtTokenUserMappingSettings() {
     }
 
-    public JwtTokenMappingSettings(String headerName, String headerPrefix, String audience, String issuer, int tokenLifetimeSeconds, String signatureImplementation, Map<String, Object> signatureSettings, Map<String, String> mappings) {
+    public JwtTokenUserMappingSettings(String headerName, String headerPrefix, String audience, String issuer, int tokenLifetimeSeconds, String signatureImplementation, Map<String, Object> signatureSettings, Map<String, String> mappings) {
         this.headerName = headerName;
         this.headerPrefix = headerPrefix;
         this.audience = audience;

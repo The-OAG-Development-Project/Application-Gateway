@@ -18,11 +18,11 @@ import java.util.UUID;
  * </code>
  * It does not support any traceImplSpecificSettings and ignores all other settings in the traceProfile.
  */
-@Component("noTrace")
+@Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class NoTraceContext implements TraceContext {
 
-    private String traceId = UUID.randomUUID().toString();
+    private final String traceId = UUID.randomUUID().toString();
 
     @Override
     public void generateNewTraceId() {

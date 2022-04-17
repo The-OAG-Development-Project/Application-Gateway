@@ -75,12 +75,12 @@ public class MainConfig implements ErrorValidation {
         var profiles = getSecurityProfiles();
         var routes = getRoutes();
 
-        Set<String> usedProfileNames = routes.values().stream().map(route -> route.getType()).collect(Collectors.toSet());
-        var usedProfiles = profiles.entrySet()
-                .stream().filter(entry -> usedProfileNames.contains(entry.getKey()))
-                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+        Set<String> usedProfileNames = routes.values().stream().map(GatewayRoute::getType).collect(Collectors.toSet());
 
-        return usedProfiles;
+        return profiles.entrySet()
+                .stream()
+                .filter(entry -> usedProfileNames.contains(entry.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public String getHostUri() {
@@ -203,7 +203,7 @@ public class MainConfig implements ErrorValidation {
         if (!errors.isEmpty())
             return errors;
 
-        // Cross cutting concerns
+        // Cross-cutting concerns
         // Check if security profile exists for each route
         routes.values().forEach(r -> {
 

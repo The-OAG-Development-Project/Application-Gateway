@@ -20,20 +20,20 @@ routes:
     url: http://localhost:7777/
     allowAnonymous: no
 
-  csrf-double-submit:
-    type: csrf-double-submit
-    path: /csrfDoubleSubmit/**
+  csrfDoubleSubmit:
+    type: csrfDoubleSubmit
+    path: /csrf-double-submit/**
     url: http://localhost:7777/
     allowAnonymous: yes
 
-  csrf-samesite-strict:
-    type: csrf-samesite-strict
+  csrfSameSiteStrict:
+    type: csrfSameSiteStrict
     path: /csrf-samesite-strict/**
     url: http://localhost:7777/
     allowAnonymous: no
 
-  csrf-none:
-    type: csrf-none
+  csrfNone:
+    type: csrfNone
     path: /csrf-none/**
     url: http://localhost:7777/
     allowAnonymous: no
@@ -55,17 +55,17 @@ loginProviders:
       scopes: [ "openid", "email" ]
 
 securityProfiles:
-  csrf-double-submit:
+  csrfDoubleSubmit:
     allowedMethods: [ "GET", "PUT", "POST" ]
-    csrfProtection: double-submit-cookie-with-body
+    csrfProtection: doubleSubmitCookieWithBody
 
-  csrf-none:
+  csrfNone:
     allowedMethods: [ "GET", "PUT", "POST" ]
     csrfProtection: none
 
-  csrf-samesite-strict:
+  csrfSameSiteStrict:
     allowedMethods: [ "GET", "PUT", "POST" ]
-    csrfProtection: samesite-strict-cookie
+    csrfProtection: sameSiteStrictCookie
 
 
 traceProfile:
@@ -74,7 +74,7 @@ traceProfile:
   acceptAdditionalTraceInfo: no
   maxLengthAdditionalTraceInfo: 254
   sendTraceResponse: yes
-  type: simpleTrace
+  type: simpleTraceContext
   traceImplSpecificSettings:
     traceImplSpecificParameter: "not used"
 

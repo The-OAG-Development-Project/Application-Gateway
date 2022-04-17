@@ -5,12 +5,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class CsrfSamesiteStrictValidationTest {
+class CsrfSameSiteStrictCookieValidationTest {
 
     @Test
     void shouldBlockBasedOnOriginHeaderFalse() {
 
-        var validator = new CsrfSamesiteStrictValidation();
+        var validator = new CsrfSameSiteStrictCookieValidation();
 
         // Happy case
         assertFalse(validator.shouldBlockBasedOnOriginHeader("https://oag.azurewebsites.net", null, "https://oag.azurewebsites.net/"));
@@ -29,7 +29,7 @@ class CsrfSamesiteStrictValidationTest {
     @Test
     void shouldBlockBasedOnOriginHeaderTrue() {
 
-        var validator = new CsrfSamesiteStrictValidation();
+        var validator = new CsrfSameSiteStrictCookieValidation();
 
         // Different origin
         assertTrue(validator.shouldBlockBasedOnOriginHeader("https://badwebsite.com", null, "https://oag.azurewebsites.net/"));

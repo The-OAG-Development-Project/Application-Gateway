@@ -9,10 +9,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-import static org.owasp.oag.services.crypto.jwt.JwtSignerFactory.JWT_SIGNER_FACTORY_BEAN_POSTFIX;
-
-@Component("rsa" + JWT_SIGNER_FACTORY_BEAN_POSTFIX)
-public class RSAJwtSignerFactory implements JwtSignerFactory {
+@Component
+public class RsaJwtSignerFactory implements JwtSignerFactory {
 
     @Autowired
     CurrentSigningKeyHolder keyHolder;

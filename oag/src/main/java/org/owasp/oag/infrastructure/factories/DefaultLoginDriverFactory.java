@@ -12,20 +12,19 @@ public class DefaultLoginDriverFactory implements LoginDriverFactory {
 
     private final ApplicationContext context;
 
-    public DefaultLoginDriverFactory(@Autowired ApplicationContext context) {
+    public DefaultLoginDriverFactory(ApplicationContext context) {
         this.context = context;
     }
 
     @Override
     public LoginDriver loadDriverByKey(String driverName, LoginProviderSettings settings) {
 
-        try{
-            var driverFactory = context.getBean(driverName + "-driver-factory",
+        try {
+            var driverFactory = context.getBean(driverName + LoginDriverFactory.class.getSimpleName(),
                     org.owasp.oag.services.login.drivers.LoginDriverFactory.class);
 
             return driverFactory.load(settings);
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             throw new ConfigurationException("Login driver factory with name " + driverName + " not found", ex);
         }
     }

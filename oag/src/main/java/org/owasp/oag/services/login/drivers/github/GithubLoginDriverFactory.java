@@ -4,11 +4,11 @@ import org.owasp.oag.config.configuration.LoginProviderSettings;
 import org.owasp.oag.services.login.drivers.LoginDriverFactory;
 import org.springframework.stereotype.Component;
 
-@Component("github-driver-factory")
-public class GitHubDriverFactory implements LoginDriverFactory<GitHubDriver> {
+@Component
+public class GithubLoginDriverFactory implements LoginDriverFactory<GithubDriver> {
 
     @Override
-    public GitHubDriver load(LoginProviderSettings settings) {
-        return new GitHubDriver(settings);
+    public GithubDriver load(LoginProviderSettings settings) {
+        return new GithubDriver(settings);
     }
 }

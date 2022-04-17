@@ -10,7 +10,7 @@ routes:
 securityProfiles:
   webapplication:
     userMapping:
-      type: "header-mapping"
+      type: "requestHeader"
       settings:
         mappings:
           X-USER-PROVIDER: <session.provider>

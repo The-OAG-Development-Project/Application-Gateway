@@ -22,9 +22,9 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Optional;
 
-public class GitHubDriver extends Oauth2Driver {
+public class GithubDriver extends Oauth2Driver {
 
-    public GitHubDriver(LoginProviderSettings settings) {
+    public GithubDriver(LoginProviderSettings settings) {
         super(settings);
     }
 
@@ -60,7 +60,7 @@ public class GitHubDriver extends Oauth2Driver {
         try {
             // Load data
             String email = loadUserEmail(accessToken);
-            GitHubUserResponse profileResponse = makeGitHubApiRequest("https://api.github.com/user", accessToken.getValue(), GitHubUserResponse.class);
+            GithubUserResponse profileResponse = makeGitHubApiRequest("https://api.github.com/user", accessToken.getValue(), GithubUserResponse.class);
 
             // Create user model
             UserModel model = new UserModel(profileResponse.id);
@@ -87,18 +87,15 @@ public class GitHubDriver extends Oauth2Driver {
 
         try {
 
-            GitHubEmailsResponse emailsResponse = makeGitHubApiRequest("https://api.github.com/user/emails", accessToken.getValue(), GitHubEmailsResponse.class);
+            GithubEmailsResponse emailsResponse = makeGitHubApiRequest("https://api.github.com/user/emails", accessToken.getValue(), GithubEmailsResponse.class);
 
-            Optional<GitHubUserEmail> anyEmail = emailsResponse.stream()
-                    .filter(e -> e.isVerified())
-                    .filter(e -> e.isPrimary())
+            Optional<GithubUserEmail> anyEmail = emailsResponse.stream()
+                    .filter(GithubUserEmail::isVerified)
+                    .filter(GithubUserEmail::isPrimary)
                     .findAny();
 
 
-            if (anyEmail.isPresent())
-                return anyEmail.get().getEmail();
-            else
-                return null;
+            return anyEmail.map(GithubUserEmail::getEmail).orElse(null);
 
         } catch (Exception e) {
             throw new ApplicationException("Could not load user profile info", e);

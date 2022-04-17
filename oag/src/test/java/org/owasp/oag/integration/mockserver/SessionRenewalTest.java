@@ -18,7 +18,7 @@ import java.time.Duration;
         properties = {"spring.main.allow-bean-definition-overriding=true",
                 "logging.level.org.owasp.oag=TRACE"},
         classes = {IntegrationTestConfig.class, LocalServerTestConfig.class})
-class SessionRenewallTest extends WiremockTest {
+class SessionRenewalTest extends WiremockTest {
 
     @Autowired
     GlobalClockSource globalClockSource;
@@ -30,7 +30,7 @@ class SessionRenewallTest extends WiremockTest {
     }
 
     @Test
-    void testSessionRenewal() throws Exception {
+    void testSessionRenewal() {
 
         // Arrange
         var loginResult = makeLogin();
@@ -52,7 +52,7 @@ class SessionRenewallTest extends WiremockTest {
     }
 
     @Test
-    void testSessionRenewalExpiredSession() throws Exception {
+    void testSessionRenewalExpiredSession() {
 
         // Arrange
         var loginResult = makeLogin();

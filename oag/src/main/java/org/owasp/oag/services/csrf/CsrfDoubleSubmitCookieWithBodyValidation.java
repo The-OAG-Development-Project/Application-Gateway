@@ -7,8 +7,8 @@ import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Optional;
 
-@Component("csrf-double-submit-cookie-with-body-validation")
-public class CsrfDoubleSubmitInPostBody extends CsrfDoubleSubmitValidation {
+@Component
+public class CsrfDoubleSubmitCookieWithBodyValidation extends CsrfDoubleSubmitCookieValidation {
 
     @Override
     public boolean needsRequestBody() {
@@ -20,7 +20,7 @@ public class CsrfDoubleSubmitInPostBody extends CsrfDoubleSubmitValidation {
 
         Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
 
-        if (sessionOptional.isPresent()) {
+        if (sessionOptional != null && sessionOptional.isPresent()) {
             String csrfValueFromSession = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION_CSRF_TOKEN);
             String csrfValueFromDoubleSubmit = extractCsrfToken(exchange);
 
@@ -28,7 +28,7 @@ public class CsrfDoubleSubmitInPostBody extends CsrfDoubleSubmitValidation {
                 throw new AssertionError("request body is null");
             }
 
-            if (requestBody.contains(csrfValueFromSession))
+            if (csrfValueFromSession != null && requestBody.contains(csrfValueFromSession))
                 return false;
 
             if (csrfValueFromDoubleSubmit == null)

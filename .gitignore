@@ -6,6 +6,7 @@ target/
 !**/src/test/**/target/
 .DS_Store
 env.list
+*.db
 
 ### STS ###
 .apt_generated

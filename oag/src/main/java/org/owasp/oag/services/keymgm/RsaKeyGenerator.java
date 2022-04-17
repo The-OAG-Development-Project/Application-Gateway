@@ -12,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Implements a key generator based on RSA.
  */
-@Component("rsaKeyGenerator")
+@Component
 public class RsaKeyGenerator implements KeyGenerator {
 
     private final MainConfig config;

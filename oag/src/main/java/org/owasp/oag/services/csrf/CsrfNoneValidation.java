@@ -3,7 +3,7 @@ package org.owasp.oag.services.csrf;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
-@Component("csrf-none-validation")
+@Component
 public class CsrfNoneValidation implements CsrfProtectionValidation {
 
     public static final String NAME = "none";

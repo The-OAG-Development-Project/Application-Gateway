@@ -56,7 +56,7 @@ securityProfiles:
       Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
       Strict-Transport-Security: max-age=31536000; includeSubDomains
     userMapping:
-      type: "jwt-mapping"
+      type: "jwtToken"
       settings:
         headerName: "Authorization"
         headerPrefix: "Bearer "
@@ -78,7 +78,7 @@ traceProfile:
   acceptAdditionalTraceInfo: false
   maxLengthAdditionalTraceInfo: 254
   sendTraceResponse: true
-  type: w3cTrace
+  type: w3cTraceContext
 
 keyManagementProfile:
   keyRotationProfile:

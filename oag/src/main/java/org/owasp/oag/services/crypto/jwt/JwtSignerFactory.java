@@ -10,7 +10,7 @@ public interface JwtSignerFactory {
     /**
      * Bean name postfix for beans of this class.
      */
-    String JWT_SIGNER_FACTORY_BEAN_POSTFIX = "-jwt-signer-factory";
+    String JWT_SIGNER_FACTORY_BEAN_POSTFIX = JwtSignerFactory.class.getSimpleName();
 
     /**
      * Should return a instance of a jwt signer object

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.Date;
 import java.util.UUID;
 
@@ -20,7 +21,7 @@ import java.util.UUID;
  * Note that in that case you must make sure that when the bean is loaded:
  * - you generate a first signing key and assign it in the CurrentSigningKeyHolder
  */
-@Component("defaultKeyRotation")
+@Component
 public class DefaultKeyRotation implements KeyRotation {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultKeyRotation.class);
@@ -46,7 +47,7 @@ public class DefaultKeyRotation implements KeyRotation {
             if (config.getKeyManagementProfile().getKeyRotationProfile().getUseSigningKeyRotation()) {
                 scheduler.schedule(new RotateKeyTask(), new Date(System.currentTimeMillis() + config.getKeyManagementProfile().getKeyRotationProfile().getSigningKeyRotationSeconds() * 1000));
             } else {
-                scheduler.schedule(new RetrySchedulingTask(), new Date(System.currentTimeMillis() + 1 * 60 * 60 * 1000)); // retry scheduling, maybe config changed in the mean time
+                scheduler.schedule(new RetrySchedulingTask(), new Date(System.currentTimeMillis() + Duration.ofHours(1L).toMillis())); // retry scheduling, maybe config changed in the mean time
             }
         } catch (Exception e) {
             throw new ConsistencyException("Could not start scheduler of signing key rotation.", e);
@@ -59,7 +60,7 @@ public class DefaultKeyRotation implements KeyRotation {
         String kid = UUID.randomUUID().toString();
         long expiry = System.currentTimeMillis();
         if (config.getKeyManagementProfile().getKeyRotationProfile().getUseSigningKeyRotation()) {
-            expiry += (config.getKeyManagementProfile().getKeyRotationProfile().getSigningKeyRotationSeconds() + 600) * 1000;
+            expiry += (config.getKeyManagementProfile().getKeyRotationProfile().getSigningKeyRotationSeconds() + 600L) * 1000L;
         } else {
             expiry = Integer.MAX_VALUE;
         }

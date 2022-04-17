@@ -1,6 +1,7 @@
-package org.owasp.oag.services.tokenMapping;
+package org.owasp.oag.services.tokenMapping.nouser;
 
 import org.owasp.oag.filters.GatewayRouteContext;
+import org.owasp.oag.services.tokenMapping.UserMapper;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 

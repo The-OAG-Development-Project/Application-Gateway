@@ -14,10 +14,9 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 import static org.owasp.oag.services.crypto.jwt.JwtSignerFactory.JWT_SIGNER_FACTORY_BEAN_POSTFIX;
-import static org.owasp.oag.services.tokenMapping.UserMappingFactory.USER_MAPPER_TYPE_POSTFIX;
 
-@Component("jwt-mapping" + USER_MAPPER_TYPE_POSTFIX)
-public class JwtTokenMapperFactory implements UserMappingFactory {
+@Component
+public class JwtTokenUserMappingFactory implements UserMappingFactory {
 
     @Autowired
     ApplicationContext context;
@@ -32,22 +31,23 @@ public class JwtTokenMapperFactory implements UserMappingFactory {
     public UserMapper load(Map<String, Object> settings) {
 
         // Load settings
-        JwtTokenMappingSettings jwtTokenMappingSettings;
+        JwtTokenUserMappingSettings jwtTokenUserMappingSettings;
         try {
-            jwtTokenMappingSettings = SettingsUtils.settingsFromMap(settings, JwtTokenMappingSettings.class);
+            jwtTokenUserMappingSettings = SettingsUtils.settingsFromMap(settings, JwtTokenUserMappingSettings.class);
         } catch (Exception ex) {
             throw new ConfigurationException("Cannot deserialize jwt-mapping settings", ex);
         }
-        jwtTokenMappingSettings.requireValidSettings();
+        jwtTokenUserMappingSettings.requireValidSettings();
 
         // Init jwt signer
-        var factoryName = jwtTokenMappingSettings.signatureImplementation + JWT_SIGNER_FACTORY_BEAN_POSTFIX;
+        var factoryName = jwtTokenUserMappingSettings.signatureImplementation + JWT_SIGNER_FACTORY_BEAN_POSTFIX;
         var factory = context.getBean(factoryName, JwtSignerFactory.class);
 
-        if (factory == null)
-            throw new ConfigurationException("No implementation found for singature implementation: " + jwtTokenMappingSettings.signatureImplementation, null);
+        if (factory == null) {// <-- TODO should not be necessary, due to .getBean throwing NoSuchBeanExceptions
+            throw new ConfigurationException("No implementation found for signature implementation: " + jwtTokenUserMappingSettings.signatureImplementation, null);
+        }
 
         // Create user mapper
-        return new JwtTokenMapper(factory, clockSource, jwtTokenMappingSettings, mainConfig.getHostUri());
+        return new JwtTokenUserMapper(factory, clockSource, jwtTokenUserMappingSettings, mainConfig.getHostUri());
     }
 }

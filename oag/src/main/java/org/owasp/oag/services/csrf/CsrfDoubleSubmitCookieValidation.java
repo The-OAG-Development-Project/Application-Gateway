@@ -11,15 +11,15 @@ import java.util.Optional;
 
 import static org.owasp.oag.utils.LoggingUtils.logInfo;
 
-@Component("csrf-double-submit-cookie-validation")
-public class CsrfDoubleSubmitValidation implements CsrfProtectionValidation {
+@Component
+public class CsrfDoubleSubmitCookieValidation implements CsrfProtectionValidation {
 
-    public static final String NAME = "double-submit-cookie";
+    public static final String NAME = "doubleSubmitCookie";
     public static final String CSRF_TOKEN_HEADER_NAME = "X-CSRF-TOKEN";
     public static final String CSRF_TOKEN_PARAMETER_NAME = "CSRFToken";
 
 
-    private static final Logger log = LoggerFactory.getLogger(CsrfDoubleSubmitValidation.class);
+    private static final Logger log = LoggerFactory.getLogger(CsrfDoubleSubmitCookieValidation.class);
 
     @Override
     public boolean needsRequestBody() {
@@ -31,7 +31,7 @@ public class CsrfDoubleSubmitValidation implements CsrfProtectionValidation {
 
         Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
 
-        if (sessionOptional.isPresent()) {
+        if (sessionOptional != null && sessionOptional.isPresent()) {
             String csrfValueFromSession = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION_CSRF_TOKEN);
             String csrfValueFromDoubleSubmit = extractCsrfToken(exchange);
 
@@ -60,7 +60,6 @@ public class CsrfDoubleSubmitValidation implements CsrfProtectionValidation {
             return csrfTokenFromHeader;
 
         // Return token from parameter or null if not present
-        String csrfFromParam = request.getQueryParams().getFirst(CSRF_TOKEN_PARAMETER_NAME);
-        return csrfFromParam;
+        return request.getQueryParams().getFirst(CSRF_TOKEN_PARAMETER_NAME);
     }
 }

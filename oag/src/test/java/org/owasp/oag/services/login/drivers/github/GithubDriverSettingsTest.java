@@ -7,7 +7,7 @@ import org.owasp.oag.exception.ConfigurationException;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class GitHubDriverSettingsTest {
+class GithubDriverSettingsTest {
 
 
     @Test
@@ -17,7 +17,7 @@ class GitHubDriverSettingsTest {
         var settings = getValidSettings();
 
         // Act
-        GitHubDriver driver = getDriver(settings);
+        GithubDriver driver = getDriver(settings);
 
         // Assert
         assertNotNull(driver);
@@ -34,9 +34,9 @@ class GitHubDriverSettingsTest {
         return settings;
     }
 
-    public static GitHubDriver getDriver(LoginProviderSettings settings) {
+    public static GithubDriver getDriver(LoginProviderSettings settings) {
 
-        return new GitHubDriver(settings);
+        return new GithubDriver(settings);
     }
 
     @Test
@@ -47,9 +47,7 @@ class GitHubDriverSettingsTest {
         settings.remove("clientId");
 
         // Act
-        assertThrows(ConfigurationException.class, () -> {
-            getDriver(settings);
-        });
+        assertThrows(ConfigurationException.class, () -> getDriver(settings));
     }
 
     @Test
@@ -60,9 +58,7 @@ class GitHubDriverSettingsTest {
         settings.remove("clientSecret");
 
         // Act
-        assertThrows(ConfigurationException.class, () -> {
-            getDriver(settings);
-        });
+        assertThrows(ConfigurationException.class, () -> getDriver(settings));
     }
 
     @Test
@@ -73,9 +69,7 @@ class GitHubDriverSettingsTest {
         settings.remove("authEndpoint");
 
         // Act
-        assertThrows(ConfigurationException.class, () -> {
-            getDriver(settings);
-        });
+        assertThrows(ConfigurationException.class, () -> getDriver(settings));
     }
 
     @Test
@@ -86,9 +80,7 @@ class GitHubDriverSettingsTest {
         settings.remove("tokenEndpoint");
 
         // Act
-        assertThrows(ConfigurationException.class, () -> {
-            getDriver(settings);
-        });
+        assertThrows(ConfigurationException.class, () -> getDriver(settings));
     }
 
     @Test
@@ -99,9 +91,7 @@ class GitHubDriverSettingsTest {
         settings.put("scopes", new String[]{"user"}); // no email in scope
 
         // Act
-        assertThrows(ConfigurationException.class, () -> {
-            getDriver(settings);
-        });
+        assertThrows(ConfigurationException.class, () -> getDriver(settings));
     }
 
 }
