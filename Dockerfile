@@ -17,7 +17,9 @@ RUN mvn package -f /home/app/pom.xml
 #
 # FROM openjdk:18-oraclelinux8
 FROM amazoncorretto:17-alpine3.17-jdk
-RUN useradd --user-group --system --create-home --no-log-init app
+# for regular linux RUN useradd --user-group --system --create-home --no-log-init app
+# for alpine
+RUN adduser --system app
 
 RUN mkdir -p /app
 RUN chown app /app
