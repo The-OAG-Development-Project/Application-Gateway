@@ -54,7 +54,7 @@
     <properties>
         <java.version>11</java.version>
         <!-- updating this version needs also updating the parent, see https://spring.io/projects/spring-cloud -->
-        <spring-cloud.version>2021.0.5</spring-cloud.version>
+        <spring-cloud.version>2021.0.7</spring-cloud.version>
     </properties>
 
     <dependencies>
@@ -80,14 +80,14 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>oauth2-oidc-sdk</artifactId>
-            <version>9.43.1</version>
+            <version>10.9</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt -->
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
-            <version>9.22</version>
+            <version>9.21</version>
         </dependency>
 
         <dependency>
@@ -120,7 +120,7 @@
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
-            <version>3.1.3</version>
+            <version>3.0.6</version>
         </dependency>
 
         <dependency>
