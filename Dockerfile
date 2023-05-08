@@ -16,7 +16,7 @@ RUN mvn package -f /home/app/pom.xml
 # Package stage
 #
 # FROM openjdk:18-oraclelinux8
-FROM amazoncorretto:17-alpine3.17-jdk
+FROM amazoncorretto:17.0.7-al2023-headless
 # for regular linux RUN useradd --user-group --system --create-home --no-log-init app
 # for alpine
 RUN adduser --system app
