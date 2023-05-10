@@ -3,9 +3,9 @@
 [![OWASP Incubator](https://img.shields.io/badge/owasp-incubator-blue.svg)](https://owasp.org/www-project-application-gateway/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/gianlucafrei/nellygateway)
-![Java CI with Maven](https://github.com/gianlucafrei/nellygateway/workflows/Java%20CI%20with%20Maven/badge.svg)
+[CI/CD](https://github.com/gianlucafrei/Application-Gateway/actions?query=workflow%3ACI%2FCD)
 
-🏗️ **OWASP Application Gateway is work-in-progress. No productive version has been released yet.**
+🏗️ **OWASP Application Gateway is work-in-progress. No productive version has been released yet. - We are on Version 0.5.2.**
 
 
 <a href="https://owasp.org/www-project-application-gateway/"><img src="https://github.com/gianlucafrei/Application-Gateway/blob/main/doc/pictures/Banner.png" width="500" /></a>
