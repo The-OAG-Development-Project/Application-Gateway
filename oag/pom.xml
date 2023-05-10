@@ -12,6 +12,7 @@
 
     <groupId>org.owasp</groupId>
     <artifactId>oag</artifactId>
+    <!-- note: version is set in GitHub / Tags -->
     <version>0.0.1-SNAPSHOT</version>
 
     <name>OWASP Application Gateway</name>
@@ -21,7 +22,6 @@
 
     <licenses>
         <license>
-
             <name>The Apache License, Version 2.0</name>
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
@@ -106,7 +106,7 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
-            <version>9.21</version>
+            <version>9.31</version>
         </dependency>
 
         <dependency>
