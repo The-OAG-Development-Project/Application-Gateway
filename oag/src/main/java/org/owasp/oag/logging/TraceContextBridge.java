@@ -53,11 +53,13 @@ public class TraceContextBridge {
         // Add trace id to downstream request
         if (requestContext.sendTraceDownstream()) {
             LoggingUtils.logDebug(log, exchange, "Added trace id to downstream call.");
-            var mutatedRequest = exchange.getRequest().mutate()
-                    .header(requestContext.getMainRequestHeader(), requestContext.getTraceString())
-                    .header(requestContext.getSecondaryRequestHeader(), requestContext.getSecondaryTraceInfoString()).build();
+            var mutatedRequest = exchange.getRequest().mutate();
+            mutatedRequest.header(requestContext.getMainRequestHeader(), requestContext.getTraceString());
+            if(requestContext.acceptAdditionalTraceInfo()) {
+                mutatedRequest.header(requestContext.getSecondaryRequestHeader(), requestContext.getSecondaryTraceInfoString());
+            }
 
-            exchange = exchange.mutate().request(mutatedRequest).build();
+            exchange = exchange.mutate().request(mutatedRequest.build()).build();
         }
 
         // Add trace id to response

@@ -9,13 +9,12 @@ import java.util.Map;
 
 public class SettingsUtils {
 
-    public static <T> T settingsFromMap(Map<String, Object> map, Class clazz) {
+    public static <T> T settingsFromMap(Map<String, Object> map, Class<T> clazz) {
 
         try {
             ObjectMapper om = new ObjectMapper(new YAMLFactory());
             String combinedConfigStr = om.writeValueAsString(map);
-            T config = (T) om.readValue(combinedConfigStr, clazz);
-            return config;
+            return om.readValue(combinedConfigStr, clazz);
         } catch (JsonProcessingException ex) {
 
             throw new ConfigurationException("Could not load settings", ex);

@@ -12,8 +12,7 @@ import java.time.Duration;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = {"spring.main.allow-bean-definition-overriding=true", "logging.level.org.owasp.oag=TRACE"},
-        classes = {IntegrationTestConfig.class})
+        properties = {"spring.main.allow-bean-definition-overriding=true", "logging.level.org.owasp.oag=TRACE"})
 public class DefaultConfigurationTest {
 
     @Autowired
