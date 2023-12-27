@@ -52,7 +52,7 @@
     </scm>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <!-- updating this version needs also updating the parent, see https://spring.io/projects/spring-cloud -->
         <spring-cloud.version>2023.0.0</spring-cloud.version>
     </properties>
