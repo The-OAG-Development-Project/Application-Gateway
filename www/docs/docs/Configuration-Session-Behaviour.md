@@ -1,6 +1,6 @@
 # Session Behaviour
 
-The session behavior section of the configuration defines how OWAG handles sessions.
+The session behavior section of the configuration defines how OAG handles sessions.
 
 Example:
 
@@ -22,7 +22,7 @@ The default value is 3600.
 
 ### `renewWhenLessThan`
 
-If defined, this setting can be used to have a rolling session behavior. If OWAG gets a request with a token that is still valid but for less than the specified value OWAG refreshes the session and issues a new session with the `sessionDuration` length. If the value is <= 0 or not defined the user needs to sign in again after the session is expired. The default value is 1800.
+If defined, this setting can be used to have a rolling session behavior. If OAG gets a request with a token that is still valid but for less than the specified value OAG refreshes the session and issues a new session with the `sessionDuration` length. If the value is <= 0 or not defined the user needs to sign in again after the session is expired. The default value is 1800.
 
 ### `redirectLoginSuccess`
 

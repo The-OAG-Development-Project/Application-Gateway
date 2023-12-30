@@ -1,6 +1,6 @@
 # Routes
 
-You can specify routes for your upstream servers in the OWAG configuration
+You can specify routes for your upstream servers in the OAG configuration
 
 Example:
 ```yaml
@@ -22,7 +22,7 @@ The type property specifies the name of the [Security Profile](/docs/Configurati
 
 ### `path`
 
-The path setting specifies which requests to OWAG are routed with this route. In the upper example all requests to `/myservice` are routes to `https://backend.my/`. You can use ant-style patterns for routes:
+The path setting specifies which requests to OAG are routed with this route. In the upper example all requests to `/myservice` are routes to `https://backend.my/`. You can use ant-style patterns for routes:
 
 * `/myservice/` matches only `/myservice/`
 * `/myservice/*` matches with one level wildcard, i.e. `/myservice/foo`
@@ -30,11 +30,11 @@ The path setting specifies which requests to OWAG are routed with this route. In
 
 ### `url`
 
-The URL setting specifies the upstream service to which OWAG forwards the request. The path from the route will not be forwarded. For instance, if you call with the example before `/myservice/foo` OWAG forwards the request to `https://backend.my/foo`.
+The URL setting specifies the upstream service to which OAG forwards the request. The path from the route will not be forwarded. For instance, if you call with the example before `/myservice/foo` OAG forwards the request to `https://backend.my/foo`.
 
 ### `allowAnonymous`
 
-Boolean variable: If you specify `no` OWAG only allows authenticated requests to this route. This setting is useful if your backend application expects only authenticated users. Another use case for this option is if you want to secure a web service that has no authentication implemented. This method is then only secure if you specify only Login provider from private IdPs and not social logins.
+Boolean variable: If you specify `no` OAG only allows authenticated requests to this route. This setting is useful if your backend application expects only authenticated users. Another use case for this option is if you want to secure a web service that has no authentication implemented. This method is then only secure if you specify only Login provider from private IdPs and not social logins.
 
 ### `rewrite` (optional)
 

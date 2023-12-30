@@ -37,13 +37,13 @@ The `with` property specifies additional settings for the login provider. Please
 
 ### OpenId-Connect
 
-OWAG implements OpenId-Connect based authentication with the auth-code flow.
+OAG implements OpenId-Connect based authentication with the auth-code flow.
 
 - `authEndpoint`: Specifies where URI of the authorization endpoint. The user will be redirected to this url
-- `tokenEndpoint`: Specifies the token endpoint from where OWAG can load the access and id token after the user was redirected back
-- `clientId`: Specifies the OAuth2 client id that is used by OWAG
-- `clientSecret`: Specifies the Oauth2 client secret that is sent by OWAG when the token endpoint is called. Danger: This is usually a sensitive value. It is therefore recommended to inject it via a PATH variable during runtime with the env: `prefix`.
-- `scopes`: Specifies the list of scopes that OWAG requests from the identity provider. Technically only `openid` is required, but you can also add additional scopes like `email` or idp specific scopes.
+- `tokenEndpoint`: Specifies the token endpoint from where OAG can load the access and id token after the user was redirected back
+- `clientId`: Specifies the OAuth2 client id that is used by OAG
+- `clientSecret`: Specifies the Oauth2 client secret that is sent by OAG when the token endpoint is called. Danger: This is usually a sensitive value. It is therefore recommended to inject it via a PATH variable during runtime with the env: `prefix`.
+- `scopes`: Specifies the list of scopes that OAG requests from the identity provider. Technically only `openid` is required, but you can also add additional scopes like `email` or idp specific scopes.
 - `federatedLogoutUrl`(optional) OIDC does not define how user can be logged out at the authorization server. However, most IPS provide a logout endpoint that can be used to log the user out, also on a IDP level. For first-party If this url is set the user will be redirected to it after the logout on OAG. If set, this overwrites the `redirectLogout` from the session behaviour configuration.
 
 See also: [OAuth Authorization Code Grant Type](https://developer.okta.com/blog/2018/04/10/oauth-authorization-code-grant-type)

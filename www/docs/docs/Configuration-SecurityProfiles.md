@@ -1,6 +1,6 @@
 # Security Profiles
 
-Security profiles allow you to define different security behavior for different routes. OWAG already comes with a predefined set of security profiles that cover most use-cases. However, you can always add your own profile in the config file or overwrite a default security profile.
+Security profiles allow you to define different security behavior for different routes. OAG already comes with a predefined set of security profiles that cover most use-cases. However, you can always add your own profile in the config file or overwrite a default security profile.
 
 Example:
 
@@ -53,7 +53,7 @@ See also: [User Mapping](/docs/Configuration-User-Mapping)
 * `static`: This is for static content. It adds default security headers and only allowed the GET, HEAD, and OPTIONS method. If you have a single page application this is profile is suitable to host static application files.
 * `webapplication`: This profile is suitable for most webapplications. It allows all default normal http methods and adds csrf protection via samesite cookie.
 * `apiforspa` Use this profile if you have an API that is called from the web-browser. It adds csrf protection with the double submit cookit pattern. You need to implement the custom header when you call the api from your code.
-* `apifornonebrowsers`  Use this profile only for apis that are not called from the browser. It removes most security functionality of OWAG.
+* `apifornonebrowsers`  Use this profile only for apis that are not called from the browser. It removes most security functionality of OAG.
 
 You can see the detailed configuration of all predefined profiles in the default configuration file [here](https://github.com/gianlucafrei/nellygateway/blob/main/nellygateway/src/main/resources/default-config.yaml)
 
@@ -66,19 +66,19 @@ A security profile consists of the following configuration values:
    csrfProtection: doubleSubmitCookie # type of csrf protection
    responseHeaders: #Here you can add a set of response header
       Server: <<remove>> # Use <<remove>> to remove a header from the backend response
-      X-Content-Type-Options: nosniff # OWAG adds the X-Content-Type-Options with the nosniff value to each response. Existing header will be overwritten.
+      X-Content-Type-Options: nosniff # OAG adds the X-Content-Type-Options with the nosniff value to each response. Existing header will be overwritten.
       ... # You can add as many different headers as you want
 ```
 
 ### CSRF Protections
 
-OWAG implements the following strategies for csrf protection.
+OAG implements the following strategies for csrf protection.
 
 #### `double-submit-cookie`
 
-With this mode OWAG requires the `csrf` cookie in the `X-CSRF-TOKEN` header. This method of csrf protection in only applicable for XHR requests and recommened when you have a singe page application. If you use form posts you can also add the token as a hidden field with name `CSRFToken` to the form.
+With this mode OAG requires the `csrf` cookie in the `X-CSRF-TOKEN` header. This method of csrf protection in only applicable for XHR requests and recommened when you have a singe page application. If you use form posts you can also add the token as a hidden field with name `CSRFToken` to the form.
 
-This method of csrf protection is the strongest because OWAG cryptographically binds the csrf cookie to the session cookie, but the downside of this method is that your application needs to implement the following logic for every XHR request:
+This method of csrf protection is the strongest because OAG cryptographically binds the csrf cookie to the session cookie, but the downside of this method is that your application needs to implement the following logic for every XHR request:
 ```js
 <script type="text/javascript">
     function getCookie(name) {
@@ -111,10 +111,10 @@ This method of csrf protection is the strongest because OWAG cryptographically b
 
 #### `samesite-strict-cookie`
 
-With this mode, OWAG uses a same-site strict cookie to protect your users from csrf attacks.
+With this mode, OAG uses a same-site strict cookie to protect your users from csrf attacks.
 
 Most browsers except ie do implement the same-site strict cookie. See [SameSite Cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite).
 ***
 
 #### `none`
-OWAG does not protect you against any csrf attack. Use this if your route does not need any csrf protection (for example only static content) or if you implemented csrf protection in your backend
+OAG does not protect you against any csrf attack. Use this if your route does not need any csrf protection (for example only static content) or if you implemented csrf protection in your backend
