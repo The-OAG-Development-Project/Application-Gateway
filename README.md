@@ -114,7 +114,7 @@ You have two options on how to run OWASP Application Gateway: There is an offici
 
 ### Docker Release
 
-You can find the Docker image at https://hub.docker.com/r/gianlucafrei/nellygateway
+You can find the Docker image at [Docker Hub](https://hub.docker.com/r/owasp/application-gateway/tags).
 
 Download and Start:
 ```bash
