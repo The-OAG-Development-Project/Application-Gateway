@@ -23,10 +23,10 @@ public class MethodWhitelistFilter extends RouteAwareFilter {
 
         logTrace(log, exchange, "Execute MethodWhitelistFilter");
 
-        var reqMethod = exchange.getRequest().getMethodValue();
+        var reqMethod = exchange.getRequest().getMethod();
         var allowedMethods = routeContext.getSecurityProfile().getAllowedMethods();
 
-        boolean isAllowed = allowedMethods.contains(reqMethod);
+        boolean isAllowed = allowedMethods.contains(reqMethod.name());
 
         if (!isAllowed) {
 

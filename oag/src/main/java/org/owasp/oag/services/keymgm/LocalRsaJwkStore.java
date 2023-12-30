@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -77,7 +78,7 @@ public class LocalRsaJwkStore implements JwkStore {
             LoggingUtils.contextual(() -> log.warn("Key with id {} added but it is already expired and will be removed in next cleanup cycle.", kid));
         }
 
-        JWK jwk = new RSAKey((RSAPublicKey) key, KeyUse.SIGNATURE, null, Algorithm.parse("RS256"), kid, null, null, null, null, null);
+        JWK jwk = new RSAKey((RSAPublicKey) key, KeyUse.SIGNATURE, null, Algorithm.parse("RS256"), kid, null, null, null, null, null, null, null, null);
         availableKeys.put(kid, jwk);
         keyExpiry.put(kid, expiry);
     }
@@ -104,7 +105,7 @@ public class LocalRsaJwkStore implements JwkStore {
     // start a scheduled task/timer with the key cleanup period defined.
     private void startScheduler() {
         try {
-            scheduler.schedule(new CleanupKeysTask(this), new Date(System.currentTimeMillis() + config.getKeyManagementProfile().getKeyRotationProfile().getCleanupFrequencySeconds() * 1000));
+            scheduler.schedule(new CleanupKeysTask(this), Instant.ofEpochMilli(System.currentTimeMillis() + config.getKeyManagementProfile().getKeyRotationProfile().getCleanupFrequencySeconds() * 1000));
         } catch (Exception e) {
             throw new ConsistencyException("Could not start scheduler for key cleanup.", e);
         }
@@ -115,7 +116,7 @@ public class LocalRsaJwkStore implements JwkStore {
 
         long gracePeriodMillis = 10 * 60 * 1000; // 10 minutes
         long currentTime = System.currentTimeMillis() - gracePeriodMillis;
-        List<String> expiredKid = keyExpiry.entrySet().stream().filter(entry -> entry.getValue().longValue() < currentTime).map(entry -> entry.getKey()).collect(Collectors.toList());
+        @SuppressWarnings("Convert2MethodRef") List<String> expiredKid = keyExpiry.entrySet().stream().filter(entry -> entry.getValue() < currentTime).map(entry -> entry.getKey()).collect(Collectors.toList());
         expiredKid.forEach(kid -> {
             availableKeys.remove(kid);
             keyExpiry.remove(kid);

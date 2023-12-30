@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -36,9 +37,8 @@ public class CsrfValidationFilter extends RouteAwareFilter {
         var securityProfile = routeContext.getSecurityProfile();
 
         // Load security profile
-        String reqMethod = exchange.getRequest().getMethodValue();
-        boolean isSafeMethod = securityProfile.getCsrfSafeMethods()
-                .contains(reqMethod);
+        HttpMethod reqMethod = exchange.getRequest().getMethod();
+        boolean isSafeMethod = securityProfile.getCsrfSafeMethods().contains(reqMethod.name());
 
         if (!isSafeMethod) {
 

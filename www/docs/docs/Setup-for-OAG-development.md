@@ -1,7 +1,7 @@
 # Setup for OAG development
 
 ## Preparation
-* Install Java 11 or higher
+* Install Java 17 or higher
 * Install Maven
 * Install Git
 * Install IntelliJ (Community Version is fine)

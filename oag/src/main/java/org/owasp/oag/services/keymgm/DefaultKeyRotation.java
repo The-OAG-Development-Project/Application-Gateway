@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -44,9 +44,10 @@ public class DefaultKeyRotation implements KeyRotation {
     private void startScheduler() {
         try {
             if (config.getKeyManagementProfile().getKeyRotationProfile().getUseSigningKeyRotation()) {
-                scheduler.schedule(new RotateKeyTask(), new Date(System.currentTimeMillis() + config.getKeyManagementProfile().getKeyRotationProfile().getSigningKeyRotationSeconds() * 1000));
+                scheduler.schedule(new RotateKeyTask(), Instant.ofEpochMilli(System.currentTimeMillis() + config.getKeyManagementProfile().getKeyRotationProfile().getSigningKeyRotationSeconds() * 1000));
             } else {
-                scheduler.schedule(new RetrySchedulingTask(), new Date(System.currentTimeMillis() + 1 * 60 * 60 * 1000)); // retry scheduling, maybe config changed in the mean time
+                //noinspection PointlessArithmeticExpression
+                scheduler.schedule(new RetrySchedulingTask(), Instant.ofEpochMilli(System.currentTimeMillis() + 1 * 60 * 60 * 1000)); // retry scheduling, maybe config changed in the mean time
             }
         } catch (Exception e) {
             throw new ConsistencyException("Could not start scheduler of signing key rotation.", e);
@@ -59,7 +60,7 @@ public class DefaultKeyRotation implements KeyRotation {
         String kid = UUID.randomUUID().toString();
         long expiry = System.currentTimeMillis();
         if (config.getKeyManagementProfile().getKeyRotationProfile().getUseSigningKeyRotation()) {
-            expiry += (config.getKeyManagementProfile().getKeyRotationProfile().getSigningKeyRotationSeconds() + 600) * 1000;
+            expiry += (config.getKeyManagementProfile().getKeyRotationProfile().getSigningKeyRotationSeconds() + 600L) * 1000;
         } else {
             expiry = Integer.MAX_VALUE;
         }

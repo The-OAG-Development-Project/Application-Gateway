@@ -88,7 +88,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
             if (scopes instanceof String[])
                 return new Scope((String[]) scopes);
 
-            List<String> scopesList = (List<String>) scopes;
+            @SuppressWarnings("unchecked") List<String> scopesList = (List<String>) scopes;
             return new Scope(scopesList.toArray(new String[]{}));
 
         } catch (Exception e) {
@@ -198,8 +198,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
             throw new AuthenticationException(message);
         }
 
-        var tokens = tokenResponse.toSuccessResponse().getTokens();
-        return tokens;
+        return tokenResponse.toSuccessResponse().getTokens();
     }
 
     protected abstract UserModel loadUserInfo(Tokens accessToken);
