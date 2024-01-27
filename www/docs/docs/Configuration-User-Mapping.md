@@ -1,8 +1,8 @@
 # User Mapping
 
-The user mapping configuration defines how OAG tells the backend which the user is. There are currently three types of user mapping supported. The default one is the jwt-mapping which transports the user information in a signed jwt token. This has the advantage that the user information cannot be forged by anyone who does not have access to the key. With the `jwt-mapping`, the backend system must validate the token. The jwt-mapping recommended method.
+The user mapping configuration defines how OAG tells the backend which the user is. There are currently three types of user mapping supported. The default one is the jwt-mapping which transports the user information in a signed jwt token. This has the advantage that the user information cannot be forged by anyone who does not have access to the key. With the `jwtToken`, the backend system must validate the token. The `jwtToken` mapping is the recommended method.
 
-If the backend does not validate the token, the `no-mapping can` be used, which does not add any user information to the request. This might be useful for a server that hosts only public static files like a SPA frontend and does not need any authentication.
+If the backend does not validate the token, the `no` mapping can be used, which does not add any user information to the request. This might be useful for a server that hosts only public static files like a SPA frontend and does not need any authentication.
 
 If the backend does not support jwt based authentication, the `header-mapping` can be used, which transports the user information as plain HTTP headers. In that case, one must make sure that the backend can only be reached by the OAG because anyone could add the same header to the request who has access to the backend.
 
@@ -12,7 +12,7 @@ If the backend does not support jwt based authentication, the `header-mapping` c
 securityProfiles:
   webapplication:
     userMapping:
-      type: "jwt-mapping"
+      type: "jwtToken"
       settings:
         headerName: "Authorization"
         headerPrefix: "Bearer "
@@ -83,19 +83,19 @@ If OAG should not attach any information about the user to the request the follo
 securityProfiles:
   webapplication:    
     userMapping:
-      type: "no-mapping"
+      type: "no"
       settings: {}
 ```
 
-### Header-Mapping
+### RequestHeader-Mapping
 
-If transporting the user information in a jwt token is not an option, the header-mapping can be used as an alternative.
+If transporting the user information in a jwt token is not an option, the `requestHeader` mapping can be used as an alternative.
 
 ::: warning
-Please be careful when using the header-mapping because it's less secure than the jwt-mapping.
+Please be careful when using this mapping because it's less secure than the `jwtToken` mapping.
 :::
 
-When the header mapping is used, the following two additional security measures are needed:
+When the request header mapping is used, the following two additional security measures are needed:
 * Make sure the backend can only be reached by OAG through network configuration (Anyone can craft headers that look like this)
 * Add a shared secret (api key) to the request and verify it's presence on the backend.
 
@@ -103,7 +103,7 @@ When the header mapping is used, the following two additional security measures 
 securityProfiles:
   webapplication:
     userMapping:
-      type: "header-mapping"
+      type: "requestHeader"
       settings:
         mappings:
           X-USER-PROVIDER: <<login-provider>>
@@ -113,7 +113,7 @@ securityProfiles:
 
 ### Mapping Syntax
 
-You can define custom mappings with a string templating syntax. Under the hood jwt-mapping and header-mapping use [stringtemplate4](https://github.com/antlr/stringtemplate4). But please be aware that complex mapping (conditionals and so on) are not tested yet. The available objects are `session` and `mappings` where the session object hold information about the user session and mappings contains all mappings from the user model.
+You can define custom mappings with a string templating syntax. Under the hood `jwtToken` mapping and `requestHeader` mapping use [stringtemplate4](https://github.com/antlr/stringtemplate4). But please be aware that complex mapping (conditionals and so on) are not tested yet. The available objects are `session` and `mappings` where the session object hold information about the user session and mappings contains all mappings from the user model.
 
 Examples:
 - Simple strings are interpreted as constants: `OWASP Application Gateway`-> "OWASP Application Gateway"

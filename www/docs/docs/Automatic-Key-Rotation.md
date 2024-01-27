@@ -4,9 +4,9 @@ If you need more advanced key rotation, you can implement this by providing your
 Implement the KeyRotation interface, give your component a unique name and configure it in the KeyManagement section of the settings.
 Note that depending on your implementation you might also have to provide different implementations for JWTSigner, KeyGenerator, JwkStore. Yet if you follow the guidance found in DefaultKeyRotation that  should not be required.
 ```Java
-@Component("MyKeyRotation")
+@Component
 public class MyKeyRotation implements KeyRotation {
-...
+// ...
 }
 ```
 

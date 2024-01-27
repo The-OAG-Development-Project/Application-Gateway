@@ -19,7 +19,7 @@ import java.util.UUID;
  * Configue in the main config with:
  * <code>
  * traceProfile:
- * type: simpleTrace
+ * type: simpleTraceContext
  * traceImplSpecificSettings:
  * headerName: "Other-Header-Name-Than-X-Correlation-Id"
  * </code>

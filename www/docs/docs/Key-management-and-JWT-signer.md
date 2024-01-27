@@ -24,7 +24,7 @@ keyManagementProfile:
 **keyRotationProfile part**
 
 - `type`: Defines the key rotation strategy. Currently supported: 'defaultKeyRotation'.
-- `useSigningKeyRotation`: Set to true to automatically generate a new key from time to time (recommended). Set to false to only generate a key at startup.
+- `useSigningKeyRotation`: Set to true to automatically generate a new key from time to time (recommended). Set this to false to always keep the key generated at startup.
 - `signingKeyRotationSeconds`: Rotate the signing key after that many seconds.
 - `cleanupFrequencySeconds`: Run memory clean-up of expired signing keys after that many seconds. (Note that signing keys have a grace period during which they are still served when requested anyway built-in.)
 
@@ -55,13 +55,13 @@ Generates RSA keys.
 Does not require any `implSpecificSettings`.
 
 ## Jwt signer
-The key signer used for a JWT passed to downstream system is configured in the security profile assigned to a route and only available for 'jwt-mapping'.
+The key signer used for a JWT passed to downstream system is configured in the security profile assigned to a route and only available for 'jwtToken'.
 
 ```yaml
 userMapping:
-      type: "jwt-mapping"
+      type: "jwtToken"
       settings:
-        ...
+        # ...
         signatureImplementation: "rsa"
         signatureSettings:
 ```
@@ -88,7 +88,7 @@ Requires these `signatureSettings`:
 ```
 **signatureSettings part**
 - `keyId`: The kid to be put in the JWT header.
-- `secretKey`: The hey encoded shared key used for signing the JWT. Depending on its length HS256 (for 256 bit key), HS348 or HS512 is automatically used.
+- `secretKey`: The hey encoded shared key used for signing the JWT. Depending on its length HS256 (for 256-bit key), HS348 or HS512 is automatically used.
 
 :::warning
 Beware that the jwkStore, the keyGenerator as well as the jwtSigner used depend on each other! So if you use an RSA based JWT signer, you also need an RSA based jwkStore and keyGenerator. The keyRotation implementation is independent and relies on jwkStore and keyGenerator only.

@@ -4,6 +4,7 @@ import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.config.configuration.SecurityProfile;
 import org.owasp.oag.exception.ConfigurationException;
 import org.owasp.oag.services.tokenMapping.UserMapper;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -35,23 +36,20 @@ public class DefaultUserMappingFactory implements UserMappingFactory {
     }
 
     private void initUserMapper(String profileName, SecurityProfile profile, ApplicationContext context) {
-
         var userMappingSettings = profile.getUserMapping();
         var userMappingType = userMappingSettings.getType();
         var factoryName = userMappingType + USER_MAPPER_TYPE_POSTFIX;
-        var factory = context.getBean(factoryName, org.owasp.oag.services.tokenMapping.UserMappingFactory.class);
-
-        if (factory == null) { // <-- TODO should not be necessary, due to .getBean throwing NoSuchBeanExceptions
-            throw new ConfigurationException("Cannot find factory for UserMapper of type '" + userMappingType + "'", null);
+        try {
+            var factory = context.getBean(factoryName, org.owasp.oag.services.tokenMapping.UserMappingFactory.class);
+            var userMapper = factory.load(userMappingSettings.getSettings());
+            mapperMap.put(profileName, userMapper);
+        } catch (BeansException be){
+            throw new ConfigurationException("Cannot find factory for UserMapper of type '" + userMappingType + "'. It is expected to be a Bean named: "+factoryName, null);
         }
-
-        var userMapper = factory.load(userMappingSettings.getSettings());
-        mapperMap.put(profileName, userMapper);
     }
 
     @Override
     public UserMapper getUserMapperForSecurityProfile(String securityProfileName) {
-
         if (!mapperMap.containsKey(securityProfileName))
             throw new ConfigurationException("UserMapper not found: Unexpected securityProfile name: " + securityProfileName, null);
 

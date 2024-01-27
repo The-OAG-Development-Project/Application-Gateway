@@ -12,7 +12,6 @@ import org.owasp.oag.hooks.session.SessionHookChain;
 import org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory;
 import org.owasp.oag.infrastructure.factories.LoginDriverFactory;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
-import org.owasp.oag.services.csrf.CsrfSameSiteStrictCookieValidation;
 import org.owasp.oag.services.login.drivers.LoginDriver;
 import org.owasp.oag.services.login.drivers.LoginDriverResult;
 import org.owasp.oag.session.Session;
@@ -166,6 +165,7 @@ public class LoginController {
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isValidReturnUrl(String returnUrl) {
         ArrayList<String> allowedHosts = new ArrayList<>(config.getTrustedRedirectHosts());
         allowedHosts.add(config.getHostname());
@@ -259,8 +259,8 @@ public class LoginController {
     }
 
     private CsrfProtectionValidation getCsrfValidationMethod() {
-
-        return csrfValidationImplementationFactory.loadCsrfValidationImplementation(CsrfSameSiteStrictCookieValidation.NAME);
+        // using the sameSiteStrictCookie protection for OWASP's own CSRF protection during logout
+        return csrfValidationImplementationFactory.loadCsrfValidationImplementation("sameSiteStrictCookie");
     }
 
     public String loadLogoutReturnUrl(ServerHttpRequest request) {

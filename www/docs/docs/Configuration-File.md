@@ -100,5 +100,5 @@ traceProfile:
   acceptAdditionalTraceInfo: false
   maxLengthAdditionalTraceInfo: 254
   sendTraceResponse: true
-  type: w3cTrace
+  type: w3cTraceContext
 ```

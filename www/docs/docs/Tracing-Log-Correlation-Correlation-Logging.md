@@ -6,9 +6,9 @@ OAG comes with a set of tracing implementations. A unique trace id is applied to
 OAG can be configured if it should accept passed in trace id's from the caller (which we usually do not recommend).
 
 Currently OAG ships with these implementations of tracing:
-* `w3cTrace`: The default implementation used by OAG is compliant with the [W3C Trace Context specification](https://w3c.github.io/trace-context/) and using the specified standard headers to communicate the trace id to downstream and upstream systems.
-* `simpleTrace`: An implementation using a simple UUID as unique trace id and a default header of X-Correlation-Id to pass the trace id to downstream systems.
-* `noTrace`: An implementation disabling all tracing functionality (which we do not recommend).
+* `w3cTraceContext`: The default implementation used by OAG is compliant with the [W3C Trace Context specification](https://w3c.github.io/trace-context/) and using the specified standard headers to communicate the trace id to downstream and upstream systems.
+* `simpleTraceContext`: An implementation using a simple UUID as unique trace id and a default header of X-Correlation-Id to pass the trace id to downstream systems.
+* `noTraceContext`: An implementation disabling all tracing functionality (which we do not recommend).
 
 
 Example configuration as found in the main configuration file:
@@ -19,7 +19,7 @@ traceProfile:
   acceptAdditionalTraceInfo: false
   maxLengthAdditionalTraceInfo: 254
   sendTraceResponse: false
-  type: w3cTrace
+  type: w3cTraceContext
   traceImplSpecificSettings:
     traceImplSpecificParameter: "not used"
 ```
@@ -60,10 +60,10 @@ Defines if OAG should send the used trace id to upstream systems. This may be us
 ### `type`
 Default: w3cTrace\
 Possible values: w3cTrace, simpleTrace, noTrace, \<Beanname of custom trace implementation see [here](/docs/Tracing-Log-Correlation)\>
-* `w3cTrace`: Uses http-headers for upstream and downstream trace id communication as specified by [W3C Trace Context](https://w3c.github.io/trace-context/). Ignores `maxLengthIncomingTrace`as the length of a trace id is specified. Supports all other configuration options. Does not need any `traceImplSpecificSettings`.
-* `simpleTrace`: Creates a random UUID as trace id. Ignores the following configuration settings: `acceptAdditionalTraceInfo`,`maxLengthAdditionalTraceInfo` because it does not support any additional trace information beside the trace id. Uses as a default http-header X-Correlation-Id to communicate the trace id to upstream (depending on setting `sendTraceResponse`) and downstream systems. This can be customized by providing the following `traceImplSpecificSettings`:
+* `w3cTraceContext`: Uses http-headers for upstream and downstream trace id communication as specified by [W3C Trace Context](https://w3c.github.io/trace-context/). Ignores `maxLengthIncomingTrace`as the length of a trace id is specified. Supports all other configuration options. Does not need any `traceImplSpecificSettings`.
+* `simpleTraceContext`: Creates a random UUID as trace id. Ignores the following configuration settings: `acceptAdditionalTraceInfo`,`maxLengthAdditionalTraceInfo` because it does not support any additional trace information beside the trace id. Uses as a default http-header X-Correlation-Id to communicate the trace id to upstream (depending on setting `sendTraceResponse`) and downstream systems. This can be customized by providing the following `traceImplSpecificSettings`:
   * `headerName: <X-your-header>`
-* `noTrace`: Disabe tracing. Does only use a trace id for OAG internal logs, does not forward the traceId to downstream systems and does not take over any traceId from upstream systems. Ignores all trace configuration. This effectively disables the trace sub-system - which we do not recommend.
+* `noTraceContext`: Disabe tracing. Does only use a trace id for OAG internal logs, does not forward the traceId to downstream systems and does not take over any traceId from upstream systems. Ignores all trace configuration. This effectively disables the trace sub-system - which we do not recommend.
 * Custom trace implementation: You can write your own trace implementation if you need. See [here](/docs/Tracing-Log-Correlation) for instructions.
 
 ## Configuring how the trace id is written to the log

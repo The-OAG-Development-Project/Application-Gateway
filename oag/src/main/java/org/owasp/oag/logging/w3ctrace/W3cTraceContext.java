@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  * Configue in the main config with:
  * <code>
  * traceProfile:
- * type: w3cTrace
+ * type: w3cTraceContext
  * </code>
  * It does not support any traceImplSpecificSettings in the configuration and ignores the maxLengthIncomingTrace setting as this is defined by the specification.
  */

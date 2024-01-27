@@ -6,8 +6,6 @@ import org.springframework.web.server.ServerWebExchange;
 @Component
 public class CsrfNoneValidation implements CsrfProtectionValidation {
 
-    public static final String NAME = "none";
-
     @Override
     public boolean needsRequestBody() {
         return false;

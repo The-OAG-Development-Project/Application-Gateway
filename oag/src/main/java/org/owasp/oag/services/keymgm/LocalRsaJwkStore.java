@@ -19,8 +19,8 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Implements a local keystore for RSA keys used to sign JWT.
@@ -116,10 +116,10 @@ public class LocalRsaJwkStore implements JwkStore {
 
         long gracePeriodMillis = Duration.ofMinutes(10L).toMillis(); // 10 minutes
         long currentTime = System.currentTimeMillis() - gracePeriodMillis;
-        @SuppressWarnings("Convert2MethodRef") List<String> expiredKid = keyExpiry.entrySet().stream()
+        List<String> expiredKid = keyExpiry.entrySet().stream()
                 .filter(entry -> entry.getValue() < currentTime)
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+                .toList();
         expiredKid.forEach(kid -> {
             availableKeys.remove(kid);
             keyExpiry.remove(kid);

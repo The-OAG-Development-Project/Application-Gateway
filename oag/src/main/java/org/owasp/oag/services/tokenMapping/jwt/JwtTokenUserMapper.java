@@ -3,6 +3,7 @@ package org.owasp.oag.services.tokenMapping.jwt;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.nimbusds.jwt.JWTClaimsSet;
+import org.owasp.oag.exception.ConfigurationException;
 import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.services.crypto.jwt.JwtSignerFactory;
@@ -18,7 +19,6 @@ import reactor.core.publisher.Mono;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.Date;
-import java.util.Objects;
 
 import static org.owasp.oag.utils.LoggingUtils.logTrace;
 
@@ -110,7 +110,7 @@ public class JwtTokenUserMapper implements UserMapper {
         return tokenMono;
     }
 
-    public String mapUserModelToToken(GatewayRouteContext context, String audience, String provider) {
+    public String mapUserModelToToken(GatewayRouteContext context, String audience, String ignoredProvider) {
 
         // Assemble claims set
         var now = clockSource.getGlobalClock().instant();
@@ -118,9 +118,11 @@ public class JwtTokenUserMapper implements UserMapper {
         var tokenId = createJti();
         var claimsBuilder = new JWTClaimsSet.Builder();
         var sessionOptional = context.getSessionOptional();
-        UserModel model = null;
-        if (sessionOptional.isPresent()) { // TODO: what to do when model is not in session?
+        UserModel model;
+        if (sessionOptional.isPresent()) {
             model = sessionOptional.get().getUserModel();
+        } else {
+            throw new ConfigurationException("Missing session part of the configuration.");
         }
 
         // Add mandatory claims
@@ -152,31 +154,5 @@ public class JwtTokenUserMapper implements UserMapper {
         return Long.toHexString(secureRandom.nextLong());
     }
 
-    private static class CacheKey {
-
-        private final UserModel userModel;
-        private final String audience;
-        private final String provider;
-
-        private CacheKey(UserModel userModel, String audience, String provider) {
-            this.userModel = userModel;
-            this.audience = audience;
-            this.provider = provider;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            CacheKey that = (CacheKey) o;
-            return userModel.equals(that.userModel) &&
-                    audience.equals(that.audience) &&
-                    provider.equals(that.provider);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(userModel, audience, provider);
-        }
-    }
+    private record CacheKey(UserModel userModel, String audience, String provider){}
 }

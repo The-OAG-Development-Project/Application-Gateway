@@ -14,7 +14,6 @@ import static org.owasp.oag.utils.LoggingUtils.logInfo;
 @Component
 public class CsrfDoubleSubmitCookieValidation implements CsrfProtectionValidation {
 
-    public static final String NAME = "doubleSubmitCookie";
     public static final String CSRF_TOKEN_HEADER_NAME = "X-CSRF-TOKEN";
     public static final String CSRF_TOKEN_PARAMETER_NAME = "CSRFToken";
 

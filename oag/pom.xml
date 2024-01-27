@@ -6,7 +6,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <!-- updating the version needs also updating spring-cloud.version see below. -->
-        <version>3.2.1</version>
+        <version>3.2.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -161,11 +161,11 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.github.tomakehurst/wiremock -->
+        <!-- https://mvnrepository.com/artifact/org.wiremock/wiremock -->
         <dependency>
-            <groupId>com.github.tomakehurst</groupId>
+            <groupId>org.wiremock</groupId>
             <artifactId>wiremock</artifactId>
-            <version>3.0.1</version>
+            <version>3.0.4</version>
             <type>pom</type>
             <scope>test</scope>
         </dependency>
@@ -173,7 +173,7 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-contract-wiremock</artifactId>
-            <version>4.1.0 </version>
+            <version>4.1.1 </version>
             <scope>test</scope>
         </dependency>
 

@@ -1,10 +1,8 @@
 package org.owasp.oag.logging;
 
-import org.owasp.oag.filters.spring.TraceContextFilter;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
 
 import java.util.UUID;
 
@@ -14,7 +12,7 @@ import java.util.UUID;
  * Configue in the main config with:
  * <code>
  * traceProfile:
- * type: noTrace
+ * type: noTraceContext
  * </code>
  * It does not support any traceImplSpecificSettings and ignores all other settings in the traceProfile.
  */

@@ -10,9 +10,9 @@ Your trace implementation must implement interface `...logging.TraceContext` and
 The name you provide for the component must then be configured in the master configuration file.\
 Example:
 ```java
-@Component("myTrace")
+@Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class MyTraceContext implements TraceContext {...}
+public class MyTraceContext implements TraceContext {/*...*/}
 ```
 ## Implement methods
 Study the Javadoc of `...logging.TraceContext` to understand under what conditions the methods are invoked by OAG. Implement them accordingly.\
@@ -25,8 +25,8 @@ The name you provided for the component must be configured in the master configu
 For the example provided above, the required configuration is:
 ```yaml
 traceProfile:
-  type: myTrace
-  ...
+  type: myTraceContext
+  # ...
 ```
 
 ## Test your implementation

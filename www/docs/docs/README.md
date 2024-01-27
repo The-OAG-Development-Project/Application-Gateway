@@ -84,7 +84,7 @@ traceProfile:
   acceptAdditionalTraceInfo: false
   maxLengthAdditionalTraceInfo: 254
   sendTraceResponse: true
-  type: w3cTrace
+  type: w3cTraceContext
 ```
 
 ## How to run
@@ -144,14 +144,15 @@ You may also use your IDE for building OAG. Please see [Setup OAG for developmen
 
 - [x] HTTPS Redirection with Proxy Awareness
 - [x] OpenID Connect Login with multiple providers
+- [x] GitHub Login support
 - [x] Multiple Backend routes
 - [x] Authenticated routes
 - [x] Request Logging
 - [x] Add and remove response headers
 - [x] Secure, HTTP-only and same-site session cookies
 - [x] Forward id token to backend
+- [x] Use OAG (under your control) id token (JWT) in backends
 - [x] Upstream authentication with API key
-- [x] GitHub Login support
 - [x] Method whitelisting
 - [x] CSRF protection
 - [x] Rolling sessions

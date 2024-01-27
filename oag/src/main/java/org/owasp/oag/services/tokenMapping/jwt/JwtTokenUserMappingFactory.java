@@ -7,6 +7,7 @@ import org.owasp.oag.services.crypto.jwt.JwtSignerFactory;
 import org.owasp.oag.services.tokenMapping.UserMapper;
 import org.owasp.oag.services.tokenMapping.UserMappingFactory;
 import org.owasp.oag.utils.SettingsUtils;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -41,13 +42,12 @@ public class JwtTokenUserMappingFactory implements UserMappingFactory {
 
         // Init jwt signer
         var factoryName = jwtTokenUserMappingSettings.signatureImplementation + JWT_SIGNER_FACTORY_BEAN_POSTFIX;
-        var factory = context.getBean(factoryName, JwtSignerFactory.class);
-
-        if (factory == null) {// <-- TODO should not be necessary, due to .getBean throwing NoSuchBeanExceptions
-            throw new ConfigurationException("No implementation found for signature implementation: " + jwtTokenUserMappingSettings.signatureImplementation, null);
+        try {
+            var factory = context.getBean(factoryName, JwtSignerFactory.class);
+            // Create user mapper
+            return new JwtTokenUserMapper(factory, clockSource, jwtTokenUserMappingSettings, mainConfig.getHostUri());
+        } catch (BeansException be) {
+            throw new ConfigurationException("No implementation found for signature implementation: " + jwtTokenUserMappingSettings.signatureImplementation+". The Bean is expected to be named: "+factoryName, be);
         }
-
-        // Create user mapper
-        return new JwtTokenUserMapper(factory, clockSource, jwtTokenUserMappingSettings, mainConfig.getHostUri());
     }
 }
