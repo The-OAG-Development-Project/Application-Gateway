@@ -1,3 +1,5 @@
+hostUri: http://localhost:8080
+
 trustedRedirectHosts: [ ]
 
 sessionBehaviour:
@@ -6,6 +8,43 @@ sessionBehaviour:
   redirectLoginSuccess: /
   redirectLoginFailure: /
   redirectLogout: /
+
+routes:
+  echo:
+    type: webapplication
+    path: /echo/**
+    url: https://nellydemoapp.azurewebsites.net
+    allowAnonymous: yes
+
+
+loginProviders:
+  google:
+    type: oidc
+    with:
+      authEndpoint: https://accounts.google.com/o/oauth2/auth
+      tokenEndpoint: https://oauth2.googleapis.com/token
+      clientId: 372143946338-48et57uhmcumku7am3ocvva0idc7u0td.apps.googleusercontent.com
+      clientSecret: env:GOOGLE_CLIENT_SECRET
+      scopes: [ "openid", "email" ]
+
+  github:
+    type: github
+    with:
+      authEndpoint: https://github.com/login/oauth/authorize
+      tokenEndpoint: https://github.com/login/oauth/access_token
+      clientId: 163ad3b08c3829216ba1
+      clientSecret: env:GITHUB_CLIENT_SECRET
+      scopes: [ "user", "email" ]
+
+  auth0:
+    type: oidc
+    with:
+      authEndpoint: https://dev-b6-eperz.eu.auth0.com/authorize
+      tokenEndpoint: https://dev-b6-eperz.eu.auth0.com/oauth/token
+      clientId: ShvOJHRoa1dH35Oqq17GNcchZDbEmgcz
+      clientSecret: env:AUTH0_CLIENT_SECRET
+      scopes: [ "openid", "email" ]
+      federatedLogoutUrl: https://dev-b6-eperz.eu.auth0.com/v2/logout?client_id=ShvOJHRoa1dH35Oqq17GNcchZDbEmgcz&returnTo=http%3A%2F%2Flocalhost%3A8080
 
 securityProfiles:
 
@@ -23,17 +62,17 @@ securityProfiles:
       Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
       Strict-Transport-Security: max-age=31536000; includeSubDomains
     userMapping:
-      type: "no-mapping"
+      type: "no"
       settings: { }
 
 
   webapplication:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
-    csrfProtection: samesite-strict-cookie
+    csrfProtection: sameSiteStrictCookie
     responseHeaders:
       Server: <<remove>>
       X-Powered-By: <<remove>>
-      X-XSS-Protection: 1; mode=block;
+      X-XSS-Protection: 1;mode=block;
       X-Frame-Options: SAMEORIGIN
       X-Content-Type-Options: nosniff
       Referrer-Policy: strict-origin-when-cross-origin
@@ -41,7 +80,7 @@ securityProfiles:
       Permissions-Policy: geolocation=(),notifications=(),push=(),microphone=(),camera=(),speaker=(),vibrate=(),fullscreen=(),payment=(),usb=(),magnetometer=(),gyroscope=(),accelerometer=()
       Strict-Transport-Security: max-age=31536000; includeSubDomains
     userMapping:
-      type: "jwt-mapping"
+      type: "jwtToken"
       settings:
         headerName: "Authorization"
         headerPrefix: "Bearer "
@@ -54,10 +93,12 @@ securityProfiles:
           provider: <session.provider>
           email_verified: <mappings.email_verified>
           email: <mappings.email>
+          picture: <mappings.picture>
+          proxy: "OWASP Application Gateway"
 
   apiforspa:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
-    csrfProtection: double-submit-cookie
+    csrfProtection: doubleSubmitCookie
     responseHeaders:
       Server: <<remove>>
       X-Powered-By: <<remove>>
@@ -66,7 +107,7 @@ securityProfiles:
       Content-Security-Policy: upgrade-insecure-requests; default-src 'none'; base-uri 'self'; frame-ancestors 'none'
       Strict-Transport-Security: max-age=31536000; includeSubDomains
     userMapping:
-      type: "jwt-mapping"
+      type: "jwtToken"
       settings:
         headerName: "Authorization"
         headerPrefix: "Bearer "
@@ -87,7 +128,7 @@ securityProfiles:
       Server: <<remove>>
       X-Powered-By: <<remove>>
     userMapping:
-      type: "no-mapping"
+      type: "no"
       settings: { }
 
   raw-proxy:
@@ -95,7 +136,7 @@ securityProfiles:
     csrfProtection: none
     responseHeaders: { }
     userMapping:
-      type: "no-mapping"
+      type: "no"
       settings: { }
 
 traceProfile:
@@ -104,7 +145,7 @@ traceProfile:
   acceptAdditionalTraceInfo: false
   maxLengthAdditionalTraceInfo: 254
   sendTraceResponse: false
-  type: w3cTrace
+  type: w3cTraceContext
   implSpecificSettings:
     traceImplSpecificParameter: "not used"
 

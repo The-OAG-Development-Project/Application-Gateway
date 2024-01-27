@@ -9,14 +9,14 @@ import java.net.URI;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class GitHubDriverTest {
+class GithubDriverTest {
 
     @Test
     public void getCallbackTest() throws ParseException {
 
         // Arrange
-        var settings = GitHubDriverSettingsTest.getValidSettings();
-        var driver = GitHubDriverSettingsTest.getDriver(settings);
+        var settings = GithubDriverSettingsTest.getValidSettings();
+        var driver = GithubDriverSettingsTest.getDriver(settings);
         var callbackUri = URI.create("https://example/callback");
 
         // Act

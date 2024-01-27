@@ -20,12 +20,10 @@ import java.util.Optional;
 import static org.owasp.oag.utils.LoggingUtils.logInfo;
 import static org.owasp.oag.utils.SecureEncoder.encodeStringForLog;
 
-@Component("csrf-samesite-strict-cookie-validation")
-public class CsrfSamesiteStrictValidation implements CsrfProtectionValidation {
+@Component
+public class CsrfSameSiteStrictCookieValidation implements CsrfProtectionValidation {
 
-    public static final String NAME = "samesite-strict-cookie";
-
-    private static final Logger log = LoggerFactory.getLogger(CsrfSamesiteStrictValidation.class);
+    private static final Logger log = LoggerFactory.getLogger(CsrfSameSiteStrictCookieValidation.class);
 
     @Autowired
     CookieConverter cookieConverter;
@@ -43,7 +41,7 @@ public class CsrfSamesiteStrictValidation implements CsrfProtectionValidation {
 
         Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
 
-        if (sessionOptional.isPresent()) {
+        if (sessionOptional != null && sessionOptional.isPresent()) {
             String csrfValueFromSession = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION_CSRF_TOKEN);
             String csrfValueFromCookie = extractCsrfToken(exchange.getRequest());
 
@@ -86,13 +84,14 @@ public class CsrfSamesiteStrictValidation implements CsrfProtectionValidation {
     }
 
     /**
-     * Returns true if the request should be blocked because the origin header is different than the target origin.
+     * Returns true if the request should be blocked because the origin header is different from the target origin.
      * Because the samesite-strict cookies are not supported by all browser we use this defense is depth measure.
      *
      * @param originHeader          Origin header of the request or null if not present
      * @param refererHeader         Referer header of the request or null if not present
      * @param targetOriginUrlString Target origin (HostUri from settings)
-     * @return
+     * @return <b>true</b>: Origin header different from target header <br/>
+     *         <b>false</b>: otherwise
      */
     public boolean shouldBlockBasedOnOriginHeader(String originHeader, String refererHeader, String targetOriginUrlString) {
 

@@ -14,7 +14,7 @@
 
 OWASP Application Gateway is an HTTP reverse proxy that sits between your web application and the client and handles Oauth2 login and session management. For you, as a developer, OWASP Application Gateway removes the hassle to implement complicated oauth2 logic in the backend and frontend so you can focus totally on your applications logic.
 
-<img src="https://github.com/gianlucafrei/Application-Gateway/blob/main/doc/OAG-Overrview.png?raw=true" width="500" />
+<img alt="Overview Picture" src="https://github.com/gianlucafrei/Application-Gateway/blob/main/doc/OAG-Overrview.png?raw=true" width="500" />
 
 ## Table of Contents
 
@@ -105,7 +105,7 @@ traceProfile:
   acceptAdditionalTraceInfo: false
   maxLengthAdditionalTraceInfo: 254
   sendTraceResponse: true
-  type: w3cTrace
+  type: w3cTraceContext
 ```
 
 ## How to run
@@ -188,4 +188,4 @@ Ideas:
 
 # Mascot
 
-<img src="https://raw.githubusercontent.com/gianlucafrei/Application-Gateway/main/doc/pictures/Mascot.svg" width="500" />
+<img alt="Picture of cute elephant holding OAG banner." src="https://raw.githubusercontent.com/gianlucafrei/Application-Gateway/main/doc/pictures/Mascot.svg" width="500" />

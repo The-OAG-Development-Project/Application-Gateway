@@ -1,6 +1,6 @@
 package org.owasp.oag.services.login.drivers.github;
 
-public class GitHubUserEmail {
+public class GithubUserEmail {
 
     private String email;
     private boolean primary;

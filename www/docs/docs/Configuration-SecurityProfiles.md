@@ -8,7 +8,7 @@ Example:
 securityProfiles:
   webapplication:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
-    csrfProtection: samesite-strict-cookie
+    csrfProtection: sameSiteStrictCookie
     csrfSafeMethods: [ "GET", "OPTIONS", "HEAD" ]
     responseHeaders:
       Server: <<remove>>
@@ -67,14 +67,14 @@ A security profile consists of the following configuration values:
    responseHeaders: #Here you can add a set of response header
       Server: <<remove>> # Use <<remove>> to remove a header from the backend response
       X-Content-Type-Options: nosniff # OAG adds the X-Content-Type-Options with the nosniff value to each response. Existing header will be overwritten.
-      ... # You can add as many different headers as you want
+      # You can add as many different headers as you want
 ```
 
 ### CSRF Protections
 
 OAG implements the following strategies for csrf protection.
 
-#### `double-submit-cookie`
+#### `doubleSubmitCookie`
 
 With this mode OAG requires the `csrf` cookie in the `X-CSRF-TOKEN` header. This method of csrf protection in only applicable for XHR requests and recommened when you have a singe page application. If you use form posts you can also add the token as a hidden field with name `CSRFToken` to the form.
 
@@ -109,11 +109,11 @@ This method of csrf protection is the strongest because OAG cryptographically bi
 ```
 ***
 
-#### `samesite-strict-cookie`
+#### `sameSiteStrictCookie`
 
 With this mode, OAG uses a same-site strict cookie to protect your users from csrf attacks.
 
-Most browsers except ie do implement the same-site strict cookie. See [SameSite Cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite).
+Most browsers except InternetExplorer do implement the same-site strict cookie. See [SameSite Cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite).
 ***
 
 #### `none`

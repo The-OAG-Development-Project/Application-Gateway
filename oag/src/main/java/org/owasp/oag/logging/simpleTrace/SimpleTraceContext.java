@@ -19,13 +19,13 @@ import java.util.UUID;
  * Configue in the main config with:
  * <code>
  * traceProfile:
- * type: simpleTrace
+ * type: simpleTraceContext
  * traceImplSpecificSettings:
  * headerName: "Other-Header-Name-Than-X-Correlation-Id"
  * </code>
  * It does not support additional trace info and ignores these configured values.
  */
-@Component("simpleTrace")
+@Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class SimpleTraceContext implements TraceContext {
     /**

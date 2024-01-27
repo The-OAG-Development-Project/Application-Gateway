@@ -6,10 +6,7 @@ import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SecurityProfile implements ErrorValidation {
 
@@ -48,11 +45,7 @@ public class SecurityProfile implements ErrorValidation {
     }
 
     private void setResponseHeaders(Map<String, String> headers) {
-
-        if (headers == null)
-            this.responseHeaders = new HashMap<>();
-        else
-            this.responseHeaders = headers;
+        this.responseHeaders = Objects.requireNonNullElseGet(headers, HashMap::new);
     }
 
     public List<String> getCsrfSafeMethods() {
@@ -97,7 +90,7 @@ public class SecurityProfile implements ErrorValidation {
         try {
             CsrfProtectionValidation implementation = factory.loadCsrfValidationImplementation(csrfProtection);
         } catch (NoSuchBeanDefinitionException ex) {
-            errors.add("No csrf implementation found for '" + csrfProtection + "'");
+            errors.add("CsrfProtection: No csrf implementation found for '" + csrfProtection + "'");
         }
 
         return errors;

@@ -15,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 /**
- * This test test if the gateway correctly transforms the cookie into a JWT token and attaches it to the server
+ * Tests if the gateway correctly transforms the cookie into a JWT token and attaches it to the server
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"spring.main.allow-bean-definition-overriding=true",

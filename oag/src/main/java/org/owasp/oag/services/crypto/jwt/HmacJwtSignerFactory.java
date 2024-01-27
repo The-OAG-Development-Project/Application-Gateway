@@ -5,9 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-import static org.owasp.oag.services.crypto.jwt.JwtSignerFactory.JWT_SIGNER_FACTORY_BEAN_POSTFIX;
-
-@Component("hmac" + JWT_SIGNER_FACTORY_BEAN_POSTFIX)
+@Component
 public class HmacJwtSignerFactory implements JwtSignerFactory {
 
     public JwtSigner create(String hostUri, Map<String, Object> settings) {

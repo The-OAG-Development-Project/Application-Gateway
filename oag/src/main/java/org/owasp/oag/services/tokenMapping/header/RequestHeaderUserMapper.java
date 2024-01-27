@@ -17,7 +17,7 @@ import java.util.HashMap;
  * if the downstream system can only extract the user principal from the header. In that case one must make sure that
  * OAg cannot be bypassed because an attacker could easily craft this header by theirs own.
  */
-public class RequestHeaderUserMapping implements UserMapper {
+public class RequestHeaderUserMapper implements UserMapper {
 
     public static final String X_OAG_PROVIDER = "X-OAG-Provider";
     public static final String X_OAG_USER_PREFIX = "X-OAG-USER-";
@@ -25,7 +25,7 @@ public class RequestHeaderUserMapping implements UserMapper {
     private final RequestHeaderUserMappingSettings settings;
 
 
-    public RequestHeaderUserMapping(RequestHeaderUserMappingSettings settings) {
+    public RequestHeaderUserMapper(RequestHeaderUserMappingSettings settings) {
         this.settings = settings;
         settings.requireValidSettings();
     }

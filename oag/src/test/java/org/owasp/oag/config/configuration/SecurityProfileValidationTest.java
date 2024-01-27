@@ -18,9 +18,9 @@ class SecurityProfileValidationTest {
         profile.setCsrfSafeMethods(new ArrayList<>());
 
         // Act
-        profile.setCsrfProtection("double-submit-cookie");
+        profile.setCsrfProtection("doubleSubmitCookie");
         List<String> errors1 = profile.getErrors(null);
-        profile.setCsrfProtection("samesite-strict-cookie");
+        profile.setCsrfProtection("samesiteStrictCookie");
         List<String> errors2 = profile.getErrors(null);
         profile.setCsrfProtection("none");
         List<String> errors3 = profile.getErrors(null);

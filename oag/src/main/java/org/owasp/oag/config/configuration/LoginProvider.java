@@ -60,7 +60,7 @@ public class LoginProvider implements ErrorValidation {
             var settingErrors = e.getSettingErrors();
             errors.addAll(settingErrors);
         } catch (Exception e) {
-            errors.add("Could not load driver implementation for type '" + type + "'");
+            errors.add("LoginDriver: Could not load driver implementation for type '" + type + "'");
         }
 
         return errors;

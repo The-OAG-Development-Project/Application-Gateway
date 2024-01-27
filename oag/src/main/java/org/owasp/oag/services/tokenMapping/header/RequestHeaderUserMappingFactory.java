@@ -8,9 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-import static org.owasp.oag.services.tokenMapping.UserMappingFactory.USER_MAPPER_TYPE_POSTFIX;
-
-@Component("header-mapping" + USER_MAPPER_TYPE_POSTFIX)
+@Component
 public class RequestHeaderUserMappingFactory implements UserMappingFactory {
 
     @Override
@@ -25,6 +23,6 @@ public class RequestHeaderUserMappingFactory implements UserMappingFactory {
         }
         mappingSettings.requireValidSettings();
 
-        return new RequestHeaderUserMapping(mappingSettings);
+        return new RequestHeaderUserMapper(mappingSettings);
     }
 }

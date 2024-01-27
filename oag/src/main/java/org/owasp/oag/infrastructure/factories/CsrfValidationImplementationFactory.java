@@ -8,7 +8,11 @@ import org.springframework.context.ApplicationContext;
  */
 public interface CsrfValidationImplementationFactory {
 
-    // TODO: Gian-Luca please comment and document
+    /**
+     * Returns the CsrfProtection Implementation matching the Class Csrf<csrfProtectionName>Validation.
+     * @param csrfProtectionName the name of the csrf implementation
+     * @return the Class implementing the mechanism.
+     */
     CsrfProtectionValidation loadCsrfValidationImplementation(String csrfProtectionName);
 
     static CsrfValidationImplementationFactory get(ApplicationContext context){

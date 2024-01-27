@@ -11,7 +11,7 @@ public class DefaultConfigValues {
     public static UserMappingConfig userMapping() {
 
         var userMapping = new UserMappingConfig();
-        userMapping.setType("no-mapping");
+        userMapping.setType("no");
         userMapping.setSettings(new HashMap<>());
         return userMapping;
     }

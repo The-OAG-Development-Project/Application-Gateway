@@ -1,6 +1,6 @@
 package org.owasp.oag.services.login.drivers.github;
 
-public class GitHubUserResponse {
+public class GithubUserResponse {
 
     public String login;
     public String id;

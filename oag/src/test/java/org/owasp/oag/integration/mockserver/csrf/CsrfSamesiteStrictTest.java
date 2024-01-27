@@ -19,38 +19,40 @@ import org.springframework.http.ResponseCookie;
         classes = {IntegrationTestConfig.class, CsrfSamesiteStrictTest.TestConfig.class})
 class CsrfSamesiteStrictTest extends WiremockTest {
 
+    public static final String CSRF_SAMESITE_STRICT = "/csrf-samesite-strict/";
+
     @Test
-    void testCsrfSamesiteStrict() throws Exception {
+    void testCsrfSamesiteStrict() {
 
         // Arrange
         var loginResult = makeLogin();
 
         // Act
-        loginResult.authenticatedRequest(HttpMethod.POST, "/csrf-samesite-strict/" + TEST_1_ENDPOINT)
+        loginResult.authenticatedRequest(HttpMethod.POST, CSRF_SAMESITE_STRICT + TEST_1_ENDPOINT)
                 .exchange().expectStatus().isOk();
     }
 
     @Test
-    void testCsrfDoubleSubmitCookieNoCookie() throws Exception {
+    void testCsrfDoubleSubmitCookieNoCookie() {
 
         // Arrange
         var loginResult = makeLogin();
 
         // Act
         // No csrf cookie (Simulate cross site request)
-        loginResult.authenticatedRequestNoCsrf(HttpMethod.POST, "/csrf-samesite-strict/" + TEST_1_ENDPOINT)
+        loginResult.authenticatedRequestNoCsrf(HttpMethod.POST, CSRF_SAMESITE_STRICT + TEST_1_ENDPOINT)
                 .exchange().expectStatus().isUnauthorized();
     }
 
     @Test
-    void testCsrfDoubleSubmitCookieInvalidCsrfToken() throws Exception {
+    void testCsrfDoubleSubmitCookieInvalidCsrfToken() {
 
         // Arrange
         var loginResult = makeLogin();
         loginResult.csrfCookie = ResponseCookie.from(CsrfCookie.NAME, "FooBar").build();
 
         // Act
-        loginResult.authenticatedRequest(HttpMethod.POST, "/csrf-samesite-strict/" + TEST_1_ENDPOINT)
+        loginResult.authenticatedRequest(HttpMethod.POST, CSRF_SAMESITE_STRICT + TEST_1_ENDPOINT)
                 .exchange().expectStatus().isUnauthorized();
     }
 

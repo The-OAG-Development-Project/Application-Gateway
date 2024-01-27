@@ -12,7 +12,6 @@ import org.owasp.oag.hooks.session.SessionHookChain;
 import org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory;
 import org.owasp.oag.infrastructure.factories.LoginDriverFactory;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
-import org.owasp.oag.services.csrf.CsrfSamesiteStrictValidation;
 import org.owasp.oag.services.login.drivers.LoginDriver;
 import org.owasp.oag.services.login.drivers.LoginDriverResult;
 import org.owasp.oag.session.Session;
@@ -66,7 +65,7 @@ public class LoginController {
         SessionInformation sessionInformation;
         Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
 
-        if (sessionOptional.isPresent()) {
+        if (sessionOptional != null && sessionOptional.isPresent()) {
             sessionInformation = new SessionInformation(SessionInformation.SESSION_STATE_AUTHENTICATED);
             sessionInformation.setExpiresIn(sessionOptional.get().getRemainingTimeSeconds());
 
@@ -166,8 +165,8 @@ public class LoginController {
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isValidReturnUrl(String returnUrl) {
-
         ArrayList<String> allowedHosts = new ArrayList<>(config.getTrustedRedirectHosts());
         allowedHosts.add(config.getHostname());
         return UrlUtils.isValidReturnUrl(returnUrl, allowedHosts.toArray(new String[]{}));
@@ -241,7 +240,7 @@ public class LoginController {
 
             // To load the federated logout url we need the instance of the login provider
             Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
-            if (sessionOptional.isPresent()) {
+            if (sessionOptional != null && sessionOptional.isPresent()) {
                 var session = sessionOptional.get();
                 var provider = session.getProvider();
                 var userModel = session.getUserModel();
@@ -260,8 +259,8 @@ public class LoginController {
     }
 
     private CsrfProtectionValidation getCsrfValidationMethod() {
-
-        return csrfValidationImplementationFactory.loadCsrfValidationImplementation(CsrfSamesiteStrictValidation.NAME);
+        // using the sameSiteStrictCookie protection for OWASP's own CSRF protection during logout
+        return csrfValidationImplementationFactory.loadCsrfValidationImplementation("sameSiteStrictCookie");
     }
 
     public String loadLogoutReturnUrl(ServerHttpRequest request) {

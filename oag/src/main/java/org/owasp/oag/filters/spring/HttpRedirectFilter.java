@@ -1,5 +1,6 @@
 package org.owasp.oag.filters.spring;
 
+import org.jetbrains.annotations.NotNull;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -13,7 +14,6 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
-// TODO add flag to ignore this filter
 @Order(30)
 @Component
 public class HttpRedirectFilter implements WebFilter {
@@ -23,8 +23,9 @@ public class HttpRedirectFilter implements WebFilter {
     @Autowired
     private MainConfig config;
 
+    @NotNull
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+    public Mono<Void> filter(@NotNull ServerWebExchange exchange, @NotNull WebFilterChain chain) {
 
         LoggingUtils.logTrace(log, exchange, "Execute HttpRedirectFilter");
 

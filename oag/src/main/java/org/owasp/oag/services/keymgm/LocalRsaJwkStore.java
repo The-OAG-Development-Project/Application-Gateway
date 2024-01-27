@@ -18,15 +18,15 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Implements a local keystore for RSA keys used to sign JWT.
  * Expired keys will be automatically removed after a grace period of 10 minutes.
  */
-@Component("localRsaJwkStore")
+@Component
 public class LocalRsaJwkStore implements JwkStore {
     private static final Logger log = LoggerFactory.getLogger(LocalRsaJwkStore.class);
 
@@ -114,9 +114,12 @@ public class LocalRsaJwkStore implements JwkStore {
     private synchronized void cleanupOldKeys() {
         LoggingUtils.contextual(() -> log.debug("Running signing key cleanup cycle on store {}.", this));
 
-        long gracePeriodMillis = 10 * 60 * 1000; // 10 minutes
+        long gracePeriodMillis = Duration.ofMinutes(10L).toMillis(); // 10 minutes
         long currentTime = System.currentTimeMillis() - gracePeriodMillis;
-        @SuppressWarnings("Convert2MethodRef") List<String> expiredKid = keyExpiry.entrySet().stream().filter(entry -> entry.getValue() < currentTime).map(entry -> entry.getKey()).collect(Collectors.toList());
+        List<String> expiredKid = keyExpiry.entrySet().stream()
+                .filter(entry -> entry.getValue() < currentTime)
+                .map(Map.Entry::getKey)
+                .toList();
         expiredKid.forEach(kid -> {
             availableKeys.remove(kid);
             keyExpiry.remove(kid);
