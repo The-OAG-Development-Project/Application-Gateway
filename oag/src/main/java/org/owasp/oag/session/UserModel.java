@@ -30,7 +30,7 @@ public class UserModel {
     /**
      * Creates a new user model with a user-id.
      *
-     * @param id
+     * @param id The user id
      */
     public UserModel(String id) {
         this.id = id;
@@ -40,7 +40,7 @@ public class UserModel {
     /**
      * Gets the unique id of the user
      *
-     * @return
+     * @return the user id
      */
     public String getId() {
         return id;
@@ -49,16 +49,15 @@ public class UserModel {
     /**
      * Should only be used for deserializing
      *
-     * @param id
+     * @param id the user id
      */
     public void setId(String id) {
         this.id = id;
     }
 
     /**
-     * Returns the user mappings map
      *
-     * @return
+     * @return Returns the user mappings map
      */
     public HashMap<String, String> getMappings() {
         return mappings;
@@ -67,7 +66,7 @@ public class UserModel {
     /**
      * Should only be used for deserializing
      *
-     * @param id
+     * @param mappings the mappings
      */
     public void setMappings(HashMap<String, String> mappings) {
         this.mappings = mappings;
@@ -76,8 +75,8 @@ public class UserModel {
     /**
      * Sets a specific user mapping
      *
-     * @param key
-     * @param value
+     * @param key the key
+     * @param value the value
      */
     public void set(String key, String value) {
         mappings.put(key, value);
@@ -86,8 +85,8 @@ public class UserModel {
     /**
      * Gets the value of a user mapping
      *
-     * @param key
-     * @return
+     * @param key the key
+     * @return the mapping
      */
     public String get(String key) {
         return mappings.get(key);

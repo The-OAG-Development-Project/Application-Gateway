@@ -74,7 +74,7 @@ public class SimpleTraceContext implements TraceContext {
 
     @Override
     public String getSecondaryRequestHeader() {
-        return "n/a";
+        return "noUsedSecondaryRequestHeader";
     }
 
     @Override

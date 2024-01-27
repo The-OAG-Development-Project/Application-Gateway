@@ -45,7 +45,7 @@ public class DefaultKeyRotation implements KeyRotation {
     private void startScheduler() {
         try {
             if (config.getKeyManagementProfile().getKeyRotationProfile().getUseSigningKeyRotation()) {
-                scheduler.schedule(new RotateKeyTask(), new Date(System.currentTimeMillis() + config.getKeyManagementProfile().getKeyRotationProfile().getSigningKeyRotationSeconds() * 1000));
+                scheduler.schedule(new RotateKeyTask(), Instant.ofEpochMilli(System.currentTimeMillis() + config.getKeyManagementProfile().getKeyRotationProfile().getSigningKeyRotationSeconds() * 1000));
             } else {
                 scheduler.schedule(new RetrySchedulingTask(), new Date(System.currentTimeMillis() + Duration.ofHours(1L).toMillis())); // retry scheduling, maybe config changed in the mean time
             }

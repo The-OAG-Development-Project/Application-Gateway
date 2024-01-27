@@ -1,7 +1,7 @@
 #
 # Build stage
 #
-FROM maven:3.8.4-openjdk-17 AS build
+FROM maven:3.8.8-amazoncorretto-17 AS build
 
 # Copy POM file and download dependencies -> allows faster build because this step can be cached
 COPY oag/pom.xml /home/app/pom.xml
@@ -15,8 +15,13 @@ RUN mvn package -f /home/app/pom.xml
 #
 # Package stage
 #
-FROM openjdk:18-oraclelinux8
-RUN useradd --user-group --system --create-home --no-log-init app
+# FROM openjdk:18-oraclelinux8
+FROM amazoncorretto:17.0.9-alpine3.18
+
+# for regular linux 
+# RUN useradd --user-group --system --create-home --no-log-init app
+# for alpine
+RUN adduser --system app
 
 RUN mkdir -p /app
 RUN chown app /app

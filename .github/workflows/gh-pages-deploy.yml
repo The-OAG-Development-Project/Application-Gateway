@@ -1,0 +1,17 @@
+name: Build VuePress
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: vuepress-deploy
+      uses: jenkey2011/vuepress-deploy@master
+      env:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        TARGET_REPO: ${{ github.actor }}/Application-Gateway
+        TARGET_BRANCH: gh-pages
+        BUILD_SCRIPT: cd www && yarn && yarn docs:build
+        BUILD_DIR: docs/.vuepress/dist

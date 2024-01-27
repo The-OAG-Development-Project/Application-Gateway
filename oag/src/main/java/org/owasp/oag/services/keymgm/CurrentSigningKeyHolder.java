@@ -46,7 +46,6 @@ public class CurrentSigningKeyHolder {
      *
      * @param kid           the kid of the new key
      * @param newSigningKey the new signing key for JWTs
-     * @return the kid of the new signing key
      */
     public synchronized void setCurrentSigningKey(String kid, KeyGenerator.GeneratedKey newSigningKey) {
         if (newSigningKey == null) {

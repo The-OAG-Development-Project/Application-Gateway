@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -32,16 +33,16 @@ public class CsrfValidationFilterWithBody extends ReadRequestBodyFilter {
     @Override
     protected boolean shouldRun(ServerWebExchange exchange, GatewayRouteContext routeContext) {
 
-        String reqMethod = exchange.getRequest().getMethodValue();
-        boolean isSafeMethod = routeContext.getSecurityProfile().getCsrfSafeMethods()
-                .contains(reqMethod);
+        HttpMethod reqMethod = exchange.getRequest().getMethod();
+        boolean isSafeMethod = routeContext.getSecurityProfile().getCsrfSafeMethods().contains(reqMethod.name());
 
         if (isSafeMethod)
             return false;
 
         // Dont do the validation if there is no user session
         Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
-        if (sessionOptional.isEmpty())
+        //noinspection ConstantConditions
+        if ( sessionOptional.isEmpty())
             return false;
 
         // Only execute if body is needed for csrf validation, otherwise validation is done by CsrfValidationFilter
@@ -68,7 +69,7 @@ public class CsrfValidationFilterWithBody extends ReadRequestBodyFilter {
 
             logInfo(log, exchange,"Blocked request due to csrf protection, route={}, reqMethod={}, csrfMethod={}",
                     routeContext.getRouteName(),
-                    exchange.getRequest().getMethodValue(),
+                    exchange.getRequest().getMethod(),
                     csrfProtectionMethod);
 
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);

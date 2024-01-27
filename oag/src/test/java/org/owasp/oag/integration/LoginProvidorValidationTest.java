@@ -1,16 +1,20 @@
 package org.owasp.oag.integration;
 
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.owasp.oag.config.configuration.LoginProvider;
 import org.owasp.oag.config.configuration.LoginProviderSettings;
-import org.owasp.oag.integration.testInfrastructure.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-class LoginProvidorValidationTest extends IntegrationTest {
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {"spring.main.allow-bean-definition-overriding=true", "logging.level.org.owasp.oag=TRACE"})
+class LoginProvidorValidationTest {
 
     @Autowired
     ApplicationContext context;
@@ -31,7 +35,7 @@ class LoginProvidorValidationTest extends IntegrationTest {
         var errors = provider.getErrors(context);
 
         // Assert
-        assertEquals(0, errors.size(), "Errors: " + errors.toString());
+        assertEquals(0, errors.size(), "Errors: " + errors);
     }
 
     @Test
@@ -70,6 +74,6 @@ class LoginProvidorValidationTest extends IntegrationTest {
         var errors = provider.getErrors(context);
 
         // Assert
-        assertTrue(!errors.isEmpty(), "Expected errors with invalid configuration");
+        assertFalse(errors.isEmpty(), "Expected errors with invalid configuration");
     }
 }

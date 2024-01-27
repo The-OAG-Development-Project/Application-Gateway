@@ -1,5 +1,6 @@
 package org.owasp.oag.filters.spring;
 
+import org.jetbrains.annotations.NotNull;
 import org.owasp.oag.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +18,9 @@ public class SimpleLogFilter implements WebFilter {
 
     private static final Logger log = LoggerFactory.getLogger(SimpleLogFilter.class);
 
+    @NotNull
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+    public Mono<Void> filter(@NotNull ServerWebExchange exchange, WebFilterChain chain) {
 
         LoggingUtils.logTrace(log, exchange, "Execute SimpleLogFilter");
 
@@ -31,15 +33,15 @@ public class SimpleLogFilter implements WebFilter {
                 .doOnSuccess((u) -> {
                     var response = exchange.getResponse();
                     LoggingUtils.logInfo(log, exchange, "Response status code {} for {} {}",
-                            response.getRawStatusCode(),
-                            request.getMethodValue(),
+                            response.getStatusCode(),
+                            request.getMethod(),
                             request.getURI());
                 })
                 .doOnError(ResponseStatusException.class, e -> {
 
                     LoggingUtils.logInfo(log, exchange, "Response status code {} for {} {} errorReason: '{}'",
-                            e.getRawStatusCode(),
-                            request.getMethodValue(),
+                            e.getStatusCode(),
+                            request.getMethod(),
                             request.getURI(),
                             e.getReason());
                     throw e;
