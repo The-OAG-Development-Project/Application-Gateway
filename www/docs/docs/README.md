@@ -1,6 +1,6 @@
 # Introduction
 
-🏗️ **OWASP Application Gateway is work-in-progress. No productive version has been released yet. - We are on Version 0.5.2. [](https://github.com/gianlucafrei/Application-Gateway/releases)**
+🏗️ **OWASP Application Gateway is work-in-progress. No productive version has been released yet. - We are on Version 0.6.0. [](https://github.com/gianlucafrei/Application-Gateway/releases)**
 
 OWASP Application Gateway is an HTTP reverse proxy that sits between your web application and the client and handles Oauth2 login and session management. For you, as a developer, OWASP Application Gateway removes the hassle to implement complicated oauth2 logic in the backend and frontend so you can focus totally on your applications logic.
 
