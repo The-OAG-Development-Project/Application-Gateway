@@ -11,7 +11,7 @@ jobs:
       uses: jenkey2011/vuepress-deploy@master
       env:
         ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        TARGET_REPO: The-OAG-Development-Project/The-OAG-Development-Project.github.io.git
+        TARGET_REPO: The-OAG-Development-Project/The-OAG-Development-Project.github.io
         TARGET_BRANCH: main
         BUILD_SCRIPT: cd www && yarn && yarn docs:build
         BUILD_DIR: docs/.vuepress/dist
