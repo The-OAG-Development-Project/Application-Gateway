@@ -8,13 +8,13 @@
 🏗️ **OWASP Application Gateway is work-in-progress. No productive version has been released yet. - We are on Version 0.6.1.**
 
 
-<a href="https://owasp.org/www-project-application-gateway/"><img src="https://github.com/gianlucafrei/Application-Gateway/blob/main/doc/pictures/Banner.png" width="500" /></a>
+<a href="https://owasp.org/www-project-application-gateway/"><img src="https://github.com/The-OAG-Development-Project/Application-Gateway/blob/main/doc/pictures/Banner.png" width="500" /></a>
 
 <a href="https://owasp.org/www-project-application-gateway/"><img src="https://owasp.org/www-policy/branding-assets/OWASP-Combination-mark-r.png" width="150" /></a>
 
 OWASP Application Gateway is an HTTP reverse proxy that sits between your web application and the client and handles Oauth2 login and session management. For you, as a developer, OWASP Application Gateway removes the hassle to implement complicated oauth2 logic in the backend and frontend so you can focus totally on your applications logic.
 
-<img alt="Overview Picture" src="https://github.com/gianlucafrei/Application-Gateway/blob/main/doc/OAG-Overrview.png?raw=true" width="500" />
+<img alt="Overview Picture" src="https://github.com/The-OAG-Development-Project/Application-Gateway/blob/main/doc/OAG-Overrview.png?raw=true" width="500" />
 
 ## Table of Contents
 
@@ -49,7 +49,7 @@ OWASP Application Gateway's behavior is controlled with a central configuration 
 
 ## Configuration File
 
-OWASP Application Gateway is fully configured with a simple and easy to understand configuration file. Details are documented in the [GitHub wiki](https://github.com/gianlucafrei/nellygateway/wiki).
+OWASP Application Gateway is fully configured with a simple and easy to understand configuration file. Details are documented in the [GitHub doc](https://github.com/The-OAG-Development-Project/Application-Gateway/wiki).
 
 ```yaml
 hostUri: https://example.com
@@ -159,7 +159,7 @@ If you don't want to use Docker you can build the jar by yourself with Maven:
 mvn package -f oag/pom.xml -Dmaven.test.skip=true
 ```
 
-You may also use your IDE for building OAG. Please see [Setup OAG for development](https://github.com/gianlucafrei/Application-Gateway/wiki/Setup-for-OAG-development) for instructions using IntelliJ as an example.
+You may also use your IDE for building OAG. Please see [Setup OAG for development](https://github.com/The-OAG-Development-Project/Application-Gateway/wiki/Setup-for-OAG-development) for instructions using IntelliJ as an example.
 
 ## Functionality
 
@@ -188,4 +188,4 @@ Ideas:
 
 # Mascot
 
-<img alt="Picture of cute elephant holding OAG banner." src="https://raw.githubusercontent.com/gianlucafrei/Application-Gateway/main/doc/pictures/Mascot.svg" width="500" />
+<img alt="Picture of cute elephant holding OAG banner." src="https://raw.githubusercontent.com/The-OAG-Development-Project/Application-Gateway/main/doc/pictures/Mascot.svg" width="500" />
