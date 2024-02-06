@@ -1,6 +1,6 @@
 {
   "name": "OWASP-Application-Gateway",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "OWASP Application Gateway is an HTTP proxy that handles Oauth2 authentication and session management",
   "main": "index.js",
   "repository": "https://github.com/The-OAG-Development-Project/Application-Gateway/",
