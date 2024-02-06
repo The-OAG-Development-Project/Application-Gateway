@@ -5,7 +5,7 @@
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/gianlucafrei/nellygateway)
 [CI/CD](https://github.com/gianlucafrei/Application-Gateway/actions?query=workflow%3ACI%2FCD)
 
-🏗️ **OWASP Application Gateway is work-in-progress. No productive version has been released yet. - We are on Version 0.6.0.**
+🏗️ **OWASP Application Gateway is work-in-progress. No productive version has been released yet. - We are on Version 0.6.1.**
 
 
 <a href="https://owasp.org/www-project-application-gateway/"><img src="https://github.com/gianlucafrei/Application-Gateway/blob/main/doc/pictures/Banner.png" width="500" /></a>
