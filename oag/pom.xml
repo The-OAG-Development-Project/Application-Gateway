@@ -54,12 +54,18 @@
     <properties>
         <java.version>17</java.version>
         <!-- updating this version needs also updating the parent, see https://spring.io/projects/spring-cloud -->
-        <spring-cloud.version>2023.0.0</spring-cloud.version>
+        <spring-cloud.version>2023.0.1</spring-cloud.version>
     </properties>
 
     <dependencies>
         <!-- START SECURITY FIXES SECTION (updates/explicit packages for vulnerability patching only) -->
         <!-- temporary add here library updates to override versions introduced as sub-dependencies by boms -->
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>6.1.8</version>
+        </dependency>
 
         <!-- END SECURITY FIXES SECTION -->
 
@@ -86,14 +92,14 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>oauth2-oidc-sdk</artifactId>
-            <version>11.9.1</version>
+            <version>11.12</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt -->
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
-            <version>9.37.3</version>
+            <version>9.39.2</version>
         </dependency>
 
         <dependency>
@@ -173,7 +179,7 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-contract-wiremock</artifactId>
-            <version>4.1.1 </version>
+            <version>4.1.2 </version>
             <scope>test</scope>
         </dependency>
 
