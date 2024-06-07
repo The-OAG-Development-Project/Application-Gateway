@@ -67,6 +67,24 @@
             <version>6.1.8</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>6.1.8</version>
+        </dependency>
+
+        <!-- imported by spring-cloud-starter-gateway below -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.78</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
+            <version>4.1.108.Final</version>
+        </dependency>
+
         <!-- END SECURITY FIXES SECTION -->
 
         <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
@@ -144,6 +162,7 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
+            <version>4.1.4</version> <!-- remove version when no longer having security issues in cloud-gateway -->
         </dependency>
 
         <dependency>
