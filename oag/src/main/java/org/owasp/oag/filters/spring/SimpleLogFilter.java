@@ -38,7 +38,6 @@ public class SimpleLogFilter implements WebFilter {
                             request.getURI());
                 })
                 .doOnError(ResponseStatusException.class, e -> {
-
                     LoggingUtils.logInfo(log, exchange, "Response status code {} for {} {} errorReason: '{}'",
                             e.getStatusCode(),
                             request.getMethod(),
