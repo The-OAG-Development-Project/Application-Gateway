@@ -41,6 +41,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       #############
+      # Maven build
+      # Compiles, signs and deploys OAG to Maven Central
+      - name: Release Maven package
+        uses: samuelmeuli/action-maven-publish@v1
+        with:
+          directory: oag
+          maven_profiles: gpg-sign
+          maven_args: "-DskipTests"
+          server_id: ossrh
+          gpg_private_key: ${{ secrets.GPG_KEY }}
+          gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          nexus_username: ${{ secrets.MAVEN_USERNAME }}
+          nexus_password: ${{ secrets.MAVEN_TOKEN }}
+
+      #############
       # Docker build
       - name: Docker Build
         run: docker build -t ${{ env.tag }} .
@@ -73,22 +88,22 @@ jobs:
             retention-days: 5
 
       # Assemble and Upload release assets
-      - uses: papeloto/action-zip@v1
-        with:
-          files: build/
-          recursive: false
-          dest: oag-${{ steps.get_version.outputs.VERSION }}.zip
+      #- uses: papeloto/action-zip@v1
+      #  with:
+      #    files: build/
+      #    recursive: false
+      #    dest: oag-${{ steps.get_version.outputs.VERSION }}.zip
 
-      - name: Upload Release Asset
-        id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./oag-${{ steps.get_version.outputs.VERSION }}.zip
-          asset_name: oag-${{ steps.get_version.outputs.VERSION }}.zip
-          asset_content_type: application/gzip
+      #- name: Upload Release Asset
+      #  id: upload-release-asset 
+      #  uses: actions/upload-release-asset@v1
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #  with:
+      #    upload_url: ${{ steps.get_release.outputs.upload_url }}
+      #    asset_path: ./oag-${{ steps.get_version.outputs.VERSION }}.zip
+      #    asset_name: oag-${{ steps.get_version.outputs.VERSION }}.zip
+      #    asset_content_type: application/gzip
 
       # Docker Push
       - name: Docker Login
@@ -96,15 +111,4 @@ jobs:
       - name: Docker Push
         run: docker push ${{ env.tag }}
 
-      # Compiles, signs and deploys OAG to Maven Central
-      - name: Release Maven package
-        uses: samuelmeuli/action-maven-publish@v1
-        with:
-          directory: oag
-          maven_profiles: gpg-sign
-          maven_args: "-DskipTests"
-          server_id: ossrh
-          gpg_private_key: ${{ secrets.GPG_KEY }}
-          gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
-          nexus_username: ${{ secrets.MAVEN_USERNAME }}
-          nexus_password: ${{ secrets.MAVEN_TOKEN }}
+      
