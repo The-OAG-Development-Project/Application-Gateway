@@ -45,6 +45,6 @@ public abstract class ReadRequestBodyFilter extends RouteAwareFilter {
     private Mono<Object> rewrite(Object e, Object s, GatewayRouteContext routeContext) {
 
         consumeBody((ServerWebExchange) e, (String) s, routeContext);
-        return Mono.just(s);
+        return Mono.justOrEmpty(s);
     }
 }

@@ -39,6 +39,7 @@ public class ExtractAuthenticationFilter implements WebFilter {
     @Autowired
     SessionBlacklist sessionBlacklist;
 
+    @SuppressWarnings("unchecked")
     public static Optional<Session> extractSessionFromExchange(ServerWebExchange exchange) {
 
         Object sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
