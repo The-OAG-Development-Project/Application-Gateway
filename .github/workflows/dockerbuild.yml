@@ -56,7 +56,7 @@ jobs:
         run: docker rm build
 
       - name: Publish Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
             path: build
             retention-days: 5
