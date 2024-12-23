@@ -32,7 +32,6 @@ public class OAGBeanConfiguration {
     @Autowired
     private GlobalClockSource clockSource;
 
-    @Autowired
     @Bean
     public MainConfig mainConfig(ConfigLoader loader) {
 

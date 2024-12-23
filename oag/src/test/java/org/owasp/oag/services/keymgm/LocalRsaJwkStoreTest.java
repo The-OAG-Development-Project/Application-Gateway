@@ -4,6 +4,7 @@ import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.owasp.oag.config.configuration.KeyManagementProfile;
 import org.owasp.oag.config.configuration.KeyRotationProfile;
@@ -43,7 +44,7 @@ class LocalRsaJwkStoreTest {
         factory.initialize(4096);
         KeyPair key1 = factory.generateKeyPair();
 
-        JWK key2 = new RSAKey((RSAPublicKey) factory.generateKeyPair().getPublic(), KeyUse.SIGNATURE, null, Algorithm.parse("RS256"), kid2, null, null, null, null, null);
+        JWK key2 = generateJwkFromNewPubKey(factory, kid2);
 
         underTest.addRawKey(kid1, key1.getPublic(), enoughTime);
         assertEquals(1, underTest.getSigningPublicKeys().getKeys().size());
@@ -58,6 +59,11 @@ class LocalRsaJwkStoreTest {
 
         underTest.removeKey(kid2);
         assertEquals(0, underTest.getSigningPublicKeys().getKeys().size());
+    }
+
+    @NotNull
+    private static RSAKey generateJwkFromNewPubKey(KeyPairGenerator factory, String kid) {
+        return new RSAKey.Builder((RSAPublicKey) factory.generateKeyPair().getPublic()).keyID(kid).algorithm(Algorithm.parse("RS256")).keyUse(KeyUse.SIGNATURE).build();
     }
 
     @Test
@@ -78,7 +84,7 @@ class LocalRsaJwkStoreTest {
         factory.initialize(4096);
         KeyPair key1 = factory.generateKeyPair();
 
-        JWK key2 = new RSAKey((RSAPublicKey) factory.generateKeyPair().getPublic(), KeyUse.SIGNATURE, null, Algorithm.parse("RS256"), kid2, null, null, null, null, null);
+        JWK key2 = generateJwkFromNewPubKey(factory, kid2);
 
         underTest.addRawKey(kid1, key1.getPublic(), alreadyExpired);
         assertEquals(1, underTest.getSigningPublicKeys().getKeys().size());

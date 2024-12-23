@@ -5,6 +5,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
+import org.jetbrains.annotations.NotNull;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.exception.ApplicationException;
 import org.owasp.oag.exception.ConsistencyException;
@@ -29,6 +30,7 @@ import java.util.*;
 @Component
 public class LocalRsaJwkStore implements JwkStore {
     private static final Logger log = LoggerFactory.getLogger(LocalRsaJwkStore.class);
+    private static final Algorithm DEFAULT_JWK_ALGORITHM = Algorithm.parse("RS256");;
 
     private final MainConfig config;
 
@@ -78,9 +80,14 @@ public class LocalRsaJwkStore implements JwkStore {
             LoggingUtils.contextual(() -> log.warn("Key with id {} added but it is already expired and will be removed in next cleanup cycle.", kid));
         }
 
-        JWK jwk = new RSAKey((RSAPublicKey) key, KeyUse.SIGNATURE, null, Algorithm.parse("RS256"), kid, null, null, null, null, null, null, null, null);
+        JWK jwk = getJwkFromRsaPubKey(kid, (RSAPublicKey) key);
         availableKeys.put(kid, jwk);
         keyExpiry.put(kid, expiry);
+    }
+
+    @NotNull
+    private static RSAKey getJwkFromRsaPubKey(String kid, RSAPublicKey key) {
+        return new RSAKey.Builder(key).keyID(kid).keyUse(KeyUse.SIGNATURE).algorithm(DEFAULT_JWK_ALGORITHM).build();
     }
 
     @Override

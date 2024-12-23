@@ -50,7 +50,7 @@ public class OidcDriver extends Oauth2Driver {
     @Override
     protected Tokens loadTokens(ClientAuthentication clientAuth, URI tokenEndpoint, AuthorizationGrant codeGrant) throws AuthenticationException {
 
-        TokenRequest request = new TokenRequest(tokenEndpoint, clientAuth, codeGrant);
+        TokenRequest request = new TokenRequest(tokenEndpoint, clientAuth, codeGrant, null);
         TokenResponse tokenResponse;
         HTTPResponse httpResponse;
 

@@ -187,7 +187,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
 
     protected Tokens loadTokens(ClientAuthentication clientAuth, URI tokenEndpoint, AuthorizationGrant codeGrant) throws AuthenticationException {
 
-        TokenRequest tokenRequest = new TokenRequest(tokenEndpoint, clientAuth, codeGrant);
+        TokenRequest tokenRequest = new TokenRequest(tokenEndpoint, clientAuth, codeGrant, null);
         TokenResponse tokenResponse = sendTokenRequest(tokenRequest);
 
         if (!tokenResponse.indicatesSuccess()) {

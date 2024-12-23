@@ -54,7 +54,6 @@ public class IntegrationTestConfig {
      * @param loader Config file loader
      * @return Overwritten configuration file
      */
-    @Autowired
     @Bean
     public MainConfig mainConfig(ConfigLoader loader){
 
