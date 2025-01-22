@@ -137,7 +137,7 @@ Download the oag*.zip from the Assets section.
 ```bash
 unzip oag*.zip
 cd build/app
-java -jar oag.jar
+java -jar oag-exec.jar
 
 ```
 
@@ -153,7 +153,8 @@ docker run -p 8080:8080 owasp/application-gateway:SNAPSHOT
 If you don't want to use Docker you can build the jar by yourself with Maven:
 
 ```bash
-mvn package -f oag/pom.xml -Dmaven.test.skip=true
+mvn package -f oag/pom.xml -DskipTests
+java -jar oag/target/oag-exec.jar
 ```
 
 You may also use your IDE for building OAG. Please see [Setup OAG for development](https://github.com/The-OAG-Development-Project/Application-Gateway/wiki/Setup-for-OAG-development) for instructions using IntelliJ as an example.
