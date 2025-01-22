@@ -118,26 +118,23 @@ You can find the Docker image at [Docker Hub](https://hub.docker.com/r/owasp/app
 
 Download and Start:
 ```bash
-# Download image of nelly
+# Download image of oag
 docker pull owasp/application-gateway:main-SNAPSHOT
 
 # Download sample config and adapt it to your needs
-curl https://raw.githubusercontent.com/gianlucafrei/Application-Gateway/main/oag/sample-config.yaml >> oag-config.yaml
+curl https://raw.githubusercontent.com/The-OAG-Development-Project/Application-Gateway/refs/heads/main/oag/sample-config.yaml >> oag-config.yaml
 vim oag-config.yaml
 
 # Start the container
-docker run -e NELLY_CONFIG_PATH=/app/oag-config.yaml -v ${PWD}/oag-config.yaml:/app/oag-config.yaml owasp/application-gateway:main-SNAPSHOT
+docker run -e OAG_CONFIG_PATH=/app/oag-config.yaml -v ${PWD}/oag-config.yaml:/app/oag-config.yaml owasp/application-gateway:main-SNAPSHOT
 ```
 
 ### Jar release
 
-```bash
-curl -s https://api.github.com/repos/gianlucafrei/Application-Gateway/releases/latest \
-| grep "browser_download_url.*zip" \
-| cut -d : -f 2,3 \
-| tr -d \" \
-| wget -qi -
+Point your browser to https://github.com/The-OAG-Development-Project/Application-Gateway/releases/latest
+Download the oag*.zip from the Assets section.
 
+```bash
 unzip oag*.zip
 cd build/app
 java -jar oag.jar
