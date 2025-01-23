@@ -278,7 +278,61 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
-
+            <!-- To generate a self-signed certificate. -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>keytool</executable>
+                    <workingDirectory>.</workingDirectory>
+                    <arguments>
+                        <argument>-genkeypair</argument>
+                        <argument>-alias</argument>
+                        <argument>tls</argument>
+                        <argument>-keyalg</argument>
+                        <argument>RSA</argument>
+                        <argument>-keystore</argument>
+                        <argument>keystore.pkcs12</argument>
+                        <argument>-storetype</argument>
+                        <argument>PKCS12</argument>
+                        <argument>-keysize</argument>
+                        <argument>2048</argument>
+                        <argument>-keypass</argument>
+                        <argument>password</argument>
+                        <argument>-storepass</argument>
+                        <argument>password</argument>
+                        <argument>-validity</argument>
+                        <argument>720</argument>
+                        <argument>-dname</argument>
+                        <argument>"cn=demo, ou=oag, o=owasp, c=com"</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+            <!-- To remove the generated self-signed certificate. -->
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>.</directory>
+                            <includes>
+                                <include>keystore.pkcs12</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

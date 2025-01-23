@@ -16,7 +16,7 @@ class FileConfigLoaderTest {
     /**
      * Test if the FileConfigLoader correctly request a configuration file via HTTPS if
      * the configuration path is a https url
-     * @throws Exception
+     * @throws Exception in case of error.
      */
     @Test
     void loadConfigFileViaHttps() throws Exception {
@@ -46,7 +46,7 @@ class FileConfigLoaderTest {
 
     /**
      * Tests if the FileConfigLoader correctly loads a configuration file from disk
-     * @throws Exception
+     * @throws Exception in case of error.
      */
     @Test
     void loadConfigFromFile() throws Exception{
@@ -59,7 +59,7 @@ class FileConfigLoaderTest {
 
         // Assert
         assertNotNull(mainConfig);
-        assertEquals("http://localhost:8080", mainConfig.getHostUri());
+        assertEquals("https://localhost:8080", mainConfig.getHostUri());
 
     }
 }
