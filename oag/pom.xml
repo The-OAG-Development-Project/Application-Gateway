@@ -313,7 +313,7 @@
                         <argument>-validity</argument>
                         <argument>720</argument>
                         <argument>-dname</argument>
-                        <argument>"cn=demo, ou=oag, o=owasp, c=com"</argument>
+                        <argument>cn=demo, ou=oag, o=owasp, c=com</argument>
                     </arguments>
                 </configuration>
             </plugin>
