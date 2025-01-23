@@ -18,8 +18,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.net.URI;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Base class for all tests that use the gateway functionality.
@@ -28,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @AutoConfigureWireMock(port = 0)
 public abstract class WiremockTest {
 
-    public static String TEST_SERVER_URI = "http://localhost:7777";
     public static String TEST_1_ENDPOINT = "/foo";
     public static String TEST_1_RESPONSE = "foo}";
     public static String TEST_2_ENDPOINT = "/bar";
@@ -95,8 +93,8 @@ public abstract class WiremockTest {
                     .expectStatus().isFound().returnResult(String.class);
 
             var redirectUriString = loginResult.getResponseHeaders().getFirst("Location");
+            assertNotNull(redirectUriString);
             URI redirectUri = new URI(redirectUriString);
-
 
             AuthenticationRequest oidcRequest = AuthenticationRequest.parse(redirectUri);
             LoginProvider provider = config.getLoginProviders().get("local");
@@ -105,7 +103,7 @@ public abstract class WiremockTest {
             assertEquals(provider.getWith().get("clientId"), oidcRequest.getClientID().toString());
 
             var loginStateCookie = loginResult.getResponseCookies().getFirst(LoginStateCookie.NAME);
-
+            assertNotNull(loginStateCookie);
             // ACT 2: Call the callback url
             // Arrange
             String authorizationResponse = String.format("?state=%s&code=%s", oidcRequest.getState().getValue(), "authCode");

@@ -17,8 +17,7 @@ import org.springframework.http.HttpMethod;
 
 import java.net.URI;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"spring.main.allow-bean-definition-overriding=true",
@@ -39,6 +38,7 @@ class LoginLogoutTest extends WiremockTest {
                 .expectStatus().isFound().returnResult(String.class);
 
         var redirectUriString = loginResult.getResponseHeaders().getFirst("Location");
+        assert redirectUriString != null;
         URI redirectUri = new URI(redirectUriString);
 
 
@@ -49,10 +49,11 @@ class LoginLogoutTest extends WiremockTest {
         assertEquals(provider.getWith().get("clientId"), oidcRequest.getClientID().toString());
 
         var loginStateCookie = loginResult.getResponseCookies().getFirst(LoginStateCookie.NAME);
-
+        assert loginStateCookie != null;
         // ACT 2: Call the callback url
         // Arrange
         String authorizationResponse = String.format("?state=%s&code=%s", oidcRequest.getState().getValue(), "authCode");
+
         var callbackResult = webClient.get().uri("/auth/local/callback" + authorizationResponse)
                 .cookie(loginStateCookie.getName(), loginStateCookie.getValue())
                 .exchange()
@@ -60,8 +61,9 @@ class LoginLogoutTest extends WiremockTest {
                 .returnResult(String.class);
 
         var sessionCookie = callbackResult.getResponseCookies().getFirst(LoginCookie.NAME);
+        assertNotNull(sessionCookie);
         var csrfCookie = callbackResult.getResponseCookies().getFirst(CsrfCookie.NAME);
-
+        assertNotNull(csrfCookie);
         // ACT 3: Call the session endpoint
         webClient.get().uri("/auth/session").cookie(sessionCookie.getName(), sessionCookie.getValue())
                 .exchange()
@@ -79,6 +81,7 @@ class LoginLogoutTest extends WiremockTest {
 
         //Expect that the cookie is deleted
         var sessionCookie2 = logoutResult.getResponseCookies().getFirst(LoginCookie.NAME);
+        assertNotNull(sessionCookie2);
         assertEquals(0, sessionCookie2.getMaxAge().getSeconds());
         assertEquals(sessionCookie.getName(), sessionCookie2.getName());
         assertEquals(sessionCookie.getPath(), sessionCookie2.getPath());
@@ -103,7 +106,7 @@ class LoginLogoutTest extends WiremockTest {
 
 
     @Test
-    void testSessionIsAnonymous() throws Exception {
+    void testSessionIsAnonymous() {
 
         webClient.get().uri("/auth/session")
                 .exchange()
