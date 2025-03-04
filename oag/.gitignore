@@ -35,3 +35,4 @@ build/
 
 ### VS Code ###
 .vscode/
+/keystore.pkcs12

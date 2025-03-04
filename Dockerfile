@@ -15,7 +15,7 @@ RUN mvn package -f /home/app/pom.xml
 #
 # Package stage
 #
-FROM amazoncorretto:17.0.13-alpine3.18
+FROM amazoncorretto:17.0.14-alpine3.18
 
 # for regular linux 
 # RUN useradd --user-group --system --create-home --no-log-init app
@@ -25,7 +25,7 @@ RUN adduser --system app
 RUN mkdir -p /app
 RUN chown app /app
 
-COPY --from=build /home/app/target/oag-exec.jar /home/app/*.yaml /home/app/*.txt /app/
+COPY --from=build /home/app/target/oag-exec.jar /home/app/*.yaml /home/app/*.txt /home/app/*.pkcs12 /app/
 RUN mv /app/*.jar /app/oag.jar
 
 USER app
