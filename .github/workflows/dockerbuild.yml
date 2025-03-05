@@ -58,7 +58,7 @@ jobs:
       - name: Publish Artifact
         uses: actions/upload-artifact@v4
         with:
-            name: oag-${{ env.tag }}
+            name: oag-${{ steps.extract_branch.outputs.branch }}-SNAPSHOT
             path: build
             retention-days: 5
 
