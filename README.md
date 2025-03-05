@@ -110,7 +110,10 @@ traceProfile:
 
 ## How to run
 
-You have two options on how to run OWASP Application Gateway: There is an official docker image that you can just works out of the box. You just need to mount the config file via docker volumes. If you don't want to use docker you can also use the download the released jar file. Of course you can also build OWASP Application Gateway by yourself with Maven.
+You have three options on how to run OWASP Application Gateway:
+* There is an official docker image that just works out of the box. You need to mount the config file via docker volumes.
+* If you don't want to use docker, you can also download the released jar file. * Of course you can also build OWASP Application Gateway by yourself with Maven.
+Note, that in all cases this starts the OAG with a self-signed certificate (This means you will get warnings in your browser when connecting.) It is recommended you change the certificate according to: [Configure TLS](https://github.com/The-OAG-Development-Project/Application-Gateway/wiki/TLS-configuration-in-OAG).
 
 ### Docker Release
 
@@ -146,6 +149,8 @@ java -jar oag-exec.jar
 The easiest way is to use Docker to build OWASP Application Gateway.
 
 ```bash
+git clone https://github.com/The-OAG-Development-Project/Application-Gateway.git
+cd Application-Gateway
 docker build -t owasp/application-gateway:SNAPSHOT .
 docker run -p 8080:8080 owasp/application-gateway:SNAPSHOT
 ```
@@ -153,6 +158,8 @@ docker run -p 8080:8080 owasp/application-gateway:SNAPSHOT
 If you don't want to use Docker you can build the jar by yourself with Maven:
 
 ```bash
+git clone https://github.com/The-OAG-Development-Project/Application-Gateway.git
+cd Application-Gateway
 cd oag
 mvn package -DskipTests
 java -jar target/oag-exec.jar
@@ -162,7 +169,7 @@ You may also use your IDE for building OAG. Please see [Setup OAG for developmen
 
 ## Functionality
 
-- [x] HTTPS Redirection with Proxy Awareness
+- [x] TLS endpoint
 - [x] OpenID Connect Login with multiple providers
 - [x] Multiple Backend routes
 - [x] Authenticated routes
@@ -175,7 +182,7 @@ You may also use your IDE for building OAG. Please see [Setup OAG for developmen
 - [x] Method whitelisting
 - [x] CSRF protection
 - [x] Rolling sessions
-- [x] W3C compliant request tracing  
+- [x] W3C compliant request tracing
 
 
 Ideas:
