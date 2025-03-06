@@ -140,7 +140,7 @@ Download the oag*.zip from the Assets section.
 ```bash
 unzip oag*.zip
 cd build/app
-java -jar oag-exec.jar
+java -jar oag.jar
 
 ```
 
