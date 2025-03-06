@@ -80,13 +80,23 @@ jobs:
         run: docker rm build
 
       #############
-      # Publish
-      - name: Publish Artifact
-        uses: actions/upload-artifact@v4
+      # zip Artifacts to release
+      - name: Create release zip
+        uses: thedoctor0/zip-release@0.7.6
         with:
-            name: oag-v${{ steps.get_version.outputs.version }}.zip
-            path: build
-            retention-days: 5
+          type: 'zip'
+          filename: oag-v${{ steps.get_version.outputs.version }}.zip
+          directory: '.'
+          path: './build/'
+        
+      # Publish Artifact to release and build-action
+      - name: Upload artifacts and release assets
+        uses: nanoufo/action-upload-artifacts-and-release-assets@v2
+        with:
+          path: oag-v${{ steps.get_version.outputs.version }}.zip
+          upload-release-files: true
+          release-upload-url: ${{ steps.get_release.outputs.upload_url }}
+          retention-days: 5
 
       # Docker Push
       - name: Docker Login
