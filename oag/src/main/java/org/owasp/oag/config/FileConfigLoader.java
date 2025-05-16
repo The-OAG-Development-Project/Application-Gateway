@@ -61,9 +61,9 @@ public class FileConfigLoader implements ConfigLoader {
 
     /**
      * Loads the configuration file from the given configuration path (in constructor) and merges it with the
-     * default configuration. It is not validated if the configuration file has schemantic errors
-     * @return OAg Configuration object
-     * @throws IOException Cannot load configuration file or the file format is invalid (not yaml)
+     * default configuration. It is not validated if the configuration file has semantic errors.
+     * @return MainConfig object containing the merged OAG configuration
+     * @throws IOException if the configuration file cannot be loaded or the file format is invalid (not yaml)
      */
     @Override
     public MainConfig loadConfiguration() throws IOException {
@@ -88,8 +88,8 @@ public class FileConfigLoader implements ConfigLoader {
 
     /**
      * Loads an input stream of the configuration file via https or http
-     * @return
-     * @throws IOException
+     * @return InputStream containing the remote configuration file
+     * @throws IOException if there is an error loading the remote configuration file
      */
     @NotNull
     protected InputStream loadRemoteConfigFile() throws IOException {
@@ -114,8 +114,8 @@ public class FileConfigLoader implements ConfigLoader {
 
     /**
      * Loads an input stream of the configuration file from disk
-     * @return
-     * @throws IOException
+     * @return InputStream containing the configuration file from disk
+     * @throws FileNotFoundException if the configuration file cannot be found
      */
     @NotNull
     protected InputStream loadConfigFromFile() throws FileNotFoundException {
@@ -129,9 +129,9 @@ public class FileConfigLoader implements ConfigLoader {
     /**
      * Deserializes and merges the default and user configuration
      * @param defaultSettingsStream Input stream of default configuration file
-     * @param userConfigInputStream Inout stream of user configuration file
-     * @return
-     * @throws IOException
+     * @param userConfigInputStream Input stream of user configuration file
+     * @return MainConfig object containing the merged configuration
+     * @throws IOException if there is an error reading or parsing the configuration files
      */
     @NotNull
     protected MainConfig mergeConfiguration(InputStream defaultSettingsStream, InputStream userConfigInputStream) throws IOException {

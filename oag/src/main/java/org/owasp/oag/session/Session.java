@@ -21,12 +21,12 @@ public class Session {
     /**
      * Creates a new Session object with all required values
      *
-     * @param sessionExpSeconds
-     * @param remainingTimeSeconds
-     * @param provider
-     * @param userModel
-     * @param loginCookie
-     * @param id
+     * @param sessionExpSeconds The session expiration time in seconds (Unix timestamp)
+     * @param remainingTimeSeconds The remaining time until session expiration in seconds
+     * @param provider The name of the login provider that authenticated the user
+     * @param userModel The user model containing user information
+     * @param loginCookie The login cookie associated with this session
+     * @param id The unique identifier for this session
      */
     public Session(long sessionExpSeconds, long remainingTimeSeconds, String provider, UserModel userModel, LoginCookie loginCookie, String id) {
         this.sessionExpSeconds = sessionExpSeconds;
@@ -41,9 +41,9 @@ public class Session {
      * Converts a decrypted login cookie into a user session object.
      * Returns an empty optional is the session is expired.
      *
-     * @param cookie
-     * @param clock
-     * @return
+     * @param cookie The login cookie to convert into a session
+     * @param clock The clock used to determine if the session is expired
+     * @return An Optional containing the Session if valid, or empty if expired or null cookie
      */
     public static Optional<Session> fromSessionCookie(LoginCookie cookie, Clock clock) {
 
@@ -71,7 +71,7 @@ public class Session {
     /**
      * Returns the name of the used login provider
      *
-     * @return
+     * @return The name of the login provider that authenticated the user
      */
     public String getProvider() {
         return provider;
@@ -80,7 +80,7 @@ public class Session {
     /**
      * Returns the end of the session validity as unix timestamp
      *
-     * @return
+     * @return The session expiration time in seconds (Unix timestamp)
      */
     public long getSessionExpSeconds() {
         return sessionExpSeconds;
@@ -89,7 +89,7 @@ public class Session {
     /**
      * Returns the duration until session expiry as seconds
      *
-     * @return
+     * @return The remaining time until session expiration in seconds
      */
     public int getRemainingTimeSeconds() {
         return (int) remainingTimeSeconds;
@@ -98,7 +98,7 @@ public class Session {
     /**
      * Returns the user model of this session
      *
-     * @return
+     * @return The user model containing user information
      */
     public UserModel getUserModel() {
         return userModel;
@@ -107,16 +107,16 @@ public class Session {
     /**
      * Returns the login cookie that represents this session
      *
-     * @return
+     * @return The login cookie associated with this session
      */
     public LoginCookie getLoginCookie() {
         return loginCookie;
     }
 
     /**
-     * Returns the is of the session (Not id of the user)
+     * Returns the id of the session (Not id of the user)
      *
-     * @return
+     * @return The unique identifier for this session
      */
     public String getId() {
         return id;
@@ -125,7 +125,7 @@ public class Session {
     /**
      * Returns the id of the user
      *
-     * @return
+     * @return The unique identifier of the user
      */
     public String getUserId() {
 

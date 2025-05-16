@@ -26,14 +26,31 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * OIDC driver for OpenID Connect authentication.
+ * <p>
+ * This driver is responsible for handling the OIDC authentication flow, including loading tokens and user info.
+ * It extends the Oauth2Driver class to provide additional functionality specific to OIDC.
+ */
 public class OidcDriver extends Oauth2Driver {
 
     private static final Logger log = LoggerFactory.getLogger(OidcDriver.class);
 
+    /**
+     * Constructor for OidcDriver.
+     *
+     * @param settings The login provider settings.
+     */
     public OidcDriver(LoginProviderSettings settings) {
         super(settings);
     }
 
+    /**
+     * Returns the errors for the OIDC login provider settings.
+     *
+     * @param settings The login provider settings.
+     * @return A list of scopes.
+     */
     @Override
     public List<String> getSettingsErrors(LoginProviderSettings settings) {
 
@@ -47,6 +64,15 @@ public class OidcDriver extends Oauth2Driver {
         return errors;
     }
 
+    /**
+     * loads the tokens from the token endpoint for the given cientAuth
+     *
+     * @param clientAuth the auth-info used to access the tokenEndpoint
+     * @param tokenEndpoint the endpoint providing the tokens
+     * @param codeGrant the AUthorizationGrant
+     * @return The tokens
+     * @throws AuthenticationException if the tokenEndpoint did not accept the auth-info
+     */
     @Override
     protected Tokens loadTokens(ClientAuthentication clientAuth, URI tokenEndpoint, AuthorizationGrant codeGrant) throws AuthenticationException {
 
@@ -79,6 +105,12 @@ public class OidcDriver extends Oauth2Driver {
         return oidcTokens;
     }
 
+    /**
+     * Loads the user info from the OIDC tokens.
+     *
+     * @param tokens The OIDC tokens.
+     * @return A UserModel object containing the user info.
+     */
     @Override
     protected UserModel loadUserInfo(Tokens tokens) {
 
@@ -113,6 +145,11 @@ public class OidcDriver extends Oauth2Driver {
         }
     }
 
+    /**
+     * Returns a list of claims that are mapped from the OIDC tokens to the user model.
+     *
+     * @return A list of claim names.
+     */
     protected List<String> getMappedClaims() {
 
         return Arrays.asList("sub",

@@ -31,14 +31,20 @@ import java.util.Map;
 @Import(OWASPApplicationGatewayApplication.class)
 public class IntegrationTestConfig {
 
+    /**
+     * Global clock source for time-based operations.
+     */
     @Autowired
     GlobalClockSource clockSource;
 
+    /**
+     * Spring application context.
+     */
     @Autowired
     ApplicationContext context;
 
     /**
-     * Uses a in-memory blacklist for sessions
+     * Uses a in-memory blacklist for sessions.
      *
      * @return the SessionBlacklist implementation.
      */
@@ -48,11 +54,24 @@ public class IntegrationTestConfig {
         return new LocalInMemoryBlacklist(clockSource);
     }
 
+    /**
+     * Creates a WebTestClient customizer that disables TLS validation.
+     * This allows tests to connect to servers with self-signed certificates.
+     * 
+     * @return A WebTestClientBuilderCustomizer that configures the client to trust all certificates
+     */
     @Bean
     public WebTestClientBuilderCustomizer noTlsValidationWebTests() {
         return (builder) -> builder.clientConnector(new ReactorClientHttpConnector(createHttpClient()));
     }
 
+    /**
+     * Creates an HTTP client that trusts all TLS certificates.
+     * This is used for testing purposes only and should not be used in production.
+     * 
+     * @return An HTTP client configured to trust all certificates
+     * @throws RuntimeException if the SSL context cannot be created
+     */
     private HttpClient createHttpClient() {
         try {
             SslContext sslContext = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
@@ -71,8 +90,11 @@ public class IntegrationTestConfig {
 
     /**
      * Overwrites the url of the gateway routes with the url of the wiremock instance.
+     * This allows tests to route requests to a local wiremock server instead of external endpoints.
+     * 
      * @param loader Config file loader
      * @return Overwritten configuration file
+     * @throws RuntimeException if the configuration cannot be loaded
      */
     @Bean
     public MainConfig mainConfig(ConfigLoader loader){
@@ -110,6 +132,13 @@ public class IntegrationTestConfig {
         }
     }
 
+    /**
+     * Helper method to replace the port in a URL stored in a map.
+     * 
+     * @param key The key in the map containing the URL to modify
+     * @param map The map containing the URL
+     * @throws RuntimeException if the URL is malformed
+     */
     private void replacePortOfUrlInMap(String key, Map<String, Object> map){
 
         map.computeIfPresent(key, (key2, url) -> {

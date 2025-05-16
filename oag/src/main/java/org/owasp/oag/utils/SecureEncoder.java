@@ -2,6 +2,8 @@ package org.owasp.oag.utils;
 
 /**
  * Provides helper functions to encode data into formats that are not dangerous.
+ * This class contains methods for sanitizing strings before they are written to logs
+ * or otherwise processed, helping to prevent log injection attacks and other security issues.
  */
 public class SecureEncoder {
 
@@ -25,6 +27,13 @@ public class SecureEncoder {
         return encodeForLog(inputString);
     }
 
+    /**
+     * Internal helper method that performs the actual character encoding for log safety.
+     * Replaces newlines and carriage returns with safe alternatives to prevent log forging.
+     *
+     * @param original The original string to encode
+     * @return The encoded string safe for logging
+     */
     private static String encodeForLog(String original) {
         // replace cr/lf
         return original.replace("\n", "\n_").replace('\r', '_');

@@ -9,6 +9,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+/**
+ * Factory for creating RSA-based JWT signers
+ * Creates JWT signers that use RSA keys for signing JWTs
+ */
 @Component
 public class RsaJwtSignerFactory implements JwtSignerFactory {
 

@@ -31,6 +31,14 @@ public class DefaultKeyRotation implements KeyRotation {
     private final CurrentSigningKeyHolder sigKeyHolder;
     private final ThreadPoolTaskScheduler scheduler;
 
+    /**
+     * Constructs a DefaultKeyRotation instance and initializes the key rotation mechanism.
+     *
+     * @param config The main configuration for the application
+     * @param keyMgmFactory Factory for creating key management components
+     * @param sigKeyHolder Holder for the current signing key
+     * @param scheduler Scheduler for key rotation tasks
+     */
     @Autowired
     public DefaultKeyRotation(MainConfig config, KeyManagementFactory keyMgmFactory, CurrentSigningKeyHolder sigKeyHolder, @Qualifier("keyRotationScheduler") ThreadPoolTaskScheduler scheduler) {
         this.config = config;

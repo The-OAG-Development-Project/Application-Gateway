@@ -14,7 +14,7 @@ public class UserMappingTemplatingEngine {
     /**
      * Creates a new instance for a given user session object
      *
-     * @param session
+     * @param session The user session containing the user model for template mapping
      */
     public UserMappingTemplatingEngine(Session session) {
 
@@ -31,8 +31,8 @@ public class UserMappingTemplatingEngine {
      * Checks if a given string is a valid string template.
      * Does not check if any references are used that do not exist.
      *
-     * @param mappingTemplate
-     * @return
+     * @param mappingTemplate The template string to validate
+     * @return true if the template is syntactically valid, false otherwise
      */
     public static boolean isValidTemplate(String mappingTemplate) {
 

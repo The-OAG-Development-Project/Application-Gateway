@@ -18,15 +18,36 @@ import java.util.UUID;
  */
 public class AbstractException extends RuntimeException {
 
+    /**
+     * Logger instance for this exception class.
+     * Used to log exception details.
+     */
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+    /**
+     * Unique identifier for this exception instance.
+     * Generated as a random UUID to help with tracking and debugging.
+     */
     private final String exceptionId = UUID.randomUUID().toString();
 
+    /**
+     * Creates a new AbstractException with the given message, parent exception, and log level.
+     *
+     * @param message         The message to log.
+     * @param parentException The parent exception if available.
+     * @param forceLogLevel   The log level to force for this exception.
+     */
     protected AbstractException(String message, Throwable parentException, ExceptionLogLevel forceLogLevel) {
         super(message, parentException);
         log("ExId: " + exceptionId + ": " + message, forceLogLevel);
     }
 
+    /**
+     * Logs the exception message with the specified log level.
+     *
+     * @param message       The message to log.
+     * @param forceLogLevel The log level to use.
+     */
     private void log(String message, ExceptionLogLevel forceLogLevel) {
         switch (forceLogLevel) {
             case TRACE:

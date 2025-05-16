@@ -2,7 +2,7 @@
 
 ## Preparation
 * Install Java 17 or higher
-* Install Maven
+* Install Gradle
 * Install Git
 * Install IntelliJ (Community Version is fine)
 * git clone the OAG repository:
@@ -22,7 +22,7 @@
 ## Import project
 * Start IntelliJ.
 * Open project: ../oag/Application-Gateway/oag
-  + This should trigger maven and download dependencies
+  + This should trigger Gradle and download dependencies
 * Build of the whole project (select Build -> Build Project in the menu).
   + You will have to select a project JDK (IntelliJ prompts for this in the upper right corner.). OAG requires a SDK/JDK >= 11 and runs on Java 11 or higher. 
 

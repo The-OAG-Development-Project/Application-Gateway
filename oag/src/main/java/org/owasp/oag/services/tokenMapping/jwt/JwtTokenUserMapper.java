@@ -30,16 +30,51 @@ import static org.owasp.oag.utils.LoggingUtils.logTrace;
 public class JwtTokenUserMapper implements UserMapper {
 
     private static final Logger log = LoggerFactory.getLogger(JwtTokenUserMapper.class);
+    
+    /**
+     * Global clock source for consistent time handling.
+     */
     private final GlobalClockSource clockSource;
-    // Note: Must use factory because each signature must be created with new signer to make sure key rotation etc. is heeded!
+    
+    /**
+     * Factory for JWT signers.
+     * Note: Must use factory because each signature must be created with new signer to make sure key rotation etc. is heeded!
+     */
     private final JwtSignerFactory jwtSignerFactory;
+    
+    /**
+     * Settings for JWT token mapping.
+     */
     private final JwtTokenUserMappingSettings settings;
+    
+    /**
+     * Secure random generator for creating token IDs.
+     */
     private final SecureRandom secureRandom;
+    
+    /**
+     * The issuer claim value for JWTs.
+     */
     private final String issuer;
+    
+    /**
+     * The host URI of the gateway.
+     */
     private final String hostUri;
+    
+    /**
+     * Cache for storing generated JWT tokens to improve performance.
+     */
     private Cache<CacheKey, String> tokenCache;
 
-
+    /**
+     * Constructs a new JwtTokenUserMapper with the specified parameters.
+     *
+     * @param signerFactory Factory for creating JWT signers
+     * @param clockSource Global clock source for consistent time handling
+     * @param settings Settings for JWT token mapping
+     * @param hostUri The host URI of the gateway
+     */
     public JwtTokenUserMapper(JwtSignerFactory signerFactory, GlobalClockSource clockSource, JwtTokenUserMappingSettings settings, String hostUri) {
 
         this.jwtSignerFactory = signerFactory;
@@ -53,6 +88,9 @@ public class JwtTokenUserMapper implements UserMapper {
         initCache();
     }
 
+    /**
+     * Initializes the token cache with appropriate settings.
+     */
     private void initCache() {
 
         this.tokenCache = CacheBuilder.newBuilder()
@@ -62,6 +100,14 @@ public class JwtTokenUserMapper implements UserMapper {
                 .build();
     }
 
+    /**
+     * Maps user information to an HTTP request by adding a JWT token in a header.
+     * Only adds authentication if there is a user session present.
+     *
+     * @param exchange The server web exchange representing the HTTP request/response
+     * @param context The gateway route context containing routing and session information
+     * @return A Mono with the modified exchange containing the JWT token header
+     */
     @Override
     public Mono<ServerWebExchange> mapUserToRequest(ServerWebExchange exchange, GatewayRouteContext context) {
 
@@ -92,6 +138,17 @@ public class JwtTokenUserMapper implements UserMapper {
         return Mono.just(exchange);
     }
 
+    /**
+     * Gets a JWT token for the specified user model, audience, and provider.
+     * Attempts to retrieve the token from cache first, and creates a new one if not found.
+     *
+     * @param model The user model containing user information
+     * @param audience The audience claim value for the JWT
+     * @param provider The authentication provider ID
+     * @param exchange The server web exchange (may be null in some contexts)
+     * @param context The gateway route context
+     * @return A Mono with the JWT token
+     */
     public Mono<String> getTokenMono(UserModel model, String audience, String provider, ServerWebExchange exchange, GatewayRouteContext context) {
 
         var cacheKey = new CacheKey(model, audience, provider);
@@ -110,6 +167,16 @@ public class JwtTokenUserMapper implements UserMapper {
         return tokenMono;
     }
 
+    /**
+     * Maps a user model to a JWT token.
+     * Creates a JWT with claims based on the user model and configuration settings.
+     *
+     * @param context The gateway route context containing session information
+     * @param audience The audience claim value for the JWT
+     * @param ignoredProvider The provider ID (not used in this implementation)
+     * @return A signed JWT token string
+     * @throws ConfigurationException if session information is missing
+     */
     public String mapUserModelToToken(GatewayRouteContext context, String audience, String ignoredProvider) {
 
         // Assemble claims set
@@ -150,9 +217,17 @@ public class JwtTokenUserMapper implements UserMapper {
         return jwtSigner.createSignedJwt(claimsSet);
     }
 
+    /**
+     * Creates a unique JWT ID (jti) claim value.
+     * 
+     * @return A hexadecimal string representation of a random long value
+     */
     private String createJti() {
         return Long.toHexString(secureRandom.nextLong());
     }
 
+    /**
+     * Record class for caching JWT tokens based on user model, audience, and provider.
+     */
     private record CacheKey(UserModel userModel, String audience, String provider){}
 }

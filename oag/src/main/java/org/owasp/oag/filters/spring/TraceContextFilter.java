@@ -22,15 +22,34 @@ import reactor.core.publisher.Mono;
 @Component
 public class TraceContextFilter implements WebFilter {
 
+    /**
+     * Logger for this class.
+     */
     final Logger log = LoggerFactory.getLogger(TraceContextFilter.class);
 
-    // This is the key where the trace id of the current request is stored, both in the Reactive context as well as in
-    // in the MDC that is used for logging.
+    /**
+     * The key where the trace ID of the current request is stored.
+     * This ID is stored both in the Reactive context and in the MDC (Mapped Diagnostic Context)
+     * that is used for logging.
+     */
     public static final String TRACE_ID_CONTEXT_KEY = "oag.CorrId";
 
+    /**
+     * Bridge for trace context operations.
+     * Used to process the exchange and extract or generate trace IDs.
+     */
     @Autowired
     TraceContextBridge traceContext;
 
+    /**
+     * Filters the web request by setting up a trace ID in the reactive context.
+     * This method processes the exchange to extract or generate a trace ID,
+     * adds it to the reactive context, and passes it along the filter chain.
+     *
+     * @param exchange The server web exchange containing the request and response
+     * @param webFilterChain The web filter chain for executing the next filter
+     * @return A Mono that completes when the filter has been applied
+     */
     @NotNull
     @Override
     public Mono<Void> filter(@NotNull ServerWebExchange exchange, WebFilterChain webFilterChain) {

@@ -16,6 +16,9 @@ import java.util.Optional;
 
 import static org.owasp.oag.utils.LoggingUtils.logDebug;
 
+/**
+ * Session hook that adds a session to the blacklist upon destruction.
+ */
 @Component
 public class AddSessionToBlacklistHook implements SessionHook {
 
@@ -24,21 +27,44 @@ public class AddSessionToBlacklistHook implements SessionHook {
     @Autowired
     SessionBlacklist sessionBlacklist;
 
+    /**
+     * Renews the session. (Not implemented in this hook)
+     *
+     * @param filterContext The filter context.
+     * @param response      The server HTTP response.
+     */
     @Override
     public void renewSession(Map<String, Object> filterContext, ServerHttpResponse response) {
 
     }
 
+    /**
+     * Gets the order of this hook.
+     *
+     * @return The order of this hook.
+     */
     @Override
     public int order() {
         return 3;
     }
 
+    /**
+     * Creates a session. (Not implemented in this hook)
+     *
+     * @param filterContext The filter context.
+     * @param response      The server HTTP response.
+     */
     @Override
     public void createSession(Map<String, Object> filterContext, ServerHttpResponse response) {
 
     }
 
+    /**
+     * Destroys a session by adding it to the blacklist.
+     *
+     * @param filterContext The filter context.
+     * @param exchange      The server web exchange.
+     */
     @Override
     public void destroySession(Map<String, Object> filterContext, ServerWebExchange exchange) {
 
@@ -49,8 +75,8 @@ public class AddSessionToBlacklistHook implements SessionHook {
 
             ReactiveUtils.subscribeAsynchronously(
                     sessionBlacklist.invalidateSession(session.getId(), session.getRemainingTimeSeconds())
-                    .doOnSuccess((unused) -> logDebug(log, exchange,"Session {} invalidated", session.getId()))
-                    ,exchange);
+                            .doOnSuccess((unused) -> logDebug(log, exchange, "Session {} invalidated", session.getId()))
+                    , exchange);
         });
     }
 }

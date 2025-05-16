@@ -18,8 +18,13 @@ import java.net.URI;
  */
 public class HmacJwtSigner extends JwtSigner {
 
+    /** The JWS signer implementation for HMAC signatures */
     protected JWSSigner signer;
+    
+    /** The HMAC algorithm to use (HS256, HS384, or HS512) */
     protected JWSAlgorithm algorithm;
+    
+    /** The key ID value to include in JWT headers */
     protected String keyId;
 
     /**
@@ -27,6 +32,8 @@ public class HmacJwtSigner extends JwtSigner {
      *
      * @param hexEncodedKey hex encoded string of 256, 384, 512 which is used as shared key
      * @param keyId         Optional keyID String which is added to the jwt header as kid
+     * @throws ConfigurationException if the key length is invalid or signer creation fails
+     * @throws ApplicationException if the key cannot be decoded as hex
      */
     public HmacJwtSigner(String hexEncodedKey, String keyId) {
 
@@ -61,26 +68,54 @@ public class HmacJwtSigner extends JwtSigner {
         }
     }
 
+    /**
+     * Indicates whether this signer supports the JKU header.
+     * HMAC signers don't support JKU as the secret is shared directly.
+     *
+     * @return false as HMAC signers don't support JKU header
+     */
     @Override
     public boolean supportsJku() {
         return false;
     }
 
+    /**
+     * Returns the JKU (JWK Set URL) for this signer.
+     * Not supported for HMAC signers.
+     *
+     * @return never returns as method throws an exception
+     * @throws ConsistencyException always, as HMAC signers don't support JKU
+     */
     @Override
     public URI getJku() {
         throw new ConsistencyException("Hmac Signer does not support jku header. Method should not be called. Use supportsJku to test.");
     }
 
+    /**
+     * Returns the key ID associated with this signer.
+     *
+     * @return the key ID string used in JWT headers
+     */
     @Override
     protected String getKeyId() {
         return keyId;
     }
 
+    /**
+     * Returns the JWS algorithm used by this signer.
+     *
+     * @return the HMAC algorithm (HS256, HS384, or HS512)
+     */
     @Override
     protected JWSAlgorithm getSigningAlgorithm() {
         return algorithm;
     }
 
+    /**
+     * Returns the underlying JWS signer implementation.
+     *
+     * @return the MACSigner instance used for signing
+     */
     @Override
     protected JWSSigner getJwtSigner() {
         return signer;

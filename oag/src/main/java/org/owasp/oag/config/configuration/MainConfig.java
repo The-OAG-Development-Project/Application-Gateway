@@ -14,6 +14,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Main configuration class for the OWASP Application Gateway.
+ * This class holds all configuration parameters and provides validation
+ * of the configuration settings against business rules.
+ */
 public class MainConfig implements ErrorValidation {
 
     private static final Logger log = LoggerFactory.getLogger(MainConfig.class);
@@ -29,9 +34,24 @@ public class MainConfig implements ErrorValidation {
 
     private URL url;
 
+    /**
+     * Default constructor for the main configuration.
+     */
     public MainConfig() {
     }
 
+    /**
+     * Creates a fully initialized main configuration with all required parameters.
+     *
+     * @param loginProviders The map of available login providers
+     * @param routes The map of gateway routes
+     * @param securityProfiles The map of security profiles
+     * @param hostUri The host URI of the application gateway
+     * @param trustedRedirectHosts List of trusted redirect hosts
+     * @param sessionBehaviour The session behavior configuration
+     * @param traceProfile The tracing profile configuration
+     * @param keyManagementProfile The key management profile configuration
+     */
     public MainConfig(Map<String, LoginProvider> loginProviders, Map<String, GatewayRoute> routes, Map<String, SecurityProfile> securityProfiles, String hostUri, List<String> trustedRedirectHosts, SessionBehaviour sessionBehaviour, TraceProfile traceProfile, KeyManagementProfile keyManagementProfile) {
         this.loginProviders = loginProviders;
         this.routes = routes;
@@ -50,14 +70,30 @@ public class MainConfig implements ErrorValidation {
         }
     }
 
+    /**
+     * Gets the configured gateway routes.
+     *
+     * @return Map of route names to route configurations
+     */
     public Map<String, GatewayRoute> getRoutes() {
         return routes;
     }
 
+    /**
+     * Sets the gateway routes.
+     *
+     * @param routes Map of route names to route configurations
+     */
     private void setRoutes(Map<String, GatewayRoute> routes) {
         this.routes = routes;
     }
 
+    /**
+     * Checks if the host is using HTTPS protocol.
+     *
+     * @return true if the host uses HTTPS, false otherwise
+     * @throws ConfigurationException if the host URI is invalid
+     */
     public boolean isHttpsHost() {
 
         if (this.url == null) {
@@ -70,6 +106,11 @@ public class MainConfig implements ErrorValidation {
         return "https".equals(url.getProtocol());
     }
 
+    /**
+     * Gets the security profiles that are actually used by the configured routes.
+     *
+     * @return Map of security profile names to their configurations
+     */
     public Map<String, SecurityProfile> getUsedSecurityProfiles() {
 
         var profiles = getSecurityProfiles();
@@ -83,67 +124,148 @@ public class MainConfig implements ErrorValidation {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
+    /**
+     * Gets the host URI of the application gateway.
+     *
+     * @return The host URI
+     */
     public String getHostUri() {
         return hostUri;
     }
 
+    /**
+     * Gets the hostname part of the host URI.
+     *
+     * @return The hostname
+     */
     public String getHostname() {
 
         return url.getHost();
     }
 
+    /**
+     * Sets the host URI of the application gateway.
+     *
+     * @param hostUri The host URI
+     */
     private void setHostUri(String hostUri) {
         this.hostUri = hostUri;
     }
 
+    /**
+     * Gets the configured login providers.
+     *
+     * @return Map of provider names to provider configurations
+     */
     public Map<String, LoginProvider> getLoginProviders() {
         return loginProviders;
     }
 
+    /**
+     * Sets the login providers configuration.
+     *
+     * @param loginProviders Map of provider names to provider configurations
+     */
     private void setLoginProviders(Map<String, LoginProvider> loginProviders) {
         this.loginProviders = loginProviders;
     }
 
+    /**
+     * Gets all configured security profiles.
+     *
+     * @return Map of security profile names to their configurations
+     */
     public Map<String, SecurityProfile> getSecurityProfiles() {
         return securityProfiles;
     }
 
+    /**
+     * Sets the security profiles configuration.
+     *
+     * @param securityProfiles Map of security profile names to their configurations
+     */
     private void setSecurityProfiles(Map<String, SecurityProfile> securityProfiles) {
         this.securityProfiles = securityProfiles;
     }
 
+    /**
+     * Gets the list of trusted redirect hosts.
+     *
+     * @return List of trusted redirect hosts
+     */
     public List<String> getTrustedRedirectHosts() {
         return trustedRedirectHosts;
     }
 
+    /**
+     * Sets the list of trusted redirect hosts.
+     *
+     * @param trustedRedirectHosts List of trusted redirect hosts
+     */
     private void setTrustedRedirectHosts(List<String> trustedRedirectHosts) {
         this.trustedRedirectHosts = trustedRedirectHosts;
     }
 
+    /**
+     * Gets the session behavior configuration.
+     *
+     * @return The session behavior configuration
+     */
     public SessionBehaviour getSessionBehaviour() {
         return sessionBehaviour;
     }
 
+    /**
+     * Sets the session behavior configuration.
+     *
+     * @param sessionBehaviour The session behavior configuration
+     */
     private void setSessionBehaviour(SessionBehaviour sessionBehaviour) {
         this.sessionBehaviour = sessionBehaviour;
     }
 
+    /**
+     * Gets the trace profile configuration.
+     *
+     * @return The trace profile configuration
+     */
     public TraceProfile getTraceProfile() {
         return traceProfile;
     }
 
+    /**
+     * Sets the trace profile configuration.
+     *
+     * @param traceProfile The trace profile configuration
+     */
     public void setTraceProfile(TraceProfile traceProfile) {
         this.traceProfile = traceProfile;
     }
 
+    /**
+     * Gets the key management profile configuration.
+     *
+     * @return The key management profile configuration
+     */
     public KeyManagementProfile getKeyManagementProfile() {
         return keyManagementProfile;
     }
 
+    /**
+     * Sets the key management profile configuration.
+     *
+     * @param keyManagementProfile The key management profile configuration
+     */
     public void setKeyManagementProfile(KeyManagementProfile keyManagementProfile) {
         this.keyManagementProfile = keyManagementProfile;
     }
 
+    /**
+     * Validates the configuration and returns any errors found.
+     *
+     * @param context The application context
+     * @return A list of validation error messages, empty if no errors are found
+     */
     @Override
     public List<String> getErrors(ApplicationContext context) {
 

@@ -19,6 +19,10 @@ import reactor.core.publisher.Mono;
 import java.util.Optional;
 
 
+/**
+ * Filter that automatically renews sessions that are about to expire
+ * Checks the remaining time of the current session and renews it if it's below the configured threshold
+ */
 @Order(50)
 @Component
 public class SessionRenewalFilter implements WebFilter {

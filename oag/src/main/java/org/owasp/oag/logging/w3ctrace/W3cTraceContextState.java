@@ -33,6 +33,10 @@ public class W3cTraceContextState {
     // Secondary Trace Info (tracestate))
     private final String secondaryTraceInfoString;
 
+    /**
+     * Creates a new trace state with randomly generated trace ID and parent ID.
+     * This constructor is used when starting a new trace.
+     */
     public W3cTraceContextState() {
         secRandom.nextBytes(traceId);
         secRandom.nextBytes(parentId);
@@ -44,6 +48,7 @@ public class W3cTraceContextState {
      *
      * @param traceparentString the traceparent
      * @param tracestateString  the tracestate
+     * @param maxTraceStateLength the maximum length allowed for the tracestate string
      * @throws TraceException when the passed in data is invalid.
      */
     public W3cTraceContextState(String traceparentString, String tracestateString, int maxTraceStateLength) {

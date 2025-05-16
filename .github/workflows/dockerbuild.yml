@@ -1,5 +1,5 @@
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
 name: CI/CD
 
@@ -45,7 +45,7 @@ jobs:
       # Post build: extract binary from docker build and publish artifact
       - name: Docker create
         run: docker create --name build ${{ env.tag }}
-      
+
       - name: Create build folder
         run: mkdir build
 

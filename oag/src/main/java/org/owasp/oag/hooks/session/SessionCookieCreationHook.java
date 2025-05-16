@@ -14,6 +14,10 @@ import org.springframework.web.server.ServerWebExchange;
 import java.security.SecureRandom;
 import java.util.Map;
 
+/**
+ * Hook for creating, renewing, and destroying session cookies
+ * Handles the lifecycle of session cookies including creation of new session IDs
+ */
 @Component
 public class SessionCookieCreationHook implements SessionHook {
 

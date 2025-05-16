@@ -19,12 +19,24 @@ import java.util.HashMap;
  */
 public class RequestHeaderUserMapper implements UserMapper {
 
+    /**
+     * Header name for identifying the authentication provider
+     */
     public static final String X_OAG_PROVIDER = "X-OAG-Provider";
+
+    /**
+     * Prefix for headers containing user information
+     */
     public static final String X_OAG_USER_PREFIX = "X-OAG-USER-";
 
     private final RequestHeaderUserMappingSettings settings;
 
 
+    /**
+     * Constructs a RequestHeaderUserMapper with the specified settings
+     *
+     * @param settings The settings for header-based user mapping
+     */
     public RequestHeaderUserMapper(RequestHeaderUserMappingSettings settings) {
         this.settings = settings;
         settings.requireValidSettings();

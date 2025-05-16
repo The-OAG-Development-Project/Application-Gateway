@@ -42,40 +42,60 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Optional;
 
+/**
+ * REST controller for handling authentication endpoints, including login, callback,
+ * session information, and logout. Manages user sessions and delegates authentication
+ * to various login drivers.
+ */
 @RestController
 @RequestMapping("/auth")
 public class LoginController {
 
     private static final Logger log = LoggerFactory.getLogger(LoginController.class);
+
+    /**
+     * Application context for accessing beans.
+     */
     @Autowired
     ApplicationContext context;
+
+    /**
+     * Main configuration of the application.
+     */
     @Autowired
     private MainConfig config;
+
+    /**
+     * Factory for creating LoginDriver instances.
+     */
     @Autowired
     private LoginDriverFactory loginDriverFactory;
+
+    /**
+     * Converter for handling cookies.
+     */
     @Autowired
     private CookieConverter cookieConverter;
+
+    /**
+     * Chain of session hooks to be executed during session creation and destruction.
+     */
     @Autowired
     private SessionHookChain sessionHookChain;
+
+    /**
+     * Factory for creating CSRF validation implementations.
+     */
     @Autowired
     private CsrfValidationImplementationFactory csrfValidationImplementationFactory;
 
-    @GetMapping("session")
-    public SessionInformation sessionInfo(ServerWebExchange exchange) {
-        SessionInformation sessionInformation;
-        Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
-
-        if (sessionOptional != null && sessionOptional.isPresent()) {
-            sessionInformation = new SessionInformation(SessionInformation.SESSION_STATE_AUTHENTICATED);
-            sessionInformation.setExpiresIn(sessionOptional.get().getRemainingTimeSeconds());
-
-        } else {
-            sessionInformation = new SessionInformation(SessionInformation.SESSION_STATE_ANONYMOUS);
-        }
-
-        return sessionInformation;
-    }
-
+    /**
+     * Initiates the login process for a given provider.
+     *
+     * @param providerKey The key of the login provider.
+     * @param exchange    The ServerWebExchange for the current request.
+     * @return A Mono emitting a ResponseEntity representing the result of the login initiation.
+     */
     @GetMapping("{providerKey}/login")
     public Mono<ResponseEntity<Object>> login(
             @PathVariable(value = "providerKey") String providerKey,
@@ -101,6 +121,13 @@ public class LoginController {
                 });
     }
 
+    /**
+     * Loads the appropriate LoginDriver based on the provider key.
+     *
+     * @param providerKey The key of the login provider.
+     * @return The loaded LoginDriver instance.
+     * @throws ResponseStatusException if the login driver cannot be found.
+     */
     public LoginDriver loadLoginDriver(String providerKey) {
 
         // Load settings
@@ -115,6 +142,35 @@ public class LoginController {
         }
     }
 
+    /**
+     * Retrieves session information for the current user.
+     *
+     * @param exchange The ServerWebExchange for the current request.
+     * @return A SessionInformation object containing the session state.
+     */
+    @GetMapping("session")
+    public SessionInformation sessionInfo(ServerWebExchange exchange) {
+        SessionInformation sessionInformation;
+        Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
+
+        if (sessionOptional != null && sessionOptional.isPresent()) {
+            sessionInformation = new SessionInformation(SessionInformation.SESSION_STATE_AUTHENTICATED);
+            sessionInformation.setExpiresIn(sessionOptional.get().getRemainingTimeSeconds());
+
+        } else {
+            sessionInformation = new SessionInformation(SessionInformation.SESSION_STATE_ANONYMOUS);
+        }
+
+        return sessionInformation;
+    }
+
+    /**
+     * Extracts the return URL from the request parameters.
+     *
+     * @param exchange The ServerWebExchange for the current request.
+     * @return The extracted return URL.
+     * @throws ResponseStatusException if the return URL is invalid.
+     */
     public String loadLoginReturnUrl(ServerWebExchange exchange) {
 
         String returnUrl = exchange.getRequest().getQueryParams().getFirst("returnUrl");
@@ -134,6 +190,14 @@ public class LoginController {
         return returnUrl;
     }
 
+    /**
+     * Stores the login state in a cookie.
+     *
+     * @param providerKey       The key of the login provider.
+     * @param loginDriverResult The result of the login driver's startLogin method.
+     * @param returnUrl         The URL to redirect to after successful login.
+     * @param response          The ServerHttpResponse for the current request.
+     */
     private void storeLoginState(
             String providerKey,
             LoginDriverResult loginDriverResult,
@@ -144,6 +208,13 @@ public class LoginController {
         response.addCookie(cookieConverter.convertStateCookie(stateCookie));
     }
 
+    /**
+     * Loads the LoginProvider configuration based on the provider key.
+     *
+     * @param providerKey The key of the login provider.
+     * @return The loaded LoginProvider configuration.
+     * @throws ResponseStatusException if the provider is not found.
+     */
     private LoginProvider loadProvider(String providerKey) {
 
         var provider = config.getLoginProviders().get(providerKey);
@@ -154,6 +225,13 @@ public class LoginController {
         return provider;
     }
 
+    /**
+     * Constructs the callback URI for a given provider.
+     *
+     * @param providerKey The key of the login provider.
+     * @return The constructed callback URI.
+     * @throws ResponseStatusException if the URI cannot be constructed.
+     */
     private URI loadCallbackURI(String providerKey) {
 
         try {
@@ -165,6 +243,12 @@ public class LoginController {
         }
     }
 
+    /**
+     * Checks if a return URL is valid against a list of allowed hosts.
+     *
+     * @param returnUrl The return URL to validate.
+     * @return True if the return URL is valid, false otherwise.
+     */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isValidReturnUrl(String returnUrl) {
         ArrayList<String> allowedHosts = new ArrayList<>(config.getTrustedRedirectHosts());
@@ -172,6 +256,14 @@ public class LoginController {
         return UrlUtils.isValidReturnUrl(returnUrl, allowedHosts.toArray(new String[]{}));
     }
 
+    /**
+     * Handles the callback from the login provider.
+     *
+     * @param providerKey The key of the login provider.
+     * @param exchange    The ServerWebExchange for the current request.
+     * @return A Mono emitting a ResponseEntity representing the result of the callback processing.
+     * @throws ResponseStatusException if authentication fails or the login state is invalid.
+     */
     @GetMapping("{providerKey}/callback")
     public Mono<ResponseEntity<Object>> callback(
             @PathVariable(value = "providerKey") String providerKey,
@@ -201,6 +293,13 @@ public class LoginController {
                 });
     }
 
+    /**
+     * Loads the login state from the request cookies.
+     *
+     * @param request The ServerHttpRequest for the current request.
+     * @return The loaded LoginStateCookie.
+     * @throws ResponseStatusException if the login state is missing or invalid.
+     */
     private LoginStateCookie loadLoginState(ServerHttpRequest request) {
 
         HttpCookie oidcCookie = request.getCookies().getFirst(LoginStateCookie.NAME);
@@ -219,6 +318,12 @@ public class LoginController {
         }
     }
 
+    /**
+     * Handles the logout process, destroying the user session and redirecting to the logout URL.
+     *
+     * @param exchange The ServerWebExchange for the current request.
+     * @throws ResponseStatusException if CSRF validation fails.
+     */
     @GetMapping("logout")
     public void logout(
             ServerWebExchange exchange) {
@@ -258,11 +363,24 @@ public class LoginController {
         }
     }
 
+    /**
+     * Gets the CSRF validation implementation to use for logout protection.
+     * This method returns a sameSiteStrictCookie protection implementation.
+     *
+     * @return The CSRF protection validation implementation
+     */
     private CsrfProtectionValidation getCsrfValidationMethod() {
         // using the sameSiteStrictCookie protection for OWASP's own CSRF protection during logout
         return csrfValidationImplementationFactory.loadCsrfValidationImplementation("sameSiteStrictCookie");
     }
 
+    /**
+     * Loads the logout return URL from the request parameters.
+     *
+     * @param request The ServerHttpRequest for the current request.
+     * @return The loaded logout return URL.
+     * @throws ResponseStatusException if the return URL is invalid.
+     */
     public String loadLogoutReturnUrl(ServerHttpRequest request) {
 
         String returnUrl = request.getQueryParams().getFirst("returnUrl");

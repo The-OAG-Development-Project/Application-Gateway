@@ -22,8 +22,17 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * OAuth2 driver implementation for GitHub authentication
+ * Handles GitHub-specific authentication flow and user profile retrieval
+ */
 public class GithubDriver extends Oauth2Driver {
 
+    /**
+     * Constructs a GitHub driver with the specified login provider settings
+     *
+     * @param settings The login provider settings for GitHub
+     */
     public GithubDriver(LoginProviderSettings settings) {
         super(settings);
     }
@@ -83,6 +92,12 @@ public class GithubDriver extends Oauth2Driver {
         }
     }
 
+    /**
+     * Loads the user's primary verified email from GitHub
+     *
+     * @param accessToken The OAuth2 access token for the GitHub API
+     * @return The user's primary verified email address or null if not found
+     */
     protected String loadUserEmail(AccessToken accessToken) {
 
         try {
@@ -102,6 +117,17 @@ public class GithubDriver extends Oauth2Driver {
         }
     }
 
+    /**
+     * Makes an authenticated request to the GitHub API
+     *
+     * @param endpoint The GitHub API endpoint URL
+     * @param accessToken The OAuth2 access token for authentication
+     * @param clazz The class to deserialize the response into
+     * @param <T> The type of the response object
+     * @return The deserialized response object
+     * @throws IOException If an I/O error occurs during the request
+     * @throws InterruptedException If the request is interrupted
+     */
     protected <T> T makeGitHubApiRequest(String endpoint, String accessToken, Class<T> clazz) throws IOException, InterruptedException {
 
         var client = HttpClient.newHttpClient();

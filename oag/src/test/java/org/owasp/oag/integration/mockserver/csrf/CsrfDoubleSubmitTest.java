@@ -16,14 +16,27 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.reactive.function.BodyInserters;
 
+/**
+ * Integration tests for CSRF protection using the double submit cookie pattern.
+ * These tests verify that the CSRF protection correctly validates tokens submitted
+ * through headers or form parameters, and properly blocks requests without valid tokens.
+ * <p>
+ * The double submit cookie pattern requires the same CSRF token to be present in both
+ * a cookie and either a request header or form parameter.
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"spring.main.allow-bean-definition-overriding=true",
                 "logging.level.org.owasp.oag=TRACE"},
         classes = {IntegrationTestConfig.class, CsrfDoubleSubmitTest.TestConfig.class})
 class CsrfDoubleSubmitTest extends WiremockTest {
 
+    /** Base path for CSRF double submit test endpoints */
     public static final String CSRF_DOUBLE_SUBMIT = "/csrf-double-submit/";
 
+    /**
+     * Tests that a POST request with a valid CSRF token in the header is successful.
+     * The token is submitted via a request header and must match the token in the CSRF cookie.
+     */
     @Test
     void testCsrfDoubleSubmitCookie() {
 
@@ -37,6 +50,10 @@ class CsrfDoubleSubmitTest extends WiremockTest {
                 .expectStatus().isOk();
     }
 
+    /**
+     * Tests that a POST request with a valid CSRF token in a form parameter is successful.
+     * The token is submitted as a form parameter and must match the token in the CSRF cookie.
+     */
     @Test
     void testCsrfDoubleSubmitCookieFormParam() {
 
@@ -54,6 +71,11 @@ class CsrfDoubleSubmitTest extends WiremockTest {
                 .expectStatus().isOk();
     }
 
+    /**
+     * Tests that a POST request with an incorrect CSRF token value in a form parameter is blocked.
+     * The request should be rejected with 401 Unauthorized when the submitted token
+     * doesn't match the token in the CSRF cookie.
+     */
     @Test
     void testCsrfDoubleSubmitCookieFormParamWrongValue() {
 
@@ -69,6 +91,11 @@ class CsrfDoubleSubmitTest extends WiremockTest {
                 .expectStatus().isUnauthorized();
     }
 
+    /**
+     * Tests that a POST request without any CSRF token is blocked.
+     * The request should be rejected with 401 Unauthorized when no token is provided
+     * in either a header or form parameter.
+     */
     @Test
     void testCsrfDoubleSubmitCookieBlocksWhenNoCsrfToken() {
 
@@ -79,6 +106,11 @@ class CsrfDoubleSubmitTest extends WiremockTest {
                 .exchange().expectStatus().isUnauthorized();
     }
 
+    /**
+     * Tests that a POST request with an invalid CSRF token is blocked.
+     * The request should be rejected with 401 Unauthorized when the submitted token
+     * doesn't match the expected token.
+     */
     @Test
     void testCsrfDoubleSubmitCookieBlocksWhenInvalidCsrfToken() {
 
@@ -93,9 +125,18 @@ class CsrfDoubleSubmitTest extends WiremockTest {
                 .expectStatus().isUnauthorized();
     }
 
+    /**
+     * Test configuration class that provides a custom ConfigLoader for test purposes.
+     * This allows the tests to use a specific configuration file.
+     */
     @TestConfiguration
     public static class TestConfig {
 
+        /**
+         * Creates a test-specific ConfigLoader that loads configuration from a test resource file.
+         * 
+         * @return A ConfigLoader instance pointing to the test configuration file
+         */
         @Primary
         @Bean
         ConfigLoader configLoader() {

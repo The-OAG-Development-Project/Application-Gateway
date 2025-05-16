@@ -1,16 +1,19 @@
 #
 # Build stage
 #
-FROM maven:3.8.8-amazoncorretto-17 AS build
+FROM gradle:8.14-jdk17 AS build
 
-# Copy POM file and download dependencies -> allows faster build because this step can be cached
-COPY oag/pom.xml /home/app/pom.xml
-RUN mvn dependency:go-offline -B -f /home/app/pom.xml
+# Copy build files and download dependencies -> allows faster build because this step can be cached
+COPY oag/build.gradle oag/settings.gradle /home/app/
+RUN mkdir -p /home/app/gradle/wrapper
+COPY oag/gradle/wrapper/ /home/app/gradle/wrapper/
+COPY oag/gradlew oag/gradlew.bat /home/app/
+RUN cd /home/app && ./gradlew dependencies --no-daemon
 
 # Copy rest of the sources and compile
 COPY oag/src /home/app/src
 COPY oag/*.yaml oag/*.txt /home/app/
-RUN mvn package -f /home/app/pom.xml
+RUN cd /home/app && ./gradlew clean build --no-daemon
 
 #
 # Package stage
@@ -25,8 +28,7 @@ RUN adduser --system app
 RUN mkdir -p /app
 RUN chown app /app
 
-COPY --from=build /home/app/target/oag-exec.jar /home/app/*.yaml /home/app/*.txt /home/app/*.pkcs12 /app/
-RUN mv /app/*.jar /app/oag.jar
+COPY --from=build /home/app/build/libs/oag.jar /home/app/*.yaml /home/app/*.txt /home/app/*.pkcs12 /app/
 
 USER app
 WORKDIR /app

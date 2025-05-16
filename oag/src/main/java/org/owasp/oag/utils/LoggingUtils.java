@@ -37,9 +37,9 @@ public class LoggingUtils {
      * Copies the context key from the subscription context to the mdc, executes the statement, and directly removes the mdc
      * should be used the following way: mono.doOnEach(logOnNext(s -> log.info("Log statement")))
      *
-     * @param logStatement
-     * @param <T>
-     * @return
+     * @param logStatement the log data
+     * @param <T> The SignalClass
+     * @return the next
      */
     public static <T> Consumer<Signal<T>> logOnNext(Consumer<T> logStatement) {
 
@@ -60,8 +60,8 @@ public class LoggingUtils {
     /**
      * Wraps the mdc around a statement and returns a mono that executes it.
      *
-     * @param logStatement
-     * @return
+     * @param logStatement the message to log
+     * @return the Mono
      */
     public static Mono<Void> contextual(Runnable logStatement) {
 
@@ -72,8 +72,8 @@ public class LoggingUtils {
      * Converts a runnable to a mono and wraps it with the MDC context
      * Example: wrapMdc(() -> blockingFunction(id)).then(....)
      *
-     * @param method
-     * @return
+     * @param method the runnable to set the mdc
+     * @return the Mono
      */
     public static Mono<Void> wrapMdc(Runnable method) {
 
@@ -98,9 +98,9 @@ public class LoggingUtils {
      * Converts a callable to a mono and wraps it with the MDC context
      * Example: wrapMdc(() -> blockingFunction(id)).then(....)
      *
-     * @param method
-     * @param <T>
-     * @return
+     * @param method the callable to wrap
+     * @param <T> the return of the callable
+     * @return The Mono with return type of the callable
      */
     public static <T> Mono<T> wrapMdc(Callable<T> method) {
 

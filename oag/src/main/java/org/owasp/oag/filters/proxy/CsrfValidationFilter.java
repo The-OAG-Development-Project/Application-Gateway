@@ -18,15 +18,34 @@ import reactor.core.publisher.Mono;
 import static org.owasp.oag.utils.LoggingUtils.logInfo;
 import static org.owasp.oag.utils.LoggingUtils.logTrace;
 
+/**
+ * Filter that validates CSRF (Cross-Site Request Forgery) protection for non-safe HTTP methods.
+ * This filter checks if the current request method is considered "safe" according to the security profile.
+ * If the method is not safe, it applies the configured CSRF protection validation.
+ * Requests that fail CSRF validation are blocked with a 401 Unauthorized response.
+ * This filter only handles CSRF validation that doesn't require the request body.
+ * For CSRF validation that requires the request body, the request is passed to CsrfValidationFilterWithBody.
+ */
 @Order(30)
 @Component
 public class CsrfValidationFilter extends RouteAwareFilter {
 
+    /**
+     * Logger for this class.
+     */
     private static final Logger log = LoggerFactory.getLogger(CsrfValidationFilter.class);
 
+    /**
+     * Main configuration of the application.
+     * Used to access security profiles and CSRF settings.
+     */
     @Autowired
     private MainConfig config;
 
+    /**
+     * Factory for creating CSRF validation implementations.
+     * Used to load the appropriate CSRF validation strategy based on the security profile.
+     */
     @Autowired
     private CsrfValidationImplementationFactory csrfValidationImplementationFactory;
 

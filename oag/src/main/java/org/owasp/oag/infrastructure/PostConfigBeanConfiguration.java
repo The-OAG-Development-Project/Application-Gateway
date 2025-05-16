@@ -20,6 +20,12 @@ public class PostConfigBeanConfiguration {
     @Autowired
     private MainConfig config;
 
+    /**
+     * Creates a TraceContext bean based on the trace profile defined in the main configuration.
+     *
+     * @return TraceContext instance
+     * @throws ConfigurationException if the trace implementation class is not found
+     */
     @Bean
     public TraceContext traceContext() {
 

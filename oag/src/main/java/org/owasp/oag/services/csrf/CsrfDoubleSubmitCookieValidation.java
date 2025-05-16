@@ -11,20 +11,46 @@ import java.util.Optional;
 
 import static org.owasp.oag.utils.LoggingUtils.logInfo;
 
+/**
+ * Validates CSRF protection using the double-submit cookie method.
+ */
 @Component
 public class CsrfDoubleSubmitCookieValidation implements CsrfProtectionValidation {
 
+    /**
+     * The name of the HTTP header used to submit the CSRF token.
+     * This header is checked during CSRF validation to verify that the token matches the one in the session.
+     */
     public static final String CSRF_TOKEN_HEADER_NAME = "X-CSRF-TOKEN";
+
+    /**
+     * The name of the query parameter used to submit the CSRF token.
+     * This parameter is checked during CSRF validation if the token is not found in the header.
+     */
     public static final String CSRF_TOKEN_PARAMETER_NAME = "CSRFToken";
 
-
+    /**
+     * Logger for this class.
+     */
     private static final Logger log = LoggerFactory.getLogger(CsrfDoubleSubmitCookieValidation.class);
 
+    /**
+     * Indicates whether this validation needs the request body.
+     *
+     * @return false, as this validation does not need the request body.
+     */
     @Override
     public boolean needsRequestBody() {
         return false;
     }
 
+    /**
+     * Determines whether the request should be blocked based on CSRF validation.
+     *
+     * @param exchange    The server web exchange.
+     * @param requestBody The request body (not used in this implementation).
+     * @return true if the request should be blocked, false otherwise.
+     */
     @Override
     public boolean shouldBlockRequest(ServerWebExchange exchange, String requestBody) {
 
@@ -49,6 +75,12 @@ public class CsrfDoubleSubmitCookieValidation implements CsrfProtectionValidatio
         return false;
     }
 
+    /**
+     * Extracts the CSRF token from the request.
+     *
+     * @param exchange The server web exchange.
+     * @return The extracted CSRF token, or null if not found.
+     */
     protected String extractCsrfToken(ServerWebExchange exchange) {
 
         var request = exchange.getRequest();
