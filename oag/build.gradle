@@ -44,10 +44,11 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
 
     // Test dependencies
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webflux-test'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine'
     testImplementation 'org.springframework.cloud:spring-cloud-contract-wiremock'
+    testImplementation 'org.wiremock.integrations:wiremock-spring-boot:4.0.8'
 }
 
 dependencyManagement {

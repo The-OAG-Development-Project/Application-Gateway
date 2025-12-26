@@ -11,6 +11,7 @@ import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
 import org.owasp.oag.integration.testInfrastructure.LocalServerTestConfig;
 import org.owasp.oag.integration.testInfrastructure.WiremockTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
