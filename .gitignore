@@ -39,4 +39,3 @@ build/
 node_modules
 dist
 /www/docs/.vitepress/cache/
-/www/package-lock.json
