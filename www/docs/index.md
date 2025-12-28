@@ -6,7 +6,7 @@ hero:
   text: HTTP Proxy with benefits.
   tagline: OWASP Application Gateway is an HTTP proxy that handles OpenIdConnect (and other) authentication, session management, and allows you to control/unify the content of the security tokens (e.g. JWT) used by your applications.
   image:
-    src: /logo.png
+    src: /Logo.png
     alt: The OAG Mascot  
   actions:
     - theme: brand

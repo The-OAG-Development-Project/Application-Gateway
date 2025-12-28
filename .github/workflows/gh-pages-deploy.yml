@@ -49,20 +49,13 @@ jobs:
         run: npm ci # or pnpm install / yarn install / bun install
       - name: Build with VitePress
         run: npm run docs:build # or pnpm docs:build / yarn docs:build / bun run docs:build
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Push generated webpage to documentation repository
+        uses: nkoppel/push-files-to-another-repository@v1.1.4
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.ACCESS_TOKEN }}
         with:
-          path: www/docs/.vitepress/dist
-
-  # Deployment job
-  deploy:
-    environment:
-      name: github-pages
-      url: https://The-OAG-Development-Project.github.io
-    needs: build
-    runs-on: ubuntu-latest
-    name: Deploy
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          source-files: 'www/docs/.vitepress/dist'
+          destination-username: 'Padi-owasp'
+          destination-repository: 'The-OAG-Development-Project/The-OAG-Development-Project.github.io'
+          destination-directory: '/'
+          commit-email: 'padi.steger@owasp.org'
