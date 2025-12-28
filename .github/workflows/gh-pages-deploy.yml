@@ -55,7 +55,7 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.ACCESS_TOKEN }}
         with:
           source-files: 'www/docs/.vitepress/dist'
-          destination-username: 'Padi-owasp'
-          destination-repository: 'The-OAG-Development-Project/The-OAG-Development-Project.github.io'
+          destination-username: 'The-OAG-Development-Project'
+          destination-repository: 'The-OAG-Development-Project.github.io'
           destination-directory: '/'
           commit-email: 'padi.steger@owasp.org'
