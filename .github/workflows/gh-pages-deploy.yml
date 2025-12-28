@@ -58,4 +58,5 @@ jobs:
           destination-username: 'The-OAG-Development-Project'
           destination-repository: 'The-OAG-Development-Project.github.io'
           destination-directory: '/'
+          destination-branch: 'main'
           commit-email: 'padi.steger@owasp.org'
