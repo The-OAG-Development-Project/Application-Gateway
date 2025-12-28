@@ -12,6 +12,10 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+/**
+ * Filter that logs HTTP request and response information
+ * Logs the request method, URI, and response status code for all requests
+ */
 @Order(20)
 @Component
 public class SimpleLogFilter implements WebFilter {

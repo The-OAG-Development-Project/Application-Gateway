@@ -11,7 +11,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Provides access to the configured TraceProfile section in the config file
+ * Provides access to the configured TraceProfile section in the config file.
+ * This class represents the configuration for trace and correlation logging,
+ * including settings for forwarding incoming trace information, accepting additional
+ * trace information, and implementation-specific settings.
+ * It also implements validation to ensure all required settings are provided.
  */
 public class TraceProfile implements ErrorValidation {
 
@@ -25,9 +29,24 @@ public class TraceProfile implements ErrorValidation {
     private String type;
     private Map<String, Object> implSpecificSettings = new HashMap<>();
 
+    /**
+     * Default constructor for TraceProfile.
+     * Creates an empty trace profile with default values.
+     */
     public TraceProfile() {
     }
 
+    /**
+     * Parameterized constructor for TraceProfile.
+     * 
+     * @param forwardIncomingTrace Whether to forward incoming trace information
+     * @param maxLengthIncomingTrace Maximum length allowed for incoming trace information
+     * @param acceptAdditionalTraceInfo Whether to accept additional trace information
+     * @param maxLengthAdditionalTraceInfo Maximum length allowed for additional trace information
+     * @param sendTraceResponse Whether to send trace information in responses
+     * @param type The type of trace implementation to use
+     * @param implSpecificSettings Implementation-specific settings for the trace profile
+     */
     public TraceProfile(Boolean forwardIncomingTrace, Integer maxLengthIncomingTrace, Boolean acceptAdditionalTraceInfo, Integer maxLengthAdditionalTraceInfo, Boolean sendTraceResponse, String type, Map<String, Object> implSpecificSettings) {
         this.forwardIncomingTrace = forwardIncomingTrace;
         this.maxLengthIncomingTrace = maxLengthIncomingTrace;
@@ -38,58 +57,130 @@ public class TraceProfile implements ErrorValidation {
         this.implSpecificSettings = implSpecificSettings;
     }
 
+    /**
+     * Gets whether incoming trace information should be forwarded.
+     * 
+     * @return Boolean indicating whether to forward incoming trace information
+     */
     public Boolean getForwardIncomingTrace() {
         return forwardIncomingTrace;
     }
 
+    /**
+     * Sets whether incoming trace information should be forwarded.
+     * 
+     * @param forwardIncomingTrace Boolean indicating whether to forward incoming trace information
+     */
     public void setForwardIncomingTrace(Boolean forwardIncomingTrace) {
         this.forwardIncomingTrace = forwardIncomingTrace;
     }
 
+    /**
+     * Gets the maximum length allowed for incoming trace information.
+     * 
+     * @return Integer representing the maximum length for incoming trace information
+     */
     public Integer getMaxLengthIncomingTrace() {
         return maxLengthIncomingTrace;
     }
 
+    /**
+     * Sets the maximum length allowed for incoming trace information.
+     * 
+     * @param maxLengthIncomingTrace Integer representing the maximum length for incoming trace information
+     */
     public void setMaxLengthIncomingTrace(Integer maxLengthIncomingTrace) {
         this.maxLengthIncomingTrace = maxLengthIncomingTrace;
     }
 
+    /**
+     * Gets whether additional trace information should be accepted.
+     * 
+     * @return Boolean indicating whether to accept additional trace information
+     */
     public Boolean getAcceptAdditionalTraceInfo() {
         return acceptAdditionalTraceInfo;
     }
 
+    /**
+     * Sets whether additional trace information should be accepted.
+     * 
+     * @param acceptAdditionalTraceInfo Boolean indicating whether to accept additional trace information
+     */
     public void setAcceptAdditionalTraceInfo(Boolean acceptAdditionalTraceInfo) {
         this.acceptAdditionalTraceInfo = acceptAdditionalTraceInfo;
     }
 
+    /**
+     * Gets the maximum length allowed for additional trace information.
+     * 
+     * @return Integer representing the maximum length for additional trace information
+     */
     public Integer getMaxLengthAdditionalTraceInfo() {
         return maxLengthAdditionalTraceInfo;
     }
 
+    /**
+     * Sets the maximum length allowed for additional trace information.
+     * 
+     * @param maxLengthAdditionalTraceInfo Integer representing the maximum length for additional trace information
+     */
     public void setMaxLengthAdditionalTraceInfo(Integer maxLengthAdditionalTraceInfo) {
         this.maxLengthAdditionalTraceInfo = maxLengthAdditionalTraceInfo;
     }
 
+    /**
+     * Gets whether trace information should be sent in responses.
+     * 
+     * @return Boolean indicating whether to send trace information in responses
+     */
     public Boolean getSendTraceResponse() {
         return sendTraceResponse;
     }
 
+    /**
+     * Sets whether trace information should be sent in responses.
+     * 
+     * @param sendTraceResponse Boolean indicating whether to send trace information in responses
+     */
     public void setSendTraceResponse(Boolean sendTraceResponse) {
         this.sendTraceResponse = sendTraceResponse;
     }
 
+    /**
+     * Gets the type of trace implementation to use.
+     * 
+     * @return String representing the type of trace implementation
+     */
     public String getType() {
         return type;
     }
 
+    /**
+     * Sets the type of trace implementation to use.
+     * 
+     * @param type String representing the type of trace implementation
+     */
     public void setType(String type) {
         this.type = type;
     }
 
+    /**
+     * Gets the implementation-specific settings for the trace profile.
+     * These settings are specific to the trace implementation type specified in the configuration.
+     * 
+     * @return A map containing implementation-specific settings
+     */
     public Map<String, Object> getImplSpecificSettings() {
         return implSpecificSettings;
     }
 
+    /**
+     * Sets the implementation-specific settings for the trace profile.
+     * These settings are specific to the trace implementation type specified in the configuration.
+     * 
+     * @param implSpecificSettings A map containing implementation-specific settings
+     */
     public void setTraceImplSpecificSettings(Map<String, Object> implSpecificSettings) {
         this.implSpecificSettings = implSpecificSettings;
     }

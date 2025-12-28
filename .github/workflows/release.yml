@@ -9,7 +9,7 @@ jobs:
   build-release:
     runs-on: ubuntu-latest
     steps:
-    
+
       #############
       # Preparation
       - uses: actions/checkout@v2
@@ -25,8 +25,8 @@ jobs:
         run: echo "##[set-output name=version;]$(echo ${GITHUB_REF/refs\/tags\//} | sed -ne 's/[^0-9]*\(\([0-9]\.\)\{0,4\}[0-9]\(-[a-zA-Z]*\)*\).*/\1/p')" 
         id: get_version
 
-      - name: Update maven version
-        run: mvn versions:set --file oag/pom.xml -DnewVersion=${{ steps.get_version.outputs.version }} -DgenerateBackupPoms=false
+      - name: Update Gradle version
+        run: cd oag && ./gradlew setVersion -PnewVersion=${{ steps.get_version.outputs.version }}
 
       - name: Add commit hash to artifact
         run: echo $GITHUB_SHA >> oag/commit-hash.txt
@@ -41,19 +41,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       #############
-      # Maven build
+      # Gradle build
       # Compiles, signs and deploys OAG to Maven Central
-      - name: Release Maven package
-        uses: samuelmeuli/action-maven-publish@v1
-        with:
-          directory: oag
-          maven_profiles: gpg-sign
-          maven_args: "-DskipTests"
-          server_id: ossrh
-          gpg_private_key: ${{ secrets.GPG_KEY }}
-          gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
-          nexus_username: ${{ secrets.MAVEN_USERNAME }}
-          nexus_password: ${{ secrets.MAVEN_TOKEN }}
+      - name: Release to Maven Central
+        env:
+          SIGNING_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+          SIGNING_PASSWORD: ${{ secrets.GPG_PASSPHRASE }}
+          SIGNING_SECRET_KEY_RING_FILE: ${{ secrets.GPG_KEY }}
+          OSSRH_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.MAVEN_TOKEN }}
+        run: cd oag && ./gradlew publish -PgpgSign=true -PskipTests
 
       #############
       # Docker build
@@ -69,7 +66,7 @@ jobs:
       # Post build: extract binary from docker build and publish artifact
       - name: Docker create
         run: docker create --name build ${{ env.tag }}
-      
+
       - name: Create build folder
         run: mkdir build
 
@@ -88,7 +85,7 @@ jobs:
           filename: oag-v${{ steps.get_version.outputs.version }}.zip
           directory: '.'
           path: './build/'
-        
+
       # Publish Artifact to release and build-action
       - name: Upload artifacts and release assets
         uses: nanoufo/action-upload-artifacts-and-release-assets@v2
@@ -103,5 +100,3 @@ jobs:
         run: docker login --username gianlucafrei --password ${{ secrets.DOCKER_PASSWORD }}
       - name: Docker Push
         run: docker push ${{ env.tag }}
-
-      

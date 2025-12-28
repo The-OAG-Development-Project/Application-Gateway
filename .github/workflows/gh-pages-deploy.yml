@@ -1,17 +1,59 @@
-name: Build VuePress
-on: [push]
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@master
+# workflow for building and deploying the VitePress site to GitHub Pages
+#
+name: Build and Deploy VitePress site to GitHub Pages
 
-    - name: vuepress-deploy
-      uses: jenkey2011/vuepress-deploy@master
-      env:
-        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        TARGET_REPO: The-OAG-Development-Project/The-OAG-Development-Project.github.io
-        TARGET_BRANCH: main
-        BUILD_SCRIPT: cd www && yarn && yarn docs:build
-        BUILD_DIR: docs/.vuepress/dist
+on:
+  # Runs on pushes targeting the `main` branch. Change this to `master` if you're
+  # using the `master` branch as the default branch.
+  push:
+    branches: [main]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  # Build job
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./www
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # Not needed if lastUpdated is not enabled
+      # - uses: pnpm/action-setup@v4 # Uncomment this block if you're using pnpm
+      #   with:
+      #     version: 9 # Not needed if you've set "packageManager" in package.json
+      # - uses: oven-sh/setup-bun@v1 # Uncomment this if you're using Bun
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm # or pnpm / yarn
+          cache-dependency-path: www/package-lock.json
+      - name: Install dependencies
+        run: npm ci # or pnpm install / yarn install / bun install
+      - name: Build with VitePress
+        run: npm run docs:build # or pnpm docs:build / yarn docs:build / bun run docs:build
+      - name: Push generated webpage to documentation repository
+        uses: GuillaumeFalourd/copy-push-files@v1
+        with:
+          commit_message: update from main branch of https://github.com/The-OAG-Development-Project/Application-Gateway.
+          target_branch: main
+          source_files: www/docs/.vitepress/dist/* www/docs/.vitepress/dist/assets www/docs/.vitepress/dist/docs
+          remote_repository: https://github.com/The-OAG-Development-Project/The-OAG-Development-Project.github.io
+          access_token: ${{ secrets.ACCESS_TOKEN }}

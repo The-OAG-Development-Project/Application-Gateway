@@ -14,6 +14,10 @@ import java.util.Collections;
 
 import static org.owasp.oag.utils.LoggingUtils.logTrace;
 
+/**
+ * Filter that modifies response headers according to the security profile
+ * Can add, modify, or remove headers from the response
+ */
 @Order(40)
 @Component
 public class ResponseHeaderFilter extends RouteAwareFilter {

@@ -1,6 +1,6 @@
 # Introduction
 
-🏗️ **OWASP Application Gateway is work-in-progress. No productive version has been released yet. - We are on Version 0.6.0. [](https://github.com/gianlucafrei/Application-Gateway/releases)**
+🏗️ **OWASP Application Gateway is work-in-progress. No productive version has been released yet. [](https://github.com/gianlucafrei/Application-Gateway/releases)**
 
 OWASP Application Gateway is an HTTP reverse proxy that sits between your web application and the client and handles Oauth2 login and session management. For you, as a developer, OWASP Application Gateway removes the hassle to implement complicated oauth2 logic in the backend and frontend so you can focus totally on your applications logic.
 
@@ -9,8 +9,8 @@ OWASP Application Gateway is an HTTP reverse proxy that sits between your web ap
 ## Prerequisites
 OAG builds on Top of (Minimum Requirements):
 - Java 17
-- SpringBoot 3.2.x
-- Spring Cloud Gateway 2023.x.y
+- SpringBoot 4.x
+- Spring Cloud Gateway 2025.x.y
 
 ## Design Principles
 
@@ -89,7 +89,7 @@ traceProfile:
 
 ## How to run
 
-You have two options on how to run OWASP Application Gateway: There is an official docker image that you can just works out of the box. You just need to mount the config file via docker volumes. If you don't want to use docker you can also use the download the released jar file. Of course you can also build OWASP Application Gateway by yourself with Maven.
+You have two options on how to run OWASP Application Gateway: There is an official docker image that you can just works out of the box. You just need to mount the config file via docker volumes. If you don't want to use docker you can also use the download the released jar file. Of course you can also build OWASP Application Gateway by yourself with Gradle.
 
 ### Docker Release
 
@@ -132,10 +132,10 @@ docker build -t owasp/application-gateway:SNAPSHOT .
 docker run -p 8080:8080 owasp/application-gateway:SNAPSHOT
 ```
 
-If you don't want to use Docker you can build the jar by yourself with Maven:
+If you don't want to use Docker you can build the jar by yourself with Gradle:
 
 ```bash
-mvn package -f oag/pom.xml -Dmaven.test.skip=true
+cd oag && gradlew.bat build -x test
 ```
 
 You may also use your IDE for building OAG. Please see [Setup OAG for development](/docs/Setup-for-OAG-development) for instructions using IntelliJ as an example.

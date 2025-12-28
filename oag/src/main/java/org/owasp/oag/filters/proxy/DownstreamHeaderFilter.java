@@ -33,8 +33,19 @@ import static org.owasp.oag.utils.LoggingUtils.logTrace;
 @Component
 public class DownstreamHeaderFilter extends RouteAwareFilter {
 
+    /**
+     * Header name for identifying the proxy
+     */
     public static final String X_PROXY = "X-PROXY";
+
+    /**
+     * Header name for indicating the authentication status
+     */
     public static final String X_OAG_STATUS = "X-OAG-Status";
+
+    /**
+     * Value for the X-PROXY header that identifies this application gateway
+     */
     public static final String X_PROXY_VALUE = "OWASP Application Gateway";
     private static final Logger log = LoggerFactory.getLogger(DownstreamHeaderFilter.class);
 
@@ -54,6 +65,13 @@ public class DownstreamHeaderFilter extends RouteAwareFilter {
         return chain.filter(exchange.mutate().request(request.build()).build());
     }
 
+    /**
+     * Adds OAG-specific headers to the request
+     *
+     * @param routeContext The gateway route context containing session information
+     * @param request The request builder to add headers to
+     * @return The updated request builder with added headers
+     */
     @NotNull
     protected ServerHttpRequest.Builder addOagHeaders(GatewayRouteContext routeContext, ServerHttpRequest.Builder request) {
 
@@ -67,6 +85,13 @@ public class DownstreamHeaderFilter extends RouteAwareFilter {
         return request;
     }
 
+    /**
+     * Filters out OAG-specific cookies from the request
+     *
+     * @param exchange The server web exchange containing the original request
+     * @param request The request builder to update with filtered cookies
+     * @return The updated request builder with filtered cookies
+     */
     @NotNull
     protected ServerHttpRequest.Builder filterRequestCookies(ServerWebExchange exchange, ServerHttpRequest.Builder request) {
 

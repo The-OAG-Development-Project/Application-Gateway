@@ -1,0 +1,198 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.0.1'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group = 'org.owasp'
+version = '0.6.6'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url = uri('https://repo.spring.io/release') }
+}
+
+ext {
+    springCloudVersion = '2025.1.0'
+}
+
+dependencies {
+    // Security fixes section
+
+    // Main dependencies
+    implementation 'com.google.guava:guava:33.5.0-jre'
+    implementation 'org.yaml:snakeyaml:2.5'
+    implementation 'com.nimbusds:oauth2-oidc-sdk:11.30.1'
+    implementation 'com.nimbusds:nimbus-jose-jwt:10.6'
+    implementation 'io.github.artsok:rerunner-jupiter:2.1.6'
+    implementation 'org.mapdb:mapdb:3.1.0'
+    implementation 'org.apache.commons:commons-lang3:3.20.0'
+    implementation 'commons-codec:commons-codec:1.20.0'
+    implementation 'org.antlr:ST4:4.3.4'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.3'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
+
+    // Spring Cloud dependencies
+    implementation 'org.springframework.cloud:spring-cloud-starter-gateway-server-webflux'
+    implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
+
+    // Test dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-webflux-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'org.springframework.cloud:spring-cloud-contract-wiremock'
+    testImplementation 'org.wiremock.integrations:wiremock-spring-boot:4.0.8'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+/*
+ * ==== Build Commands ====
+ *
+ * Update version:
+ * > ./gradlew setVersion -PnewVersion=0.0.1-SNAPSHOT
+ *
+ * Build OAG executable and library:
+ * > ./gradlew clean build
+ *
+ * Output: - build/libs/oag-exec.jar (Executable JAR)
+ *         - build/libs/oag-<VERSION>.jar (Extension library)
+ *
+ * ==== Deploy to Maven Central ====
+ * Build OAG library and deploy to maven central:
+ * > ./gradlew publish -PgpgSign=true -x test
+ *   or
+ * > ./gradlew publish -PgpgSign=true -PskipTests
+ *
+ * Properties signing.keyId, signing.password, and signing.secretKeyRingFile 
+ * must be set in ~/.gradle/gradle.properties or via command line
+ */
+
+tasks.named('test') {
+    useJUnitPlatform()
+    // Allow skipping tests via command line property
+    enabled = !project.hasProperty('skipTests')
+}
+
+tasks.named('bootJar') {
+    archiveFileName = 'oag.jar'
+    archiveClassifier = 'exec'
+}
+
+tasks.named('jar') {
+    enabled = true
+}
+
+// Task to set the project version (equivalent to Maven's versions:set)
+tasks.register('setVersion') {
+    doLast {
+        if (project.hasProperty('newVersion')) {
+            // Update version in build.gradle
+            def buildFile = file('build.gradle')
+            def content = buildFile.text
+            def updatedContent = content.replaceAll(/version\s*=\s*['"].*?['"]/, "version = '${project.newVersion}'")
+            buildFile.text = updatedContent
+            println "Version updated to ${project.newVersion}"
+        } else {
+            logger.error("Please provide a newVersion property: -PnewVersion=X.Y.Z")
+            throw new IllegalArgumentException("Missing required property: newVersion")
+        }
+    }
+}
+
+tasks.register('generateCertificate', Exec) {
+    workingDir '.'
+    commandLine 'keytool', '-genkeypair', '-alias', 'tls', '-keyalg', 'RSA', 
+                '-keystore', 'keystore.pkcs12', '-storetype', 'PKCS12',
+                '-keysize', '2048', '-keypass', 'password', '-storepass', 'password',
+                '-validity', '720', '-dname', 'cn=demo, ou=oag, o=owasp, c=com'
+}
+
+tasks.register('deleteKeystore') {
+    doLast {
+        delete 'keystore.pkcs12'
+    }
+}
+
+tasks.named('clean') {
+    dependsOn tasks.named('deleteKeystore')
+}
+
+// Make deleteKeystore run first in the build process
+tasks.named('compileJava') {
+    dependsOn tasks.named('deleteKeystore')
+    // Make generateCertificate run after compile but before tests
+    finalizedBy tasks.named('generateCertificate')
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            pom {
+                name = 'OWASP Application Gateway'
+                description = 'An elephant strong web application gateway that handles oauth2 authentication and session management.'
+                url = 'https://github.com/gianlucafrei/Application-Gateway'
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'gianlucafrei'
+                        name = 'Gian-Luca Frei'
+                        email = 'gian-luca.frei@owasp.org'
+                    }
+                    developer {
+                        id = 'Padi-owasp'
+                        name = 'Patrick Steger'
+                        email = 'padi.steger@owasp.org'
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:git://github.com/gianlucafrei/Application-Gateway.git'
+                    developerConnection = 'scm:git:ssh://github.com/gianlucafrei/Application-Gateway.git'
+                    url = 'https://github.com/gianlucafrei/Application-Gateway'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = project.findProperty("ossrhUsername") ?: ""
+                password = project.findProperty("ossrhPassword") ?: ""
+            }
+        }
+    }
+}
+
+signing {
+    required = { project.hasProperty('gpgSign') && project.gpgSign.toBoolean() }
+    sign publishing.publications.mavenJava
+}

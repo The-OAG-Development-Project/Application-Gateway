@@ -13,12 +13,23 @@ import reactor.core.publisher.Mono;
 import static org.owasp.oag.utils.LoggingUtils.logInfo;
 import static org.owasp.oag.utils.LoggingUtils.logTrace;
 
+/**
+ * Filter that controls access to routes based on authentication status.
+ */
 @Order(20)
 @Component
 public class AccessControlFilter extends RouteAwareFilter {
 
     private static final Logger log = LoggerFactory.getLogger(AccessControlFilter.class);
 
+    /**
+     * Filters the incoming request based on access control rules.
+     *
+     * @param exchange    The current server web exchange.
+     * @param chain       The gateway filter chain.
+     * @param routeContext The gateway route context.
+     * @return A {@code Mono<Void>} that represents the filter processing.
+     */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain, GatewayRouteContext routeContext) {
 

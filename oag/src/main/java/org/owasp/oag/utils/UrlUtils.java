@@ -5,6 +5,11 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 
+/**
+ * Utility class for working with URLs.
+ * Provides methods for URL validation, checking if a URL is relative,
+ * extracting the path from a URL, and manipulating URL ports.
+ */
 public class UrlUtils {
 
     /**

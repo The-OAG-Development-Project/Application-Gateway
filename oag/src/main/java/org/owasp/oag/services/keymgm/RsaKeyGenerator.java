@@ -17,6 +17,12 @@ public class RsaKeyGenerator implements KeyGenerator {
 
     private final MainConfig config;
 
+    /**
+     * Constructs an RSA key generator with the specified configuration
+     * Verifies that the key size is properly configured at initialization
+     *
+     * @param config The main configuration containing key generation settings
+     */
     @Autowired
     public RsaKeyGenerator(MainConfig config) {
         this.config = config;

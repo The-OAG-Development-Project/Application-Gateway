@@ -1,18 +1,21 @@
 # CsrfProtection
 
 If you need a different CSRF protection mechanism, you can implement this by providing your own component.
+
 1. Implement the CsrfProtectionValidation interface
-2. Give your component a unique name that follows this pattern: Csrf<NameUsedInConfig>Validation
+2. Give your component a unique name that follows this pattern: Csrf\<NameUsedInConfig>Validation
 3. Configure it in the securityProfile section of the settings.
 
 ```Java
+
 @Component
 public class CsrfMySpecialValidation implements CsrfProtectionValidation {
-// ...
+...
 }
 ```
 
 Configuration:
+
 ```yaml
 securityProfiles:
   webapplication:

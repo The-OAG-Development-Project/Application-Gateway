@@ -40,6 +40,11 @@ public class LocalRsaJwkStore implements JwkStore {
     // to cleanup expired keys
     private final ThreadPoolTaskScheduler scheduler;
 
+    /**
+     * Constructs a new JwkStore
+     * @param config the config containg the store config data
+     * @param scheduler the cleanup scheduler used for the jwk store
+     */
     @Autowired
     public LocalRsaJwkStore(MainConfig config, @Qualifier("cleanupScheduler") ThreadPoolTaskScheduler scheduler) {
         if (config == null || scheduler == null) {
@@ -141,6 +146,10 @@ public class LocalRsaJwkStore implements JwkStore {
             this.store = store;
         }
 
+        /**
+         * Executes the key rotation process.
+         * This method generates a new key pair and updates the key store accordingly.
+         */
         @Override
         public void run() {
             try {

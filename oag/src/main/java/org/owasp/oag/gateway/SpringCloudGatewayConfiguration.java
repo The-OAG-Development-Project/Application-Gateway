@@ -23,12 +23,22 @@ import static org.owasp.oag.utils.LoggingUtils.logTrace;
 @Configuration
 public class SpringCloudGatewayConfiguration {
 
+    /**
+     * Attribute name for storing the route name in the exchange attributes
+     */
     public final static String ATTRIBUTE_ROUTE_NAME = "RouteName";
     private static final Logger log = LoggerFactory.getLogger(SpringCloudGatewayConfiguration.class);
     @Autowired
     MainConfig config;
     private final ProxyPathMatcher matcher = new ProxyPathMatcher();
 
+    /**
+     * Creates the route locator for the gateway
+     * Initializes routes from the configuration
+     *
+     * @param builder The route locator builder
+     * @return The configured route locator
+     */
     @Bean
     public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
 
@@ -39,7 +49,12 @@ public class SpringCloudGatewayConfiguration {
         return routes.build();
     }
 
-    // used for key rotation
+    /**
+     * Creates a thread pool task scheduler for key rotation tasks
+     * Used to schedule periodic key rotation operations
+     *
+     * @return The configured thread pool task scheduler
+     */
     @Bean(name = "keyRotationScheduler")
     public ThreadPoolTaskScheduler keyRotationThreadPoolTaskScheduler() {
         ThreadPoolTaskScheduler threadPoolTaskScheduler
@@ -50,7 +65,12 @@ public class SpringCloudGatewayConfiguration {
         return threadPoolTaskScheduler;
     }
 
-    // used for cleanup scheduling: e.g. of old signing key's
+    /**
+     * Creates a thread pool task scheduler for cleanup tasks
+     * Used for scheduling cleanup operations such as removing old signing keys
+     *
+     * @return The configured thread pool task scheduler
+     */
     @Bean(name = "cleanupScheduler")
     public ThreadPoolTaskScheduler cleanupThreadPoolTaskScheduler() {
         ThreadPoolTaskScheduler threadPoolTaskScheduler

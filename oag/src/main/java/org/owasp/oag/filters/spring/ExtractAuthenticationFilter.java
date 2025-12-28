@@ -21,11 +21,18 @@ import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
+/**
+ * This filter extracts authentication information from login cookies and makes it available in the request context.
+ * It validates sessions and handles CSRF token extraction.
+ */
 @Order(40)
 @Component
 public class ExtractAuthenticationFilter implements WebFilter {
 
-    public final static String OAG_SESSION = "oag-session"; // Key for request context
+    /** Key for  the session in the request */
+    public final static String OAG_SESSION = "oag-session";
+    
+    /** Key for the CSRF token in the request  */
     public final static String OAG_SESSION_CSRF_TOKEN = "oag-session-csrf-token";
 
     private static final Logger log = LoggerFactory.getLogger(ExtractAuthenticationFilter.class);
@@ -39,6 +46,12 @@ public class ExtractAuthenticationFilter implements WebFilter {
     @Autowired
     SessionBlacklist sessionBlacklist;
 
+    /**
+     * Extracts the session from the server web exchange.
+     * 
+     * @param exchange The server web exchange containing the session attribute
+     * @return An Optional containing the Session if found and valid, empty otherwise
+     */
     @SuppressWarnings("unchecked")
     public static Optional<Session> extractSessionFromExchange(ServerWebExchange exchange) {
 
@@ -56,6 +69,13 @@ public class ExtractAuthenticationFilter implements WebFilter {
         }
     }
 
+    /**
+     * Filters the HTTP request to extract and process authentication information.
+     * 
+     * @param exchange The server web exchange
+     * @param chain The web filter chain
+     * @return A Mono that completes when the filter processing is done
+     */
     @NotNull
     @Override
     public Mono<Void> filter(@NotNull ServerWebExchange exchange, WebFilterChain chain) {
@@ -66,6 +86,13 @@ public class ExtractAuthenticationFilter implements WebFilter {
                 .then(chain.filter(exchange));
     }
 
+    /**
+     * Extracts authentication from the login cookie and stores it in the exchange attributes.
+     * Also checks if the session has been invalidated.
+     * 
+     * @param exchange The server web exchange
+     * @return A Mono that completes when the extraction and storing is done
+     */
     protected Mono<Void> extractAndStoreAuthentication(ServerWebExchange exchange) {
 
         exchange.getAttributes().put(OAG_SESSION, Optional.empty());
@@ -100,6 +127,12 @@ public class ExtractAuthenticationFilter implements WebFilter {
                 }).then();
     }
 
+    /**
+     * Extracts and decrypts the login cookie from the request.
+     * 
+     * @param exchange The server web exchange
+     * @return An Optional containing the LoginCookie if found and successfully decrypted, empty otherwise
+     */
     protected Optional<LoginCookie> extractLoginCookieFromRequest(ServerWebExchange exchange) {
 
         LoginCookie loginCookie = null;

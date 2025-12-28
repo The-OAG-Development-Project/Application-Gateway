@@ -27,19 +27,32 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Abstract base class for OAuth2 login drivers.
+ * Provides common functionality for handling OAuth2 login flows.
+ */
 public abstract class Oauth2Driver extends LoginDriverBase {
 
-
+    /**
+     * Constructor for Oauth2Driver.
+     *
+     * @param settings The login provider settings.
+     */
     public Oauth2Driver(LoginProviderSettings settings) {
         super(settings);
     }
 
+    /**
+     * Starts the login process by generating an authorization request URI.
+     *
+     * @param callbackUri The callback URI to redirect to after login.
+     * @return A {@link LoginDriverResult} containing the authorization request URI and state.
+     */
     @Override
     public LoginDriverResult startLogin(URI callbackUri) {
-
         var settings = getSettings();
 
-        // Preprare Oauth2 request
+        // Prepare OAuth2 request
         URI authzEndpoint = getAuthEndpoint(settings);
         ClientID clientID = getClientId(settings);
         Scope scope = getScopes(settings);
@@ -61,8 +74,13 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         return new LoginDriverResult(requestURI, state.toString());
     }
 
+    /**
+     * Retrieves the authorization endpoint URI from the settings.
+     *
+     * @param settings The login provider settings.
+     * @return The authorization endpoint URI.
+     */
     protected URI getAuthEndpoint(LoginProviderSettings settings) {
-
         try {
             return new URI((String) settings.get("authEndpoint"));
         } catch (Exception e) {
@@ -70,8 +88,13 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         }
     }
 
+    /**
+     * Retrieves the client ID from the settings.
+     *
+     * @param settings The login provider settings.
+     * @return The client ID.
+     */
     protected ClientID getClientId(LoginProviderSettings settings) {
-
         try {
             return new ClientID((String) settings.get("clientId"));
         } catch (Exception e) {
@@ -79,10 +102,14 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         }
     }
 
+    /**
+     * Retrieves the scopes from the settings.
+     *
+     * @param settings The login provider settings.
+     * @return The scopes.
+     */
     protected Scope getScopes(LoginProviderSettings settings) {
-
         try {
-
             Object scopes = settings.get("scopes");
 
             if (scopes instanceof String[])
@@ -96,9 +123,17 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         }
     }
 
+    /**
+     * Processes the callback from the OAuth2 server.
+     *
+     * @param request             The server HTTP request.
+     * @param stateFromLoginStep  The state from the login step.
+     * @param callbackUri         The callback URI.
+     * @return A {@link UserModel} representing the authenticated user.
+     * @throws AuthenticationException If authentication fails.
+     */
     @Override
     public UserModel processCallback(ServerHttpRequest request, String stateFromLoginStep, URI callbackUri) throws AuthenticationException {
-
         var settings = getSettings();
 
         String authCode = request.getQueryParams().getFirst("code");
@@ -110,7 +145,7 @@ public abstract class Oauth2Driver extends LoginDriverBase {
             throw new AuthenticationException("No state");
 
         if (!stateFromLoginStep.equals(stateFromRequest))
-            throw new AuthenticationException("State missmatch");
+            throw new AuthenticationException("State mismatch");
 
         AuthorizationCode code = new AuthorizationCode(authCode);
 
@@ -127,16 +162,21 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         return loadUserInfo(tokens);
     }
 
+    /**
+     * Validates the settings and returns a list of errors.
+     *
+     * @param settings The login provider settings.
+     * @return A list of error messages.
+     */
     @Override
     public List<String> getSettingsErrors(LoginProviderSettings settings) {
-
         var errors = new ArrayList<String>();
 
         if (!settings.containsKey("clientId"))
-            errors.add("ClinetId missing");
+            errors.add("ClientId missing");
 
         if (!settings.containsKey("clientSecret"))
-            errors.add("ClinetSecret missing");
+            errors.add("ClientSecret missing");
 
         if (!settings.containsKey("scopes"))
             errors.add("Scopes missing");
@@ -148,27 +188,29 @@ public abstract class Oauth2Driver extends LoginDriverBase {
             errors.add("auth endpoint missing");
 
         if (settings.containsKey("federatedLogoutUrl")) {
-
             var federatedLogoutUrl = settings.get("federatedLogoutUrl");
 
             if (!(federatedLogoutUrl instanceof String))
                 errors.add("federatedLogoutUrl must be a valid url");
             else {
-
                 try {
                     new URL((String) federatedLogoutUrl);
                 } catch (MalformedURLException e) {
                     errors.add("federatedLogoutUrl must be a valid url");
                 }
             }
-
         }
 
         return errors;
     }
 
+    /**
+     * Retrieves the client secret from the settings.
+     *
+     * @param settings The login provider settings.
+     * @return The client secret.
+     */
     protected Secret getClientSecret(LoginProviderSettings settings) {
-
         try {
             return new Secret((String) settings.get("clientSecret"));
         } catch (Exception e) {
@@ -176,8 +218,13 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         }
     }
 
+    /**
+     * Retrieves the token endpoint URI from the settings.
+     *
+     * @param settings The login provider settings.
+     * @return The token endpoint URI.
+     */
     protected URI getTokenEndpoint(LoginProviderSettings settings) {
-
         try {
             return new URI((String) settings.get("tokenEndpoint"));
         } catch (Exception e) {
@@ -185,13 +232,20 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         }
     }
 
+    /**
+     * Loads tokens from the token endpoint.
+     *
+     * @param clientAuth   The client authentication.
+     * @param tokenEndpoint The token endpoint URI.
+     * @param codeGrant    The authorization grant.
+     * @return The tokens.
+     * @throws AuthenticationException If token loading fails.
+     */
     protected Tokens loadTokens(ClientAuthentication clientAuth, URI tokenEndpoint, AuthorizationGrant codeGrant) throws AuthenticationException {
-
         TokenRequest tokenRequest = new TokenRequest(tokenEndpoint, clientAuth, codeGrant, null);
         TokenResponse tokenResponse = sendTokenRequest(tokenRequest);
 
         if (!tokenResponse.indicatesSuccess()) {
-
             // We got an error response...
             TokenErrorResponse errorResponse = tokenResponse.toErrorResponse();
             String message = errorResponse.getErrorObject().getDescription();
@@ -201,10 +255,21 @@ public abstract class Oauth2Driver extends LoginDriverBase {
         return tokenResponse.toSuccessResponse().getTokens();
     }
 
+    /**
+     * Abstract method to load user information from tokens.
+     *
+     * @param accessToken The access token.
+     * @return A {@link UserModel} representing the user.
+     */
     protected abstract UserModel loadUserInfo(Tokens accessToken);
 
+    /**
+     * Sends a token request to the token endpoint.
+     *
+     * @param tokenRequest The token request.
+     * @return The token response.
+     */
     protected TokenResponse sendTokenRequest(TokenRequest tokenRequest) {
-
         TokenResponse tokenResponse;
         try {
             HTTPRequest tokenHttpRequest = tokenRequest.toHTTPRequest();
@@ -212,16 +277,21 @@ public abstract class Oauth2Driver extends LoginDriverBase {
             HTTPResponse tokenHttpResponse = tokenHttpRequest.send();
             tokenResponse = OIDCTokenResponseParser.parse(tokenHttpResponse);
         } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Token response io error");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Token response IO error");
         } catch (ParseException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Token response parse error");
         }
         return tokenResponse;
     }
 
+    /**
+     * Processes federated logout for the user.
+     *
+     * @param userModel The user model.
+     * @return The federated logout URL, or null if not configured.
+     */
     @Override
     public URL processFederatedLogout(UserModel userModel) {
-
         String federatedLogoutUrl = (String) getSettings().getOrDefault("federatedLogoutUrl", null);
 
         if (federatedLogoutUrl == null)

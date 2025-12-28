@@ -14,17 +14,40 @@ import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
 
+/**
+ * Handles various application startup events.
+ * This component listens for Spring application events and performs
+ * validation and logging tasks when the application starts up.
+ */
 @Component
 public class StartupEventListeners {
 
+    /**
+     * Logger for this class.
+     */
     private static final Logger log = LoggerFactory.getLogger(OWASPApplicationGatewayApplication.class);
 
+    /**
+     * The main configuration of the application.
+     * Contains information about routes, security profiles, and other configuration settings.
+     */
     @Autowired
     MainConfig config;
 
+    /**
+     * The Spring application context.
+     * Used to access beans and validate configuration.
+     */
     @Autowired
     ApplicationContext context;
 
+    /**
+     * Validates the application configuration after the Spring context is initialized.
+     * This method is triggered by the ContextRefreshedEvent and checks for any
+     * configuration errors, throwing an exception if any are found.
+     *
+     * @throws ConfigurationException if the configuration contains errors
+     */
     @EventListener(ContextRefreshedEvent.class)
     public void validateConfigurationAfterContextInitialized() {
 
@@ -36,6 +59,11 @@ public class StartupEventListeners {
 
     }
 
+    /**
+     * Logs information about the application configuration after startup.
+     * This method is triggered by the ApplicationStartedEvent and logs details
+     * about login providers, gateway routes, and other configuration information.
+     */
     @EventListener(ApplicationStartedEvent.class)
     public void logInfo() {
 

@@ -20,7 +20,16 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Base64;
 
+/**
+ * Implementation of CookieEncryptor using JWE (JSON Web Encryption) to securely
+ * encrypt and decrypt data, especially for cookie storage.
+ * This class uses AES-256 GCM encryption.
+ */
 public class JweEncrypter implements CookieEncryptor {
+    
+    /**
+     * Default secret key used for in-memory encryption.
+     */
     private static final SecretKey currentSecretKey;
 
     static {
@@ -33,12 +42,27 @@ public class JweEncrypter implements CookieEncryptor {
         }
     }
 
+    /**
+     * The secret key used for encryption and decryption.
+     */
     private final SecretKey secretKey;
 
+    /**
+     * Constructs a new JweEncrypter with the specified key bytes.
+     * 
+     * @param keyBytes The bytes for the AES secret key
+     */
     private JweEncrypter(byte[] keyBytes) {
         this.secretKey = new SecretKeySpec(keyBytes, 0, keyBytes.length, "AES");
     }
 
+    /**
+     * Creates a JweEncrypter instance using an in-memory generated key.
+     * This should only be used for development or testing purposes.
+     *
+     * @return A new JweEncrypter instance
+     * @throws IOException If an I/O error occurs
+     */
     public synchronized static JweEncrypter loadInMemoryInstance() throws IOException {
             try {
                 byte[] keyBytes = currentSecretKey.getEncoded();
@@ -48,6 +72,13 @@ public class JweEncrypter implements CookieEncryptor {
             }
     }
 
+    /**
+     * Creates a JweEncrypter instance using a key stored in an environment variable.
+     * 
+     * @param variableName The name of the environment variable containing the Base64-encoded key
+     * @return A new JweEncrypter instance
+     * @throws ConfigurationException If the environment variable is not defined
+     */
     public static JweEncrypter loadFromEnvironmentVariable(String variableName) {
 
         String key = System.getenv(variableName);
@@ -60,6 +91,12 @@ public class JweEncrypter implements CookieEncryptor {
         return new JweEncrypter(decodedKey);
     }
 
+    /**
+     * Generates a new random AES key and returns it as a Base64-encoded string.
+     * 
+     * @return A Base64-encoded AES key
+     * @throws ConsistencyException If the key cannot be generated
+     */
     private String generateKey() {
 
         try {
@@ -72,6 +109,13 @@ public class JweEncrypter implements CookieEncryptor {
         }
     }
 
+    /**
+     * Encrypts an object by serializing it to JSON and then encrypting the resulting string.
+     * 
+     * @param payload The object to encrypt
+     * @return The encrypted object as a JWE string
+     * @throws ConsistencyException If the object cannot be serialized to JSON
+     */
     @Override
     public String encryptObject(Object payload) {
         try {
@@ -84,6 +128,13 @@ public class JweEncrypter implements CookieEncryptor {
         }
     }
 
+    /**
+     * Encrypts a string payload using JWE with AES-256-GCM.
+     * 
+     * @param payload The string to encrypt
+     * @return The encrypted string as a JWE
+     * @throws ConfigurationException If the encryption fails
+     */
     private String encrypt(String payload) {
 
         try {
@@ -101,10 +152,18 @@ public class JweEncrypter implements CookieEncryptor {
         }
     }
 
+    /**
+     * Decrypts a JWE string and deserializes the content to an object of the specified class.
+     * 
+     * @param <T> The type of object to deserialize to
+     * @param jwe The JWE string to decrypt
+     * @param clazz The class of the object to deserialize to
+     * @return The decrypted and deserialized object
+     * @throws CookieDecryptionException If decryption or deserialization fails
+     */
     @Override
     public <T> T decryptObject(String jwe, Class<T> clazz) throws CookieDecryptionException {
         String payload = decrypt(jwe);
-
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -114,6 +173,13 @@ public class JweEncrypter implements CookieEncryptor {
         }
     }
 
+    /**
+     * Decrypts a JWE string to its original plaintext.
+     * 
+     * @param jwe The JWE string to decrypt
+     * @return The decrypted plaintext
+     * @throws CookieDecryptionException If decryption fails
+     */
     private String decrypt(String jwe) throws CookieDecryptionException {
         try {
             // Parse into JWE object again...

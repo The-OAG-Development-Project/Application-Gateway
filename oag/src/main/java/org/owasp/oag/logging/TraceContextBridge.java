@@ -23,6 +23,13 @@ public class TraceContextBridge {
     @Autowired
     private TraceContextFactory traceContextFactory;
 
+    /**
+     * Processes a ServerWebExchange by creating a trace context, applying or generating a trace ID,
+     * and adding it to the exchange, downstream requests, and responses as needed.
+     *
+     * @param exchange The ServerWebExchange to process
+     * @return The processed ServerWebExchange with trace information added
+     */
     public ServerWebExchange processExchange(ServerWebExchange exchange) {
 
         final TraceContext requestContext = traceContextFactory.createContextForRequest();

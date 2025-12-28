@@ -9,11 +9,14 @@ import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.cookies.LoginStateCookie;
 import org.owasp.oag.exception.ApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseCookie;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.wiremock.spring.ConfigureWireMock;
+import org.wiremock.spring.EnableWireMock;
 
 import java.net.URI;
 
@@ -24,7 +27,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * Base class for all tests that use the gateway functionality.
  * Adds a mock server on port 7777 with some default methods for testing.
  */
-@AutoConfigureWireMock(port = 0)
+//@AutoConfigureWireMock(port = 0)
+@EnableWireMock({
+    @ConfigureWireMock(
+        port = 0)
+})
+@AutoConfigureWebTestClient
 public abstract class WiremockTest {
 
     public static String TEST_1_ENDPOINT = "/foo";

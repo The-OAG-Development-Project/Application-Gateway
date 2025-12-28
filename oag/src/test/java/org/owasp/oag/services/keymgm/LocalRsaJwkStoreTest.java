@@ -19,11 +19,24 @@ import java.security.interfaces.RSAPublicKey;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+/**
+ * Test class for LocalRsaJwkStore functionality.
+ * Tests key management operations including adding, retrieving, and removing keys,
+ * as well as automatic cleanup of expired keys.
+ */
 class LocalRsaJwkStoreTest {
 
+    /** Timestamp representing a future time (valid key) */
     private final long enoughTime = System.currentTimeMillis() + 1 * 60 * 1000;
+    
+    /** Timestamp representing a past time (expired key) */
     private final long alreadyExpired = System.currentTimeMillis() - 11 * 60 * 1000;
 
+    /**
+     * Tests the add, get, and remove operations for keys in the JWK store.
+     * 
+     * @throws NoSuchAlgorithmException if the RSA algorithm is not available
+     */
     @Test
     void addGetRemoveKeyTest() throws NoSuchAlgorithmException {
 
@@ -61,11 +74,24 @@ class LocalRsaJwkStoreTest {
         assertEquals(0, underTest.getSigningPublicKeys().getKeys().size());
     }
 
+    /**
+     * Helper method to generate an RSA JWK from a key pair generator and key ID.
+     * 
+     * @param factory the KeyPairGenerator to use for creating an RSA key pair
+     * @param kid the key ID to assign to the JWK
+     * @return a new RSAKey configured for signing
+     */
     @NotNull
     private static RSAKey generateJwkFromNewPubKey(KeyPairGenerator factory, String kid) {
         return new RSAKey.Builder((RSAPublicKey) factory.generateKeyPair().getPublic()).keyID(kid).algorithm(Algorithm.parse("RS256")).keyUse(KeyUse.SIGNATURE).build();
     }
 
+    /**
+     * Tests the automatic cleanup of expired keys from the JWK store.
+     * 
+     * @throws NoSuchAlgorithmException if the RSA algorithm is not available
+     * @throws InterruptedException if the thread sleep is interrupted
+     */
     @Test
     void cleanupTest() throws NoSuchAlgorithmException, InterruptedException {
         MainConfig config = new MainConfig();

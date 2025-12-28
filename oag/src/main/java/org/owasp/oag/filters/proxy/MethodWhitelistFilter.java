@@ -12,13 +12,25 @@ import reactor.core.publisher.Mono;
 import static org.owasp.oag.utils.LoggingUtils.logInfo;
 import static org.owasp.oag.utils.LoggingUtils.logTrace;
 
+/**
+ * Filter that ensures only whitelisted HTTP methods are allowed through the gateway.
+ * This filter checks if the incoming request's HTTP method is in the list of allowed methods
+ * defined in the route's security profile. If not, responds with 405 Method Not Allowed.
+ */
 @Order(10)
 @Component
 public class MethodWhitelistFilter extends RouteAwareFilter {
 
     private static final Logger log = LoggerFactory.getLogger(MethodWhitelistFilter.class);
 
-    @Override
+    /**
+     * Filters incoming requests based on their HTTP method.
+     *
+     * @param exchange The current server exchange
+     * @param chain The filter chain to continue processing
+     * @param routeContext The current route context containing security profile
+     * @return {@code Mono<Void>} completing when the filter chain is done
+     */
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain, GatewayRouteContext routeContext) {
 
         logTrace(log, exchange, "Execute MethodWhitelistFilter");

@@ -28,6 +28,7 @@ public class RsaJwtSigner extends JwtSigner {
      * @param signingKey  the key used to sign the JWT.
      * @param kid         The kid to use
      * @param signingAlgo a valid Rsa Signing Algo like RS256
+     * @param hostUri     the host URI used to construct the JWK Set URI (jku)
      */
     public RsaJwtSigner(PrivateKey signingKey, String kid, JWSAlgorithm signingAlgo, String hostUri) {
         if (signingAlgo == null) {

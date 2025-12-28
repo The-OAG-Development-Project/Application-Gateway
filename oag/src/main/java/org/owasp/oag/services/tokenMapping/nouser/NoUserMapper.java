@@ -11,6 +11,14 @@ import reactor.core.publisher.Mono;
  */
 public class NoUserMapper implements UserMapper {
 
+    /**
+     * Maps user information to the request. This implementation simply returns the exchange unchanged,
+     * effectively not adding any user information to the downstream request.
+     *
+     * @param exchange The server web exchange containing the request and response
+     * @param context The gateway route context containing route information
+     * @return A Mono containing the unchanged server web exchange
+     */
     @Override
     public Mono<ServerWebExchange> mapUserToRequest(ServerWebExchange exchange, GatewayRouteContext context) {
         return Mono.just(exchange);

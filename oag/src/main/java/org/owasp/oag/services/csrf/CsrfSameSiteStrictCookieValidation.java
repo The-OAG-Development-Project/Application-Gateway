@@ -20,14 +20,32 @@ import java.util.Optional;
 import static org.owasp.oag.utils.LoggingUtils.logInfo;
 import static org.owasp.oag.utils.SecureEncoder.encodeStringForLog;
 
+/**
+ * Implementation of CSRF protection validation using SameSite=Strict cookies.
+ * This class validates requests by comparing the CSRF token in the cookie with the one in the session.
+ * It also performs additional validation by checking the Origin and Referer headers against the target origin.
+ * This provides defense-in-depth protection against CSRF attacks, especially for browsers that don't
+ * support SameSite=Strict cookies.
+ */
 @Component
 public class CsrfSameSiteStrictCookieValidation implements CsrfProtectionValidation {
 
+    /**
+     * Logger for this class.
+     */
     private static final Logger log = LoggerFactory.getLogger(CsrfSameSiteStrictCookieValidation.class);
 
+    /**
+     * Converter for handling cookies, including CSRF cookies.
+     * Used to extract and convert CSRF tokens from cookies.
+     */
     @Autowired
     CookieConverter cookieConverter;
 
+    /**
+     * Main configuration of the application.
+     * Used to access the host URI for origin validation.
+     */
     @Autowired
     MainConfig mainConfig;
 
@@ -68,6 +86,12 @@ public class CsrfSameSiteStrictCookieValidation implements CsrfProtectionValidat
         return false;
     }
 
+    /**
+     * Extracts the CSRF token from the request cookies.
+     *
+     * @param request The server HTTP request containing the cookies
+     * @return The CSRF token if found, or null if not present or invalid
+     */
     private String extractCsrfToken(ServerHttpRequest request) {
 
         HttpCookie cookie = request.getCookies().getFirst(CsrfCookie.NAME);

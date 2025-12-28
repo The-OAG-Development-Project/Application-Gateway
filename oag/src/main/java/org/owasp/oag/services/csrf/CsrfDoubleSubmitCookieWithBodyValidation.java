@@ -7,14 +7,30 @@ import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Optional;
 
+/**
+ * Validates CSRF protection using the double-submit cookie method, including the request body.
+ */
 @Component
 public class CsrfDoubleSubmitCookieWithBodyValidation extends CsrfDoubleSubmitCookieValidation {
 
+    /**
+     * Indicates whether this validation needs the request body.
+     *
+     * @return true, as this validation needs the request body.
+     */
     @Override
     public boolean needsRequestBody() {
         return true;
     }
 
+    /**
+     * Determines whether the request should be blocked based on CSRF validation, including the request body.
+     *
+     * @param exchange    The server web exchange.
+     * @param requestBody The request body.
+     * @return true if the request should be blocked, false otherwise.
+     * @throws AssertionError if the request body is null.
+     */
     @Override
     public boolean shouldBlockRequest(ServerWebExchange exchange, String requestBody) {
 

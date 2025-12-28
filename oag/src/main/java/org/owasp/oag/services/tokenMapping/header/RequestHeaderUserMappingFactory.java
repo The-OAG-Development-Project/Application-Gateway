@@ -8,6 +8,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+/**
+ * Factory for creating RequestHeaderUserMapper instances
+ * Implements the UserMappingFactory interface to provide header-based user mapping
+ */
 @Component
 public class RequestHeaderUserMappingFactory implements UserMappingFactory {
 
