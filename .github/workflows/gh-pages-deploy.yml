@@ -50,13 +50,10 @@ jobs:
       - name: Build with VitePress
         run: npm run docs:build # or pnpm docs:build / yarn docs:build / bun run docs:build
       - name: Push generated webpage to documentation repository
-        uses: nkoppel/push-files-to-another-repository@v1.1.4
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.ACCESS_TOKEN }}
+        uses: GuillaumeFalourd/copy-push-files@v1
         with:
-          source-files: 'www/docs/.vitepress/dist'
-          destination-username: 'The-OAG-Development-Project'
-          destination-repository: 'The-OAG-Development-Project.github.io'
-          destination-directory: '/'
-          destination-branch: 'main'
-          commit-email: 'padi.steger@owasp.org'
+          commit_message: update from main branch of https://github.com/The-OAG-Development-Project/Application-Gateway.
+          target_branch: main
+          source_files: www/docs/.vitepress/dist
+          remote_repository: https://github.com/The-OAG-Development-Project/The-OAG-Development-Project.github.io
+          access_token: ${{ secrets.ACCESS_TOKEN }}
