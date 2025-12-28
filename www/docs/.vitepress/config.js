@@ -92,7 +92,8 @@ module.exports = {
         items: [
           {text: 'Overview', link: '/Integrating-with-OAG'},
           {text: 'User identity validation', link: '/Validating-user-identity'},
-          {text: 'Token validation (Spring/Java)', link: '/Token-Validation-with-Java-Spring'}
+          {text: 'Token validation (Spring/Java)', link: '/Token-Validation-with-Java-Spring'},
+          {text: 'URL Whitelisting / OAG provided URL', link: '/Whitelisting-of-URL\'s-(What-URLs-are-required-by-OAG)'}
         ]
       },
       {
@@ -101,8 +102,8 @@ module.exports = {
         base: '/docs',
         items: [
           {text: 'Deploy to Azure', link: '/HowTo-Deploy-OAG-on-Azure-App-Service'},
-          {text: 'URL Whitelisting / OAG provided URL', link: '/Whitelisting-of-URL\'s-(What-URLs-are-required-by-OAG)'},
           {text: 'Developer Setup', link: '/Setup-for-OAG-development'},
+          {text: 'Update Documentation', link: '/Update-Documentation'},
           {text: 'Create a new Release', link: '/Create-a-new-Release'}
         ]
       }],
