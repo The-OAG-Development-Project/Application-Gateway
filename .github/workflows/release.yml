@@ -50,7 +50,7 @@ jobs:
           SIGNING_SECRET_KEY_RING_FILE: ${{ secrets.GPG_KEY }}
           OSSRH_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.MAVEN_TOKEN }}
-        run: cd oag && ./gradlew publish -PgpgSign=true -PskipTests
+        run: cd oag && ./gradlew build bootJar publish -PgpgSign=true -PskipTests
 
       #############
       # Docker build
