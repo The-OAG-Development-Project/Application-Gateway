@@ -5,26 +5,27 @@
  * > ./gradlew setVersion -PnewVersion=0.0.1-SNAPSHOT
  *
  * Build OAG executable and library:
- * > ./gradlew clean build bootJar
+ * > ./gradlew clean assemble
  *
  * Output: - build/libs/oag.jar (Executable JAR)
  *         - build/libs/oag-<VERSION>-plain.jar (OAG lib only, no dependencies)
  *
  * ==== Deploy to Maven Central ====
  * Build OAG library and deploy to maven central:
- * > ./gradlew build bootJar publish -PgpgSign=true -x test
+ * > ./gradlew assemble publishAllPublicationsToProjectLocalRepository zipMavenCentralPortalPublication releaseMavenCentralPortalPublication -PgpgSign=true -x test
  *   or
- * > ./gradlew build bootJar publish -PgpgSign=true -PskipTests
+ * > ./gradlew assemble publishAllPublicationsToProjectLocalRepository zipMavenCentralPortalPublication releaseMavenCentralPortalPublication -PgpgSign=true -PskipTests
  *
  * Environment Variables must be set:
- * - SIGNING_PASSWORD,SIGNING_SECRET_KEY_RING_FILE (containing the password for the signing key, and the encrypted signing key used to sign the code)
- * - OSSRH_USERNAME, OSSRH_PASSWORD (containing the Maven/Sonatype/Nexus credentials).
+ * - SIGNING_PASSWORD,SIGNING_KEY (containing the password for the signing key, and the encrypted signing key used to sign the code)
+ * - MAVEN_CENTRAL_PORTAL_USERNAME, MAVEN_CENTRAL_PORTAL_PASSWORD (containing the Maven/Sonatype/Nexus credentials).
  */
 
 plugins {
     id 'java'
     id 'org.springframework.boot' version '4.0.1'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.danilopianini.publish-on-central' version '9.1.9'
     id 'maven-publish'
     id 'signing'
 }
@@ -142,25 +143,25 @@ java {
     withSourcesJar()
 }
 
+publishOnCentral {
+    repoOwner.set("The-OAG-Development-Project")
+    projectDescription.set("An elephant strong web application gateway that handles oidc/oauth2 authentication and session management.")
+    projectLongName.set("OWASP Application Gateway")
+    licenseName.set("Apache License, Version 2.0")
+    licenseUrl.set("http://www.apache.org/licenses/LICENSE-2.0")
+    projectUrl.set("https://github.com/The-OAG-Development-Project/Application-Gateway")
+    scmConnection.set("scm:git:https://github.com/The-OAG-Development-Project/Application-Gateway")
+}
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            // The Plugin org.danilopianini.publish-on-central automatically creates a repository for maven central portal
+            // and uses credentials defined in MAVEN_CENTRAL_PORTAL_USERNAME, MAVEN_CENTRAL_PORTAL_PASSWORD env variables.
             // group and version is taken from variables above
             artifactId = 'oag'
             from components.java
 
             pom {
-                name = 'OWASP Application Gateway'
-                description = 'An elephant strong web application gateway that handles oidc/oauth2 authentication and session management.'
-                url = 'https://github.com/gianlucafrei/Application-Gateway'
-
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-
                 developers {
                     developer {
                         id = 'gianlucafrei'
@@ -173,23 +174,6 @@ publishing {
                         email = 'padi.steger@owasp.org'
                     }
                 }
-
-                scm {
-                    connection = 'scm:git:git://github.com/gianlucafrei/Application-Gateway.git'
-                    developerConnection = 'scm:git:ssh://github.com/gianlucafrei/Application-Gateway.git'
-                    url = 'https://github.com/gianlucafrei/Application-Gateway'
-                }
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            name = "OSSRH"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-            credentials {
-                username = System.env.OSSRH_USERNAME
-                password = System.env.OSSRH_PASSWORD
             }
         }
     }
@@ -197,9 +181,8 @@ publishing {
 
 signing {
     required = { project.hasProperty('gpgSign') && project.gpgSign.toBoolean() }
-    def signingKey = System.env.SIGNING_SECRET_KEY_RING_FILE
+    def signingKey = System.env.SIGNING_KEY
     def signingPassword = System.env.SIGNING_PASSWORD
-
     useInMemoryPgpKeys(signingKey, signingPassword)
     sign publishing.publications.mavenJava
 }

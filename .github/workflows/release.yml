@@ -46,10 +46,10 @@ jobs:
       - name: Release to Maven Central
         env:
           SIGNING_PASSWORD: ${{ secrets.GPG_PASSPHRASE }}
-          SIGNING_SECRET_KEY_RING_FILE: ${{ secrets.GPG_KEY }}
-          OSSRH_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-          OSSRH_PASSWORD: ${{ secrets.MAVEN_TOKEN }}
-        run: cd oag && ./gradlew build bootJar publish -PgpgSign=true -PskipTests
+          SIGNING_KEY: ${{ secrets.GPG_KEY }}
+          MAVEN_CENTRAL_PORTAL_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_CENTRAL_PORTAL_PASSWORD: ${{ secrets.MAVEN_TOKEN }}
+        run: cd oag && ./gradlew assemble publishAllPublicationsToProjectLocalRepository zipMavenCentralPortalPublication releaseMavenCentralPortalPublication -PgpgSign=true -PskipTests
 
       #############
       # Docker build
