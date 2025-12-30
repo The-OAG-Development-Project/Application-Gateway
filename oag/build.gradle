@@ -152,11 +152,13 @@ publishOnCentral {
     projectUrl.set("https://github.com/The-OAG-Development-Project/Application-Gateway")
     scmConnection.set("scm:git:https://github.com/The-OAG-Development-Project/Application-Gateway")
 }
+
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        OSSRH(MavenPublication) {
             // The Plugin org.danilopianini.publish-on-central automatically creates a repository for maven central portal
             // and uses credentials defined in MAVEN_CENTRAL_PORTAL_USERNAME, MAVEN_CENTRAL_PORTAL_PASSWORD env variables.
+            // the publication it uses is called OSSRH. We extend it here.
             // group and version is taken from variables above
             artifactId = 'oag'
             from components.java
@@ -184,5 +186,5 @@ signing {
     def signingKey = System.env.SIGNING_KEY
     def signingPassword = System.env.SIGNING_PASSWORD
     useInMemoryPgpKeys(signingKey, signingPassword)
-    sign publishing.publications.mavenJava
+    // sign publishing.publications.OSSRH is called by plugin publish-on-central
 }
