@@ -135,7 +135,7 @@ docker run -p 8080:8080 owasp/application-gateway:SNAPSHOT
 If you don't want to use Docker you can build the jar by yourself with Gradle:
 
 ```bash
-cd oag && gradlew.bat build -x test
+cd oag && gradlew.bat assemble
 ```
 
 You may also use your IDE for building OAG. Please see [Setup OAG for development](/docs/Setup-for-OAG-development) for instructions using IntelliJ as an example.

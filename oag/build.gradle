@@ -103,7 +103,7 @@ tasks.register('setVersion') {
             // Update version in build.gradle
             def buildFile = file('build.gradle')
             def content = buildFile.text
-            def updatedContent = content.replaceAll(/version\s*=\s*['"].*?['"]/, "version = '${project.newVersion}'")
+            def updatedContent = content.replaceAll("version\\s*=\\s*['\"].*?['\"]", "version = '${project.newVersion}'")
             buildFile.text = updatedContent
             println "Version updated to ${project.newVersion}"
         } else {

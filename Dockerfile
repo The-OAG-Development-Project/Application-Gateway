@@ -13,7 +13,7 @@ RUN cd /home/app && ./gradlew dependencies --no-daemon
 # Copy rest of the sources and compile
 COPY oag/src /home/app/src
 COPY oag/*.yaml oag/*.txt /home/app/
-RUN cd /home/app && ./gradlew clean build --no-daemon
+RUN cd /home/app && ./gradlew clean assemble --no-daemon
 
 #
 # Package stage
