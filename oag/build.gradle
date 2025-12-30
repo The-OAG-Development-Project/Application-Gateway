@@ -1,3 +1,26 @@
+/*
+ * ==== Build Commands ====
+ *
+ * Update version:
+ * > ./gradlew setVersion -PnewVersion=0.0.1-SNAPSHOT
+ *
+ * Build OAG executable and library:
+ * > ./gradlew clean build bootJar
+ *
+ * Output: - build/libs/oag.jar (Executable JAR)
+ *         - build/libs/oag-<VERSION>-plain.jar (OAG lib only, no dependencies)
+ *
+ * ==== Deploy to Maven Central ====
+ * Build OAG library and deploy to maven central:
+ * > ./gradlew build bootJar publish -PgpgSign=true -x test
+ *   or
+ * > ./gradlew build bootJar publish -PgpgSign=true -PskipTests
+ *
+ * Environment Variables must be set:
+ * - SIGNING_PASSWORD,SIGNING_SECRET_KEY_RING_FILE (containing the password for the signing key, and the encrypted signing key used to sign the code)
+ * - OSSRH_USERNAME, OSSRH_PASSWORD (containing the Maven/Sonatype/Nexus credentials).
+ */
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '4.0.1'
@@ -7,7 +30,7 @@ plugins {
 }
 
 group = 'org.owasp'
-version = '0.6.6'
+version = '0.7.2-SNAPSHOT'
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
@@ -56,28 +79,6 @@ dependencyManagement {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
 }
-
-/*
- * ==== Build Commands ====
- *
- * Update version:
- * > ./gradlew setVersion -PnewVersion=0.0.1-SNAPSHOT
- *
- * Build OAG executable and library:
- * > ./gradlew clean build
- *
- * Output: - build/libs/oag-exec.jar (Executable JAR)
- *         - build/libs/oag-<VERSION>.jar (Extension library)
- *
- * ==== Deploy to Maven Central ====
- * Build OAG library and deploy to maven central:
- * > ./gradlew publish -PgpgSign=true -x test
- *   or
- * > ./gradlew publish -PgpgSign=true -PskipTests
- *
- * Properties signing.keyId, signing.password, and signing.secretKeyRingFile 
- * must be set in ~/.gradle/gradle.properties or via command line
- */
 
 tasks.named('test') {
     useJUnitPlatform()
@@ -144,6 +145,8 @@ java {
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            // group and version is taken from variables above
+            artifactId = 'oag'
             from components.java
 
             pom {
@@ -183,7 +186,7 @@ publishing {
     repositories {
         maven {
             name = "OSSRH"
-            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
             credentials {
                 username = System.env.OSSRH_USERNAME
                 password = System.env.OSSRH_PASSWORD
