@@ -194,9 +194,9 @@ publishing {
 
 signing {
     required = { project.hasProperty('gpgSign') && project.gpgSign.toBoolean() }
-    def signingKeyId = System.env.SIGNING_KEY_ID
     def signingKey = System.env.SIGNING_SECRET_KEY_RING_FILE
     def signingPassword = System.env.SIGNING_PASSWORD
-    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+
+    useInMemoryPgpKeys(signingKey, signingPassword)
     sign publishing.publications.mavenJava
 }
