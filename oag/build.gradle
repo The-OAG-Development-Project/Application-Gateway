@@ -161,7 +161,7 @@ publishing {
             // the publication it uses is called OSSRH. We extend it here.
             // group and version is taken from variables above
             artifactId = 'oag'
-            from components.java
+            // from components.java is done by plugin publish-on-central
 
             pom {
                 developers {
