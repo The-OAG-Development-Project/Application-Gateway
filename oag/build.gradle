@@ -81,10 +81,15 @@ dependencyManagement {
     }
 }
 
-tasks.named('test') {
+tasks.named('test', Test) {
     useJUnitPlatform()
     // Allow skipping tests via command line property
     enabled = !project.hasProperty('skipTests')
+
+    maxHeapSize = '1G'
+    testLogging {
+        events "passed"
+    }
 }
 
 tasks.named('bootJar') {

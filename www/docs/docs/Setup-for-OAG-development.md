@@ -1,7 +1,7 @@
 # Preparation
 
 * Install Java 17 or higher
-* Install Maven
+* Install Gradle
 * Install Git
 * Install IntelliJ (Community Version is fine)
 * git clone the OAG repository:
@@ -23,23 +23,37 @@
 * Start IntelliJ.
 * Open project: ../oag/Application-Gateway/oag
   + This should trigger maven and download dependencies
-* Build of the whole project (select Build -> Build Project in the menu).
+
+# Build project
+## Using IntelliJ
+* In IntelliJ Build of the whole project (select Build -> Build Project in the menu).
   + You will have to select a project JDK (IntelliJ prompts for this in the upper right corner.). OAG requires a
     SDK/JDK >= 17 and runs on Java 17 or higher.
+## Using Gradle
+* In the command line change to ../oag/Application-Gateway/oag
+  ````bash
+  ./gradlew build
+  ````
 
 # Run project
-
+## Using IntelliJ
 * Verify tests are green: Right click on the top level of the project ("oag" in the Project window) and select "Run All
   Tests"
 * Run the gateway:
   + Open class OWASPApplicationGatewayApplication
   + Click the green triangle (Line 7) to run OWASPApplicationGatewayApplication.main().
-    - note that you need 3 client secrets (i.e. registered OAG as an application in Google, GitHub and oAuth0) to be
-      fully functional with the default sample configuration.
-    - For GitHub, this means you will have to register
-      an [oAuth App in GitHub](https://github.com/settings/applications/new). Not that the app needs to reflect your
-      local OAG that runs in IntelliJ.
-    - If you do not have these 3 client secrets you will see the following in the logs:
+## Using Gradle
+* In the command line enter:
+  ````bash
+  ./gradlew bootJar
+  ````
+## Notes on client secrets / prerequisites
+* You need 3 client secrets (i.e. registered OAG as an application in Google, GitHub and oAuth0) to be
+  fully functional with the default sample configuration.
+* For GitHub, this means you will have to register
+  an [oAuth App in GitHub](https://github.com/settings/applications/new). Not that the app needs to reflect your
+  local OAG that runs in IntelliJ.
+* If you do not have these 3 client secrets you will see the following in the logs:
 
 ````bash
 WARN  - Environment variable 'GOOGLE_CLIENT_SECRET' does not exist
@@ -54,6 +68,7 @@ WARN  - Environment variable 'AUTH0_CLIENT_SECRET' does not exist
   * in the text field for "environment variables:" add the 3 Secrets: "
     GOOGLE_CLIENT_SECRET=xxxxx;GITHUB_CLIENT_SECRET=xxxxxx;AUTH0_CLIENT_SECRET=xxxxxx"
 
+# Verify the gateway is running
 * Point your browser to: https://localhost:8080/echo/ -> Note "X-Oag-Status: anonymous" in the returned page
   + Click on "Login with Github"
   + Enter your GitHub credentials
