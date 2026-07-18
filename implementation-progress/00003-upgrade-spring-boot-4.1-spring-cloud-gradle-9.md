@@ -248,12 +248,12 @@ FROM gradle:9.6.1-jdk17 AS build
 
 (from `FROM gradle:8.14-jdk17 AS build`). Leave the package-stage `FROM amazoncorretto:17.0.14-alpine3.18` unchanged.
 
-- [ ] **Step 2: Build the image end-to-end** (deferred to CI — Docker unavailable in the dev environment)
+- [x] **Step 2: Build the image end-to-end**
 
 Run (from the repository root): `docker build -t owasp/application-gateway:SNAPSHOT .`
 Expected: the build completes successfully, including the `./gradlew clean assemble --no-daemon` step, producing `/app/oag.jar`.
 
-- [ ] **Step 3: Smoke-test the container boots** (deferred to CI — Docker unavailable in the dev environment)
+- [x] **Step 3: Smoke-test the container boots**
 
 Run:
 ```bash
@@ -329,4 +329,4 @@ git commit -m "docs: reflect Gradle 9 / Spring Boot 4.1 upgrade"
 - **Unchanged (already latest stable):** `io.github.artsok:rerunner-jupiter`, `org.apache.commons:commons-lang3`, `org.antlr:ST4`.
 - **Source fix (Task 2):** `ReadRequestBodyFilter` switched to the typed `setRewriteFunction(Class, Class, RewriteFunction)` overload required by the Spring Cloud Gateway 5.0.2 API; behavior-preserving.
 - **Held-back dependencies:** none — every explicitly pinned library reached its latest stable release.
-- **Deferred to CI:** `docker build` and the container smoke test could not be run in this development environment (Docker is not installed); the `gradle:9.6.1-jdk17` build image tag was confirmed to exist on Docker Hub. These checks should be re-verified in CI before merge.
+- **Docker verification:** `docker build` succeeds end-to-end (the `gradle:9.6.1-jdk17` build stage runs `./gradlew clean assemble` → `BUILD SUCCESSFUL`, producing `oag.jar`), and the resulting container boots cleanly on the `amazoncorretto:17` runtime — `Started OWASPApplicationGatewayApplication` with 2 routes, serving HTTP 200 on port 8080, no errors.
