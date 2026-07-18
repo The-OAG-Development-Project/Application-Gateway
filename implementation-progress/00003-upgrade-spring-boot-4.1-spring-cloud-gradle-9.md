@@ -4,7 +4,7 @@
 
 **Goal:** Move OAG from Gradle 8.14 / Spring Boot 4.0.1 / Spring Cloud 2025.1.0 to Gradle 9.6.1 / Spring Boot 4.1.0 / Spring Cloud 2025.1.2, refresh the remaining pinned libraries to their latest stable releases, and keep the build fully green.
 
-**Architecture:** This is a build-and-dependency upgrade of the single `oag/` Gradle project. There is no new production code. The safety net is the existing test suite — 47 test classes including full `@SpringBootTest` integration tests (WireMock, `WebTestClient`) that boot the complete Spring context and exercise gateway routing, CSRF, session handling, OIDC login and security config. Each task's "test" is therefore running `./gradlew build`, which compiles and runs that entire suite. A version bump that breaks routing, security or context loading fails the build — that is the regression gate for every task.
+**Architecture:** This is a build-and-dependency upgrade of the single `oag/` Gradle project. There is no new production code. The safety net is the existing test suite — 43 test classes / 108 tests including full `@SpringBootTest` integration tests (WireMock, `WebTestClient`) that boot the complete Spring context and exercise gateway routing, CSRF, session handling, OIDC login and security config. Each task's "test" is therefore running `./gradlew build`, which compiles and runs that entire suite. A version bump that breaks routing, security or context loading fails the build — that is the regression gate for every task.
 
 **Tech Stack:** Spring Cloud Gateway (server-webflux) · Spring Boot 4.1.0 · Spring Cloud 2025.1.2 (Oakwood) · Java 17 toolchain · Gradle 9.6.1 · Docker
 
@@ -317,7 +317,7 @@ git commit -m "docs: reflect Gradle 9 / Spring Boot 4.1 upgrade"
 ## Definition of Done
 
 - All checkboxes above are ticked in this file.
-- `./gradlew clean build` prints `BUILD SUCCESSFUL` on Gradle 9.6.1 with Spring Boot 4.1.0 and Spring Cloud 2025.1.2; all 47 test classes pass — none disabled or skipped.
+- `./gradlew clean build` prints `BUILD SUCCESSFUL` on Gradle 9.6.1 with Spring Boot 4.1.0 and Spring Cloud 2025.1.2; all 43 test classes (108 tests) pass — none disabled or skipped.
 - `docker build` succeeds and the container boots cleanly.
 - Explicitly-pinned libraries are at their latest stable releases (or documented as held back with a reason).
 - Documentation reflects the current stack.
