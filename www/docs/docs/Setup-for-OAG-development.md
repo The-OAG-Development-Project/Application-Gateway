@@ -77,3 +77,20 @@ WARN  - Environment variable 'AUTH0_CLIENT_SECRET' does not exist
 
 Now you are ready to develop new features in OAG.
 With this you are ready to develop.
+
+# Documentation vitepress
+Install node.js: https://nodejs.org/en/download
+
+Install vitepress (Folder ApplicationGateway/www):
+```
+cd www
+npm add -D vitepress@next
+```
+
+Build the documentation:
+```
+cd www
+npm install
+npm run docs:build
+```
+(see package.json for more commands)
