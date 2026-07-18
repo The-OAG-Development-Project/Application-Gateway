@@ -248,12 +248,12 @@ FROM gradle:9.6.1-jdk17 AS build
 
 (from `FROM gradle:8.14-jdk17 AS build`). Leave the package-stage `FROM amazoncorretto:17.0.14-alpine3.18` unchanged.
 
-- [x] **Step 2: Build the image end-to-end**
+- [ ] **Step 2: Build the image end-to-end** (deferred to CI — Docker unavailable in the dev environment)
 
 Run (from the repository root): `docker build -t owasp/application-gateway:SNAPSHOT .`
 Expected: the build completes successfully, including the `./gradlew clean assemble --no-daemon` step, producing `/app/oag.jar`.
 
-- [x] **Step 3: Smoke-test the container boots**
+- [ ] **Step 3: Smoke-test the container boots** (deferred to CI — Docker unavailable in the dev environment)
 
 Run:
 ```bash
