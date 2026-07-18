@@ -94,3 +94,7 @@ npm install
 npm run docs:build
 ```
 (see package.json for more commands)
+
+# When using AI / Claude Code
+Start claude in root folder Application-Gateway.
+Use Plugin superpowers.
