@@ -42,7 +42,7 @@ module.exports = {
         base: '/docs',
         items: [
           {text: 'Overview', link: '/'},
-          {text: 'Terms you need to understand', link: '/Terms-you-need-to-understand'}
+          {text: 'Glossary', link: '/Glossary'}
         ]
       },
       {
