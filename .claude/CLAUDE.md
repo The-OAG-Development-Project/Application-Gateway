@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 - **OAG** The OWASP Application Gateway. 
-- **Tech-Stack:** SpringCloudGateway · Java 17 · Gradle 8 · docker · vitepress (for documentation) 
+- **Tech-Stack:** SpringCloudGateway · Java 17 · Gradle 9 · docker · vitepress (for documentation) 
 
 ## Build & Run Commands
 
