@@ -4,7 +4,7 @@ import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.owasp.oag.config.configuration.KeyManagementProfile;
 import org.owasp.oag.config.configuration.KeyRotationProfile;
@@ -81,7 +81,7 @@ class LocalRsaJwkStoreTest {
      * @param kid the key ID to assign to the JWK
      * @return a new RSAKey configured for signing
      */
-    @NotNull
+    @NonNull
     private static RSAKey generateJwkFromNewPubKey(KeyPairGenerator factory, String kid) {
         return new RSAKey.Builder((RSAPublicKey) factory.generateKeyPair().getPublic()).keyID(kid).algorithm(Algorithm.parse("RS256")).keyUse(KeyUse.SIGNATURE).build();
     }

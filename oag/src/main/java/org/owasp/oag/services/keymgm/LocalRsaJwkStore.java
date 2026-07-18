@@ -5,7 +5,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.exception.ApplicationException;
 import org.owasp.oag.exception.ConsistencyException;
@@ -90,7 +90,7 @@ public class LocalRsaJwkStore implements JwkStore {
         keyExpiry.put(kid, expiry);
     }
 
-    @NotNull
+    @NonNull
     private static RSAKey getJwkFromRsaPubKey(String kid, RSAPublicKey key) {
         return new RSAKey.Builder(key).keyID(kid).keyUse(KeyUse.SIGNATURE).algorithm(DEFAULT_JWK_ALGORITHM).build();
     }

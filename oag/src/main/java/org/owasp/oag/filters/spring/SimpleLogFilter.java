@@ -1,6 +1,6 @@
 package org.owasp.oag.filters.spring;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.owasp.oag.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +22,9 @@ public class SimpleLogFilter implements WebFilter {
 
     private static final Logger log = LoggerFactory.getLogger(SimpleLogFilter.class);
 
-    @NotNull
+    @NonNull
     @Override
-    public Mono<Void> filter(@NotNull ServerWebExchange exchange, WebFilterChain chain) {
+    public Mono<Void> filter(@NonNull ServerWebExchange exchange, WebFilterChain chain) {
 
         LoggingUtils.logTrace(log, exchange, "Execute SimpleLogFilter");
 

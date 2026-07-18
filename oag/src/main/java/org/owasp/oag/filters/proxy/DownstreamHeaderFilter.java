@@ -1,6 +1,6 @@
 package org.owasp.oag.filters.proxy;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.controllers.dto.SessionInformation;
 import org.owasp.oag.cookies.CsrfCookie;
@@ -72,8 +72,7 @@ public class DownstreamHeaderFilter extends RouteAwareFilter {
      * @param request The request builder to add headers to
      * @return The updated request builder with added headers
      */
-    @NotNull
-    protected ServerHttpRequest.Builder addOagHeaders(GatewayRouteContext routeContext, ServerHttpRequest.Builder request) {
+    protected ServerHttpRequest.@NonNull Builder addOagHeaders(GatewayRouteContext routeContext, ServerHttpRequest.Builder request) {
 
         // Add OAG status headers
         request = request.header(X_PROXY, X_PROXY_VALUE);
@@ -92,8 +91,7 @@ public class DownstreamHeaderFilter extends RouteAwareFilter {
      * @param request The request builder to update with filtered cookies
      * @return The updated request builder with filtered cookies
      */
-    @NotNull
-    protected ServerHttpRequest.Builder filterRequestCookies(ServerWebExchange exchange, ServerHttpRequest.Builder request) {
+    protected ServerHttpRequest.@NonNull Builder filterRequestCookies(ServerWebExchange exchange, ServerHttpRequest.Builder request) {
 
         //Remove OAG cookies
         var cookieBlacklist = Set.of(LoginCookie.NAME, CsrfCookie.NAME, LoginStateCookie.NAME);

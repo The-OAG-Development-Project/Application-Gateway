@@ -8,6 +8,8 @@ import org.owasp.oag.config.ConfigLoader;
 import org.owasp.oag.config.configuration.GatewayRoute;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.infrastructure.GlobalClockSource;
+import org.owasp.oag.persistentmap.InMemoryPersistentMap;
+import org.owasp.oag.services.blacklist.LocalPersistentBlacklist;
 import org.owasp.oag.services.blacklist.SessionBlacklist;
 import org.owasp.oag.utils.UrlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +53,7 @@ public class IntegrationTestConfig {
     @Primary
     @Bean(destroyMethod = "close")
     public SessionBlacklist sessionBlacklist() {
-        return new LocalInMemoryBlacklist(clockSource);
+        return new LocalPersistentBlacklist(clockSource, new InMemoryPersistentMap<>());
     }
 
     /**

@@ -5,6 +5,7 @@ import org.owasp.oag.config.ConfigLoader;
 import org.owasp.oag.config.FileConfigLoader;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.exception.ConfigurationException;
+import org.owasp.oag.persistentmap.FilePersistentMap;
 import org.owasp.oag.services.blacklist.LocalPersistentBlacklist;
 import org.owasp.oag.services.blacklist.SessionBlacklist;
 import org.owasp.oag.services.crypto.CookieEncryptor;
@@ -98,6 +99,6 @@ public class OAGBeanConfiguration {
      */
     @Bean(destroyMethod = "close")
     public SessionBlacklist sessionBlacklist(@Value("${oag.session-blacklist-file}") String filename) {
-        return new LocalPersistentBlacklist(clockSource, filename);
+        return new LocalPersistentBlacklist(clockSource, new FilePersistentMap<>(filename, Integer.class));
     }
 }
