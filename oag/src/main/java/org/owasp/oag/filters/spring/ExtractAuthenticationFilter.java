@@ -1,6 +1,6 @@
 package org.owasp.oag.filters.spring;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.exception.CookieDecryptionException;
 import org.owasp.oag.infrastructure.GlobalClockSource;
@@ -76,9 +76,9 @@ public class ExtractAuthenticationFilter implements WebFilter {
      * @param chain The web filter chain
      * @return A Mono that completes when the filter processing is done
      */
-    @NotNull
+    @NonNull
     @Override
-    public Mono<Void> filter(@NotNull ServerWebExchange exchange, WebFilterChain chain) {
+    public Mono<Void> filter(@NonNull ServerWebExchange exchange, WebFilterChain chain) {
 
         LoggingUtils.logTrace(log, exchange, "Execute ExtractAuthenticationFilter");
 

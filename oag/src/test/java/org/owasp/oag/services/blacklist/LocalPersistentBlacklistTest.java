@@ -1,10 +1,12 @@
 package org.owasp.oag.services.blacklist;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.owasp.oag.infrastructure.GlobalClockSource;
+import org.owasp.oag.persistentmap.FilePersistentMap;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Duration;
 
@@ -13,13 +15,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LocalPersistentBlacklistTest {
 
-    final static String testDbName = "session-blacklist-test.db";
+    @TempDir
+    Path tempDir;
+
+    private LocalPersistentBlacklist openBlacklist(GlobalClockSource clockSource) {
+        String file = tempDir.resolve("session-blacklist.db").toString();
+        return new LocalPersistentBlacklist(clockSource, new FilePersistentMap<>(file, Integer.class));
+    }
 
     @Test
     public void testSessionBlacklist() throws IOException {
 
         var clockSource = new GlobalClockSource();
-        var blacklist = new LocalPersistentBlacklist(clockSource, testDbName);
+        var blacklist = openBlacklist(clockSource);
         // Store some values
 
         blacklist.invalidateSession("1", 100).block();
@@ -32,7 +40,7 @@ class LocalPersistentBlacklistTest {
         blacklist.close();
 
         // Reopen
-        blacklist = new LocalPersistentBlacklist(clockSource, testDbName);
+        blacklist = openBlacklist(clockSource);
         assertTrue(blacklist.isInvalidated("1").block());
         assertTrue(blacklist.isInvalidated("2").block());
         assertFalse(blacklist.isInvalidated("3").block());
@@ -41,16 +49,14 @@ class LocalPersistentBlacklistTest {
         blacklist.invalidateSession("3", 100).block();
         assertTrue(blacklist.isInvalidated("3").block());
 
-        // Cleanup
         blacklist.close();
-        new File(testDbName).delete();
     }
 
     @Test
     public void testSessionBlacklistExpiry() throws IOException {
 
         var clockSource = new GlobalClockSource();
-        var blacklist = new LocalPersistentBlacklist(clockSource, testDbName);
+        var blacklist = openBlacklist(clockSource);
 
         // Store some values
         blacklist.invalidateSession("1", 100).block();
@@ -63,9 +69,7 @@ class LocalPersistentBlacklistTest {
         assertFalse(blacklist.isInvalidated("1").block());
         assertTrue(blacklist.isInvalidated("2").block());
 
-        // Cleanup
         blacklist.close();
-        new File(testDbName).delete();
     }
 
     public static void timeTravelToFuture(GlobalClockSource clockSource, int seconds) {

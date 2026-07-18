@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.owasp.oag.OWASPApplicationGatewayApplication;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.config.customDeserializer.StringEnvironmentVariableDeserializer;
@@ -91,7 +91,7 @@ public class FileConfigLoader implements ConfigLoader {
      * @return InputStream containing the remote configuration file
      * @throws IOException if there is an error loading the remote configuration file
      */
-    @NotNull
+    @NonNull
     protected InputStream loadRemoteConfigFile() throws IOException {
 
         log.debug("Load configuration file via https: {}", configPath);
@@ -117,7 +117,7 @@ public class FileConfigLoader implements ConfigLoader {
      * @return InputStream containing the configuration file from disk
      * @throws FileNotFoundException if the configuration file cannot be found
      */
-    @NotNull
+    @NonNull
     protected InputStream loadConfigFromFile() throws FileNotFoundException {
 
         log.debug("Load configuration file from file: {}", configPath);
@@ -133,7 +133,7 @@ public class FileConfigLoader implements ConfigLoader {
      * @return MainConfig object containing the merged configuration
      * @throws IOException if there is an error reading or parsing the configuration files
      */
-    @NotNull
+    @NonNull
     protected MainConfig mergeConfiguration(InputStream defaultSettingsStream, InputStream userConfigInputStream) throws IOException {
 
         // Instantiating a new ObjectMapper as a YAMLFactory

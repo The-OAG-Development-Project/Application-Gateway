@@ -2,12 +2,8 @@ package org.owasp.oag.services.blacklist;
 
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;
-import kotlin.text.Charsets;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.HTreeMap;
-import org.mapdb.Serializer;
 import org.owasp.oag.infrastructure.GlobalClockSource;
+import org.owasp.oag.persistentmap.PersistentMap;
 import org.owasp.oag.utils.LoggingUtils;
 import org.owasp.oag.utils.ReactiveUtils;
 import org.slf4j.Logger;
@@ -15,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Uses a local persisted map to store invalidated identifiers locally.
@@ -34,17 +31,12 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
     protected static final double EXPECTED_BLOOM_FILTER_FALSE_POSITIVES = 0.001;
     
     private static final Logger log = LoggerFactory.getLogger(LocalPersistentBlacklist.class);
-    
-    /**
-     * Database instance for persistent storage.
-     */
-    protected DB db;
-    
+
     /**
      * Map storing blacklisted session identifiers and their expiration times.
      */
-    protected HTreeMap<String, Integer> blacklist;
-    
+    protected final PersistentMap<Integer> blacklist;
+
     /**
      * Bloom filter for efficient negative lookups.
      */
@@ -56,34 +48,18 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
     private final GlobalClockSource clockSource;
 
     /**
-     * Creates a new LocalPersistentBlacklist with the specified clock source and database file.
+     * Creates a new LocalPersistentBlacklist backed by the given map.
      *
      * @param clockSource The clock source for time-based operations
-     * @param filename The file name for the persistent database
+     * @param blacklist   The map storing blacklisted identifiers and their expiration times
      */
-    public LocalPersistentBlacklist(GlobalClockSource clockSource, String filename) {
+    public LocalPersistentBlacklist(GlobalClockSource clockSource, PersistentMap<Integer> blacklist) {
 
         this.clockSource = clockSource;
-        initDb(filename);
-
-        blacklist = db.hashMap("session-blacklist", Serializer.STRING, Serializer.INTEGER)
-                .createOrOpen();
+        this.blacklist = blacklist;
 
         // Populate bloom filter with all entries from blacklist
         cleanup().block();
-    }
-
-    /**
-     * Initializes the persistent database.
-     *
-     * @param filename The file name for the persistent database
-     */
-    protected void initDb(String filename) {
-
-        this.db = DBMaker.fileDB(filename)
-                .transactionEnable()
-                .closeOnJvmShutdown()
-                .make();
     }
 
     /**
@@ -95,18 +71,14 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
         int currentTimeSeconds = clockSource.getEpochSeconds();
 
         // Clean up expired entries
-        blacklist.getEntries()
-                .stream().filter(e -> {
-            var expiry = e.getValue();
-            return expiry < currentTimeSeconds;
-        })
+        blacklist.entrySet().stream()
+                .filter(e -> e.getValue() < currentTimeSeconds)
                 .forEach(e -> blacklist.remove(e.getKey()));
-        db.commit();
 
         // Populate bloom filter
         var size = blacklist.size();
-        var newFilter = BloomFilter.create(Funnels.stringFunnel(Charsets.UTF_8), size + EXPECTED_INSERTIONS, EXPECTED_BLOOM_FILTER_FALSE_POSITIVES);
-        blacklist.getEntries()
+        var newFilter = BloomFilter.create(Funnels.stringFunnel(StandardCharsets.UTF_8), size + EXPECTED_INSERTIONS, EXPECTED_BLOOM_FILTER_FALSE_POSITIVES);
+        blacklist.entrySet()
                 .forEach(e -> newFilter.put(e.getKey()));
 
         // set new filter
@@ -151,7 +123,6 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
         int expireTime = currentTimeSeconds + ttl;
 
         blacklist.put(identifier, expireTime);
-        db.commit();
 
         //Add to bloom filter
         bloomFilter.put(identifier);
@@ -188,7 +159,7 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
      */
     private boolean checkIfInDbBlocking(String identifier) {
 
-        Object o = blacklist.getOrDefault(identifier, null);
+        Integer o = blacklist.get(identifier);
         var isInDb = o != null;
 
         log.trace("Lookup for identifier {} returned {}", identifier, isInDb);
@@ -212,6 +183,6 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
      */
     @Override
     public void close() throws IOException {
-        db.close();
+        blacklist.close();
     }
 }

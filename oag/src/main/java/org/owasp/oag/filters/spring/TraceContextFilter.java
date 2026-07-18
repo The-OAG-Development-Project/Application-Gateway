@@ -1,6 +1,6 @@
 package org.owasp.oag.filters.spring;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.owasp.oag.logging.TraceContextBridge;
 import org.owasp.oag.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -50,9 +50,9 @@ public class TraceContextFilter implements WebFilter {
      * @param webFilterChain The web filter chain for executing the next filter
      * @return A Mono that completes when the filter has been applied
      */
-    @NotNull
+    @NonNull
     @Override
-    public Mono<Void> filter(@NotNull ServerWebExchange exchange, WebFilterChain webFilterChain) {
+    public Mono<Void> filter(@NonNull ServerWebExchange exchange, WebFilterChain webFilterChain) {
 
         // Get trace id
         exchange = traceContext.processExchange(exchange);
