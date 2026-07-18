@@ -4,7 +4,7 @@ routes:
   httpbin:
     type: webapplication
     path: /**
-    url: https://httpbin.org
+    url: https://httpbingo.org/
     allowAnonymous: yes
 
   echo:
