@@ -1,7 +1,7 @@
 #
 # Build stage
 #
-FROM gradle:8.14-jdk17 AS build
+FROM gradle:9.6.1-jdk17 AS build
 
 # Copy build files and download dependencies -> allows faster build because this step can be cached
 COPY oag/build.gradle oag/settings.gradle /home/app/

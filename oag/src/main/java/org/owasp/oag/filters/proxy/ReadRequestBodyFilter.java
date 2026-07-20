@@ -40,9 +40,15 @@ public abstract class ReadRequestBodyFilter extends RouteAwareFilter {
                 var factory = new ModifyRequestBodyGatewayFilterFactory();
                 var config = new ModifyRequestBodyGatewayFilterFactory.Config();
                 config.setContentType(null);
-                config.setInClass(String.class);
-                config.setOutClass(String.class);
-                config.setRewriteFunction((e, s) -> rewrite(e, s, routeContext));
+                // Use the typed 3-arg overload (which also sets inClass/outClass) instead of the
+                // single-arg setRewriteFunction(RewriteFunction): as of spring-cloud-gateway-server-webflux
+                // 5.0.2, RewriteFunction declares its generic apply(ServerWebExchange, T) alongside a
+                // default erasure bridge apply(Object, Object), so assigning a lambda to the raw
+                // RewriteFunction parameter of the single-arg overload fails with
+                // "cannot infer functional interface descriptor for RewriteFunction". Passing explicit
+                // Class witnesses gives the lambda a properly parameterized RewriteFunction<String, String>
+                // target type.
+                config.setRewriteFunction(String.class, String.class, (e, s) -> rewrite(e, s, routeContext));
 
                 return factory.apply(config).filter(exchange, chain);
             }
@@ -81,9 +87,9 @@ public abstract class ReadRequestBodyFilter extends RouteAwareFilter {
      * @param routeContext the context for the current gateway route
      * @return a Mono containing the original body
      */
-    private Mono<Object> rewrite(Object e, Object s, GatewayRouteContext routeContext) {
+    private Mono<String> rewrite(ServerWebExchange e, String s, GatewayRouteContext routeContext) {
 
-        consumeBody((ServerWebExchange) e, (String) s, routeContext);
+        consumeBody(e, s, routeContext);
         return Mono.justOrEmpty(s);
     }
 }
