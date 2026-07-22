@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 - **OAG** The OWASP Application Gateway. 
-- **Tech-Stack:** SpringCloudGateway · Java 17 · Gradle 9 · docker · vitepress (for documentation) 
+- **Tech-Stack:** SpringCloudGateway · Java 25 · Gradle 9 · docker · vitepress (for documentation) 
 
 ## Build & Run Commands
 
@@ -70,6 +70,7 @@ All modules declare `org.owasp.oag` as base package and extend it.
 - Add documentation to all public, protected, package private classes, methods and fields.
 - Use existing libraries when it saves 30 or more lines of code.
 - For diagrams use mermaid
+- never commit or merge to main
 - **When reviewing code.** Verify that there are
   - No cyclic dependencies between modules and packages
   - Classes are named according to specification/glossar

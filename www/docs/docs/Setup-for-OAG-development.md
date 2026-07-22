@@ -1,6 +1,6 @@
 # Preparation
 
-* Install Java 17 or higher
+* Install Java 25 or higher
 * Install Gradle
 * Install Git
 * Install IntelliJ (Community Version is fine)
@@ -28,7 +28,7 @@
 ## Using IntelliJ
 * In IntelliJ Build of the whole project (select Build -> Build Project in the menu).
   + You will have to select a project JDK (IntelliJ prompts for this in the upper right corner.). OAG requires a
-    SDK/JDK >= 17 and runs on Java 17 or higher.
+    SDK/JDK >= 25 and runs on Java 25 or higher.
 ## Using Gradle
 * In the command line change to ../oag/Application-Gateway/oag
   ````bash
