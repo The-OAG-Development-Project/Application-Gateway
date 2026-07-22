@@ -34,7 +34,7 @@ group = 'org.owasp'
 version = '0.7.2-SNAPSHOT'
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
