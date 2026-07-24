@@ -8,7 +8,7 @@ OWASP Application Gateway is an HTTP reverse proxy that sits between your web ap
 
 ## Prerequisites
 OAG builds on Top of (Minimum Requirements):
-- Java 17
+- Java 25
 - SpringBoot 4.x
 - Spring Cloud Gateway 2025.x.y
 

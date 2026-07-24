@@ -38,13 +38,13 @@ public class ExtractAuthenticationFilter implements WebFilter {
     private static final Logger log = LoggerFactory.getLogger(ExtractAuthenticationFilter.class);
 
     @Autowired
-    CookieEncryptor cookieEncryptor;
+    private CookieEncryptor cookieEncryptor;
 
     @Autowired
-    GlobalClockSource globalClockSource;
+    private GlobalClockSource globalClockSource;
 
     @Autowired
-    SessionBlacklist sessionBlacklist;
+    private SessionBlacklist sessionBlacklist;
 
     /**
      * Extracts the session from the server web exchange.

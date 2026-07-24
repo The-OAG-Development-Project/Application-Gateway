@@ -25,7 +25,7 @@ public class AddSessionToBlacklistHook implements SessionHook {
     private static final Logger log = LoggerFactory.getLogger(AddSessionToBlacklistHook.class);
 
     @Autowired
-    SessionBlacklist sessionBlacklist;
+    private SessionBlacklist sessionBlacklist;
 
     /**
      * Renews the session. (Not implemented in this hook)

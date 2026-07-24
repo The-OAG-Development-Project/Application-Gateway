@@ -34,7 +34,7 @@ group = 'org.owasp'
 version = '0.7.2-SNAPSHOT'
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -147,6 +147,43 @@ java {
     withJavadocJar()
     withSourcesJar()
 }
+
+// Tune javas own javadoc lint
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:all,-missing', '-quiet')
+}
+// use custom javadoc lint
+configurations {
+    requireJavadoc
+}
+dependencies {
+    requireJavadoc("org.plumelib:require-javadoc:2.0.0")
+}
+def requireJavadoc = tasks.register("requireJavadoc", JavaExec) {
+    group = "Documentation"
+    description = "Ensures that Javadoc documentation exists."
+    inputs.files(sourceSets.main.allJava)
+    mainClass = "org.plumelib.javadoc.RequireJavadoc"
+    classpath = configurations.requireJavadoc
+    var optionsForRequireJavadoc = [
+      "--dont-require-private=true",
+      "--dont-require-noarg-constructor=true",
+      "--dont-require-trivial-properties=true"
+    ]
+    args( optionsForRequireJavadoc +  sourceSets.main.allJava.srcDirs.collect { it.getAbsolutePath() })
+    jvmArgs += [
+      "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+      "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+      "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+      "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+      "--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+      "--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+      "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+      "--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+    ]
+}
+check.dependsOn(requireJavadoc)
+
 
 publishOnCentral {
     repoOwner.set("The-OAG-Development-Project")

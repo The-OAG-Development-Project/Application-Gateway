@@ -1,7 +1,7 @@
 #
 # Build stage
 #
-FROM gradle:9.6.1-jdk17 AS build
+FROM gradle:9.6.1-jdk25 AS build
 
 # Copy build files and download dependencies -> allows faster build because this step can be cached
 COPY oag/build.gradle oag/settings.gradle /home/app/
@@ -18,7 +18,7 @@ RUN cd /home/app && ./gradlew clean assemble --no-daemon
 #
 # Package stage
 #
-FROM amazoncorretto:17.0.14-alpine3.18
+FROM amazoncorretto:25.0.3-alpine3.24
 
 # for regular linux 
 # RUN useradd --user-group --system --create-home --no-log-init app
