@@ -353,3 +353,4 @@ git commit -m "docs: reflect Java 25 upgrade"
 - **foojay resolver version used:** `1.0.0` (the plan's original `0.8.0` was incompatible with Gradle 9.6.1; `1.0.0` is the current latest-stable release of `org.gradle.toolchains.foojay-resolver-convention`).
 - **Docker build image:** `gradle:9.6.1-jdk25`; **runtime image:** `amazoncorretto:25.0.3-alpine3.24`.
 - **Source changes required for Java 25:** none.
+- **CI action bump (post-review, out of the original Task 4 scope):** both workflows moved from `actions/setup-java@v1` to `actions/setup-java@v4` with `distribution: temurin`. The final whole-branch review flagged that the archived `@v1` cannot reliably provision Java 25 and would fail the "Set up JDK 25" step; the change was approved as a follow-up despite Task 4's original scope-out.
