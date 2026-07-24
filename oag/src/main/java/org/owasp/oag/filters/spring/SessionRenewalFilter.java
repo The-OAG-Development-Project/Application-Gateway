@@ -30,16 +30,16 @@ public class SessionRenewalFilter implements WebFilter {
     private static final Logger log = LoggerFactory.getLogger(SessionRenewalFilter.class);
 
     @Autowired
-    CookieEncryptor cookieEncryptor;
+    private CookieEncryptor cookieEncryptor;
 
     @Autowired
-    MainConfig config;
+    private MainConfig config;
 
     @Autowired
-    ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
 
     @Autowired
-    SessionHookChain sessionHookChain;
+    private SessionHookChain sessionHookChain;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {

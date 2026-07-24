@@ -17,8 +17,14 @@ import java.util.Map;
 public class RsaJwtSignerFactory implements JwtSignerFactory {
 
     @Autowired
-    CurrentSigningKeyHolder keyHolder;
+    private CurrentSigningKeyHolder keyHolder;
 
+    /**
+     * Creates a JWTSigner
+     * @param hostUri  The host Uri for which the signer should be
+     * @param settings unused
+     * @return the JWTSigner for the hostUri
+     */
     public JwtSigner create(String hostUri, Map<String, Object> settings) {
 
         if (keyHolder.getCurrentPrivateKey() == null) {

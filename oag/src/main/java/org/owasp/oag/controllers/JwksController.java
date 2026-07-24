@@ -21,7 +21,7 @@ import static org.owasp.oag.utils.SharedConstants.JWKS_BASE_URI;
 
 /**
  * Provides "public" (to down stream systems) access to the JWT signer keys currently in use.
- * It does this as a well-known URI (defined in https://tools.ietf.org/html/rfc8615) yet uses
+ * It does this as a well-known URI (defined in <a href="https://tools.ietf.org/html/rfc8615">RFC8615</a>) yet uses
  * a non-registered endpoint of jwks (i.e. server.com/.well-known/jwks).
  */
 @RestController
@@ -31,6 +31,11 @@ public class JwksController {
     private final JwkStore jwkStore;
     private final MainConfig config;
 
+    /**
+     * Creates a new JwksController
+     * @param config The main config of OAG
+     * @param keyManagementFactory The key factory that should be used
+     */
     @Autowired
     JwksController(MainConfig config, KeyManagementFactory keyManagementFactory) {
         this.config = config;
@@ -38,7 +43,7 @@ public class JwksController {
     }
 
     /**
-     * Provides all the JWT signing keys used by OAG in the format of a JWK Set specified at https://tools.ietf.org/html/rfc7517.
+     * Provides all the JWT signing keys used by OAG in the format of a JWK Set specified at <a href="https://tools.ietf.org/html/rfc7517">RFC7517</a>.
      * Namely this means:
      * <code>
      * {"keys":
@@ -71,9 +76,7 @@ public class JwksController {
             // note: JWKSet keys is never null and always return a proper empty array when no keys are there.
             return keys.toJSONObject();
         })
-                .map(response -> {
-                    return ResponseEntity.ok(response);
-                });
+                .map(ResponseEntity::ok);
     }
 
     /**
@@ -88,8 +91,6 @@ public class JwksController {
             LoggingUtils.contextual(() -> log.debug("signing Key {} successfully retrieved: {}.", kid, key.getKeyByKeyId(kid) != null));
             return key.toJSONObject();
         })
-                .map(response -> {
-                    return ResponseEntity.ok(response);
-                });
+                .map(ResponseEntity::ok);
     }
 }

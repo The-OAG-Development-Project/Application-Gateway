@@ -19,10 +19,10 @@ import java.util.UUID;
 public class CsrfCookieCreationHook implements SessionHook {
 
     @Autowired
-    MainConfig config;
+    private MainConfig config;
 
     @Autowired
-    CookieConverter cookieConverter;
+    private CookieConverter cookieConverter;
 
     /**
      * Renews the session by copying the CSRF token from the old session.

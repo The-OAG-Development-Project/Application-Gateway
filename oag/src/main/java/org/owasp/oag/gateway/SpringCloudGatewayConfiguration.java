@@ -29,7 +29,8 @@ public class SpringCloudGatewayConfiguration {
     public final static String ATTRIBUTE_ROUTE_NAME = "RouteName";
     private static final Logger log = LoggerFactory.getLogger(SpringCloudGatewayConfiguration.class);
     @Autowired
-    MainConfig config;
+    private MainConfig config;
+
     private final ProxyPathMatcher matcher = new ProxyPathMatcher();
 
     /**

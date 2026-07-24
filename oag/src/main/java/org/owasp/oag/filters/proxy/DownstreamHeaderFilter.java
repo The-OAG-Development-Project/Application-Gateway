@@ -50,7 +50,7 @@ public class DownstreamHeaderFilter extends RouteAwareFilter {
     private static final Logger log = LoggerFactory.getLogger(DownstreamHeaderFilter.class);
 
     @Autowired
-    MainConfig config;
+    private MainConfig config;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain, GatewayRouteContext routeContext) {
