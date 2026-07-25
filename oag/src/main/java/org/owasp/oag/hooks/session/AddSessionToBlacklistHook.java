@@ -3,7 +3,6 @@ package org.owasp.oag.hooks.session;
 import org.owasp.oag.filters.spring.ExtractAuthenticationFilter;
 import org.owasp.oag.services.blacklist.SessionBlacklist;
 import org.owasp.oag.session.Session;
-import org.owasp.oag.utils.ReactiveUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,13 +69,9 @@ public class AddSessionToBlacklistHook implements SessionHook {
 
         Optional<Session> sessionOptional = ExtractAuthenticationFilter.extractSessionFromExchange(exchange);
 
-        // Session will be stored in asynchronously in session blacklist
         sessionOptional.ifPresent(session -> {
-
-            ReactiveUtils.subscribeAsynchronously(
-                    sessionBlacklist.invalidateSession(session.getId(), session.getRemainingTimeSeconds())
-                            .doOnSuccess((unused) -> logDebug(log, exchange, "Session {} invalidated", session.getId()))
-                    , exchange);
+            sessionBlacklist.invalidateSession(session.getId(), session.getRemainingTimeSeconds());
+            logDebug(log, exchange, "Session {} invalidated", session.getId());
         });
     }
 }

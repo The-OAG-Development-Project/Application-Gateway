@@ -82,49 +82,42 @@ public class ExtractAuthenticationFilter implements WebFilter {
 
         LoggingUtils.logTrace(log, exchange, "Execute ExtractAuthenticationFilter");
 
-        return extractAndStoreAuthentication(exchange)
-                .then(chain.filter(exchange));
+        extractAndStoreAuthentication(exchange);
+        return chain.filter(exchange);
     }
 
     /**
      * Extracts authentication from the login cookie and stores it in the exchange attributes.
      * Also checks if the session has been invalidated.
-     * 
+     *
      * @param exchange The server web exchange
-     * @return A Mono that completes when the extraction and storing is done
      */
-    protected Mono<Void> extractAndStoreAuthentication(ServerWebExchange exchange) {
+    protected void extractAndStoreAuthentication(ServerWebExchange exchange) {
 
         exchange.getAttributes().put(OAG_SESSION, Optional.empty());
 
-        // Extract session from cookie
         var loginCookieOptional = extractLoginCookieFromRequest(exchange);
-
         if (loginCookieOptional.isEmpty())
-            return Mono.empty();
+            return;
 
         var loginCookie = loginCookieOptional.get();
 
-        return sessionBlacklist.isInvalidated(loginCookie.getId())
-                .doOnSuccess(isInvalidated -> {
+        if (sessionBlacklist.isInvalidated(loginCookie.getId())) {
+            LoggingUtils.logInfo(log, exchange, "Received invalidated session cookie with id: {} user-id: {}",
+                    loginCookie.getId(), loginCookie.getUserModel().getId());
+            return;
+        }
 
-                    if (isInvalidated) {
-                        LoggingUtils.logInfo(log, exchange, "Received invalidated session cookie with id: {} user-id: {}", loginCookie.getId(), loginCookie.getUserModel().getId());
-                    } else {
+        var sessionOptional = Session.fromSessionCookie(loginCookie, globalClockSource.getGlobalClock());
 
-                        var sessionOptional = Session.fromSessionCookie(loginCookie, globalClockSource.getGlobalClock());
+        if (sessionOptional.isEmpty()) {
+            LoggingUtils.logDebug(log, exchange, "Received invalid session cookie, maybe expired");
+        }
 
-                        if(sessionOptional.isEmpty()){
-                            LoggingUtils.logDebug(log, exchange, "Received invalid session cookie, maybe expired");
-                        }
-
-                        // Extract csrf token from session cookie and store in context
-                        exchange.getAttributes().put(OAG_SESSION_CSRF_TOKEN, loginCookie.getCsrfToken());
-                        // Store session optional in http request object
-                        exchange.getAttributes().put(OAG_SESSION, sessionOptional);
-                    }
-
-                }).then();
+        // Extract csrf token from session cookie and store in context
+        exchange.getAttributes().put(OAG_SESSION_CSRF_TOKEN, loginCookie.getCsrfToken());
+        // Store session optional in http request object
+        exchange.getAttributes().put(OAG_SESSION, sessionOptional);
     }
 
     /**
