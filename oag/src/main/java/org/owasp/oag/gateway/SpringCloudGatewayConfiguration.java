@@ -115,8 +115,14 @@ public class SpringCloudGatewayConfiguration {
                 });
 
                 var rewriteConfig = route.getRewrite().build(route);
-                // Write the route-name attribute in a filter (highest precedence, so it runs before every
-                // other filter for this route) instead of as a side effect of predicate evaluation.
+                // Write the route-name attribute in a filter instead of as a side effect of predicate
+                // evaluation, because a predicate must stay pure: the functional router restores the
+                // attribute map after evaluating a non-matching predicate.
+                // HIGHEST_PRECEDENCE is required, not decorative. Every RouteAwareFilter subclass reads
+                // this attribute to resolve the route's security profile, and those are GlobalFilters at
+                // @Order 10..100. Spring Cloud Gateway merges route filters and global filters into one
+                // list and sorts them together, so this must outrank all of them or the wrong security
+                // profile gets applied.
                 var filters = path.filters(f -> f.filter((exchange, chain) -> {
                             exchange.getAttributes().put(ATTRIBUTE_ROUTE_NAME, routeName);
                             return chain.filter(exchange);
