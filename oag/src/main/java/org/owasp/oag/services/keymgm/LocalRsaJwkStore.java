@@ -9,6 +9,8 @@ import org.jspecify.annotations.NonNull;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.exception.ApplicationException;
 import org.owasp.oag.exception.ConsistencyException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -26,6 +28,7 @@ import java.util.*;
  */
 @Component
 public class LocalRsaJwkStore implements JwkStore {
+    private static final Logger log = LoggerFactory.getLogger(LocalRsaJwkStore.class);
     private static final Algorithm DEFAULT_JWK_ALGORITHM = Algorithm.parse("RS256");;
 
     private final MainConfig config;
@@ -77,6 +80,10 @@ public class LocalRsaJwkStore implements JwkStore {
         if (!(key instanceof RSAPublicKey)) {
             throw new ApplicationException("JWT signing key passed in must be of type RSAPublicKey. It was type " + key.getClass() + " instead.", null);
         }
+        if (expiry < System.currentTimeMillis()) {
+            log.warn("Key with id {} added but it is already expired and will be removed in next cleanup cycle.", kid);
+        }
+
         JWK jwk = getJwkFromRsaPubKey(kid, (RSAPublicKey) key);
         availableKeys.put(kid, jwk);
         keyExpiry.put(kid, expiry);
@@ -92,6 +99,10 @@ public class LocalRsaJwkStore implements JwkStore {
         if (key == null) {
             throw new IllegalArgumentException("JWK may not be null when adding a key.");
         }
+        if (expiry < System.currentTimeMillis()) {
+            log.warn("Key with id {} added but it is already expired and will be removed in one of the next cleanup cycles.", key.getKeyID());
+        }
+
         availableKeys.put(key.getKeyID(), key);
         keyExpiry.put(key.getKeyID(), expiry);
     }
@@ -112,6 +123,7 @@ public class LocalRsaJwkStore implements JwkStore {
     }
 
     private synchronized void cleanupOldKeys() {
+        log.debug("Running signing key cleanup cycle on store {}.", this);
 
         long gracePeriodMillis = Duration.ofMinutes(10L).toMillis(); // 10 minutes
         long currentTime = System.currentTimeMillis() - gracePeriodMillis;
@@ -122,6 +134,7 @@ public class LocalRsaJwkStore implements JwkStore {
         expiredKid.forEach(kid -> {
             availableKeys.remove(kid);
             keyExpiry.remove(kid);
+            log.info("Signing key {} is expired. Removed it from local key store.", kid);
         });
     }
 
@@ -141,7 +154,7 @@ public class LocalRsaJwkStore implements JwkStore {
             try {
                 store.cleanupOldKeys();
             } catch (Exception e) {
-                // Cleanup failed; startScheduler() below still retries later.
+                log.error("Could not cleanup old signing keys. Consider restarting the service if this happens for a longer time period.", e);
             } finally {
                 startScheduler();
             }

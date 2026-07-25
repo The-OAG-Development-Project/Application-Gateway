@@ -1,6 +1,8 @@
 package org.owasp.oag.services.keymgm;
 
 import org.owasp.oag.exception.ConsistencyException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -11,6 +13,7 @@ import java.security.PrivateKey;
  */
 @Component
 public class CurrentSigningKeyHolder {
+    private static final Logger log = LoggerFactory.getLogger(CurrentSigningKeyHolder.class);
 
     private KeyGenerator.GeneratedKey currentKey;
     private String kid;
@@ -46,6 +49,9 @@ public class CurrentSigningKeyHolder {
     public synchronized void setCurrentSigningKey(String kid, KeyGenerator.GeneratedKey newSigningKey) {
         if (newSigningKey == null) {
             throw new ConsistencyException("Signing key can not be set to null.", null);
+        }
+        if (currentKey != null && !currentKey.equalType(newSigningKey)) {
+            log.warn("New signing key {} has different type than the old signing key {}. This may lead to errors.", currentKey.getTypeString(), newSigningKey.getTypeString());
         }
         currentKey = newSigningKey;
         this.kid = kid;
