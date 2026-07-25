@@ -20,8 +20,17 @@ public class TraceContextBridge {
 
     private static final Logger log = LoggerFactory.getLogger(TraceContextBridge.class);
 
-    @Autowired
     private TraceContextFactory traceContextFactory;
+
+    /**
+     * Sets the factory used to create a fresh trace context for each request.
+     *
+     * @param traceContextFactory the factory to use
+     */
+    @Autowired
+    public void setTraceContextFactory(TraceContextFactory traceContextFactory) {
+        this.traceContextFactory = traceContextFactory;
+    }
 
     /**
      * Processes a ServerWebExchange by creating a trace context, applying or generating a trace ID,
@@ -42,9 +51,10 @@ public class TraceContextBridge {
                 // make sure we take over the trace state if it is valid
                 secondary = exchange.getRequest().getHeaders().getFirst(requestContext.getSecondaryRequestHeader());
             }
-            if (primary == null) {
+            if (primary == null || primary.isEmpty()) {
                 // No inbound trace to adopt. This is the ordinary case for a first-hop request, so it
-                // must not go through TraceException - that would log a warning on every such request.
+                // must not go through TraceException. Note getFirst() yields "" - not null - for a
+                // header sent with an empty value, so both cases have to be handled here.
                 requestContext.generateNewTraceId();
             } else {
                 try {

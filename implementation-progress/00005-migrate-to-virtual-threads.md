@@ -19,12 +19,12 @@
 - **The 108-test suite is the equivalence oracle and must not be weakened.** Never `@Disabled` a test, never use `-PskipTests`, never relax an assertion to make a task pass. Integration tests keep driving the gateway through `WebTestClient` until Task 9; do not touch test *assertions* before then — only the plumbing a signature change forces.
 - **Every task ends with `./gradlew build --console=plain` printing `BUILD SUCCESSFUL`** with all tests passing, run from `oag/`.
 - **Phase A commits are intentionally not releasable.** Making `SessionBlacklist` and the JWT signer blocking while Netty is still the runtime means those calls briefly block an event-loop thread. That is accepted and temporary: the branch is only merged after Task 10. Do not add `Schedulers.boundedElastic()` back to "fix" it.
-- **No behaviour changes, except the four listed below.** Response status codes, headers, cookies (names, `SameSite`, `Secure`, `HttpOnly`, `Max-Age`, `Path`), redirect targets, downstream headers and log messages stay as they are. If a step tempts you to "improve" behaviour beyond this list, don't — note it and move on. The four accepted changes, each mandated by a specific step:
+- **No behaviour changes, except the five listed below.** Response status codes, headers, cookies (names, `SameSite`, `Secure`, `HttpOnly`, `Max-Age`, `Path`), redirect targets, downstream headers and log messages stay as they are. If a step tempts you to "improve" behaviour beyond this list, don't — note it and move on. The five accepted changes, each mandated by a specific step:
   1. **Task 1** — logout session-blacklisting becomes synchronous. It was fire-and-forget (`ReactiveUtils.subscribeAsynchronously`), so a logout could return before the session was actually blacklisted. The new behaviour is strictly stronger.
   2. **Task 3** — `JwksController`'s two `debug` log lines start being emitted. They were wrapped in `LoggingUtils.contextual(...)` whose returned `Mono` was discarded, so they never executed.
-  3. **Task 4** — `DownstreamHeaderFilter`'s trace line says `"Execute DownstreamHeaderFilter"` instead of the copy-pasted `"Execute ResponseHeaderFilter"`.
-  4. **Task 5** — the route name is set in a filter instead of in the route predicate. This is a prerequisite for Task 7, not a cleanup: `RequestPredicates` in Spring MVC's functional router snapshots and restores the request attribute map while evaluating nested predicates, so an attribute written from inside a predicate cannot be relied on afterwards.
-  5. **Task 3** — eight log statements that were silently dead start being emitted. Every one was written as `LoggingUtils.contextual(() -> log.x(...))`, which returns a `Mono.deferContextual(...)` whose supplier only runs on subscription; every call site discarded the `Mono`, so none of them ever executed. Deleting `contextual(...)` forces the issue, and the resolution is to make them live as plain `log.x(...)` calls rather than to delete the diagnostics. Affected: `AbstractException` (exception self-logging with its `ExId`), `CurrentSigningKeyHolder` (signing-key type change warning), `DefaultKeyRotation` (key-rotated info, key-rotation-failed error), `LocalRsaJwkStore` (already-expired-key warnings ×2, cleanup-cycle debug, expired-key-removed info, cleanup-failed error). This is a bug fix: the code always intended to log. It also removes two comment-only `catch` blocks that would otherwise swallow failures in the key-rotation and JWK-cleanup retry loops.
+  3. **Task 3** — eight log statements that were silently dead start being emitted. Every one was written as `LoggingUtils.contextual(() -> log.x(...))`, which returns a `Mono.deferContextual(...)` whose supplier only runs on subscription; every call site discarded the `Mono`, so none of them ever executed. Deleting `contextual(...)` forces the issue, and the resolution is to make them live as plain `log.x(...)` calls rather than to delete the diagnostics. Affected: `AbstractException` (exception self-logging with its `ExId`), `CurrentSigningKeyHolder` (signing-key type change warning), `DefaultKeyRotation` (key-rotated info, key-rotation-failed error), `LocalRsaJwkStore` (already-expired-key warnings ×2, cleanup-cycle debug, expired-key-removed info, cleanup-failed error). This is a bug fix: the code always intended to log. It also removes two comment-only `catch` blocks that would otherwise swallow failures in the key-rotation and JWK-cleanup retry loops.
+  4. **Task 4** — `DownstreamHeaderFilter`'s trace line says `"Execute DownstreamHeaderFilter"` instead of the copy-pasted `"Execute ResponseHeaderFilter"`.
+  5. **Task 5** — the route name is set in a filter instead of in the route predicate. This is a prerequisite for Task 7, not a cleanup: `RequestPredicates` in Spring MVC's functional router snapshots and restores the request attribute map while evaluating nested predicates, so an attribute written from inside a predicate cannot be relied on afterwards.
 - **The 4xx `errorReason` log detail must be preserved.** `SimpleLogFilter` currently logs the `ResponseStatusException` reason for failed requests (`"Response status code {} for {} {} errorReason: '{}'"`). Task 7 must keep emitting that detail after the port to a servlet filter. Losing it is a regression, not an acceptable simplification.
 - **Config rule:** one `spring:` top-level block per YAML file. `application.yaml` already has one; add new Spring keys inside it, never as a second `spring:` key.
 - **Language:** English in code, config, commit messages and docs. Documentation describes the *current* state — no "was WebFlux before" history in the docs themselves.
@@ -68,7 +68,7 @@ Files created, modified or deleted across the whole plan, and what each is respo
 | `oag/src/main/java/org/owasp/oag/gateway/GatewayRouterFunctionConfiguration.java` | Builds one `RouterFunction<ServerResponse>` from `MainConfig.getRoutes()`, in specificity order, with OAG's route filters attached. |
 | `oag/src/main/java/org/owasp/oag/cookies/CookieWriter.java` | Writes a `ResponseCookie` to an `HttpServletResponse` as a `Set-Cookie` header, preserving `SameSite`. |
 | `oag/src/test/java/org/owasp/oag/gateway/GatewayRouterFunctionConfigurationTest.java` | Verifies route ordering, route-name attribute, rewrite and filter execution order. |
-| `oag/src/test/java/org/owasp/oag/logging/TraceContextBridgeTest.java` | Verifies the `TraceHeaders` produced for new / valid-incoming / invalid-incoming traces. |
+| `oag/src/test/java/org/owasp/oag/logging/TraceContextBridgeTest.java` | Verifies the `TraceHeaders` produced for new / valid-incoming / invalid-incoming traces, and that `applyExistingTrace` is never reached for an absent or empty header. (Created during Task 3's fix passes; Task 4 extends it.) |
 | `oag/src/test/java/org/owasp/oag/filters/servlet/ExtractAuthenticationFilterTest.java` | Verifies session extraction, blacklist rejection and CSRF-token exposure via request attributes. |
 | `oag/src/test/java/org/owasp/oag/integration/mockserver/VirtualThreadTest.java` + `VirtualThreadProbeFilter.java` | Prove requests are handled on virtual threads. |
 | `oag/src/test/java/org/owasp/oag/integration/testInfrastructure/TestClientFactory.java` | Builds a `RestTestClient` that trusts the gateway's self-signed certificate. |
@@ -734,7 +734,7 @@ Today `TraceContextBridge.processExchange` mutates the incoming exchange to add 
 - Modify: `oag/src/main/java/org/owasp/oag/logging/TraceContextBridge.java`
 - Modify: `oag/src/main/java/org/owasp/oag/filters/spring/TraceContextFilter.java`
 - Modify: `oag/src/main/java/org/owasp/oag/filters/proxy/DownstreamHeaderFilter.java`
-- Test: `oag/src/test/java/org/owasp/oag/logging/TraceContextBridgeTest.java` (new)
+- Modify (already exists, created during Task 3's fix passes): `oag/src/test/java/org/owasp/oag/logging/TraceContextBridgeTest.java`
 
 **Interfaces:**
 - Consumes: `TraceContextFactory.createContextForRequest()` returning `TraceContext` (unchanged), `TraceContext` methods `forwardIncomingTrace()`, `acceptAdditionalTraceInfo()`, `getMainRequestHeader()`, `getSecondaryRequestHeader()`, `applyExistingTrace(String, String)`, `generateNewTraceId()`, `getTraceString()`, `getSecondaryTraceInfoString()`, `sendTraceDownstream()`, `sendTraceResponse()`, `getResponseHeader()`, `getTraceResponseString()` (all unchanged).
@@ -889,11 +889,18 @@ Replace `processExchange` with `createTraceHeaders`, keeping the `@Component @Pr
         final TraceContext requestContext = traceContextFactory.createContextForRequest();
 
         if (requestContext.forwardIncomingTrace()) {
-            try {
-                requestContext.applyExistingTrace(incomingPrimary,
-                        requestContext.acceptAdditionalTraceInfo() ? incomingSecondary : null);
-            } catch (TraceException e) {
+            if (incomingPrimary == null || incomingPrimary.isEmpty()) {
+                // No inbound trace to adopt - the ordinary case for a first-hop request. It must not
+                // go through TraceException, or every such request logs. Note the header accessor
+                // yields "" rather than null for a header sent with an empty value.
                 requestContext.generateNewTraceId();
+            } else {
+                try {
+                    requestContext.applyExistingTrace(incomingPrimary,
+                            requestContext.acceptAdditionalTraceInfo() ? incomingSecondary : null);
+                } catch (TraceException e) {
+                    requestContext.generateNewTraceId();
+                }
             }
         } else {
             requestContext.generateNewTraceId();
