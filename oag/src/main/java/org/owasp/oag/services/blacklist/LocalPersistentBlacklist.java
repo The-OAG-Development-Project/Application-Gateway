@@ -60,10 +60,10 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
     }
 
     /**
-     * Performs a cleanup operation in a blocking manner.
      * Removes expired entries from the blacklist and rebuilds the bloom filter.
      */
-    public void cleanupBlocking() {
+    @Override
+    public void cleanup() {
 
         int currentTimeSeconds = clockSource.getEpochSeconds();
 
@@ -130,14 +130,6 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
         var isInDb = blacklist.get(identifier) != null;
         log.trace("Lookup for identifier {} returned {}", identifier, isInDb);
         return isInDb;
-    }
-
-    /**
-     * Removes expired entries from the blacklist and rebuilds the bloom filter.
-     */
-    @Override
-    public void cleanup() {
-        cleanupBlocking();
     }
 
     /**
