@@ -125,6 +125,8 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
             return false;
         }
 
+        log.trace("Identifier {} is in bloom filter, start db lookup", identifier);
+
         var isInDb = blacklist.get(identifier) != null;
         log.trace("Lookup for identifier {} returned {}", identifier, isInDb);
         return isInDb;
