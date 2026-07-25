@@ -48,6 +48,6 @@ public class UserMappingFilter extends RouteAwareFilter {
 
         var potentiallyMutatedExchange = userMapper.mapUserToRequest(exchange, routeContext);
 
-        return potentiallyMutatedExchange.flatMap(exg -> chain.filter(exg));
+        return chain.filter(potentiallyMutatedExchange);
     }
 }

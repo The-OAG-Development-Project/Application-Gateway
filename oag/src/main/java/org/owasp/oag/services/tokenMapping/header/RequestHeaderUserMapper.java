@@ -5,9 +5,6 @@ import org.owasp.oag.services.tokenMapping.UserMapper;
 import org.owasp.oag.services.tokenMapping.UserMappingTemplatingEngine;
 import org.owasp.oag.session.Session;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
-
-import java.util.HashMap;
 
 /**
  * This implementation of a user mapper adds the user information directly as X-OAG headers. For instance
@@ -43,26 +40,20 @@ public class RequestHeaderUserMapper implements UserMapper {
     }
 
     @Override
-    public Mono<ServerWebExchange> mapUserToRequest(ServerWebExchange exchange, GatewayRouteContext context) {
+    public ServerWebExchange mapUserToRequest(ServerWebExchange exchange, GatewayRouteContext context) {
 
         var sessionOptional = context.getSessionOptional();
-        if (sessionOptional != null && sessionOptional.isPresent()) {
+        if (sessionOptional == null || sessionOptional.isEmpty())
+            return exchange;
 
-            var request = exchange.getRequest().mutate();
-            Session session = sessionOptional.get();
-            HashMap<String, String> userMappings = session.getUserModel().getMappings();
+        var request = exchange.getRequest().mutate();
+        Session session = sessionOptional.get();
+        var engine = new UserMappingTemplatingEngine(session);
 
-            var engine = new UserMappingTemplatingEngine(session);
-            for (var entry : settings.mappings.entrySet()) {
-
-                var value = engine.processTemplate(entry.getValue());
-                request.header(entry.getKey(), value);
-            }
-
-            exchange = exchange.mutate().request(request.build()).build();
-
+        for (var entry : settings.mappings.entrySet()) {
+            request.header(entry.getKey(), engine.processTemplate(entry.getValue()));
         }
 
-        return Mono.just(exchange);
+        return exchange.mutate().request(request.build()).build();
     }
 }

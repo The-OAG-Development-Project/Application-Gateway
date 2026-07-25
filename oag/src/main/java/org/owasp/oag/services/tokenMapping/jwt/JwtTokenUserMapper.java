@@ -10,17 +10,13 @@ import org.owasp.oag.services.crypto.jwt.JwtSignerFactory;
 import org.owasp.oag.services.tokenMapping.UserMapper;
 import org.owasp.oag.services.tokenMapping.UserMappingTemplatingEngine;
 import org.owasp.oag.session.UserModel;
-import org.owasp.oag.utils.ReactiveUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.Date;
-
-import static org.owasp.oag.utils.LoggingUtils.logTrace;
 
 /**
  * This implementation of a token mapper transports the user principal in a signed JsonWebToken.
@@ -106,65 +102,50 @@ public class JwtTokenUserMapper implements UserMapper {
      *
      * @param exchange The server web exchange representing the HTTP request/response
      * @param context The gateway route context containing routing and session information
-     * @return A Mono with the modified exchange containing the JWT token header
+     * @return The exchange, with the JWT token header added when a session is present
      */
     @Override
-    public Mono<ServerWebExchange> mapUserToRequest(ServerWebExchange exchange, GatewayRouteContext context) {
+    public ServerWebExchange mapUserToRequest(ServerWebExchange exchange, GatewayRouteContext context) {
 
         // Only add downstream authentication if there is a user session
-        if (context.getSessionOptional().isPresent()) {
+        if (context.getSessionOptional().isEmpty())
+            return exchange;
 
-            var session = context.getSessionOptional().get();
+        var session = context.getSessionOptional().get();
+        var audience = "<<route-url>>".equals(settings.audience) ? context.getRoute().getUrl() : settings.audience;
 
-            // Assemble all information to identify the relevant token
-            var userModel = session.getUserModel();
-            var audience = "<<route-url>>".equals(settings.audience) ? context.getRoute().getUrl() : settings.audience;
-            var provider = session.getProvider();
+        var token = getToken(session.getUserModel(), audience, session.getProvider(), context);
 
-            // Load token from cache or create a new one
-            // Tokens are cached by userModel, audience and login provider
-            Mono<String> tokenMono = getTokenMono(userModel, audience, provider, exchange, context);
+        var mutatedRequest = exchange.getRequest().mutate()
+                .header(settings.headerName, settings.headerPrefix + token).build();
 
-            // Add token to request
-            return tokenMono.map(token -> {
-
-                var mutatedRequest = exchange.getRequest().mutate()
-                        .header(settings.headerName, settings.headerPrefix + token).build();
-
-                return exchange.mutate().request(mutatedRequest).build();
-            });
-        }
-
-        return Mono.just(exchange);
+        return exchange.mutate().request(mutatedRequest).build();
     }
 
     /**
-     * Gets a JWT token for the specified user model, audience, and provider.
-     * Attempts to retrieve the token from cache first, and creates a new one if not found.
+     * Gets a JWT token for the specified user model, audience and provider.
+     * Tokens are cached by userModel, audience and login provider because signing is comparatively slow.
      *
      * @param model The user model containing user information
      * @param audience The audience claim value for the JWT
-     * @param provider The authentication provider ID
-     * @param exchange The server web exchange (may be null in some contexts)
+     * @param provider The authentication provider id
      * @param context The gateway route context
-     * @return A Mono with the JWT token
+     * @return The JWT token
      */
-    public Mono<String> getTokenMono(UserModel model, String audience, String provider, ServerWebExchange exchange, GatewayRouteContext context) {
+    public String getToken(UserModel model, String audience, String provider, GatewayRouteContext context) {
 
         var cacheKey = new CacheKey(model, audience, provider);
         var cachedToken = tokenCache.getIfPresent(cacheKey);
 
-        Mono<String> tokenMono;
         if (cachedToken != null) {
-            logTrace(log, exchange, "Loaded downstream token from cache");
-            tokenMono = Mono.just(cachedToken);
-        } else {
-            logTrace(log, exchange, "Create new downstream token");
-            tokenMono = ReactiveUtils
-                    .runBlockingProcedure(() -> mapUserModelToToken(context, cacheKey.audience, cacheKey.provider))
-                    .doOnSuccess(token -> tokenCache.put(cacheKey, token));
+            log.trace("Loaded downstream token from cache");
+            return cachedToken;
         }
-        return tokenMono;
+
+        log.trace("Create new downstream token");
+        var token = mapUserModelToToken(context, cacheKey.audience, cacheKey.provider);
+        tokenCache.put(cacheKey, token);
+        return token;
     }
 
     /**

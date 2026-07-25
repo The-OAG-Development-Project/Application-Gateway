@@ -77,8 +77,8 @@ class JwtTokenUserMapperTest {
         var provider = "iam";
 
         // Act
-        var jwt1 = mapper.getTokenMono(model, routeUrl, provider, null, routeContext).block();
-        var jwt2 = mapper.getTokenMono(model, routeUrl, provider, null, routeContext).block();
+        var jwt1 = mapper.getToken(model, routeUrl, provider, routeContext);
+        var jwt2 = mapper.getToken(model, routeUrl, provider, routeContext);
 
         // Assert
         assertEquals(jwt1, jwt2, "Second jwt should be loaded from cache and therefore be equal");
