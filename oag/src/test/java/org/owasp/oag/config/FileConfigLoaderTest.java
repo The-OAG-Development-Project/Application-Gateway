@@ -24,7 +24,9 @@ class FileConfigLoaderTest {
         // Arrange
         String configFile = "hostUri: http://testest\n";
 
-        WireMockServer wireMockServer = new WireMockServer(wireMockConfig());
+        // Dynamic port: the config url is derived from baseUrl() below, so the test must not
+        // depend on the default port 8080 being free on the build machine.
+        WireMockServer wireMockServer = new WireMockServer(wireMockConfig().dynamicPort());
         wireMockServer.start();
         wireMockServer.stubFor(WireMock.get(urlEqualTo("/oagConfiguration"))
                 .willReturn(aResponse().withBody(configFile).withStatus(200)));
