@@ -106,12 +106,12 @@ Removes `Mono` from the session-invalidation path. `LocalPersistentBlacklist` al
 - Consumes: `PersistentMap<Integer>`, `GlobalClockSource` (unchanged).
 - Produces: `SessionBlacklist` with `void invalidateSession(String identifier, int ttl)`, `boolean isInvalidated(String identifier)`, `void cleanup()`. Task 7 relies on these exact signatures.
 
-- [ ] **Step 1: Confirm the green baseline**
+- [x] **Step 1: Confirm the green baseline**
 
 Run: `./gradlew build --console=plain`
 Expected: ends with `BUILD SUCCESSFUL`. If it does not, stop and fix the baseline first — you cannot tell a migration regression from a pre-existing failure otherwise.
 
-- [ ] **Step 2: Rewrite the test to the blocking API (it will not compile yet)**
+- [x] **Step 2: Rewrite the test to the blocking API (it will not compile yet)**
 
 Replace the body of `oag/src/test/java/org/owasp/oag/services/blacklist/LocalPersistentBlacklistTest.java` with:
 
@@ -203,12 +203,12 @@ public class LocalPersistentBlacklistTest {
 
 Before running it, open `oag/src/main/java/org/owasp/oag/infrastructure/GlobalClockSource.java` and check the accessor names. If the setter is not `setGlobalClock(Clock)`, use whatever it actually is and keep the test's intent (a clock you can move forward). If the class has no setter at all, construct two `LocalPersistentBlacklist` instances instead — one per clock — sharing a single `InMemoryPersistentMap` instance passed into both constructors.
 
-- [ ] **Step 3: Run the test to verify it fails**
+- [x] **Step 3: Run the test to verify it fails**
 
 Run: `./gradlew test --tests 'org.owasp.oag.services.blacklist.LocalPersistentBlacklistTest' --console=plain`
 Expected: FAIL at compilation — `incompatible types: Mono<Void> cannot be converted to void` / `boolean` (or `cannot find symbol: method isInvalidated(String)` reported as a type error on `assertTrue`).
 
-- [ ] **Step 4: Change the `SessionBlacklist` interface**
+- [x] **Step 4: Change the `SessionBlacklist` interface**
 
 In `SessionBlacklist.java`, delete the `import reactor.core.publisher.Mono;` line and change the three methods to:
 
@@ -238,7 +238,7 @@ In `SessionBlacklist.java`, delete the `import reactor.core.publisher.Mono;` lin
     void cleanup();
 ```
 
-- [ ] **Step 5: Collapse `LocalPersistentBlacklist` onto the blocking methods**
+- [x] **Step 5: Collapse `LocalPersistentBlacklist` onto the blocking methods**
 
 In `LocalPersistentBlacklist.java`: delete the imports `org.owasp.oag.utils.ReactiveUtils`, `org.owasp.oag.utils.LoggingUtils` and `reactor.core.publisher.Mono`. Change the constructor's `cleanup().block();` to `cleanup();` and `deleteAllEntries()`'s `cleanup().block();` to `cleanup();`. Then replace the three public reactive methods with:
 
@@ -292,12 +292,12 @@ In `LocalPersistentBlacklist.java`: delete the imports `org.owasp.oag.utils.Reac
 
 Then delete the now-unreachable private helpers `invalidateSessionBlocking` and `checkIfInDbBlocking`. Keep `cleanupBlocking()` (it is public and `cleanup()` delegates to it) and keep `deleteAllEntries()`.
 
-- [ ] **Step 6: Run the test to verify it passes**
+- [x] **Step 6: Run the test to verify it passes**
 
 Run: `./gradlew test --tests 'org.owasp.oag.services.blacklist.LocalPersistentBlacklistTest' --console=plain`
 Expected: `BUILD SUCCESSFUL`, 4 tests passing. Compilation of the rest of `main` will still fail if you run the full build — that is fixed in the next step.
 
-- [ ] **Step 7: Fix the two callers**
+- [x] **Step 7: Fix the two callers**
 
 In `ExtractAuthenticationFilter.java`, replace `extractAndStoreAuthentication` with a synchronous version and simplify `filter`:
 
@@ -370,12 +370,12 @@ In `AddSessionToBlacklistHook.java`, delete the `org.owasp.oag.utils.ReactiveUti
 
 Note the deliberate behaviour change: invalidation was previously fire-and-forget (`subscribeAsynchronously`), so a logout could return before the session was actually blacklisted. It is now synchronous, which is strictly stronger and is what `CsrfLogoutTest` and `LoginLogoutTest` expect anyway.
 
-- [ ] **Step 8: Run the full build**
+- [x] **Step 8: Run the full build**
 
 Run: `./gradlew build --console=plain`
 Expected: `BUILD SUCCESSFUL`, all tests pass. `LoginLogoutTest` and `CsrfLogoutTest` in particular must still pass — they cover logout-then-reuse-cookie.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add oag/src/main/java/org/owasp/oag/services/blacklist oag/src/main/java/org/owasp/oag/filters/spring/ExtractAuthenticationFilter.java oag/src/main/java/org/owasp/oag/hooks/session/AddSessionToBlacklistHook.java oag/src/test/java/org/owasp/oag/services/blacklist/LocalPersistentBlacklistTest.java
