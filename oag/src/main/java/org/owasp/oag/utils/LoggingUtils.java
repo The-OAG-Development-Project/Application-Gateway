@@ -1,15 +1,11 @@
 package org.owasp.oag.utils;
 
-import org.owasp.oag.exception.AbstractException;
-import org.owasp.oag.exception.ConsistencyException;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 import reactor.core.publisher.Signal;
 
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 import static org.owasp.oag.filters.spring.TraceContextFilter.TRACE_ID_CONTEXT_KEY;
@@ -23,13 +19,7 @@ import static org.owasp.oag.filters.spring.TraceContextFilter.TRACE_ID_CONTEXT_K
  * Do you have access to the ServerWebExchange object? For example in a filter or controller class.
  * -> Use the logTrace(log, exchange, msg, params) method with the corresponding log level.
  * <p>
- * Does the method return a Mono object?
- * -> Use the logOnNext() or contextual() method.
- * -> logOnNext:  mono.doOnEach(logOnNext(s -> log.info("Log statement")))
- * -> contextual: contextual(() -> log.trace("Log statement"))
- * <p>
- * Otherwise just use the normal method of the logger object. For instance log.debug("Message). The caller of the method
- * must make sure that the code is wrapped with the wrapMdc() methods.
+ * Otherwise just use the normal method of the logger object. For instance log.debug("Message).
  */
 public class LoggingUtils {
 
@@ -55,73 +45,6 @@ public class LoggingUtils {
                     },
                     () -> logStatement.accept(signal.get()));
         };
-    }
-
-    /**
-     * Wraps the mdc around a statement and returns a mono that executes it.
-     *
-     * @param logStatement the message to log
-     * @return the Mono
-     */
-    public static Mono<Void> contextual(Runnable logStatement) {
-
-        return wrapMdc(logStatement).then();
-    }
-
-    /**
-     * Converts a runnable to a mono and wraps it with the MDC context
-     * Example: wrapMdc(() -> blockingFunction(id)).then(....)
-     *
-     * @param method the runnable to set the mdc
-     * @return the Mono
-     */
-    public static Mono<Void> wrapMdc(Runnable method) {
-
-        return Mono.deferContextual(ctx -> {
-
-            Optional<String> toPutInMdc = ctx.getOrEmpty(TRACE_ID_CONTEXT_KEY);
-            if (toPutInMdc.isEmpty()) {
-                method.run();
-                return Mono.empty();
-            } else {
-                Runnable wrapped = () -> {
-                    try (MDC.MDCCloseable cMdc = MDC.putCloseable(TRACE_ID_CONTEXT_KEY, toPutInMdc.get())) {
-                        method.run();
-                    }
-                };
-                return Mono.fromRunnable(wrapped);
-            }
-        });
-    }
-
-    /**
-     * Converts a callable to a mono and wraps it with the MDC context
-     * Example: wrapMdc(() -> blockingFunction(id)).then(....)
-     *
-     * @param method the callable to wrap
-     * @param <T> the return of the callable
-     * @return The Mono with return type of the callable
-     */
-    public static <T> Mono<T> wrapMdc(Callable<T> method) {
-
-        return Mono.deferContextual(ctx -> {
-
-            Optional<String> toPutInMdc = ctx.getOrEmpty(TRACE_ID_CONTEXT_KEY);
-            if (toPutInMdc.isEmpty()) {
-                return Mono.fromCallable(method);
-            } else {
-                Callable<T> wrapped = () -> {
-                    try (MDC.MDCCloseable cMdc = MDC.putCloseable(TRACE_ID_CONTEXT_KEY, toPutInMdc.get())) {
-                        return method.call();
-                    } catch (AbstractException ae) {
-                        throw ae;
-                    } catch (Exception e) {
-                        throw new ConsistencyException("Could not log", e);
-                    }
-                };
-                return Mono.fromCallable(wrapped);
-            }
-        });
     }
 
     /**

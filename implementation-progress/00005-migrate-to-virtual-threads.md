@@ -594,12 +594,12 @@ After this task no OAG class creates a `Mono` except `TraceContextFilter`, `Simp
 - Consumes: `LoginDriver.startLogin(URI)` and `LoginDriver.processCallback(ServerHttpRequest, String, URI)` (unchanged in this task), `SessionHookChain` (unchanged).
 - Produces: `LoginController.login(...)` and `LoginController.callback(...)` returning `ResponseEntity<Object>`; `JwksController.getAllSigningKeys()` and `getSigningKeys(String)` returning `ResponseEntity<Map<String, ?>>`. `LoggingUtils` no longer has `wrapMdc(Runnable)`, `wrapMdc(Callable)` or `contextual(Runnable)`.
 
-- [ ] **Step 1: Check what the JWKS test asserts, so you keep it true**
+- [x] **Step 1: Check what the JWKS test asserts, so you keep it true**
 
 Run: `sed -n '1,80p' oag/src/test/java/org/owasp/oag/controller/JwksControllerTest.java`
 Expected: you can see whether it calls the controller method directly or goes through HTTP. Do not change this file. If it calls `getAllSigningKeys()` directly and unwraps a `Mono`, adjust only the unwrapping (`.block()` removal) — nothing else.
 
-- [ ] **Step 2: Make `JwksController` blocking**
+- [x] **Step 2: Make `JwksController` blocking**
 
 Replace the two endpoint methods (and drop the `org.owasp.oag.utils.ReactiveUtils`, `org.owasp.oag.utils.LoggingUtils` and `reactor.core.publisher.Mono` imports):
 
@@ -626,7 +626,7 @@ Replace the two endpoint methods (and drop the `org.owasp.oag.utils.ReactiveUtil
 
 Keep the existing Javadoc blocks above both methods verbatim, only deleting any `@return`-text that mentions a `Mono`. Note the original code wrapped its log calls in `LoggingUtils.contextual(...)` and then discarded the resulting `Mono`, so those log lines never actually executed; calling the logger directly is the fix, not a behaviour change worth calling out to users.
 
-- [ ] **Step 3: Make `LoginController.login` and `LoginController.callback` blocking**
+- [x] **Step 3: Make `LoginController.login` and `LoginController.callback` blocking**
 
 Delete the `org.owasp.oag.utils.ReactiveUtils` and `reactor.core.publisher.Mono` imports, then replace the two methods:
 
@@ -697,7 +697,7 @@ Delete the `org.owasp.oag.utils.ReactiveUtils` and `reactor.core.publisher.Mono`
 
 The `AuthenticationException` import is already present. Note `ResponseStatusException(HttpStatus.UNAUTHORIZED)` in the original had no reason string; adding one changes only the WWW body/reason text on a 401. Check `LoginLogoutTest` — if it asserts on the response body of a failed callback, drop the `"Authentication failed"` argument to keep it byte-identical.
 
-- [ ] **Step 4: Delete `ReactiveUtils` and the dead `LoggingUtils` helpers**
+- [x] **Step 4: Delete `ReactiveUtils` and the dead `LoggingUtils` helpers**
 
 ```bash
 git rm oag/src/main/java/org/owasp/oag/utils/ReactiveUtils.java
@@ -705,17 +705,17 @@ git rm oag/src/main/java/org/owasp/oag/utils/ReactiveUtils.java
 
 In `LoggingUtils.java` delete the methods `contextual(Runnable)`, `wrapMdc(Runnable)` and `wrapMdc(Callable)`, plus the now-unused imports `java.util.concurrent.Callable`, `org.owasp.oag.exception.AbstractException` and `org.owasp.oag.exception.ConsistencyException`. Keep `logOnNext` (still used by `TraceContextFilter`) and all six `log*(Logger, ServerWebExchange, ...)` methods. Update the class-level Javadoc: delete the "Does the method return a Mono object?" paragraph and its two bullet lines.
 
-- [ ] **Step 5: Verify nothing still references the deleted code**
+- [x] **Step 5: Verify nothing still references the deleted code**
 
 Run: `grep -rn "ReactiveUtils\|wrapMdc\|LoggingUtils.contextual" oag/src`
 Expected: no output.
 
-- [ ] **Step 6: Run the full build**
+- [x] **Step 6: Run the full build**
 
 Run: `./gradlew build --console=plain`
 Expected: `BUILD SUCCESSFUL`. `LoginLogoutTest`, `OpenRedirectsTest` and `JwksControllerTest` cover these two controllers.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add -A oag/src/main/java/org/owasp/oag/controllers oag/src/main/java/org/owasp/oag/utils

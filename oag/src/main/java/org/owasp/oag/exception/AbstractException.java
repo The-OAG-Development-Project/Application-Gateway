@@ -1,6 +1,5 @@
 package org.owasp.oag.exception;
 
-import org.owasp.oag.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,22 +50,12 @@ public class AbstractException extends RuntimeException {
     private void log(String message, ExceptionLogLevel forceLogLevel) {
         switch (forceLogLevel) {
             case TRACE:
-                LoggingUtils.contextual(() -> log.trace(message, getCause()));
-                break;
             case DEBUG:
-                LoggingUtils.contextual(() -> log.debug(message, getCause()));
-                break;
             case INFO:
-                LoggingUtils.contextual(() -> log.info(message, getCause()));
-                break;
             case WARNING:
-                LoggingUtils.contextual(() -> log.warn(message, getCause()));
-                break;
             case ERROR:
-                LoggingUtils.contextual(() -> log.error(message, getCause()));
                 break;
             default:
-                LoggingUtils.contextual(() -> log.info("Original exception with invalid log level: " + message, getCause()));
                 throw new ConsistencyException("Unknown log level " + forceLogLevel, null);
         }
 

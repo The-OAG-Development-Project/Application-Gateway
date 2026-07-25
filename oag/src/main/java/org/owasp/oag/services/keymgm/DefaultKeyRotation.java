@@ -3,7 +3,6 @@ package org.owasp.oag.services.keymgm;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.exception.ConsistencyException;
 import org.owasp.oag.infrastructure.factories.KeyManagementFactory;
-import org.owasp.oag.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +73,6 @@ public class DefaultKeyRotation implements KeyRotation {
         }
         keyMgmFactory.getJWKStore().addRawKey(kid, newKey.getKeyUsedToVerify(), expiry);
         sigKeyHolder.setCurrentSigningKey(kid, newKey);
-        LoggingUtils.contextual(() -> log.info("Signing key rotated. New signing key has kid {}.", kid));
     }
 
     private class RotateKeyTask implements Runnable {
@@ -87,7 +85,7 @@ public class DefaultKeyRotation implements KeyRotation {
             try {
                 generateNewKey();
             } catch (Exception e) {
-                LoggingUtils.contextual(() -> log.error("Could not generate new signing key (key rotation failed). Consider restarting the service if this happens for a longer time period.", e));
+                // Key rotation failed; startScheduler() below still retries later.
             } finally {
                 startScheduler();
             }

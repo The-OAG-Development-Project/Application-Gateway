@@ -16,7 +16,6 @@ import org.owasp.oag.services.login.drivers.LoginDriver;
 import org.owasp.oag.services.login.drivers.LoginDriverResult;
 import org.owasp.oag.session.Session;
 import org.owasp.oag.utils.LoggingUtils;
-import org.owasp.oag.utils.ReactiveUtils;
 import org.owasp.oag.utils.UrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -94,31 +92,27 @@ public class LoginController {
      *
      * @param providerKey The key of the login provider.
      * @param exchange    The ServerWebExchange for the current request.
-     * @return A Mono emitting a ResponseEntity representing the result of the login initiation.
+     * @return A ResponseEntity redirecting the user to the identity provider.
      */
     @GetMapping("{providerKey}/login")
-    public Mono<ResponseEntity<Object>> login(
+    public ResponseEntity<Object> login(
             @PathVariable(value = "providerKey") String providerKey,
             ServerWebExchange exchange) {
 
         var response = exchange.getResponse();
 
-        // Load login implementation
         LoginDriver loginDriver = loadLoginDriver(providerKey);
         URI callbackURI = loadCallbackURI(providerKey);
 
-        // This might be blocking, encapsulate it in mono
-        return ReactiveUtils.runBlockingProcedure(() -> loginDriver.startLogin(callbackURI))
-                .map(loginDriverResult -> {
+        var loginDriverResult = loginDriver.startLogin(callbackURI);
 
-                    // Store login state
-                    String returnUrl = loadLoginReturnUrl(exchange);
-                    storeLoginState(providerKey, loginDriverResult, returnUrl, response);
+        // Store login state
+        String returnUrl = loadLoginReturnUrl(exchange);
+        storeLoginState(providerKey, loginDriverResult, returnUrl, response);
 
-                    // Redirect the user
-                    var redirectUri = loginDriverResult.getAuthURI().toString();
-                    return ResponseEntity.status(302).header("Location", redirectUri).build();
-                });
+        // Redirect the user
+        var redirectUri = loginDriverResult.getAuthURI().toString();
+        return ResponseEntity.status(302).header("Location", redirectUri).build();
     }
 
     /**
@@ -261,36 +255,32 @@ public class LoginController {
      *
      * @param providerKey The key of the login provider.
      * @param exchange    The ServerWebExchange for the current request.
-     * @return A Mono emitting a ResponseEntity representing the result of the callback processing.
+     * @return A ResponseEntity redirecting the user to the stored return url.
      * @throws ResponseStatusException if authentication fails or the login state is invalid.
      */
     @GetMapping("{providerKey}/callback")
-    public Mono<ResponseEntity<Object>> callback(
+    public ResponseEntity<Object> callback(
             @PathVariable(value = "providerKey") String providerKey,
             ServerWebExchange exchange) {
+
         var request = exchange.getRequest();
         var response = exchange.getResponse();
 
-        // Load login implementation
         LoginDriver loginDriver = loadLoginDriver(providerKey);
         URI callbackURI = loadCallbackURI(providerKey);
-
-        // Load login state
         var loginState = loadLoginState(request);
 
-        return ReactiveUtils.runBlockingProcedure(() -> loginDriver.processCallback(request, loginState.getState(), callbackURI))
-                .onErrorMap(AuthenticationException.class, e -> {
-                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-                })
-                .map(userModel -> {
+        try {
+            var userModel = loginDriver.processCallback(request, loginState.getState(), callbackURI);
 
-                    // Store session
-                    sessionHookChain.createSession(providerKey, userModel, response);
+            // Store session
+            sessionHookChain.createSession(providerKey, userModel, response);
 
-                    var redirectUri = loginState.getReturnUrl();
-                    return ResponseEntity.status(302).header("Location", redirectUri).build();
+            return ResponseEntity.status(302).header("Location", loginState.getReturnUrl()).build();
 
-                });
+        } catch (AuthenticationException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
     }
 
     /**
