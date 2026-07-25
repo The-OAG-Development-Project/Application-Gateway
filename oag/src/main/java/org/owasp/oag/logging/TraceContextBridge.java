@@ -42,11 +42,16 @@ public class TraceContextBridge {
                 // make sure we take over the trace state if it is valid
                 secondary = exchange.getRequest().getHeaders().getFirst(requestContext.getSecondaryRequestHeader());
             }
-            try{
-                requestContext.applyExistingTrace(primary, secondary);
-            }
-            catch (TraceException e){
+            if (primary == null) {
+                // No inbound trace to adopt. This is the ordinary case for a first-hop request, so it
+                // must not go through TraceException - that would log a warning on every such request.
                 requestContext.generateNewTraceId();
+            } else {
+                try {
+                    requestContext.applyExistingTrace(primary, secondary);
+                } catch (TraceException e) {
+                    requestContext.generateNewTraceId();
+                }
             }
         }
         else {
