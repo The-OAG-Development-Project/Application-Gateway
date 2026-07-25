@@ -740,100 +740,42 @@ Today `TraceContextBridge.processExchange` mutates the incoming exchange to add 
 - Consumes: `TraceContextFactory.createContextForRequest()` returning `TraceContext` (unchanged), `TraceContext` methods `forwardIncomingTrace()`, `acceptAdditionalTraceInfo()`, `getMainRequestHeader()`, `getSecondaryRequestHeader()`, `applyExistingTrace(String, String)`, `generateNewTraceId()`, `getTraceString()`, `getSecondaryTraceInfoString()`, `sendTraceDownstream()`, `sendTraceResponse()`, `getResponseHeader()`, `getTraceResponseString()` (all unchanged).
 - Produces: `record TraceHeaders(String traceId, Map<String, String> downstreamHeaders, Map<String, String> responseHeaders)`; `TraceContextBridge.createTraceHeaders(String incomingPrimary, String incomingSecondary)` returning `TraceHeaders`; the exchange attribute key `TraceContextFilter.TRACE_HEADERS_ATTRIBUTE`. Task 7 reuses all of these unchanged.
 
-- [ ] **Step 1: Write the failing test**
+- [ ] **Step 1: Extend the existing test with the `TraceHeaders` contract**
 
-Create `oag/src/test/java/org/owasp/oag/logging/TraceContextBridgeTest.java`:
+`oag/src/test/java/org/owasp/oag/logging/TraceContextBridgeTest.java` **already exists** — it was
+created during Task 3's fix passes. Do **not** recreate or overwrite it. It currently holds four
+tests built on a hand-written `RecordingTraceContext` stub, which record whether the bridge called
+`applyExistingTrace` or `generateNewTraceId`:
 
-```java
-package org.owasp.oag.logging;
+- `generatesANewTraceWithoutAttemptingToApplyOneWhenTheHeaderIsAbsent`
+- `generatesANewTraceWithoutAttemptingToApplyOneWhenTheHeaderIsEmpty`
+- `appliesTheInboundTraceWhenAHeaderValueIsPresent`
+- `fallsBackToANewTraceWhenApplyingAMalformedInboundTraceFails`
 
-import org.junit.jupiter.api.Test;
-import org.owasp.oag.config.configuration.TraceProfile;
-import org.owasp.oag.infrastructure.factories.TraceContextFactory;
-import org.owasp.oag.logging.w3ctrace.W3cTraceContext;
+**Those four tests are load-bearing and must survive this task.** The first two assert
+`applyExistingTraceCalled == false`, which is the only thing preventing a regression to a WARNING
+(now DEBUG) log line on *every* first-hop request. Adapt them to the new
+`createTraceHeaders(String, String)` signature — they currently drive `processExchange(exchange)`
+and build a `MockServerWebExchange`, so after this task they pass the two header values directly,
+which makes them simpler, not harder. Keep every assertion.
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+Then **add** cases covering the new `TraceHeaders` return value. Read
+`oag/src/main/java/org/owasp/oag/config/configuration/TraceProfile.java`,
+`logging/NoTraceContext.java` and `logging/w3ctrace/W3cTraceContext.java` first and construct the
+fixtures to match the real signatures; `TraceContextFactory` is a genuine single-abstract-method
+interface, so `() -> traceContext` works. Add, against a real `W3cTraceContext` (not the stub, so
+the header names and formats are the production ones):
 
-/**
- * Verifies which headers the trace context bridge decides to send downstream and back upstream.
- */
-public class TraceContextBridgeTest {
+- a new trace when nothing is incoming: `traceId` starts with `"00-"`, and it equals both
+  `downstreamHeaders().get("traceparent")` and `responseHeaders().get("traceresponse")`
+- a valid incoming trace is adopted: `traceId` equals the inbound `traceparent`, and
+  `downstreamHeaders()` carries both that value and the inbound `tracestate`
+- an invalid incoming trace is replaced: `traceId` differs from the inbound value, and
+  `downstreamHeaders().get("traceparent")` equals the new `traceId`
+- forwarding disabled (`forwardIncomingTrace() == false`): a valid inbound trace is ignored
+- tracing off in both directions (`NoTraceContext`): `downstreamHeaders()` and `responseHeaders()`
+  are both empty, while `traceId` is still non-empty
 
-    private static final String TRACEPARENT = "traceparent";
-    private static final String TRACESTATE = "tracestate";
-    private static final String VALID_TRACEPARENT = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01";
-    private static final String INVALID_TRACEPARENT = "00-00000000000000000000000000000000-b7ad6b7169203331-01";
-    private static final String TRACESTATE_VALUE = "rojo=00f067aa0ba902b7,congo=t61rcWkgMzE";
-
-    private TraceContextBridge bridge(boolean forwardIncomingTrace) {
-
-        var profile = new TraceProfile(forwardIncomingTrace, true, true, "w3cTrace");
-        TraceContextFactory factory = () -> new W3cTraceContext(profile);
-
-        var bridge = new TraceContextBridge();
-        bridge.setTraceContextFactory(factory);
-        return bridge;
-    }
-
-    @Test
-    void generatesANewTraceWhenNoTraceIsIncoming() {
-
-        var headers = bridge(true).createTraceHeaders(null, null);
-
-        assertTrue(headers.traceId().startsWith("00-"));
-        assertEquals(headers.traceId(), headers.downstreamHeaders().get(TRACEPARENT));
-        assertEquals(headers.traceId(), headers.responseHeaders().get("traceresponse"));
-    }
-
-    @Test
-    void adoptsAValidIncomingTrace() {
-
-        var headers = bridge(true).createTraceHeaders(VALID_TRACEPARENT, TRACESTATE_VALUE);
-
-        assertEquals(VALID_TRACEPARENT, headers.traceId());
-        assertEquals(VALID_TRACEPARENT, headers.downstreamHeaders().get(TRACEPARENT));
-        assertEquals(TRACESTATE_VALUE, headers.downstreamHeaders().get(TRACESTATE));
-    }
-
-    @Test
-    void replacesAnInvalidIncomingTrace() {
-
-        var headers = bridge(true).createTraceHeaders(INVALID_TRACEPARENT, TRACESTATE_VALUE);
-
-        assertNotEquals(INVALID_TRACEPARENT, headers.traceId());
-        assertEquals(headers.traceId(), headers.downstreamHeaders().get(TRACEPARENT));
-    }
-
-    @Test
-    void ignoresAnIncomingTraceWhenForwardingIsDisabled() {
-
-        var headers = bridge(false).createTraceHeaders(VALID_TRACEPARENT, TRACESTATE_VALUE);
-
-        assertNotEquals(VALID_TRACEPARENT, headers.traceId());
-    }
-
-    @Test
-    void sendsNoHeadersWhenTracingIsDisabledForBothDirections() {
-
-        var profile = new TraceProfile(false, false, false, "noTrace");
-        TraceContextFactory factory = () -> new NoTraceContext(profile);
-
-        var bridge = new TraceContextBridge();
-        bridge.setTraceContextFactory(factory);
-
-        var headers = bridge.createTraceHeaders(null, null);
-
-        assertTrue(headers.downstreamHeaders().isEmpty());
-        assertTrue(headers.responseHeaders().isEmpty());
-        assertFalse(headers.traceId().isEmpty());
-    }
-}
-```
-
-Before running, open `oag/src/main/java/org/owasp/oag/config/configuration/TraceProfile.java`, `logging/NoTraceContext.java`, `logging/w3ctrace/W3cTraceContext.java` and `infrastructure/factories/TraceContextFactory.java` and adapt the three constructor/factory calls above to the real signatures (field order, setters vs constructor, whether `TraceContextFactory` is a single-method interface you can implement with a lambda). Keep the assertions — they encode the contract. If `TraceContextFactory` is not a functional interface, write a small anonymous class instead. If `TraceProfile` has only a no-arg constructor plus setters, use those.
 
 - [ ] **Step 2: Run the test to verify it fails**
 
