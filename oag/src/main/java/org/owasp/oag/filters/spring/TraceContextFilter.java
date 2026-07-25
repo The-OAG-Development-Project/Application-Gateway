@@ -35,6 +35,12 @@ public class TraceContextFilter implements WebFilter {
     public static final String TRACE_ID_CONTEXT_KEY = "oag.CorrId";
 
     /**
+     * The key under which the {@link org.owasp.oag.logging.TraceHeaders} of the current request is stored
+     * in the exchange attributes.
+     */
+    public static final String TRACE_HEADERS_ATTRIBUTE = "oag.TraceHeaders";
+
+    /**
      * Bridge for trace context operations.
      * Used to process the exchange and extract or generate trace IDs.
      */
@@ -54,16 +60,22 @@ public class TraceContextFilter implements WebFilter {
     @Override
     public Mono<Void> filter(@NonNull ServerWebExchange exchange, WebFilterChain webFilterChain) {
 
-        // Get trace id
-        exchange = traceContext.processExchange(exchange);
+        var requestHeaders = exchange.getRequest().getHeaders();
+        var mainHeaderName = traceContext.getMainRequestHeader();
+        var secondaryHeaderName = traceContext.getSecondaryRequestHeader();
+        var traceHeaders = traceContext.createTraceHeaders(
+                mainHeaderName == null ? null : requestHeaders.getFirst(mainHeaderName),
+                secondaryHeaderName == null ? null : requestHeaders.getFirst(secondaryHeaderName));
 
-        String possibleTraceId = exchange.getAttribute(TRACE_ID_CONTEXT_KEY);
-        final String traceId = possibleTraceId == null ? "noTraceIdProvided" : possibleTraceId;
+        exchange.getAttributes().put(TRACE_ID_CONTEXT_KEY, traceHeaders.traceId());
+        exchange.getAttributes().put(TRACE_HEADERS_ATTRIBUTE, traceHeaders);
+        traceHeaders.responseHeaders().forEach((name, value) -> exchange.getResponse().getHeaders().add(name, value));
 
-        // Add request id to subscription context and make a log statement
-        return Mono.just(traceId)
+        LoggingUtils.logDebug(log, exchange, "Tracing started.");
+
+        return Mono.just(traceHeaders.traceId())
                 .doOnEach(LoggingUtils.logOnNext(s -> log.debug("Generated new request id.")))
                 .then(webFilterChain.filter(exchange))
-                .contextWrite(c -> c.put(TRACE_ID_CONTEXT_KEY, traceId));
+                .contextWrite(c -> c.put(TRACE_ID_CONTEXT_KEY, traceHeaders.traceId()));
     }
 }

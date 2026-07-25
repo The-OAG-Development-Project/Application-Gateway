@@ -740,7 +740,7 @@ Today `TraceContextBridge.processExchange` mutates the incoming exchange to add 
 - Consumes: `TraceContextFactory.createContextForRequest()` returning `TraceContext` (unchanged), `TraceContext` methods `forwardIncomingTrace()`, `acceptAdditionalTraceInfo()`, `getMainRequestHeader()`, `getSecondaryRequestHeader()`, `applyExistingTrace(String, String)`, `generateNewTraceId()`, `getTraceString()`, `getSecondaryTraceInfoString()`, `sendTraceDownstream()`, `sendTraceResponse()`, `getResponseHeader()`, `getTraceResponseString()` (all unchanged).
 - Produces: `record TraceHeaders(String traceId, Map<String, String> downstreamHeaders, Map<String, String> responseHeaders)`; `TraceContextBridge.createTraceHeaders(String incomingPrimary, String incomingSecondary)` returning `TraceHeaders`; the exchange attribute key `TraceContextFilter.TRACE_HEADERS_ATTRIBUTE`. Task 7 reuses all of these unchanged.
 
-- [ ] **Step 1: Extend the existing test with the `TraceHeaders` contract**
+- [x] **Step 1: Extend the existing test with the `TraceHeaders` contract**
 
 `oag/src/test/java/org/owasp/oag/logging/TraceContextBridgeTest.java` **already exists** — it was
 created during Task 3's fix passes. Do **not** recreate or overwrite it. It currently holds four
@@ -777,12 +777,12 @@ the header names and formats are the production ones):
   are both empty, while `traceId` is still non-empty
 
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./gradlew test --tests 'org.owasp.oag.logging.TraceContextBridgeTest' --console=plain`
 Expected: FAIL at compilation — `cannot find symbol: class TraceHeaders` / `method createTraceHeaders`.
 
-- [ ] **Step 3: Create the `TraceHeaders` record**
+- [x] **Step 3: Create the `TraceHeaders` record**
 
 Create `oag/src/main/java/org/owasp/oag/logging/TraceHeaders.java`:
 
@@ -804,7 +804,7 @@ public record TraceHeaders(String traceId, Map<String, String> downstreamHeaders
 }
 ```
 
-- [ ] **Step 4: Turn `TraceContextBridge` into a pure function**
+- [x] **Step 4: Turn `TraceContextBridge` into a pure function**
 
 Replace `processExchange` with `createTraceHeaders`, keeping the `@Component @Primary` annotations and adding a setter so the class is testable without Spring:
 
@@ -867,12 +867,12 @@ Replace `processExchange` with `createTraceHeaders`, keeping the `@Component @Pr
 
 Add `import java.util.LinkedHashMap;`; delete the imports `org.owasp.oag.filters.spring.TraceContextFilter`, `org.owasp.oag.utils.LoggingUtils`, `org.springframework.web.server.ServerWebExchange` and the now-unused `log` field if nothing else uses it (keep the class Javadoc). Change `@Autowired private TraceContextFactory traceContextFactory;` to a plain `private TraceContextFactory traceContextFactory;` with `@Autowired` moved onto the new setter.
 
-- [ ] **Step 5: Run the test to verify it passes**
+- [x] **Step 5: Run the test to verify it passes**
 
 Run: `./gradlew test --tests 'org.owasp.oag.logging.TraceContextBridgeTest' --console=plain`
 Expected: `BUILD SUCCESSFUL`, 5 tests passing.
 
-- [ ] **Step 6: Update `TraceContextFilter` to store the `TraceHeaders`**
+- [x] **Step 6: Update `TraceContextFilter` to store the `TraceHeaders`**
 
 The filter must read the incoming trace headers by the *names the configured trace profile uses*, not by a hard-coded `"traceparent"` — the `simpleTrace` profile uses different header names. So first add two accessors to `TraceContextBridge`:
 
@@ -925,7 +925,7 @@ then add the new attribute key and rewrite the filter method:
 
 Add `import org.owasp.oag.utils.LoggingUtils;`. The `"Tracing started."` debug line moves here from the bridge, keeping the log output the same.
 
-- [ ] **Step 7: Apply the downstream headers in `DownstreamHeaderFilter`**
+- [x] **Step 7: Apply the downstream headers in `DownstreamHeaderFilter`**
 
 Add to `DownstreamHeaderFilter.filter`, between `addOagHeaders` and `filterRequestCookies`:
 
@@ -958,12 +958,12 @@ and add the method:
 
 Add the imports `org.owasp.oag.filters.spring.TraceContextFilter` and `org.owasp.oag.logging.TraceHeaders`. Also replace the misleading `logTrace(log, exchange, "Execute ResponseHeaderFilter")` at the top of `filter` with `logTrace(log, exchange, "Execute DownstreamHeaderFilter")` — it names the wrong class today.
 
-- [ ] **Step 8: Run the full build**
+- [x] **Step 8: Run the full build**
 
 Run: `./gradlew build --console=plain`
 Expected: `BUILD SUCCESSFUL`. `W3CTracingTest`, `SimpleTracingTest`, `NoTracingTest` and `TracingTest` all assert the downstream `traceparent`/`tracestate` headers via WireMock and the `traceresponse` response header — they are the reason this task is safe.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add oag/src/main/java/org/owasp/oag/logging oag/src/main/java/org/owasp/oag/filters oag/src/test/java/org/owasp/oag/logging/TraceContextBridgeTest.java

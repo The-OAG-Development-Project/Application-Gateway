@@ -7,6 +7,8 @@ import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.cookies.LoginStateCookie;
 import org.owasp.oag.filters.GatewayRouteContext;
+import org.owasp.oag.filters.spring.TraceContextFilter;
+import org.owasp.oag.logging.TraceHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,11 +57,12 @@ public class DownstreamHeaderFilter extends RouteAwareFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain, GatewayRouteContext routeContext) {
 
-        logTrace(log, exchange, "Execute ResponseHeaderFilter");
+        logTrace(log, exchange, "Execute DownstreamHeaderFilter");
 
         var request = exchange.getRequest().mutate();
 
         request = addOagHeaders(routeContext, request);
+        request = addTraceHeaders(exchange, request);
         request = filterRequestCookies(exchange, request);
 
         return chain.filter(exchange.mutate().request(request.build()).build());
@@ -80,6 +83,25 @@ public class DownstreamHeaderFilter extends RouteAwareFilter {
             request = request.header(X_OAG_STATUS, SessionInformation.SESSION_STATE_AUTHENTICATED);
         } else {
             request = request.header(X_OAG_STATUS, SessionInformation.SESSION_STATE_ANONYMOUS);
+        }
+        return request;
+    }
+
+    /**
+     * Adds the tracing headers decided for this request to the downstream request.
+     *
+     * @param exchange The server web exchange holding the trace headers attribute
+     * @param request The request builder to add headers to
+     * @return The updated request builder
+     */
+    protected ServerHttpRequest.@NonNull Builder addTraceHeaders(ServerWebExchange exchange, ServerHttpRequest.Builder request) {
+
+        TraceHeaders traceHeaders = exchange.getAttribute(TraceContextFilter.TRACE_HEADERS_ATTRIBUTE);
+        if (traceHeaders == null)
+            return request;
+
+        for (var entry : traceHeaders.downstreamHeaders().entrySet()) {
+            request = request.header(entry.getKey(), entry.getValue());
         }
         return request;
     }
