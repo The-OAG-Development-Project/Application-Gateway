@@ -9,6 +9,7 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import java.util.List;
@@ -107,7 +108,6 @@ public class SpringCloudGatewayConfiguration {
 
                 // Add route predicate that uses the ProxyPathMatcher to find out if a route matches a request
                 var path = r.predicate(exchange -> {
-                    exchange.getAttributes().put(ATTRIBUTE_ROUTE_NAME, routeName);
                     var requestUrl = exchange.getRequest().getURI().getPath();
                     var isMatch = matcher.matchesPath(requestUrl, routePath);
                     logTrace(log, exchange, "Evaluate route {} for {} -> {}", routeName, requestUrl, isMatch ? "match" : "false");
@@ -115,7 +115,13 @@ public class SpringCloudGatewayConfiguration {
                 });
 
                 var rewriteConfig = route.getRewrite().build(route);
-                var filters = path.filters(rw -> rw.rewritePath(rewriteConfig.getRegex(), rewriteConfig.getReplacement()));
+                // Write the route-name attribute in a filter (highest precedence, so it runs before every
+                // other filter for this route) instead of as a side effect of predicate evaluation.
+                var filters = path.filters(f -> f.filter((exchange, chain) -> {
+                            exchange.getAttributes().put(ATTRIBUTE_ROUTE_NAME, routeName);
+                            return chain.filter(exchange);
+                        }, Ordered.HIGHEST_PRECEDENCE)
+                        .rewritePath(rewriteConfig.getRegex(), rewriteConfig.getReplacement()));
 
                 return filters.uri(routeUrl);
 

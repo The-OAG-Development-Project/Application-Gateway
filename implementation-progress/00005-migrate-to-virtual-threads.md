@@ -984,7 +984,7 @@ Today the route predicate writes `ATTRIBUTE_ROUTE_NAME` as a side effect while *
 - Consumes: `MainConfig.getRoutes()`, `ProxyPathMatcher` (unchanged).
 - Produces: unchanged public surface — `SpringCloudGatewayConfiguration.ATTRIBUTE_ROUTE_NAME` keeps its name and value `"RouteName"`, and is set only for the route that actually matched.
 
-- [ ] **Step 1: Move the attribute write out of the predicate**
+- [x] **Step 1: Move the attribute write out of the predicate**
 
 In `initRoutesFromConfig`, replace the `routes.route(r -> { ... })` lambda body with:
 
@@ -1013,12 +1013,14 @@ In `initRoutesFromConfig`, replace the `routes.route(r -> { ... })` lambda body 
 
 Add `import org.springframework.core.Ordered;`. If `filters(...)` does not accept a varargs list of customisers in this version, chain two calls instead: `var filters = path.filters(f -> f.filter(...)).filters(rw -> rw.rewritePath(...));` — check the `RouteLocatorBuilder.Builder` API with `javap -cp $(find ~/.gradle/caches -name 'spring-cloud-gateway-server-webflux-5.0.2.jar' | head -1) org.springframework.cloud.gateway.route.builder.PredicateSpec` if the first form does not compile.
 
-- [ ] **Step 2: Run the full build**
+**Actual API note:** neither suggested form compiles against Spring Cloud Gateway 5.0.2. `r.predicate(...)` returns `BooleanSpec`, whose `filters(...)` takes a single `Function<GatewayFilterSpec, UriSpec>` (no varargs of customisers), and its return type `UriSpec` has no `filters(...)` method at all, so a second chained `.filters(...)` call cannot be added either. Both operations were composed inside the one required lambda instead, using the real `GatewayFilterSpec.filter(GatewayFilter, int)` and `.rewritePath(...)` methods: `path.filters(f -> f.filter((exchange, chain) -> {...}, Ordered.HIGHEST_PRECEDENCE).rewritePath(regex, replacement))`. Same runtime behaviour (attribute-write filter at `Ordered.HIGHEST_PRECEDENCE`, then `rewritePath`), just expressed as one composed lambda rather than two separate `.filters()` calls.
+
+- [x] **Step 2: Run the full build**
 
 Run: `./gradlew build --console=plain`
 Expected: `BUILD SUCCESSFUL`. `ProxyTest`, `SecurityConfigurationTest` and `PathRewriteTest` exercise multiple routes with overlapping paths, which is exactly what this changes.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add oag/src/main/java/org/owasp/oag/gateway/SpringCloudGatewayConfiguration.java
