@@ -1041,7 +1041,7 @@ git commit -m "fix: set route name attribute in a filter, not while evaluating p
 - Consumes: nothing.
 - Produces: beans named `keyRotationScheduler` and `cleanupScheduler`, both `ThreadPoolTaskScheduler`, injected by `@Qualifier` in `DefaultKeyRotation` and `LocalRsaJwkStore`. Names and types must not change.
 
-- [ ] **Step 1: Create the new configuration class**
+- [x] **Step 1: Create the new configuration class**
 
 Create `oag/src/main/java/org/owasp/oag/infrastructure/SchedulerConfiguration.java`:
 
@@ -1090,16 +1090,16 @@ public class SchedulerConfiguration {
 }
 ```
 
-- [ ] **Step 2: Delete both bean methods from `SpringCloudGatewayConfiguration`**
+- [x] **Step 2: Delete both bean methods from `SpringCloudGatewayConfiguration`**
 
 Remove `keyRotationThreadPoolTaskScheduler()` and `cleanupThreadPoolTaskScheduler()` along with the `org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler` import.
 
-- [ ] **Step 3: Run the full build**
+- [x] **Step 3: Run the full build**
 
 Run: `./gradlew build --console=plain`
 Expected: `BUILD SUCCESSFUL`. `DefaultKeyRotationTest`, `LocalRsaJwkStoreTest` and every `@SpringBootTest` verify the beans still resolve — a missing qualifier would fail context startup, not just one test.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add oag/src/main/java/org/owasp/oag/infrastructure/SchedulerConfiguration.java oag/src/main/java/org/owasp/oag/gateway/SpringCloudGatewayConfiguration.java

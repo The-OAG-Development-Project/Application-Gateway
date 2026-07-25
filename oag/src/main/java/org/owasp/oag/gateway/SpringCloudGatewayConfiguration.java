@@ -10,7 +10,6 @@ import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import java.util.List;
 import java.util.Map;
@@ -49,38 +48,6 @@ public class SpringCloudGatewayConfiguration {
         initRoutesFromConfig(routes);
 
         return routes.build();
-    }
-
-    /**
-     * Creates a thread pool task scheduler for key rotation tasks
-     * Used to schedule periodic key rotation operations
-     *
-     * @return The configured thread pool task scheduler
-     */
-    @Bean(name = "keyRotationScheduler")
-    public ThreadPoolTaskScheduler keyRotationThreadPoolTaskScheduler() {
-        ThreadPoolTaskScheduler threadPoolTaskScheduler
-                = new ThreadPoolTaskScheduler();
-        threadPoolTaskScheduler.setPoolSize(2);
-        threadPoolTaskScheduler.setThreadNamePrefix("keyRotate");
-        threadPoolTaskScheduler.initialize();
-        return threadPoolTaskScheduler;
-    }
-
-    /**
-     * Creates a thread pool task scheduler for cleanup tasks
-     * Used for scheduling cleanup operations such as removing old signing keys
-     *
-     * @return The configured thread pool task scheduler
-     */
-    @Bean(name = "cleanupScheduler")
-    public ThreadPoolTaskScheduler cleanupThreadPoolTaskScheduler() {
-        ThreadPoolTaskScheduler threadPoolTaskScheduler
-                = new ThreadPoolTaskScheduler();
-        threadPoolTaskScheduler.setPoolSize(2);
-        threadPoolTaskScheduler.setThreadNamePrefix("keyCleanup");
-        threadPoolTaskScheduler.initialize();
-        return threadPoolTaskScheduler;
     }
 
     private RouteLocatorBuilder.Builder initRoutesFromConfig(RouteLocatorBuilder.Builder routesBuilder) {
