@@ -61,7 +61,12 @@ public class TraceContextBridge {
         if (requestContext.sendTraceDownstream()) {
             downstreamHeaders.put(requestContext.getMainRequestHeader(), requestContext.getTraceString());
             if (requestContext.acceptAdditionalTraceInfo()) {
-                downstreamHeaders.put(requestContext.getSecondaryRequestHeader(), requestContext.getSecondaryTraceInfoString());
+                // A freshly generated trace carries no secondary info, and a header with a null value
+                // is meaningless - omit it rather than forwarding an empty one.
+                var secondaryTraceInfo = requestContext.getSecondaryTraceInfoString();
+                if (secondaryTraceInfo != null) {
+                    downstreamHeaders.put(requestContext.getSecondaryRequestHeader(), secondaryTraceInfo);
+                }
             }
         }
 

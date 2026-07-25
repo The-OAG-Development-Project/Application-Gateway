@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.owasp.oag.utils.LoggingUtils.logDebug;
 import static org.owasp.oag.utils.LoggingUtils.logTrace;
 
 /**
@@ -100,9 +101,14 @@ public class DownstreamHeaderFilter extends RouteAwareFilter {
         if (traceHeaders == null)
             return request;
 
+        if (traceHeaders.downstreamHeaders().isEmpty())
+            return request;
+
         for (var entry : traceHeaders.downstreamHeaders().entrySet()) {
             request = request.header(entry.getKey(), entry.getValue());
         }
+
+        logDebug(log, exchange, "Added trace id to downstream call.");
         return request;
     }
 

@@ -12,4 +12,14 @@ import java.util.Map;
  *                          profile does not send the trace back upstream
  */
 public record TraceHeaders(String traceId, Map<String, String> downstreamHeaders, Map<String, String> responseHeaders) {
+
+    /**
+     * Copies both header maps so the value object cannot be mutated through the reference it was
+     * built from. This matters because the instance is shared through the request attributes, where
+     * any filter could otherwise alter another filter's view of the tracing decision.
+     */
+    public TraceHeaders {
+        downstreamHeaders = Map.copyOf(downstreamHeaders);
+        responseHeaders = Map.copyOf(responseHeaders);
+    }
 }

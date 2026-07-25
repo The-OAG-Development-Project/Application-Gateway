@@ -73,6 +73,10 @@ public class TraceContextFilter implements WebFilter {
 
         LoggingUtils.logDebug(log, exchange, "Tracing started.");
 
+        if (!traceHeaders.responseHeaders().isEmpty()) {
+            LoggingUtils.logDebug(log, exchange, "Adding trace id to upstream response");
+        }
+
         return Mono.just(traceHeaders.traceId())
                 .doOnEach(LoggingUtils.logOnNext(s -> log.debug("Generated new request id.")))
                 .then(webFilterChain.filter(exchange))
