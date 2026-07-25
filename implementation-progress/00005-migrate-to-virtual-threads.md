@@ -398,7 +398,7 @@ git commit -m "refactor: make SessionBlacklist blocking"
 - Consumes: `GatewayRouteContext` (unchanged), `JwtSignerFactory.create(String hostUri, ... signatureSettings)` (unchanged).
 - Produces: `UserMapper` with `ServerWebExchange mapUserToRequest(ServerWebExchange exchange, GatewayRouteContext context)`, and `JwtTokenUserMapper.getToken(UserModel model, String audience, String provider, GatewayRouteContext context)` returning `String`. Task 7 changes only the exchange type on these.
 
-- [ ] **Step 1: Update the test to the synchronous API**
+- [x] **Step 1: Update the test to the synchronous API**
 
 In `oag/src/test/java/org/owasp/oag/services/crypto/JwtTokenUserMapperTest.java`, change the two lines that currently read
 
@@ -416,12 +416,12 @@ to
 
 (The surrounding test asserts `jwt1 == jwt2`, i.e. that the token cache is hit. Keep that assertion exactly as it is.)
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./gradlew test --tests 'org.owasp.oag.services.crypto.JwtTokenUserMapperTest' --console=plain`
 Expected: FAIL at compilation — `cannot find symbol: method getToken(UserModel,String,String,GatewayRouteContext)`.
 
-- [ ] **Step 3: Change the `UserMapper` interface**
+- [x] **Step 3: Change the `UserMapper` interface**
 
 Replace the whole file `UserMapper.java` with:
 
@@ -452,7 +452,7 @@ public interface UserMapper {
 }
 ```
 
-- [ ] **Step 4: Make `JwtTokenUserMapper` synchronous**
+- [x] **Step 4: Make `JwtTokenUserMapper` synchronous**
 
 In `JwtTokenUserMapper.java` delete the imports `org.owasp.oag.utils.ReactiveUtils` and `reactor.core.publisher.Mono`, then replace `mapUserToRequest` and `getTokenMono` with:
 
@@ -512,7 +512,7 @@ In `JwtTokenUserMapper.java` delete the imports `org.owasp.oag.utils.ReactiveUti
 
 Also delete the now-unused `import static org.owasp.oag.utils.LoggingUtils.logTrace;` and the `org.owasp.oag.session.UserModel` import stays (it is used by `getToken`). Leave `mapUserModelToToken` untouched.
 
-- [ ] **Step 5: Make the other two mappers synchronous**
+- [x] **Step 5: Make the other two mappers synchronous**
 
 In `RequestHeaderUserMapper.java` delete the `reactor.core.publisher.Mono` import and change the method to:
 
@@ -555,7 +555,7 @@ In `NoUserMapper.java` delete the `reactor.core.publisher.Mono` import and chang
     }
 ```
 
-- [ ] **Step 6: Update `UserMappingFilter`**
+- [x] **Step 6: Update `UserMappingFilter`**
 
 Replace its `filter` body's last two statements:
 
@@ -565,12 +565,12 @@ Replace its `filter` body's last two statements:
         return chain.filter(potentiallyMutatedExchange);
 ```
 
-- [ ] **Step 7: Run the full build**
+- [x] **Step 7: Run the full build**
 
 Run: `./gradlew build --console=plain`
 Expected: `BUILD SUCCESSFUL`. `JwtMappingTest`, `HeaderMappingTest` and `DownstreamAuthenticationTest` verify the mapped headers end-to-end and must still pass.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add oag/src/main/java/org/owasp/oag/services/tokenMapping oag/src/main/java/org/owasp/oag/filters/proxy/UserMappingFilter.java oag/src/test/java/org/owasp/oag/services/crypto/JwtTokenUserMapperTest.java
