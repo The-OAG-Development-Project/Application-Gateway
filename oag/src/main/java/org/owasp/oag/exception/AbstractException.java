@@ -1,8 +1,5 @@
 package org.owasp.oag.exception;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.UUID;
 
 /**
@@ -12,16 +9,10 @@ import java.util.UUID;
  * - SystemExceptions
  * - ConsistencyExceptions
  * <p>
- * Implements functionality to create a unique exception ID per creation and writes a log statement.
+ * Implements functionality to create a unique exception ID per creation.
  * This is to identify the request (correlationID/traceId) that lead to the exception and support debugging.
  */
 public class AbstractException extends RuntimeException {
-
-    /**
-     * Logger instance for this exception class.
-     * Used to log exception details.
-     */
-    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * Unique identifier for this exception instance.
@@ -32,33 +23,27 @@ public class AbstractException extends RuntimeException {
     /**
      * Creates a new AbstractException with the given message, parent exception, and log level.
      *
-     * @param message         The message to log.
+     * @param message         The message describing the exception.
      * @param parentException The parent exception if available.
      * @param forceLogLevel   The log level to force for this exception.
      */
     protected AbstractException(String message, Throwable parentException, ExceptionLogLevel forceLogLevel) {
         super(message, parentException);
-        log("ExId: " + exceptionId + ": " + message, forceLogLevel);
+        validateLogLevel(forceLogLevel);
     }
 
     /**
-     * Logs the exception message with the specified log level.
+     * Validates that the given log level is one of the known {@link ExceptionLogLevel} values.
      *
-     * @param message       The message to log.
-     * @param forceLogLevel The log level to use.
+     * @param forceLogLevel The log level to validate.
      */
-    private void log(String message, ExceptionLogLevel forceLogLevel) {
+    private void validateLogLevel(ExceptionLogLevel forceLogLevel) {
         switch (forceLogLevel) {
-            case TRACE:
-            case DEBUG:
-            case INFO:
-            case WARNING:
-            case ERROR:
-                break;
-            default:
-                throw new ConsistencyException("Unknown log level " + forceLogLevel, null);
+            case TRACE, DEBUG, INFO, WARNING, ERROR -> {
+                // valid level, nothing further to do
+            }
+            default -> throw new ConsistencyException("Unknown log level " + forceLogLevel, null);
         }
-
     }
 
     @Override
@@ -67,7 +52,7 @@ public class AbstractException extends RuntimeException {
     }
 
     /**
-     * @return the unique exception id of this instance, as written to the log during creation.
+     * @return the unique exception id of this instance, generated during creation.
      */
     public String getExceptionId() {
         return exceptionId;

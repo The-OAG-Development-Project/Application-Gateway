@@ -3,8 +3,6 @@ package org.owasp.oag.services.keymgm;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.exception.ConsistencyException;
 import org.owasp.oag.infrastructure.factories.KeyManagementFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -22,8 +20,6 @@ import java.util.UUID;
  */
 @Component
 public class DefaultKeyRotation implements KeyRotation {
-
-    private static final Logger log = LoggerFactory.getLogger(DefaultKeyRotation.class);
 
     private final MainConfig config;
     private final KeyManagementFactory keyMgmFactory;

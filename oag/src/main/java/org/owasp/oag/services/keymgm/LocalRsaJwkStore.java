@@ -9,8 +9,6 @@ import org.jspecify.annotations.NonNull;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.exception.ApplicationException;
 import org.owasp.oag.exception.ConsistencyException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -28,7 +26,6 @@ import java.util.*;
  */
 @Component
 public class LocalRsaJwkStore implements JwkStore {
-    private static final Logger log = LoggerFactory.getLogger(LocalRsaJwkStore.class);
     private static final Algorithm DEFAULT_JWK_ALGORITHM = Algorithm.parse("RS256");;
 
     private final MainConfig config;
