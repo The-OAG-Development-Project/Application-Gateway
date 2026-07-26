@@ -107,7 +107,10 @@ tasks.register('setVersion') {
             // Update version in build.gradle
             def buildFile = file('build.gradle')
             def content = buildFile.text
-            def updatedContent = content.replaceAll("version\\s*=\\s*['\"].*?['\"]", "version = '${project.newVersion}'")
+            // Anchored to the start of a line and applied once: an unanchored pattern also matches the
+            // replacement literal a few lines below, which would rewrite this task to hard-code whatever
+            // version was set last and then silently ignore -PnewVersion.
+            def updatedContent = content.replaceFirst("(?m)^version\\s*=\\s*['\"].*?['\"]", "version = '${project.newVersion}'")
             buildFile.text = updatedContent
             println "Version updated to ${project.newVersion}"
         } else {
