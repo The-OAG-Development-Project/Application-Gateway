@@ -96,6 +96,21 @@ public class MainConfig implements ErrorValidation {
      */
     public boolean isHttpsHost() {
 
+        return "https".equals(hostUrl().getProtocol());
+    }
+
+    /**
+     * Returns the parsed host URI, parsing it on first use.
+     * <p>
+     * The all-args constructor already parses it, but this class is also populated by deserialization,
+     * which bypasses that constructor and leaves the parsed url null. Every reader must therefore go
+     * through here rather than touching the field.
+     *
+     * @return The parsed host URI
+     * @throws ConfigurationException if the host URI is invalid
+     */
+    private URL hostUrl() {
+
         if (this.url == null) {
             try {
                 this.url = new URL(this.hostUri);
@@ -103,7 +118,7 @@ public class MainConfig implements ErrorValidation {
                 throw new ConfigurationException("Invalid hostUri", e);
             }
         }
-        return "https".equals(url.getProtocol());
+        return this.url;
     }
 
     /**
@@ -140,7 +155,7 @@ public class MainConfig implements ErrorValidation {
      */
     public String getHostname() {
 
-        return url.getHost();
+        return hostUrl().getHost();
     }
 
     /**
