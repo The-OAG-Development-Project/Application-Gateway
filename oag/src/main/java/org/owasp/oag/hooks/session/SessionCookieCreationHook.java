@@ -1,15 +1,16 @@
 package org.owasp.oag.hooks.session;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.cookies.CookieConverter;
+import org.owasp.oag.cookies.CookieWriter;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.session.Session;
 import org.owasp.oag.session.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
 
 import java.security.SecureRandom;
 import java.util.Map;
@@ -31,7 +32,7 @@ public class SessionCookieCreationHook implements SessionHook {
     private GlobalClockSource globalClockSource;
 
     @Override
-    public void renewSession(Map<String, Object> filterContext, ServerHttpResponse response) {
+    public void renewSession(Map<String, Object> filterContext, HttpServletResponse response) {
 
         Session session = (Session) filterContext.get("old-session");
 
@@ -47,7 +48,7 @@ public class SessionCookieCreationHook implements SessionHook {
     }
 
     @Override
-    public void createSession(Map<String, Object> filterContext, ServerHttpResponse response) {
+    public void createSession(Map<String, Object> filterContext, HttpServletResponse response) {
 
         String providerKey = (String) filterContext.get("providerKey");
         UserModel model = (UserModel) filterContext.get("userModel");
@@ -64,14 +65,15 @@ public class SessionCookieCreationHook implements SessionHook {
             loginCookie.setCsrfToken(csrfToken);
         }
 
-        response.addCookie(cookieConverter.convertLoginCookie(loginCookie, sessionDuration));
+        CookieWriter.addCookie(response, cookieConverter.convertLoginCookie(loginCookie, sessionDuration));
     }
 
     @Override
-    public void destroySession(Map<String, Object> filterContext, ServerWebExchange exchange) {
+    public void destroySession(Map<String, Object> filterContext, HttpServletRequest request,
+                              HttpServletResponse response) {
 
         // Override session cookie with new cookie that has max-age = 0
-        exchange.getResponse().addCookie(cookieConverter.convertLoginCookie(null, 0));
+        CookieWriter.addCookie(response, cookieConverter.convertLoginCookie(null, 0));
     }
 
     private String createNewSessionId(){

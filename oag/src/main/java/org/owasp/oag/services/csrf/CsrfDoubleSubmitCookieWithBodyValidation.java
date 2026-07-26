@@ -1,9 +1,9 @@
 package org.owasp.oag.services.csrf;
 
-import org.owasp.oag.filters.spring.ExtractAuthenticationFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.session.Session;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Optional;
 
@@ -26,19 +26,19 @@ public class CsrfDoubleSubmitCookieWithBodyValidation extends CsrfDoubleSubmitCo
     /**
      * Determines whether the request should be blocked based on CSRF validation, including the request body.
      *
-     * @param exchange    The server web exchange.
+     * @param request     The current request.
      * @param requestBody The request body.
      * @return true if the request should be blocked, false otherwise.
      * @throws AssertionError if the request body is null.
      */
     @Override
-    public boolean shouldBlockRequest(ServerWebExchange exchange, String requestBody) {
+    public boolean shouldBlockRequest(HttpServletRequest request, String requestBody) {
 
-        Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
+        Optional<Session> sessionOptional = ExtractAuthenticationFilter.extractSessionFromRequest(request);
 
-        if (sessionOptional != null && sessionOptional.isPresent()) {
-            String csrfValueFromSession = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION_CSRF_TOKEN);
-            String csrfValueFromDoubleSubmit = extractCsrfToken(exchange);
+        if (sessionOptional.isPresent()) {
+            String csrfValueFromSession = (String) request.getAttribute(ExtractAuthenticationFilter.OAG_SESSION_CSRF_TOKEN);
+            String csrfValueFromDoubleSubmit = extractCsrfToken(request);
 
             if (requestBody == null) {
                 throw new AssertionError("request body is null");

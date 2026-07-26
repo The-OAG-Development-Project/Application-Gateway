@@ -1145,7 +1145,7 @@ Work through the steps in order. Steps 2–12 each end with a compile check rath
   - `LoginDriver.processCallback(HttpServletRequest request, String state, URI callbackUri)`.
   - `LoggingUtils.log{Trace,Debug,Info,Warn,Error}(Logger, HttpServletRequest, String, Object...)`.
 
-- [ ] **Step 1: Swap the starter and enable virtual threads**
+- [x] **Step 1: Swap the starter and enable virtual threads**
 
 In `oag/build.gradle`, replace
 
@@ -1177,7 +1177,7 @@ spring:
 Then run: `./gradlew dependencies --configuration runtimeClasspath --console=plain | grep -iE 'webflux|reactor-netty|tomcat|webmvc'`
 Expected: `spring-cloud-gateway-server-webmvc`, `spring-webmvc` and `tomcat-embed-core` present; no `spring-webflux` and no `reactor-netty-http` on the **runtime** classpath. If `spring-webflux` appears, find the offender with `./gradlew dependencyInsight --configuration runtimeClasspath --dependency spring-webflux` and exclude it.
 
-- [ ] **Step 2: Make `LoggingUtils` take an `HttpServletRequest`**
+- [x] **Step 2: Make `LoggingUtils` take an `HttpServletRequest`**
 
 Replace the six `log*(Logger, ServerWebExchange, ...)` methods with `HttpServletRequest` variants. The body is the same in each case; here is `logTrace`, apply the identical shape to `logDebug`, `logInfo`, `logWarn`, `logError`:
 
@@ -1211,7 +1211,7 @@ Swap the imports: remove `org.springframework.web.server.ServerWebExchange`, add
 
 Run: `./gradlew compileJava --console=plain` — expect many errors in other files. That is fine; you are working down a list.
 
-- [ ] **Step 3: Port the four cross-cutting filters to servlet filters**
+- [x] **Step 3: Port the four cross-cutting filters to servlet filters**
 
 Create the package directory `oag/src/main/java/org/owasp/oag/filters/servlet/` and `git mv` the four files from `filters/spring/`, changing `package org.owasp.oag.filters.spring;` to `package org.owasp.oag.filters.servlet;` in each.
 
@@ -1362,7 +1362,7 @@ Check `org.jspecify.annotations.Nullable` is the annotation this codebase uses (
 
 **This must be pinned by a test**, because nothing else in the suite asserts on log output and a silent regression here is exactly what the Global Constraints forbid. Add `oag/src/test/java/org/owasp/oag/filters/servlet/RequestFailureLoggerTest.java` that attaches a Logback `ListAppender` to the `RequestFailureLogger` logger, calls `resolveException` with a `new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid return url")` and a `MockHttpServletRequest`, and asserts (a) the returned `ModelAndView` is null, and (b) a captured event's formatted message contains `errorReason: 'Invalid return url'`. Also assert that a non-`ResponseStatusException` produces no log event.
 
-- [ ] **Step 4: Rewrite the session hooks against servlet types**
+- [x] **Step 4: Rewrite the session hooks against servlet types**
 
 `SessionHook` becomes:
 
@@ -1467,7 +1467,7 @@ Do the same for `convertCsrfCookie` and `convertLoginCookie`, then delete the th
 
 Run: `./gradlew compileJava --console=plain`.
 
-- [ ] **Step 5: Rewrite the CSRF validations against `HttpServletRequest`**
+- [x] **Step 5: Rewrite the CSRF validations against `HttpServletRequest`**
 
 `CsrfProtectionValidation`:
 
@@ -1499,7 +1499,7 @@ Careful with `request.getParameter(N)`: for a POST with a form body, the servlet
 
 Run: `./gradlew compileJava --console=plain`.
 
-- [ ] **Step 6: Rewrite `UserMapper` against `ServerRequest`**
+- [x] **Step 6: Rewrite `UserMapper` against `ServerRequest`**
 
 ```java
     /**
@@ -1535,7 +1535,7 @@ with `import org.springframework.web.servlet.function.ServerRequest;`. In `JwtTo
 
 Run: `./gradlew compileJava --console=plain`.
 
-- [ ] **Step 7: Rewrite `RouteAwareFilter` as a `HandlerFilterFunction`**
+- [x] **Step 7: Rewrite `RouteAwareFilter` as a `HandlerFilterFunction`**
 
 ```java
 package org.owasp.oag.filters.proxy;
@@ -1607,7 +1607,7 @@ Delete the unused `Collections` import if it ends up unused. Note `getAttribute`
 
 Run: `./gradlew compileJava --console=plain`.
 
-- [ ] **Step 8: Port the seven concrete route filters**
+- [x] **Step 8: Port the seven concrete route filters**
 
 Each keeps its `@Component` and `@Order`. `@Order` now controls the order in which `GatewayRouterFunctionConfiguration` attaches them, so the existing numbers keep the existing sequence: `MethodWhitelistFilter`(10) → `AccessControlFilter`(20) → `CsrfValidationFilter`(30) → `CsrfValidationFilterWithBody`(31) → `ResponseHeaderFilter`(40) → `DownstreamHeaderFilter`(41) → `UserMappingFilter`(42) → `GatewayLoggingFilter`(100).
 
@@ -1797,7 +1797,7 @@ The `name=value` mapping above is deliberate and must not be "simplified" to `Co
 
 Run: `./gradlew compileJava --console=plain`.
 
-- [ ] **Step 9: Write the failing routing test**
+- [x] **Step 9: Write the failing routing test**
 
 Create `oag/src/test/java/org/owasp/oag/gateway/GatewayRouterFunctionConfigurationTest.java`:
 
@@ -1908,12 +1908,12 @@ public class GatewayRouterFunctionConfigurationTest {
 
 `MainConfig` is a YAML-bound class; constructing it by hand may not work. Before writing this test, read `oag/src/main/java/org/owasp/oag/config/configuration/MainConfig.java`, `GatewayRoute.java`, `SecurityProfile.java` and `PathRewriteConfig.java`, and build the fixture the cheapest correct way — most likely by loading `default-config.yaml` through `TestFileConfigLoader` (see `oag/src/test/java/org/owasp/oag/config/FileConfigLoaderTest.java` for the pattern) and then replacing `config.getRoutes()` with a two-entry map. `GatewayRoute`'s constructor is `(String path, String url, String type, boolean allowAnonymous, PathRewriteConfig rewrite)` — pass a real `PathRewriteConfig`, not `null`, since `routeFor` calls `route.getRewrite().build(route)`. Keep the two assertions: the specific route wins over `/api/**`, and the filters run `first` then `second`.
 
-- [ ] **Step 10: Run the routing test to verify it fails**
+- [x] **Step 10: Run the routing test to verify it fails**
 
 Run: `./gradlew test --tests 'org.owasp.oag.gateway.GatewayRouterFunctionConfigurationTest' --console=plain`
 Expected: FAIL at compilation — `cannot find symbol: class GatewayRouterFunctionConfiguration`.
 
-- [ ] **Step 11: Create `GatewayRouterFunctionConfiguration`**
+- [x] **Step 11: Create `GatewayRouterFunctionConfiguration`**
 
 Create `oag/src/main/java/org/owasp/oag/gateway/GatewayRouterFunctionConfiguration.java`:
 
@@ -2035,7 +2035,7 @@ git rm oag/src/main/java/org/owasp/oag/gateway/SpringCloudGatewayConfiguration.j
 
 and fix the two remaining references with `grep -rn "SpringCloudGatewayConfiguration" oag/src`.
 
-- [ ] **Step 12: Port the controllers and the login drivers**
+- [x] **Step 12: Port the controllers and the login drivers**
 
 `LoginController` becomes a plain blocking MVC controller. Replace `ServerWebExchange exchange` parameters with `HttpServletRequest request, HttpServletResponse response`, and apply:
 
@@ -2088,7 +2088,7 @@ Finally, remove `"org.owasp.oag.filters"` from the `@ComponentScan` in `OAGBeanC
 Run: `./gradlew compileJava compileTestJava --console=plain`
 Expected: `BUILD SUCCESSFUL`. If `grep -rn "ServerWebExchange\|WebFilter\|reactor\.core\|GlobalFilter\|server\.reactive" oag/src/main` returns anything, you have missed a file — go back.
 
-- [ ] **Step 13: Run the full suite — this is the real verification**
+- [x] **Step 13: Run the full suite — this is the real verification**
 
 Run: `./gradlew build --console=plain`
 Expected: `BUILD SUCCESSFUL` with all tests passing.
@@ -2103,7 +2103,7 @@ When something fails, fix the production code, not the test. The likely failures
 - **Cookies missing `SameSite`** — a hook used `response.addCookie(...)` instead of `CookieWriter.addCookie(...)`.
 - **TLS handshake failures** — Tomcat could not read `keystore.pkcs12`. Confirm the file exists (`./gradlew generateCertificate`) and that `server.ssl.key-store` resolves; if Tomcat needs an explicit scheme, change it to `file:keystore.pkcs12` in `application.yaml`.
 
-- [ ] **Step 14: Prove requests actually run on virtual threads**
+- [x] **Step 14: Prove requests actually run on virtual threads**
 
 Create `oag/src/test/java/org/owasp/oag/integration/mockserver/VirtualThreadTest.java`:
 
@@ -2188,14 +2188,14 @@ The probe is a `@Component` in the test source tree, so it is only picked up by 
 Run: `./gradlew test --tests 'org.owasp.oag.integration.mockserver.VirtualThreadTest' --console=plain`
 Expected: PASS. If it fails, `spring.threads.virtual.enabled=true` did not take effect — check that it sits inside the single `spring:` block in `application.yaml` and is not overridden by a test property.
 
-- [ ] **Step 15: Add the servlet-filter unit test**
+- [x] **Step 15: Add the servlet-filter unit test**
 
 Create `oag/src/test/java/org/owasp/oag/filters/servlet/ExtractAuthenticationFilterTest.java` covering three cases with `MockHttpServletRequest`, `MockHttpServletResponse` and a `MockFilterChain`: (1) no login cookie → `OAG_SESSION` attribute is an empty `Optional`; (2) a valid login cookie → `OAG_SESSION` holds a present `Optional<Session>` and `OAG_SESSION_CSRF_TOKEN` holds the cookie's CSRF token; (3) a valid login cookie whose id is blacklisted → `OAG_SESSION` stays empty. Build the login cookie with the real `JweEncrypter.loadInMemoryInstance()` and a `CookieConverter`, and use a stub `SessionBlacklist` whose `isInvalidated` returns a value you control. Set the filter's `@Autowired` fields with `org.springframework.test.util.ReflectionTestUtils.setField(...)` or add package-private setters.
 
 Run: `./gradlew test --tests 'org.owasp.oag.filters.servlet.ExtractAuthenticationFilterTest' --console=plain`
 Expected: PASS, 3 tests.
 
-- [ ] **Step 16: Run the full build one more time and commit**
+- [x] **Step 16: Run the full build one more time and commit**
 
 Run: `./gradlew build --console=plain`
 Expected: `BUILD SUCCESSFUL`.

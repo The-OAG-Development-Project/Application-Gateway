@@ -15,6 +15,9 @@ spring:
     name: OWASP Application Gateway
   banner:
     location: banner.txt
+  threads:
+    virtual:
+      enabled: true
 
 ribbon:
   eureka:

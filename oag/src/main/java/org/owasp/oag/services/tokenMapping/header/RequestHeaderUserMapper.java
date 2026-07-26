@@ -4,7 +4,7 @@ import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.services.tokenMapping.UserMapper;
 import org.owasp.oag.services.tokenMapping.UserMappingTemplatingEngine;
 import org.owasp.oag.session.Session;
-import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.servlet.function.ServerRequest;
 
 /**
  * This implementation of a user mapper adds the user information directly as X-OAG headers. For instance
@@ -40,20 +40,22 @@ public class RequestHeaderUserMapper implements UserMapper {
     }
 
     @Override
-    public ServerWebExchange mapUserToRequest(ServerWebExchange exchange, GatewayRouteContext context) {
+    public ServerRequest mapUserToRequest(ServerRequest request, GatewayRouteContext context) {
 
         var sessionOptional = context.getSessionOptional();
         if (sessionOptional == null || sessionOptional.isEmpty())
-            return exchange;
+            return request;
 
-        var request = exchange.getRequest().mutate();
+        var builder = ServerRequest.from(request);
         Session session = sessionOptional.get();
         var engine = new UserMappingTemplatingEngine(session);
 
+        // set() rather than header(), because header() appends and an inbound header of the same name
+        // must not survive next to the one OAG produces.
         for (var entry : settings.mappings.entrySet()) {
-            request.header(entry.getKey(), engine.processTemplate(entry.getValue()));
+            builder.headers(headers -> headers.set(entry.getKey(), engine.processTemplate(entry.getValue())));
         }
 
-        return exchange.mutate().request(request.build()).build();
+        return builder.build();
     }
 }

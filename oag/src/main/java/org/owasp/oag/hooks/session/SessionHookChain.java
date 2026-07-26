@@ -1,12 +1,12 @@
 package org.owasp.oag.hooks.session;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.owasp.oag.session.Session;
 import org.owasp.oag.session.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ public class SessionHookChain {
      * @param model The user model containing user information
      * @param response The HTTP response where cookies or headers can be added
      */
-    public void createSession(String providerKey, UserModel model, ServerHttpResponse response) {
+    public void createSession(String providerKey, UserModel model, HttpServletResponse response) {
         var filterContext = new HashMap<String, Object>();
         filterContext.put("providerKey", providerKey);
         filterContext.put("userModel", model);
@@ -58,7 +58,7 @@ public class SessionHookChain {
      * @param oldSession The existing session to be renewed
      * @param response The HTTP response where cookies or headers can be added
      */
-    public void renewSession(Session oldSession, ServerHttpResponse response) {
+    public void renewSession(Session oldSession, HttpServletResponse response) {
         var filterContext = new HashMap<String, Object>();
         filterContext.put("old-session", oldSession);
 
@@ -70,11 +70,12 @@ public class SessionHookChain {
      * Each hook in the chain will have the opportunity to contribute to or modify
      * the session destruction process.
      *
-     * @param exchange The server web exchange containing the HTTP request and response
+     * @param request The current request
+     * @param response The HTTP response where cookies or headers can be added
      */
-    public void destroySession(ServerWebExchange exchange){
+    public void destroySession(HttpServletRequest request, HttpServletResponse response){
         var filterContext = new HashMap<String, Object>();
-        hooks.forEach(h -> h.destroySession(filterContext, exchange));
+        hooks.forEach(h -> h.destroySession(filterContext, request, response));
     }
 
     /**

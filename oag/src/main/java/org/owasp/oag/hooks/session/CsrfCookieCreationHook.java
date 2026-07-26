@@ -1,13 +1,14 @@
 package org.owasp.oag.hooks.session;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.cookies.CookieConverter;
+import org.owasp.oag.cookies.CookieWriter;
 import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Map;
 import java.util.UUID;
@@ -28,10 +29,10 @@ public class CsrfCookieCreationHook implements SessionHook {
      * Renews the session by copying the CSRF token from the old session.
      *
      * @param filterContext The filter context.
-     * @param response      The server HTTP response.
+     * @param response      The HTTP response.
      */
     @Override
-    public void renewSession(Map<String, Object> filterContext, ServerHttpResponse response) {
+    public void renewSession(Map<String, Object> filterContext, HttpServletResponse response) {
 
         Session session = (Session) filterContext.get("old-session");
         filterContext.put("csrfToken", session.getLoginCookie().getCsrfToken());
@@ -51,16 +52,16 @@ public class CsrfCookieCreationHook implements SessionHook {
      * Creates a new CSRF cookie and adds it to the response.
      *
      * @param filterContext The filter context.
-     * @param response      The server HTTP response.
+     * @param response      The HTTP response.
      */
     @Override
-    public void createSession(Map<String, Object> filterContext, ServerHttpResponse response) {
+    public void createSession(Map<String, Object> filterContext, HttpServletResponse response) {
 
         var csrfToken = UUID.randomUUID().toString();
         var csrfCookie = new CsrfCookie(csrfToken);
         var sessionDuration = config.getSessionBehaviour().getSessionDuration();
 
-        response.addCookie(cookieConverter.convertCsrfCookie(csrfCookie, sessionDuration));
+        CookieWriter.addCookie(response, cookieConverter.convertCsrfCookie(csrfCookie, sessionDuration));
         filterContext.put("csrfToken", csrfToken);
     }
 
@@ -68,15 +69,17 @@ public class CsrfCookieCreationHook implements SessionHook {
      * Destroys the CSRF cookie by setting its max-age to 0.
      *
      * @param filterContext The filter context.
-     * @param exchange      The server web exchange.
+     * @param request       The current request.
+     * @param response      The HTTP response.
      */
     @Override
-    public void destroySession(Map<String, Object> filterContext, ServerWebExchange exchange) {
+    public void destroySession(Map<String, Object> filterContext, HttpServletRequest request,
+                              HttpServletResponse response) {
 
         // Override csrf cookie with new cookie that has max-age = 0
         var csrfToken = UUID.randomUUID().toString();
         var csrfCookie = new CsrfCookie(csrfToken);
 
-        exchange.getResponse().addCookie(cookieConverter.convertCsrfCookie(csrfCookie, 0));
+        CookieWriter.addCookie(response, cookieConverter.convertCsrfCookie(csrfCookie, 0));
     }
 }

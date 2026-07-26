@@ -1,7 +1,7 @@
 package org.owasp.oag.services.tokenMapping;
 
 import org.owasp.oag.filters.GatewayRouteContext;
-import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.servlet.function.ServerRequest;
 
 /**
  * This is an interface for the such called user mapper. A user mapper is responsible for adding the user information
@@ -14,11 +14,11 @@ import org.springframework.web.server.ServerWebExchange;
 public interface UserMapper {
 
     /**
-     * Add the information about the user to the request. Must return a potentially mutated exchange object.
+     * Add the information about the user to the request. Must return a potentially mutated request.
      *
-     * @param exchange The current server web exchange object
-     * @param context  Additional information about the request such as user session, urls and so on.
-     * @return Mutated server web exchange
+     * @param request The current downstream request
+     * @param context Additional information about the request such as user session, urls and so on.
+     * @return The request, mutated when user information was added
      */
-    ServerWebExchange mapUserToRequest(ServerWebExchange exchange, GatewayRouteContext context);
+    ServerRequest mapUserToRequest(ServerRequest request, GatewayRouteContext context);
 }

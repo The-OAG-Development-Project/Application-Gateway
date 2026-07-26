@@ -5,18 +5,18 @@ import org.owasp.oag.infrastructure.factories.UserMappingFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
+import org.springframework.web.servlet.function.HandlerFunction;
+import org.springframework.web.servlet.function.ServerRequest;
+import org.springframework.web.servlet.function.ServerResponse;
 
 import static org.owasp.oag.utils.LoggingUtils.logTrace;
 
 /**
  * Filter that applies user mapping to downstream requests.
- * This filter maps user information from the authenticated session to the 
- * appropriate format expected by downstream services, such as adding specific 
+ * This filter maps user information from the authenticated session to the
+ * appropriate format expected by downstream services, such as adding specific
  * headers or tokens based on the security profile configuration.
  */
 @Component
@@ -28,26 +28,15 @@ public class UserMappingFilter extends RouteAwareFilter {
     @Autowired
     private UserMappingFactory mappingFactory;
 
-    /**
-     * Applies user mapping to the request based on the security profile.
-     * Gets the appropriate user mapper for the security profile and uses it to 
-     * add user information to the request before forwarding it downstream.
-     *
-     * @param exchange The current server web exchange
-     * @param chain The gateway filter chain
-     * @param routeContext The context containing route information
-     * @return A Mono&gt;Void&lt; that completes when the filter processing is done
-     */
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain, GatewayRouteContext routeContext) {
+    public ServerResponse filter(ServerRequest request, HandlerFunction<ServerResponse> next,
+                                 GatewayRouteContext routeContext) throws Exception {
 
-        logTrace(log, exchange, "Execute DownstreamAuthenticationFilter");
+        logTrace(log, request.servletRequest(), "Execute DownstreamAuthenticationFilter");
 
         var securityProfileName = routeContext.getRoute().getType();
         var userMapper = mappingFactory.getUserMapperForSecurityProfile(securityProfileName);
 
-        var potentiallyMutatedExchange = userMapper.mapUserToRequest(exchange, routeContext);
-
-        return chain.filter(potentiallyMutatedExchange);
+        return next.handle(userMapper.mapUserToRequest(request, routeContext));
     }
 }

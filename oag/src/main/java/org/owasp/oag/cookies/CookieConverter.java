@@ -5,7 +5,7 @@ import org.owasp.oag.exception.CookieDecryptionException;
 import org.owasp.oag.services.crypto.CookieEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpCookie;
+import jakarta.servlet.http.Cookie;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
@@ -52,13 +52,13 @@ public class CookieConverter {
     }
 
     /**
-     * Converts an HttpCookie to a LoginStateCookie.
+     * Converts a servlet cookie to a LoginStateCookie.
      *
-     * @param cookie The HttpCookie to convert.
+     * @param cookie The servlet cookie to convert.
      * @return The converted LoginStateCookie.
      * @throws CookieDecryptionException if the cookie cannot be decrypted.
      */
-    public LoginStateCookie convertStateCookie(HttpCookie cookie) throws CookieDecryptionException {
+    public LoginStateCookie convertStateCookie(Cookie cookie) throws CookieDecryptionException {
 
         return encryptor.decryptObject(cookie.getValue(), LoginStateCookie.class);
     }
@@ -82,12 +82,12 @@ public class CookieConverter {
     }
 
     /**
-     * Converts an HttpCookie to a CsrfCookie.
+     * Converts a servlet cookie to a CsrfCookie.
      *
-     * @param cookie The HttpCookie to convert.
+     * @param cookie The servlet cookie to convert.
      * @return The converted CsrfCookie.
      */
-    public CsrfCookie convertCsrfCookie(HttpCookie cookie) {
+    public CsrfCookie convertCsrfCookie(Cookie cookie) {
         return new CsrfCookie(cookie.getValue());
     }
 
@@ -114,13 +114,13 @@ public class CookieConverter {
     }
 
     /**
-     * Converts an HttpCookie to a LoginCookie.
+     * Converts a servlet cookie to a LoginCookie.
      *
-     * @param cookie The HttpCookie to convert.
+     * @param cookie The servlet cookie to convert.
      * @return The converted LoginCookie.
      * @throws CookieDecryptionException if the cookie cannot be decrypted.
      */
-    public LoginCookie convertLoginCookie(HttpCookie cookie) throws CookieDecryptionException {
+    public LoginCookie convertLoginCookie(Cookie cookie) throws CookieDecryptionException {
 
         return encryptor.decryptObject(cookie.getValue(), LoginCookie.class);
     }

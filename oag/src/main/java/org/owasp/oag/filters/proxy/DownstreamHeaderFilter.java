@@ -1,28 +1,22 @@
 package org.owasp.oag.filters.proxy;
 
-import org.jspecify.annotations.NonNull;
-import org.owasp.oag.config.configuration.MainConfig;
+import jakarta.servlet.http.HttpServletRequest;
 import org.owasp.oag.controllers.dto.SessionInformation;
 import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.cookies.LoginStateCookie;
 import org.owasp.oag.filters.GatewayRouteContext;
-import org.owasp.oag.filters.spring.TraceContextFilter;
+import org.owasp.oag.filters.servlet.TraceContextFilter;
 import org.owasp.oag.logging.TraceHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
+import org.springframework.web.servlet.function.HandlerFunction;
+import org.springframework.web.servlet.function.ServerRequest;
+import org.springframework.web.servlet.function.ServerResponse;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -50,89 +44,86 @@ public class DownstreamHeaderFilter extends RouteAwareFilter {
      * Value for the X-PROXY header that identifies this application gateway
      */
     public static final String X_PROXY_VALUE = "OWASP Application Gateway";
+
     private static final Logger log = LoggerFactory.getLogger(DownstreamHeaderFilter.class);
 
-    @Autowired
-    private MainConfig config;
-
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain, GatewayRouteContext routeContext) {
+    public ServerResponse filter(ServerRequest request, HandlerFunction<ServerResponse> next,
+                                 GatewayRouteContext routeContext) throws Exception {
 
-        logTrace(log, exchange, "Execute DownstreamHeaderFilter");
+        logTrace(log, request.servletRequest(), "Execute DownstreamHeaderFilter");
 
-        var request = exchange.getRequest().mutate();
+        var builder = ServerRequest.from(request);
 
-        request = addOagHeaders(routeContext, request);
-        request = addTraceHeaders(exchange, request);
-        request = filterRequestCookies(exchange, request);
+        builder = addOagHeaders(routeContext, builder);
+        builder = addTraceHeaders(request.servletRequest(), builder);
+        builder = filterRequestCookies(request, builder);
 
-        return chain.filter(exchange.mutate().request(request.build()).build());
+        return next.handle(builder.build());
     }
 
     /**
-     * Adds OAG-specific headers to the request
+     * Adds OAG-specific headers to the request.
      *
      * @param routeContext The gateway route context containing session information
-     * @param request The request builder to add headers to
+     * @param builder The request builder to add headers to
      * @return The updated request builder with added headers
      */
-    protected ServerHttpRequest.@NonNull Builder addOagHeaders(GatewayRouteContext routeContext, ServerHttpRequest.Builder request) {
+    protected ServerRequest.Builder addOagHeaders(GatewayRouteContext routeContext, ServerRequest.Builder builder) {
 
         // Add OAG status headers
-        request = request.header(X_PROXY, X_PROXY_VALUE);
-        if (routeContext.getSessionOptional().isPresent()) {
-            request = request.header(X_OAG_STATUS, SessionInformation.SESSION_STATE_AUTHENTICATED);
-        } else {
-            request = request.header(X_OAG_STATUS, SessionInformation.SESSION_STATE_ANONYMOUS);
-        }
-        return request;
+        var status = routeContext.getSessionOptional().isPresent()
+                ? SessionInformation.SESSION_STATE_AUTHENTICATED
+                : SessionInformation.SESSION_STATE_ANONYMOUS;
+
+        return builder.headers(headers -> {
+            headers.set(X_PROXY, X_PROXY_VALUE);
+            headers.set(X_OAG_STATUS, status);
+        });
     }
 
     /**
      * Adds the tracing headers decided for this request to the downstream request.
      *
-     * @param exchange The server web exchange holding the trace headers attribute
-     * @param request The request builder to add headers to
+     * @param request The current request holding the trace headers attribute
+     * @param builder The request builder to add headers to
      * @return The updated request builder
      */
-    protected ServerHttpRequest.@NonNull Builder addTraceHeaders(ServerWebExchange exchange, ServerHttpRequest.Builder request) {
+    protected ServerRequest.Builder addTraceHeaders(HttpServletRequest request, ServerRequest.Builder builder) {
 
-        TraceHeaders traceHeaders = exchange.getAttribute(TraceContextFilter.TRACE_HEADERS_ATTRIBUTE);
+        TraceHeaders traceHeaders = (TraceHeaders) request.getAttribute(TraceContextFilter.TRACE_HEADERS_ATTRIBUTE);
         if (traceHeaders == null)
-            return request;
+            return builder;
 
         if (traceHeaders.downstreamHeaders().isEmpty())
-            return request;
+            return builder;
 
-        for (var entry : traceHeaders.downstreamHeaders().entrySet()) {
-            request = request.header(entry.getKey(), entry.getValue());
-        }
+        builder = builder.headers(headers -> traceHeaders.downstreamHeaders().forEach(headers::set));
 
-        logDebug(log, exchange, "Added trace id to downstream call.");
-        return request;
+        logDebug(log, request, "Added trace id to downstream call.");
+        return builder;
     }
 
     /**
-     * Filters out OAG-specific cookies from the request
+     * Removes OAG's own cookies from the request forwarded downstream.
      *
-     * @param exchange The server web exchange containing the original request
-     * @param request The request builder to update with filtered cookies
-     * @return The updated request builder with filtered cookies
+     * @param request The current request
+     * @param builder The request builder to update
+     * @return The updated request builder
      */
-    protected ServerHttpRequest.@NonNull Builder filterRequestCookies(ServerWebExchange exchange, ServerHttpRequest.Builder request) {
+    protected ServerRequest.Builder filterRequestCookies(ServerRequest request, ServerRequest.Builder builder) {
 
-        //Remove OAG cookies
+        // Remove OAG cookies
         var cookieBlacklist = Set.of(LoginCookie.NAME, CsrfCookie.NAME, LoginStateCookie.NAME);
-        List<HttpCookie> filteredCookies = new LinkedList<>();
-        for (var entry : exchange.getRequest().getCookies().entrySet()) {
 
-            if (!cookieBlacklist.contains(entry.getKey())) {
-                filteredCookies.addAll(entry.getValue());
-            }
-        }
+        // Build the header value from name and value: jakarta.servlet.http.Cookie#toString does not
+        // render a Cookie header, it renders the java object identity.
+        var cookieHeaderValue = request.cookies().entrySet().stream()
+                .filter(e -> !cookieBlacklist.contains(e.getKey()))
+                .flatMap(e -> e.getValue().stream())
+                .map(cookie -> cookie.getName() + "=" + cookie.getValue())
+                .collect(Collectors.joining("; "));
 
-        final String cookieDelimiter = "; ";
-        var cookieHeaderValue = filteredCookies.stream().map(c -> c.toString()).collect(Collectors.joining(cookieDelimiter));
-        return request.header(HttpHeaders.COOKIE, cookieHeaderValue);
+        return builder.headers(headers -> headers.set(HttpHeaders.COOKIE, cookieHeaderValue));
     }
 }

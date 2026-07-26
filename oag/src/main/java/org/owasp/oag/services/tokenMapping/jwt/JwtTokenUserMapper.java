@@ -12,7 +12,7 @@ import org.owasp.oag.services.tokenMapping.UserMappingTemplatingEngine;
 import org.owasp.oag.session.UserModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.servlet.function.ServerRequest;
 
 import java.security.SecureRandom;
 import java.time.Duration;
@@ -100,26 +100,27 @@ public class JwtTokenUserMapper implements UserMapper {
      * Maps user information to an HTTP request by adding a JWT token in a header.
      * Only adds authentication if there is a user session present.
      *
-     * @param exchange The server web exchange representing the HTTP request/response
+     * @param request The current downstream request
      * @param context The gateway route context containing routing and session information
-     * @return The exchange, with the JWT token header added when a session is present
+     * @return The request, with the JWT token header added when a session is present
      */
     @Override
-    public ServerWebExchange mapUserToRequest(ServerWebExchange exchange, GatewayRouteContext context) {
+    public ServerRequest mapUserToRequest(ServerRequest request, GatewayRouteContext context) {
 
         // Only add downstream authentication if there is a user session
         if (context.getSessionOptional().isEmpty())
-            return exchange;
+            return request;
 
         var session = context.getSessionOptional().get();
         var audience = "<<route-url>>".equals(settings.audience) ? context.getRoute().getUrl() : settings.audience;
 
         var token = getToken(session.getUserModel(), audience, session.getProvider(), context);
 
-        var mutatedRequest = exchange.getRequest().mutate()
-                .header(settings.headerName, settings.headerPrefix + token).build();
-
-        return exchange.mutate().request(mutatedRequest).build();
+        // set() rather than header(), because header() appends and an inbound header of the same name
+        // must not survive next to the one OAG produces.
+        return ServerRequest.from(request)
+                .headers(headers -> headers.set(settings.headerName, settings.headerPrefix + token))
+                .build();
     }
 
     /**
