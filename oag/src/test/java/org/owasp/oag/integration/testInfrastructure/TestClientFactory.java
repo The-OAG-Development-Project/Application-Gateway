@@ -16,9 +16,8 @@ import java.time.Duration;
  * certificate generated at build time, so the client must not validate the certificate chain.
  * This trust-all configuration is for tests only and must never be used in production code.
  * <p>
- * Hostname verification cannot be switched off through the trust manager because the JDK HTTP client
- * applies it separately; the {@code test} task therefore sets
- * {@code jdk.internal.httpclient.disableHostnameVerification} (see {@code build.gradle}).
+ * Hostname verification stays enabled: the generated certificate carries {@code CN=localhost} and
+ * subject alternative names for {@code localhost} and {@code 127.0.0.1} (see {@code build.gradle}).
  */
 public final class TestClientFactory {
 

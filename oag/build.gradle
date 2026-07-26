@@ -87,11 +87,6 @@ tasks.named('test', Test) {
 
     maxHeapSize = '1G'
 
-    // The gateway serves the self-signed certificate created by generateCertificate (CN=demo), so the
-    // test client must skip hostname verification. The JDK HTTP client applies it independently of the
-    // configured trust manager and only honours this switch. Tests only, never set in production.
-    systemProperty 'jdk.internal.httpclient.disableHostnameVerification', 'true'
-
     testLogging {
         events "passed"
     }
@@ -128,7 +123,11 @@ tasks.register('generateCertificate', Exec) {
     commandLine 'keytool', '-genkeypair', '-alias', 'tls', '-keyalg', 'RSA', 
                 '-keystore', 'keystore.pkcs12', '-storetype', 'PKCS12',
                 '-keysize', '2048', '-keypass', 'password', '-storepass', 'password',
-                '-validity', '720', '-dname', 'cn=demo, ou=oag, o=owasp, c=com'
+                '-validity', '720',
+                // CN and subject alternative names must match the host the tests connect to
+                // (https://localhost) so that TLS hostname verification succeeds.
+                '-dname', 'cn=localhost, ou=oag, o=owasp, c=com',
+                '-ext', 'san=dns:localhost,ip:127.0.0.1'
 }
 
 tasks.register('deleteKeystore') {
