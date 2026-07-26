@@ -31,7 +31,7 @@ plugins {
 }
 
 group = 'org.owasp'
-version = '0.7.2-SNAPSHOT'
+version = '0.8.0-SNAPSHOT'
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
@@ -86,7 +86,6 @@ tasks.named('test', Test) {
     enabled = !project.hasProperty('skipTests')
 
     maxHeapSize = '1G'
-
     testLogging {
         events "passed"
     }
@@ -126,6 +125,9 @@ tasks.register('generateCertificate', Exec) {
                 '-validity', '720',
                 // CN and subject alternative names must match the host the tests connect to
                 // (https://localhost) so that TLS hostname verification succeeds.
+                // This keystore is packaged by the Dockerfile, so it is also the default
+                // self-signed certificate the published Docker image serves. Do not change
+                // the CN back to a non-resolvable name.
                 '-dname', 'cn=localhost, ou=oag, o=owasp, c=com',
                 '-ext', 'san=dns:localhost,ip:127.0.0.1'
 }

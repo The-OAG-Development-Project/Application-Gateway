@@ -42,7 +42,7 @@ The following table lists all terms alphabetically.
 | CSRF (Cross-Site Request Forgery) | An attack in which a victim's browser is tricked into sending an authenticated request. OAG mitigates it per security profile via the `csrfProtection` setting. |
 | `csrfProtection` | Per-security-profile setting selecting the CSRF strategy: `double-submit-cookie`, `samesite-strict-cookie`, `none`, or a custom implementation. |
 | `csrfSafeMethods` | Per-security-profile list of HTTP methods excluded from CSRF protection (typically `GET`, `HEAD`, `OPTIONS`). |
-| Custom (code) extension | A pluggable Java component (e.g. implementing `CsrfProtectionValidation`, a trace context, a JWT signer, or a key store) that OAG selects by its bean name from configuration. |
+| Custom (code) extension | A pluggable Java component that OAG selects by its bean name from configuration. The extension points are the servlet-API based interfaces `CsrfProtectionValidation`, `UserMapper`, `SessionHook`, `SessionBlacklist`, `LoginDriver`, `TraceContext`, `JwtSignerFactory`, `JwkStore` and `KeyGenerator`; their signatures are listed under Custom code extensions. |
 | `defaultKeyRotation` | The built-in key rotation strategy. Generates a fresh signing key at startup, rotates it on the configured interval, and publishes keys to the JWK store. |
 | Design principles | OAG's three guiding principles: secure by default (hardening out of the box), stateless (session state in encrypted client cookies), and configuration-based (behavior driven by one central config file). |
 | `double-submit-cookie` | CSRF strategy where OAG requires the value of the `csrf` cookie to be echoed in the `X-CSRF-TOKEN` header (or a `CSRFToken` form field). OAG cryptographically binds the CSRF cookie to the session cookie. |
@@ -94,6 +94,7 @@ The following table lists all terms alphabetically.
 | Rewrite (`rewrite`) | Per-route rule controlling how the request path is transformed before being forwarded to the downstream URL. Defaults to stripping the matched path prefix; can be customized with `regex`/`replacement`. |
 | Rolling session | A session that is automatically extended while the user stays active, controlled by `renewWhenLessThan`. |
 | Route | A configuration entry (under `routes`) mapping an incoming `path` to a downstream `url`, using a named security profile (`type`) and an `allowAnonymous` policy. |
+| Route filter | A `HandlerFilterFunction` attached to a configured gateway route. Route filters see the route's security profile and session, and run in `@Order` sequence for proxied traffic only. |
 | `rsa` | Recommended JWT signer implementation. Produces RS256 signatures using automatically rotated keys and adds `kid` and `jku` headers. |
 | `rsaKeyGenerator` | Built-in key generator that produces RSA keys of the configured `keySize`. |
 | `samesite-strict-cookie` | CSRF strategy relying on a SameSite=Strict session cookie so the browser does not send it on cross-site requests. |
@@ -101,6 +102,7 @@ The following table lists all terms alphabetically.
 | Security headers | The set of hardening HTTP response headers OAG sets by default through security profiles, such as `X-Frame-Options`, `X-Content-Type-Options`, `Content-Security-Policy`, `Referrer-Policy`, and `Permissions-Policy`. |
 | Security profile | A named bundle of security settings — `allowedMethods`, `csrfProtection`, `responseHeaders`, `userMapping` — referenced by a route's `type` and applied to all its requests. |
 | Security token | A token used to convey authenticated identity or authorization, such as an OAuth2 access token, an OIDC ID token, or an OAG-issued JWT. |
+| Servlet filter | A filter that runs for every request before routing, including OAG's own `/auth` and `/.well-known` endpoints. Used for tracing, request logging, session extraction and session renewal. |
 | Session | The authenticated state of a user with OAG. OAG is stateless: session data is stored in an encrypted cookie on the client. |
 | Session blacklist | A store of invalidated session identifiers (for example after logout). An identifier stays blacklisted for at least its TTL so the session cannot be reused. |
 | Session cookie | The secure, HTTP-only, SameSite cookie in which OAG stores encrypted session information on the client. |
@@ -124,6 +126,7 @@ The following table lists all terms alphabetically.
 | URL (`url`) | Per-route downstream base URL to which matching requests are forwarded (after path rewriting). |
 | User mapping (`userMapping`) | The security-profile section defining how OAG communicates the authenticated user to the backend. Types: `jwtToken` (recommended), `requestHeader`, `no`. |
 | User model | The internal representation of the authenticated user, populated from the identity provider's ID token claims and referenced in mapping expressions as `mappings.*`. |
+| Virtual thread | A lightweight JVM thread. OAG handles each request on its own virtual thread, so all gateway code is plain sequential Java and the trace id stays in the MDC for the whole request. |
 | `w3cTraceContext` | Default trace implementation, compliant with the W3C Trace Context specification, using its standard headers to propagate the trace ID. |
 | W3C Trace Context | A W3C specification for propagating trace context via standard HTTP headers, implemented by OAG's default `w3cTraceContext`. |
 | `webapplication` (profile) | Predefined security profile suitable for most web applications: allows the common HTTP methods and adds SameSite-cookie CSRF protection. |

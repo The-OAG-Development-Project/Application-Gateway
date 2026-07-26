@@ -14,6 +14,8 @@
 
 OWASP Application Gateway is an HTTP reverse proxy that sits between your web application and the client and handles Oauth2 login and session management. For you, as a developer, OWASP Application Gateway removes the hassle to implement complicated oauth2 logic in the backend and frontend so you can focus totally on your applications logic.
 
+It is built on Spring Cloud Gateway Server MVC and runs on Apache Tomcat with Java 25 virtual threads: every request is handled on its own virtual thread, so there is no event loop and no thread pool to size. Note that WebSocket traffic is not proxied.
+
 <img alt="Overview Picture" src="https://github.com/The-OAG-Development-Project/Application-Gateway/blob/main/doc/OAG-Overrview.png?raw=true" width="500" />
 
 ## Table of Contents
@@ -112,7 +114,7 @@ traceProfile:
 
 You have three options on how to run OWASP Application Gateway:
 * There is an official docker image that just works out of the box. You need to mount the config file via docker volumes.
-* If you don't want to use docker, you can also download the released jar file. * Of course you can also build OWASP Application Gateway by yourself with Maven.
+* If you don't want to use docker, you can also download the released jar file. * Of course you can also build OWASP Application Gateway by yourself with Gradle.
 Note, that in all cases this starts the OAG with a self-signed certificate (This means you will get warnings in your browser when connecting.) It is recommended you change the certificate according to: [Configure TLS](https://github.com/The-OAG-Development-Project/Application-Gateway/wiki/TLS-configuration-in-OAG).
 
 ### Docker Release
@@ -155,14 +157,14 @@ docker build -t owasp/application-gateway:SNAPSHOT .
 docker run -p 8080:8080 owasp/application-gateway:SNAPSHOT
 ```
 
-If you don't want to use Docker you can build the jar by yourself with Maven:
+If you don't want to use Docker you can build the jar by yourself with Gradle:
 
 ```bash
 git clone https://github.com/The-OAG-Development-Project/Application-Gateway.git
 cd Application-Gateway
 cd oag
-mvn package -DskipTests
-java -jar target/oag-exec.jar
+./gradlew assemble
+java -jar build/libs/oag.jar
 ```
 
 You may also use your IDE for building OAG. Please see [Setup OAG for development](https://github.com/The-OAG-Development-Project/Application-Gateway/wiki/Setup-for-OAG-development) for instructions using IntelliJ as an example.

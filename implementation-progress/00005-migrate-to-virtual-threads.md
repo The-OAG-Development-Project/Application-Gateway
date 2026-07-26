@@ -1,5 +1,7 @@
 # Migrate from WebFlux to virtual threads (Spring Cloud Gateway Server MVC) — Implementation Plan
 
+**Status: finished.**
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace OAG's reactive runtime (`spring-cloud-starter-gateway-server-webflux`, Netty, Reactor) with the blocking servlet runtime (`spring-cloud-starter-gateway-server-webmvc`, Tomcat) running on virtual threads, so that all OAG code is plain sequential Java with no `Mono`/`Flux`/`Scheduler` anywhere, while every externally observable behaviour stays identical.
@@ -2481,6 +2483,23 @@ git commit -m "test: drive integration tests with RestTestClient instead of WebT
 
 ---
 
+**Outcome:** the conversion landed as planned, with two additions this plan did not anticipate.
+
+`TestClientFactory` gained a `createClient(int port, Duration responseTimeout)` overload alongside
+`createClient(int port)`, which delegates to it with a 5-second default. `RestTestClient` has no
+per-request timeout setting, so a test that needs to wait longer (or fail faster) has to say so when the
+client is built; the timeout is applied by `JdkClientHttpRequestFactory.setReadTimeout(...)`.
+
+Hostname verification is kept enabled rather than disabled. The JDK `HttpClient` ignores a custom
+`HostnameVerifier`, and the usual workaround — setting the
+`jdk.internal.httpclient.disableHostnameVerification` system property — was rejected: it is an
+unsupported internal flag and it would switch off verification for the whole JVM, including any
+production-shaped code under test. Instead `generateCertificate` in `oag/build.gradle` now issues the
+build-time keystore with `cn=localhost` and `san=dns:localhost,ip:127.0.0.1`, so verification simply
+succeeds against `https://localhost`. Only certificate-chain trust is stubbed out, via a trust-all
+`X509TrustManager`. Because the Dockerfile packages that same keystore, the certificate the published
+Docker image serves changed subject from `CN=demo` to `CN=localhost` — documented in Task 10.
+
 ### Task 10: Update documentation, packaging and the version
 
 **Files:**
@@ -2498,13 +2517,13 @@ git commit -m "test: drive integration tests with RestTestClient instead of WebT
 - Consumes: the finished, green migration from Task 9.
 - Produces: no code interfaces; documentation describing the current servlet/virtual-thread runtime, and version `0.8.0-SNAPSHOT`.
 
-- [ ] **Step 1: Bump the version**
+- [x] **Step 1: Bump the version**
 
 Run (from `oag/`): `./gradlew setVersion -PnewVersion=0.8.0-SNAPSHOT`
 Then run: `grep -n "^version" build.gradle`
 Expected: `version = '0.8.0-SNAPSHOT'`.
 
-- [ ] **Step 2: Check the Dockerfile for reactive-specific settings**
+- [x] **Step 2: Check the Dockerfile for reactive-specific settings**
 
 Run: `cat Dockerfile`
 Look for Netty-specific JVM flags (`-Dreactor.netty.*`, `-Dio.netty.*`) or a thread-count `ENV`. Remove any you find; add nothing new — virtual threads need no JVM flags on Java 25. Then verify the image still builds and starts:
@@ -2516,7 +2535,7 @@ docker run --rm -p 8080:8080 owasp/application-gateway:SNAPSHOT
 
 Expected: the banner prints and the log line `OWASP Application Gateway started with N routes` appears. Stop the container with Ctrl-C.
 
-- [ ] **Step 3: Write the request-handling architecture page**
+- [x] **Step 3: Write the request-handling architecture page**
 
 Create `www/docs/docs/Architecture-Request-Handling.md` describing the current design — no migration history. The
 page content is everything between the four-backtick fences below (the inner three-backtick `mermaid` block is part
@@ -2570,7 +2589,7 @@ WebSockets behind OAG.
 
 Check `ls www/docs/.vitepress` and add the page to the sidebar in the config file you find there, next to the other architecture/overview entries.
 
-- [ ] **Step 4: Update the glossary**
+- [x] **Step 4: Update the glossary**
 
 In `www/docs/docs/Glossary.md`, add these rows to the alphabetical table, keeping alphabetical order and the existing style:
 
@@ -2582,28 +2601,28 @@ In `www/docs/docs/Glossary.md`, add these rows to the alphabetical table, keepin
 
 Also update the `Custom (code) extension` row to mention the current extension-point signatures if it names any types.
 
-- [ ] **Step 5: Document the extension points**
+- [x] **Step 5: Document the extension points**
 
 Extend `www/docs/docs/Custom-(code)-extensions.md` (currently three lines) with the signature of each extension point, so downstream authors know what to implement after the `0.8.0` API change: `CsrfProtectionValidation`, `UserMapper`, `SessionHook`, `SessionBlacklist`, `LoginDriver`, `TraceContext`, `JwtSignerFactory`, `JwkStore`, `KeyGenerator`. For each, give the interface's fully qualified name, its methods, and one sentence on when OAG calls it. Take the signatures from the source — do not retype them from memory.
 
-- [ ] **Step 6: Update the remaining prose**
+- [x] **Step 6: Update the remaining prose**
 
 - `README.md` and `www/docs/docs/Setup-for-OAG-development.md`: replace any mention of the reactive/WebFlux stack with the current one (Spring Cloud Gateway Server MVC on virtual threads, Tomcat). Run `grep -rin "webflux\|reactive\|reactor\|netty\|non-blocking" README.md CONTRIBUTING.md www/docs/docs/*.md` first — the current files have no hits, so this may be a no-op; if so, say so and move on.
 - `.claude/CLAUDE.md`: change the Tech-Stack line to name the servlet gateway and virtual threads, and correct the `spring-cloud-starter-gateway-server-webflux` reference if the file names it.
 
-- [ ] **Step 7: Build the docs**
+- [x] **Step 7: Build the docs**
 
 ```bash
 cd www && npm install && npm run docs:build
 ```
 Expected: build succeeds, no dead-link warnings for the new page. Then `cd ..`.
 
-- [ ] **Step 8: Run the full build one last time**
+- [x] **Step 8: Run the full build one last time**
 
 Run (from `oag/`): `./gradlew build --console=plain`
 Expected: `BUILD SUCCESSFUL`.
 
-- [ ] **Step 9: Mark this plan finished and commit**
+- [x] **Step 9: Mark this plan finished and commit**
 
 Add at the top of this file, under the title:
 
@@ -2620,10 +2639,10 @@ git commit -m "docs: describe servlet and virtual-thread request handling, bump 
 
 ## Definition of Done
 
-- [ ] Every task above is checked off and this plan is marked finished.
-- [ ] `./gradlew build` prints `BUILD SUCCESSFUL` with the full test suite passing, no test disabled or weakened.
-- [ ] `grep -rn "reactor\|webflux\|ServerWebExchange\|Mono\|Flux" oag/src` returns nothing.
-- [ ] `VirtualThreadTest` proves requests run on virtual threads.
-- [ ] `npm run docs:build` succeeds in `www/`, and the glossary, extension-point and architecture pages describe the current design.
-- [ ] The Docker image builds and the container starts.
-- [ ] Version is `0.8.0-SNAPSHOT`.
+- [x] Every task above is checked off and this plan is marked finished.
+- [x] `./gradlew build` prints `BUILD SUCCESSFUL` with the full test suite passing, no test disabled or weakened.
+- [x] `grep -rn "reactor\|webflux\|ServerWebExchange\|Mono\|Flux" oag/src` returns nothing.
+- [x] `VirtualThreadTest` proves requests run on virtual threads.
+- [x] `npm run docs:build` succeeds in `www/`, and the glossary, extension-point and architecture pages describe the current design.
+- [x] The Docker image builds and the container starts.
+- [x] Version is `0.8.0-SNAPSHOT`.

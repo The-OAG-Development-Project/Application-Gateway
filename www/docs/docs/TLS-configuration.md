@@ -2,6 +2,9 @@
 ## Default situation
 
 By default OAG is built with a self-signed TLS certificate (for localhost) that is used to provide TLS.
+The certificate is generated during the build and carries the subject `CN=localhost, OU=oag, O=owasp, C=com`
+with subject alternative names `DNS:localhost` and `IP:127.0.0.1`. It is also the certificate the published
+Docker image serves.
 Usually this is not what you want and you need to replace it with a production strength certificate.
 
 # Options to change the certificate
