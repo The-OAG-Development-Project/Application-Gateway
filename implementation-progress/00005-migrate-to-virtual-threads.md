@@ -2218,12 +2218,12 @@ git commit -m "feat: run OAG on Spring Cloud Gateway Server MVC with virtual thr
 - Consumes: `LoggingUtils.log{Trace,Debug,Info,Warn,Error}(Logger, HttpServletRequest, String, Object...)` (Task 7).
 - Produces: `LoggingUtils` with no Reactor imports and no `logOnNext`; `reactor-core` absent from the `compileClasspath` configuration.
 
-- [ ] **Step 1: Confirm `logOnNext` has no callers left**
+- [x] **Step 1: Confirm `logOnNext` has no callers left**
 
 Run: `grep -rn "logOnNext" oag/src`
 Expected: only the declaration in `LoggingUtils.java`. If a test still uses it, that test is asserting on Reactor plumbing that no longer exists — delete the assertion, not the production method.
 
-- [ ] **Step 2: Delete `logOnNext` and the Reactor imports**
+- [x] **Step 2: Delete `logOnNext` and the Reactor imports**
 
 In `LoggingUtils.java` delete the `logOnNext` method, the imports `reactor.core.publisher.Mono`, `reactor.core.publisher.Signal`, `java.util.Optional` and `java.util.function.Consumer` (if now unused). Rewrite the class Javadoc to describe what is left:
 
@@ -2238,7 +2238,7 @@ In `LoggingUtils.java` delete the `logOnNext` method, the imports `reactor.core.
  */
 ```
 
-- [ ] **Step 3: Verify Reactor is gone from the main source set and the compile classpath**
+- [x] **Step 3: Verify Reactor is gone from the main source set and the compile classpath**
 
 Run: `grep -rn "reactor\.\|Mono\|Flux<" oag/src/main`
 Expected: no output.
@@ -2246,12 +2246,12 @@ Expected: no output.
 Run: `./gradlew dependencies --configuration compileClasspath --console=plain | grep -i reactor`
 Expected: no output. If `reactor-core` appears, find the source with `./gradlew dependencyInsight --configuration compileClasspath --dependency reactor-core`. `spring-cloud-starter` (pulled in by the gateway starter) is the usual culprit via `spring-cloud-context`; if so, leave it — the constraint is that OAG code does not use Reactor, not that the jar is physically absent. Record what you found in this plan file next to this step.
 
-- [ ] **Step 4: Run the full build**
+- [x] **Step 4: Run the full build**
 
 Run: `./gradlew build --console=plain`
 Expected: `BUILD SUCCESSFUL`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add oag/src/main/java/org/owasp/oag/utils/LoggingUtils.java oag/build.gradle
@@ -2259,6 +2259,8 @@ git commit -m "refactor: reduce LoggingUtils to MDC-based contextual logging"
 ```
 
 ---
+
+**Outcome:** no code change was required — Task 7 already deleted `logOnNext` and every Reactor import from `main` while porting the filters, because Step 12's `reactor.core` grep gate had to be empty for that task to pass. Verified at this commit: `grep -rn "reactor\.\|Mono<\|Flux<\|logOnNext" oag/src/main` returns nothing, `LoggingUtils` is MDC-only, and `runtimeClasspath` carries no `spring-webflux` or `reactor-netty`. `reactor-core` does remain on `compileClasspath`, traced via `dependencyInsight` to `spring-cloud-starter-loadbalancer:5.0.2` — which Task 9 removes as unused, so that resolves there rather than here.
 
 ### Task 9: Convert the integration tests from `WebTestClient` to `RestTestClient`
 
