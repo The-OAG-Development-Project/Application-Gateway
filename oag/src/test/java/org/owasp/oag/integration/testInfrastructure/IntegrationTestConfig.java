@@ -1,8 +1,5 @@
 package org.owasp.oag.integration.testInfrastructure;
 
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.owasp.oag.OWASPApplicationGatewayApplication;
 import org.owasp.oag.config.ConfigLoader;
 import org.owasp.oag.config.configuration.GatewayRoute;
@@ -15,13 +12,10 @@ import org.owasp.oag.utils.UrlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.webtestclient.autoconfigure.WebTestClientBuilderCustomizer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import reactor.netty.http.client.HttpClient;
 
 import java.net.MalformedURLException;
 import java.util.Map;
@@ -54,33 +48,6 @@ public class IntegrationTestConfig {
     @Bean(destroyMethod = "close")
     public SessionBlacklist sessionBlacklist() {
         return new LocalPersistentBlacklist(clockSource, new InMemoryPersistentMap<>());
-    }
-
-    /**
-     * Creates a WebTestClient customizer that disables TLS validation.
-     * This allows tests to connect to servers with self-signed certificates.
-     * 
-     * @return A WebTestClientBuilderCustomizer that configures the client to trust all certificates
-     */
-    @Bean
-    public WebTestClientBuilderCustomizer noTlsValidationWebTests() {
-        return (builder) -> builder.clientConnector(new ReactorClientHttpConnector(createHttpClient()));
-    }
-
-    /**
-     * Creates an HTTP client that trusts all TLS certificates.
-     * This is used for testing purposes only and should not be used in production.
-     * 
-     * @return An HTTP client configured to trust all certificates
-     * @throws RuntimeException if the SSL context cannot be created
-     */
-    private HttpClient createHttpClient() {
-        try {
-            SslContext sslContext = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
-            return HttpClient.create().secure(t -> t.sslContext(sslContext));
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create a HTTP client that trusts all certificates", e);
-        }
     }
 
     /**

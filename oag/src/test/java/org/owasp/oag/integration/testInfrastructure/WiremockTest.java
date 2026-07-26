@@ -10,11 +10,10 @@ import org.owasp.oag.cookies.LoginStateCookie;
 import org.owasp.oag.exception.ApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseCookie;
-import org.springframework.test.web.reactive.server.FluxExchangeResult;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.client.EntityExchangeResult;
+import org.springframework.test.web.servlet.client.RestTestClient;
 import org.wiremock.spring.ConfigureWireMock;
 import org.wiremock.spring.EnableWireMock;
 
@@ -32,8 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
     @ConfigureWireMock(
         port = 0)
 })
-@AutoConfigureWebTestClient
-public abstract class WiremockTest {
+public abstract class WiremockTest extends AbstractServerTest {
 
     public static String TEST_1_ENDPOINT = "/foo";
     public static String TEST_1_RESPONSE = "foo}";
@@ -43,9 +41,6 @@ public abstract class WiremockTest {
 
     @Autowired
     protected MainConfig config;
-
-    @Autowired
-    protected WebTestClient webClient;
 
     @BeforeEach
     public void beforeEach() throws Exception {
@@ -130,13 +125,13 @@ public abstract class WiremockTest {
         }
     }
 
-    protected WebTestClient.RequestBodySpec authenticatedRequest(HttpMethod method, String uri, LoginResult loginResult) {
+    protected RestTestClient.RequestBodySpec authenticatedRequest(HttpMethod method, String uri, LoginResult loginResult) {
         return webClient.method(method).uri(uri)
                 .cookie(loginResult.sessionCookie.getName(), loginResult.sessionCookie.getValue())
                 .cookie(loginResult.csrfCookie.getName(), loginResult.csrfCookie.getValue());
     }
 
-    protected WebTestClient.RequestBodySpec authenticatedRequestNoCsrf(HttpMethod method, String uri, LoginResult loginResult) {
+    protected RestTestClient.RequestBodySpec authenticatedRequestNoCsrf(HttpMethod method, String uri, LoginResult loginResult) {
         return webClient.method(method).uri(uri)
                 .cookie(loginResult.sessionCookie.getName(), loginResult.sessionCookie.getValue());
     }
@@ -147,17 +142,17 @@ public abstract class WiremockTest {
         public ResponseCookie csrfCookie;
         public String id;
 
-        public LoginResult(FluxExchangeResult<String> callbackResult) {
+        public LoginResult(EntityExchangeResult<String> callbackResult) {
 
             this.sessionCookie = callbackResult.getResponseCookies().getFirst(LoginCookie.NAME);
             this.csrfCookie = callbackResult.getResponseCookies().getFirst(CsrfCookie.NAME);
         }
 
-        public WebTestClient.RequestBodySpec authenticatedRequest(HttpMethod method, String uri) {
+        public RestTestClient.RequestBodySpec authenticatedRequest(HttpMethod method, String uri) {
             return WiremockTest.this.authenticatedRequest(method, uri, this);
         }
 
-        public WebTestClient.RequestBodySpec authenticatedRequestNoCsrf(HttpMethod method, String uri) {
+        public RestTestClient.RequestBodySpec authenticatedRequestNoCsrf(HttpMethod method, String uri) {
             return WiremockTest.this.authenticatedRequestNoCsrf(method, uri, this);
         }
 

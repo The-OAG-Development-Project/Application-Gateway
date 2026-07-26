@@ -65,10 +65,9 @@ dependencies {
 
     // Spring Cloud dependencies
     implementation 'org.springframework.cloud:spring-cloud-starter-gateway-server-webmvc'
-    implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
 
     // Test dependencies
-    testImplementation 'org.springframework.boot:spring-boot-starter-webflux-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine'
     testImplementation 'org.springframework.cloud:spring-cloud-contract-wiremock'
@@ -87,6 +86,12 @@ tasks.named('test', Test) {
     enabled = !project.hasProperty('skipTests')
 
     maxHeapSize = '1G'
+
+    // The gateway serves the self-signed certificate created by generateCertificate (CN=demo), so the
+    // test client must skip hostname verification. The JDK HTTP client applies it independently of the
+    // configured trust manager and only honours this switch. Tests only, never set in production.
+    systemProperty 'jdk.internal.httpclient.disableHostnameVerification', 'true'
+
     testLogging {
         events "passed"
     }

@@ -2277,7 +2277,7 @@ Removes WebFlux and reactor-netty from the test classpath, so nothing in the pro
 - Consumes: the green suite from Task 8.
 - Produces: `WiremockTest.webClient` typed as `org.springframework.test.web.servlet.client.RestTestClient`; `WiremockTest.LoginResult(EntityExchangeResult<String>)`.
 
-- [ ] **Step 1: Swap the test starter**
+- [x] **Step 1: Swap the test starter**
 
 In `oag/build.gradle` replace
 
@@ -2296,7 +2296,7 @@ Also check whether `spring-cloud-starter-loadbalancer` is used at all:
 Run: `grep -rn "lb://\|LoadBalancer\|loadbalancer" oag/src oag/sample-config.yaml oag/src/main/resources/default-config.yaml`
 Expected: no output — OAG routes to absolute URLs only. If confirmed, delete the `implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'` line too. If there *is* a hit, keep the dependency and note why here.
 
-- [ ] **Step 2: Build the test client against the live server**
+- [x] **Step 2: Build the test client against the live server**
 
 Do **not** use `@AutoConfigureRestTestClient`. Boot's auto-configured bean is
 `RestTestClientTestAutoConfiguration.restTestClient(WebApplicationContext, List<RestTestClientBuilderCustomizer>)` —
@@ -2445,7 +2445,7 @@ Finally, delete the now-shadowing `@Autowired protected WebTestClient webClient;
 `DefaultConfigurationTest.java` — they must inherit the field from `AbstractServerTest`, not declare their own.
 Verify with `grep -rn "WebTestClient" oag/src/test` returning nothing at the end of this task.
 
-- [ ] **Step 3: Update `WiremockTest`'s helper methods**
+- [x] **Step 3: Update `WiremockTest`'s helper methods**
 
 Change `LoginResult`'s constructor parameter from `FluxExchangeResult<String>` to
 `org.springframework.test.web.servlet.client.EntityExchangeResult<String>`. `ExchangeResult.getResponseCookies()`
@@ -2459,12 +2459,12 @@ too.
 Run: `grep -n "FluxExchangeResult\|WebTestClient" oag/src/test/java/org/owasp/oag/integration/testInfrastructure/WiremockTest.java`
 Expected: no output.
 
-- [ ] **Step 4: Run the suite and fix the fallout mechanically**
+- [x] **Step 4: Run the suite and fix the fallout mechanically**
 
 Run: `./gradlew build --console=plain`
 Expected: after fixing imports across the 20 test classes, `BUILD SUCCESSFUL` with the same test count as before. Do not change a single assertion. If an assertion genuinely cannot be expressed (for example a reactive-only `expectBody().returnResult()` overload), find the `RestTestClient` equivalent — `expectBody(String.class).returnResult().getResponseBody()` covers almost every case.
 
-- [ ] **Step 5: Verify the reactive stack is gone entirely**
+- [x] **Step 5: Verify the reactive stack is gone entirely**
 
 Run: `grep -rn "reactor\|webflux\|WebTestClient\|Mono\|Flux" oag/src`
 Expected: no output.
@@ -2472,7 +2472,7 @@ Expected: no output.
 Run: `./gradlew dependencies --configuration testRuntimeClasspath --console=plain | grep -iE 'webflux|reactor-netty'`
 Expected: no output.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A oag

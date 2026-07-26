@@ -2,12 +2,11 @@ package org.owasp.oag.integration;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.owasp.oag.integration.testInfrastructure.AbstractServerTest;
 import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.owasp.oag.integration.testInfrastructure.TestClientFactory;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.Duration;
 
@@ -19,14 +18,7 @@ import java.time.Duration;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"spring.main.allow-bean-definition-overriding=true", "logging.level.org.owasp.oag=TRACE"})
-@AutoConfigureWebTestClient
-public class DefaultConfigurationTest {
-
-    /**
-     * Web test client for making HTTP requests to the application.
-     */
-    @Autowired
-    protected WebTestClient webClient;
+public class DefaultConfigurationTest extends AbstractServerTest {
 
     /**
      * Tests that OAG starts with the sample configuration and
@@ -36,7 +28,7 @@ public class DefaultConfigurationTest {
      */
     @Test
     public void testStartWithSampleConfiguration() {
-        webClient = webClient.mutate().responseTimeout(Duration.ofSeconds(20)).build();
+        webClient = TestClientFactory.createClient(serverPort, Duration.ofSeconds(20));
         webClient.get().uri("/").exchange().expectStatus().isOk();
     }
 }
