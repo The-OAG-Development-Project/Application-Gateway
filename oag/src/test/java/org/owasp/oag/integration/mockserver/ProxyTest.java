@@ -19,13 +19,13 @@ public class ProxyTest extends WiremockTest {
                 .get().uri(TEST_1_ENDPOINT)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody().equals(TEST_1_RESPONSE);
+                .expectBody(String.class).isEqualTo(TEST_1_RESPONSE);
 
         webClient
                 .get().uri(TEST_2_ENDPOINT)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody().equals(TEST_2_RESPONSE);
+                .expectBody(String.class).isEqualTo(TEST_2_RESPONSE);
 
         webClient
                 .get().uri(TEST_NOTFOUND)
