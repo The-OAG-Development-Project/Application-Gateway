@@ -1119,6 +1119,7 @@ Work through the steps in order. Steps 2–12 each end with a compile check rath
 - Modify: `oag/src/main/resources/application.yaml`
 - Create: `oag/src/main/java/org/owasp/oag/gateway/GatewayRouterFunctionConfiguration.java`
 - Create: `oag/src/main/java/org/owasp/oag/cookies/CookieWriter.java`
+- Create: `oag/src/main/java/org/owasp/oag/filters/servlet/RequestFailureLogger.java`
 - Delete: `oag/src/main/java/org/owasp/oag/gateway/SpringCloudGatewayConfiguration.java`
 - Delete: `oag/src/main/java/org/owasp/oag/filters/proxy/ReadRequestBodyFilter.java`
 - Move + rewrite: `oag/src/main/java/org/owasp/oag/filters/spring/{TraceContextFilter,SimpleLogFilter,ExtractAuthenticationFilter,SessionRenewalFilter}.java` → `oag/src/main/java/org/owasp/oag/filters/servlet/`
@@ -1130,7 +1131,7 @@ Work through the steps in order. Steps 2–12 each end with a compile check rath
 - Modify: `oag/src/main/java/org/owasp/oag/services/login/drivers/{LoginDriver,oauth/Oauth2Driver,oidc/OidcDriver,github/GithubDriver}.java`
 - Modify: `oag/src/main/java/org/owasp/oag/utils/LoggingUtils.java`
 - Modify: `oag/src/main/java/org/owasp/oag/infrastructure/OAGBeanConfiguration.java`
-- Test: `oag/src/test/java/org/owasp/oag/gateway/GatewayRouterFunctionConfigurationTest.java` (new), `oag/src/test/java/org/owasp/oag/filters/servlet/ExtractAuthenticationFilterTest.java` (new), `oag/src/test/java/org/owasp/oag/integration/mockserver/VirtualThreadTest.java` (new), `oag/src/test/java/org/owasp/oag/integration/mockserver/VirtualThreadProbeFilter.java` (new), plus signature-driven edits to `oag/src/test/java/org/owasp/oag/services/csrf/CsrfSameSiteStrictCookieValidationTest.java` and `oag/src/test/java/org/owasp/oag/services/login/drivers/github/GithubDriverTest.java`
+- Test: `oag/src/test/java/org/owasp/oag/gateway/GatewayRouterFunctionConfigurationTest.java` (new), `oag/src/test/java/org/owasp/oag/filters/servlet/ExtractAuthenticationFilterTest.java` (new), `oag/src/test/java/org/owasp/oag/integration/mockserver/VirtualThreadTest.java` (new), `oag/src/test/java/org/owasp/oag/integration/mockserver/VirtualThreadProbeFilter.java` (new), `oag/src/test/java/org/owasp/oag/filters/servlet/RequestFailureLoggerTest.java` (new), plus signature-driven edits to `oag/src/test/java/org/owasp/oag/services/csrf/CsrfSameSiteStrictCookieValidationTest.java` and `oag/src/test/java/org/owasp/oag/services/login/drivers/github/GithubDriverTest.java`
 
 **Interfaces:**
 - Consumes: `SessionBlacklist` (blocking, Task 1), `JwtTokenUserMapper.getToken(...)` (Task 2), `TraceHeaders` + `TraceContextBridge.createTraceHeaders(String, String)` + `TraceContextFilter.TRACE_HEADERS_ATTRIBUTE` (Task 4), `SchedulerConfiguration` beans (Task 6), `CookieConverter` (unchanged), `ProxyPathMatcher` (unchanged), `GatewayRouteContext` (unchanged).
@@ -1288,7 +1289,7 @@ public class TraceContextFilter extends OncePerRequestFilter {
 
 This is where the migration pays off: with a virtual thread per request, the trace id lives in the MDC for the entire request, so no Reactor context copying is needed anywhere.
 
-`SimpleLogFilter` must keep both log statements it has today — the plain status line *and* the `errorReason` detail for requests that fail with a `ResponseStatusException`. Losing the reason is a regression (see Global Constraints):
+`SimpleLogFilter` logs the plain status line. **Do not** try to catch `ResponseStatusException` here — that was verified impossible, see below:
 
 ```java
     @Override
@@ -1298,155 +1299,68 @@ This is where the migration pays off: with a virtual thread per request, the tra
         LoggingUtils.logTrace(log, request, "Execute SimpleLogFilter");
         LoggingUtils.logDebug(log, request, "Request to {} {}", request.getMethod(), request.getRequestURL());
 
-        try {
-            chain.doFilter(request, response);
-        } catch (ResponseStatusException e) {
-            LoggingUtils.logInfo(log, request, "Response status code {} for {} {} errorReason: '{}'",
-                    e.getStatusCode(), request.getMethod(), request.getRequestURL(), e.getReason());
-            throw e;
-        }
+        chain.doFilter(request, response);
 
         LoggingUtils.logInfo(log, request, "Response status code {} for {} {}",
                 response.getStatus(), request.getMethod(), request.getRequestURL());
     }
 ```
 
-Keep `@Order(20) @Component` and add `import org.springframework.web.server.ResponseStatusException;`.
+Keep `@Order(20) @Component`.
 
-There is a subtlety worth checking rather than assuming: a `ResponseStatusException` thrown from a `@RestController` is normally resolved into a status code by the `DispatcherServlet`'s exception resolvers, so it never propagates out to a servlet filter — in which case the `catch` block above would be dead and the reason would silently stop being logged. Verify with a focused check in Step 13: `SecurityConfigurationTest`/`CsrfDoubleSubmitTest` produce 401s, and `OpenRedirectsTest` produces 400s from `LoginController`. Run one of them with `logging.level.org.owasp.oag=INFO` and confirm an `errorReason:` line appears. If it does not, the exception is being resolved inside the DispatcherServlet, and you must obtain the reason another way — the simplest correct option is a `HandlerExceptionResolver` bean ordered after the default resolvers, or reading `request.getAttribute(RequestDispatcher.ERROR_MESSAGE)` after `chain.doFilter`. Report which mechanism you used and the log line that proves it works.
+**The `errorReason` detail needs a `HandlerExceptionResolver`, not a filter.** This was verified against `spring-webmvc` 7.0.8 sources, so treat it as settled rather than re-deriving it: `DispatcherServlet.processHandlerException` loops over the registered `HandlerExceptionResolver`s and `break`s as soon as one returns non-null, and never rethrows. `ResponseStatusExceptionResolver` resolves `ResponseStatusException`, so it is consumed inside the `DispatcherServlet` and **never reaches a servlet filter** — a `catch (ResponseStatusException e)` in `SimpleLogFilter` would be dead code and the reason would silently stop being logged. The Global Constraints require that detail to survive.
 
-`ExtractAuthenticationFilter`:
-
-```java
-    /** Key for the session in the request */
-    public final static String OAG_SESSION = "oag-session";
-
-    /** Key for the CSRF token in the request */
-    public final static String OAG_SESSION_CSRF_TOKEN = "oag-session-csrf-token";
-
-    /**
-     * Extracts the session from the request attributes.
-     *
-     * @param request The request holding the session attribute
-     * @return An Optional containing the Session if found and valid, empty otherwise
-     */
-    @SuppressWarnings("unchecked")
-    public static Optional<Session> extractSessionFromRequest(HttpServletRequest request) {
-
-        Object sessionOptional = request.getAttribute(OAG_SESSION);
-
-        if (sessionOptional == null)
-            return Optional.empty();
-
-        if (sessionOptional instanceof Optional) {
-            return (Optional<Session>) sessionOptional;
-        }
-
-        LoggingUtils.logWarn(log, request, "oag-session attribute is of incompatible type!! Fix it.");
-        return Optional.empty();
-    }
-
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws ServletException, IOException {
-
-        LoggingUtils.logTrace(log, request, "Execute ExtractAuthenticationFilter");
-
-        extractAndStoreAuthentication(request);
-        chain.doFilter(request, response);
-    }
-
-    /**
-     * Extracts authentication from the login cookie and stores it in the request attributes.
-     * Also checks whether the session has been invalidated.
-     *
-     * @param request The current request
-     */
-    protected void extractAndStoreAuthentication(HttpServletRequest request) {
-
-        request.setAttribute(OAG_SESSION, Optional.empty());
-
-        var loginCookieOptional = extractLoginCookieFromRequest(request);
-        if (loginCookieOptional.isEmpty())
-            return;
-
-        var loginCookie = loginCookieOptional.get();
-
-        if (sessionBlacklist.isInvalidated(loginCookie.getId())) {
-            LoggingUtils.logInfo(log, request, "Received invalidated session cookie with id: {} user-id: {}",
-                    loginCookie.getId(), loginCookie.getUserModel().getId());
-            return;
-        }
-
-        var sessionOptional = Session.fromSessionCookie(loginCookie, globalClockSource.getGlobalClock());
-
-        if (sessionOptional.isEmpty()) {
-            LoggingUtils.logDebug(log, request, "Received invalid session cookie, maybe expired");
-        }
-
-        request.setAttribute(OAG_SESSION_CSRF_TOKEN, loginCookie.getCsrfToken());
-        request.setAttribute(OAG_SESSION, sessionOptional);
-    }
-
-    /**
-     * Extracts and decrypts the login cookie from the request.
-     *
-     * @param request The current request
-     * @return An Optional containing the LoginCookie if found and successfully decrypted, empty otherwise
-     */
-    protected Optional<LoginCookie> extractLoginCookieFromRequest(HttpServletRequest request) {
-
-        var cookies = request.getCookies();
-        if (cookies == null)
-            return Optional.empty();
-
-        for (Cookie cookie : cookies) {
-            if (!LoginCookie.NAME.equals(cookie.getName()))
-                continue;
-
-            try {
-                return Optional.of(cookieEncryptor.decryptObject(cookie.getValue(), LoginCookie.class));
-            } catch (CookieDecryptionException e) {
-                LoggingUtils.logInfo(log, request, "Received invalid session cookie");
-                return Optional.empty();
-            }
-        }
-
-        return Optional.empty();
-    }
-```
-
-Keep `@Order(40) @Component`, extend `OncePerRequestFilter`, and add `import jakarta.servlet.http.Cookie;`.
-
-`SessionRenewalFilter`:
+`DispatcherServlet.initHandlerExceptionResolvers` detects **all** `HandlerExceptionResolver` beans (`detectAllHandlerExceptionResolvers` defaults to true) and sorts them with `AnnotationAwareOrderComparator`, so an extra bean is additive — it does not replace Spring Boot's composite resolver. Create `oag/src/main/java/org/owasp/oag/filters/servlet/RequestFailureLogger.java`:
 
 ```java
+package org.owasp.oag.filters.servlet;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
+import org.owasp.oag.utils.LoggingUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.HandlerExceptionResolver;
+import org.springframework.web.servlet.ModelAndView;
+
+/**
+ * Logs the reason of a request that failed with a {@link ResponseStatusException}.
+ * <p>
+ * This has to be a {@code HandlerExceptionResolver} rather than part of a servlet filter: the
+ * DispatcherServlet resolves a ResponseStatusException into a status code and never rethrows it, so
+ * the exception is not observable from a filter. Returning null leaves the response entirely to the
+ * standard resolvers - this participates only to observe.
+ */
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@Component
+public class RequestFailureLogger implements HandlerExceptionResolver {
+
+    private static final Logger log = LoggerFactory.getLogger(RequestFailureLogger.class);
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws ServletException, IOException {
+    public @Nullable ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response,
+                                                  @Nullable Object handler, Exception ex) {
 
-        LoggingUtils.logTrace(log, request, "Execute SessionRenewalFilter");
-
-        Optional<Session> sessionOptional = ExtractAuthenticationFilter.extractSessionFromRequest(request);
-        var sessionBehavior = config.getSessionBehaviour();
-
-        // Feature switch if renewal time is <= 0
-        if (sessionOptional.isPresent() && sessionBehavior.getRenewWhenLessThan() > 0) {
-
-            var session = sessionOptional.get();
-            if (session.getRemainingTimeSeconds() < sessionBehavior.getRenewWhenLessThan()) {
-                LoggingUtils.logDebug(log, request, "Start renewing session");
-                sessionHookChain.renewSession(session, response);
-            }
+        if (ex instanceof ResponseStatusException responseStatusException) {
+            LoggingUtils.logInfo(log, request, "Response status code {} for {} {} errorReason: '{}'",
+                    responseStatusException.getStatusCode(), request.getMethod(), request.getRequestURL(),
+                    responseStatusException.getReason());
         }
 
-        chain.doFilter(request, response);
+        // Never resolve - the standard resolvers produce the response.
+        return null;
     }
+}
 ```
 
-Keep `@Order(50) @Component`. Delete the unused `cookieEncryptor` and `applicationContext` fields while you are here.
+Check `org.jspecify.annotations.Nullable` is the annotation this codebase uses (`jspecify` is a declared dependency and `@NonNull` is used elsewhere); if the signature will not compile with it, drop the annotations rather than switching to a different nullability library.
 
-Run: `./gradlew compileJava --console=plain` and note the remaining error list shrinking.
+**This must be pinned by a test**, because nothing else in the suite asserts on log output and a silent regression here is exactly what the Global Constraints forbid. Add `oag/src/test/java/org/owasp/oag/filters/servlet/RequestFailureLoggerTest.java` that attaches a Logback `ListAppender` to the `RequestFailureLogger` logger, calls `resolveException` with a `new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid return url")` and a `MockHttpServletRequest`, and asserts (a) the returned `ModelAndView` is null, and (b) a captured event's formatted message contains `errorReason: 'Invalid return url'`. Also assert that a non-`ResponseStatusException` produces no log event.
 
 - [ ] **Step 4: Rewrite the session hooks against servlet types**
 
@@ -1854,14 +1768,16 @@ with the three helpers taking/returning `ServerRequest.Builder`. `filterRequestC
         var cookieHeaderValue = request.cookies().entrySet().stream()
                 .filter(e -> !cookieBlacklist.contains(e.getKey()))
                 .flatMap(e -> e.getValue().stream())
-                .map(Object::toString)
+                .map(cookie -> cookie.getName() + "=" + cookie.getValue())
                 .collect(Collectors.joining("; "));
 
         return builder.header(HttpHeaders.COOKIE, cookieHeaderValue);
     }
 ```
 
-`request.cookies()` returns `MultiValueMap<String, jakarta.servlet.http.Cookie>`, and `Cookie.toString()` does **not** render `name=value`. Replace `.map(Object::toString)` with `.map(c -> c.getName() + "=" + c.getValue())` and verify with `ProxyTest`/`DownstreamAuthenticationTest`, which assert the forwarded `Cookie` header via WireMock.
+The `name=value` mapping above is deliberate and must not be "simplified" to `Cookie::toString`. That was verified against `jakarta.servlet-api` 6.1.0 sources: `Cookie.toString()` returns `String.format("%s{%s=%s,%s}", super.toString(), name, value, attributes)` — i.e. `jakarta.servlet.http.Cookie@1a2b3c{custom=foo1,{}}`, Java object identity, not a header value. `request.cookies()` returns `MultiValueMap<String, jakarta.servlet.http.Cookie>`, so the `flatMap` is what preserves two cookies sharing one name.
+
+`DownstreamAuthenticationTest.testDownstreamAuthenticationContainsNoOAGCookies` is the test that catches this: it sends `custom=foo1` and `custom=foo2` alongside the session cookie and asserts via WireMock that both arrive downstream while all three OAG cookies are absent. Note the absence assertions alone would *pass* against a garbage header (WireMock simply would not find the OAG cookie names) — it is the two positive `withCookie("custom", equalTo(...))` assertions that make this test load-bearing. Do not weaken them.
 
 `UserMappingFilter`:
 
