@@ -16,6 +16,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.reactive.function.BodyInserters;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+
 /**
  * Integration tests for CSRF protection using the double submit cookie pattern.
  * These tests verify that the CSRF protection correctly validates tokens submitted
@@ -69,6 +74,11 @@ class CsrfDoubleSubmitTest extends WiremockTest {
                 .body(formData)
                 .exchange()
                 .expectStatus().isOk();
+
+        // Assert: the body the csrf filter had to read for the validation still reaches the downstream system
+        verify(postRequestedFor(urlEqualTo(TEST_1_ENDPOINT))
+                .withRequestBody(equalTo(CsrfDoubleSubmitCookieValidation.CSRF_TOKEN_PARAMETER_NAME
+                        + "=" + loginResult.csrfCookie.getValue())));
     }
 
     /**

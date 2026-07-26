@@ -104,7 +104,7 @@ public class CsrfDoubleSubmitCookieValidation implements CsrfProtectionValidatio
      *
      * @param request The current request
      * @param name    The name of the query parameter
-     * @return The decoded value of the first parameter with that name, or null when absent
+     * @return The decoded value of the first parameter with that name, or null when absent or unparseable
      */
     private static String firstQueryParameter(HttpServletRequest request, String name) {
 
@@ -113,7 +113,14 @@ public class CsrfDoubleSubmitCookieValidation implements CsrfProtectionValidatio
         if (queryString == null || queryString.isEmpty())
             return null;
 
-        var value = UriComponentsBuilder.fromUriString("?" + queryString).build().getQueryParams().getFirst(name);
-        return value == null ? null : UriUtils.decode(value, StandardCharsets.UTF_8);
+        try {
+            var value = UriComponentsBuilder.fromUriString("?" + queryString).build().getQueryParams().getFirst(name);
+            return value == null ? null : UriUtils.decode(value, StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) {
+            // A malformed percent escape cannot carry a valid token. Reporting the token as absent blocks
+            // the request, whereas letting the exception escape would turn attacker input into a 500.
+            logInfo(log, request, "Could not parse the query string of the request, treating the csrf token as absent");
+            return null;
+        }
     }
 }

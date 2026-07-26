@@ -25,6 +25,12 @@ import org.springframework.web.servlet.ModelAndView;
 @Component
 public class RequestFailureLogger implements HandlerExceptionResolver {
 
+    /**
+     * Request attribute set once this logger emitted the response line for a request. {@link SimpleLogFilter}
+     * reads it and then skips its own line, so a failed request is logged exactly once.
+     */
+    public static final String RESPONSE_LOGGED_ATTRIBUTE = "oag.responseLogged";
+
     private static final Logger log = LoggerFactory.getLogger(RequestFailureLogger.class);
 
     @Override
@@ -35,6 +41,7 @@ public class RequestFailureLogger implements HandlerExceptionResolver {
             LoggingUtils.logInfo(log, request, "Response status code {} for {} {} errorReason: '{}'",
                     responseStatusException.getStatusCode(), request.getMethod(), request.getRequestURL(),
                     responseStatusException.getReason());
+            request.setAttribute(RESPONSE_LOGGED_ATTRIBUTE, Boolean.TRUE);
         }
 
         // Never resolve - the standard resolvers produce the response.
