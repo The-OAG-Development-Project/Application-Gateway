@@ -36,8 +36,10 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
 
     /**
      * Bloom filter for efficient negative lookups.
+     * <p>
+     * Volatile because {@link #cleanup()} replaces the instance while request threads read it.
      */
-    protected BloomFilter<CharSequence> bloomFilter;
+    protected volatile BloomFilter<CharSequence> bloomFilter;
 
     /**
      * Clock source for time-based operations.
@@ -61,25 +63,39 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
 
     /**
      * Removes expired entries from the blacklist and rebuilds the bloom filter.
+     * <p>
+     * Safe to run concurrently with {@link #invalidateSession(String, int)} and
+     * {@link #isInvalidated(String)}. The rebuild cannot lose a concurrently invalidated identifier:
+     * invalidateSession writes the map before the filter, and this method repopulates from the map
+     * *after* publishing the new filter. So an identifier whose map write landed before the second
+     * pass is picked up by that pass, and one whose map write landed after it is written by its own
+     * thread into the already-published new filter. A bloom filter only ever gains bits, so adding an
+     * identifier twice is harmless.
      */
     @Override
     public void cleanup() {
 
         int currentTimeSeconds = clockSource.getEpochSeconds();
 
-        // Clean up expired entries
+        // Drop expired entries. Re-read before removing so an entry refreshed since the snapshot stays.
         blacklist.entrySet().stream()
                 .filter(e -> e.getValue() < currentTimeSeconds)
-                .forEach(e -> blacklist.remove(e.getKey()));
+                .forEach(e -> {
+                    Integer expiry = blacklist.get(e.getKey());
+                    if (expiry != null && expiry < currentTimeSeconds) {
+                        blacklist.remove(e.getKey());
+                    }
+                });
 
-        // Populate bloom filter
-        var size = blacklist.size();
-        var newFilter = BloomFilter.create(Funnels.stringFunnel(StandardCharsets.UTF_8), size + EXPECTED_INSERTIONS, EXPECTED_BLOOM_FILTER_FALSE_POSITIVES);
-        blacklist.entrySet()
-                .forEach(e -> newFilter.put(e.getKey()));
+        var newFilter = BloomFilter.create(Funnels.stringFunnel(StandardCharsets.UTF_8),
+                blacklist.size() + EXPECTED_INSERTIONS, EXPECTED_BLOOM_FILTER_FALSE_POSITIVES);
+        blacklist.entrySet().forEach(e -> newFilter.put(e.getKey()));
 
-        // set new filter
+        // Publish before the second pass, so a writer that reads the field from here on writes into it
         bloomFilter = newFilter;
+
+        // Second pass: catch identifiers whose map write landed while the filter was being built
+        blacklist.entrySet().forEach(e -> newFilter.put(e.getKey()));
     }
 
     /**

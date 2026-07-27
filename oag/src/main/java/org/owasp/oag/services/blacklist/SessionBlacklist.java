@@ -29,7 +29,10 @@ public interface SessionBlacklist extends Closeable {
 
     /**
      * Should clean up obsolete entries in the blacklist (See expiration).
-     * Can be regularly called by the runtime.
+     * <p>
+     * OAG calls this periodically on a background thread, so an implementation must be safe to call
+     * concurrently with {@link #invalidateSession(String, int)} and {@link #isInvalidated(String)},
+     * and must not lose an identifier invalidated while it runs.
      */
     void cleanup();
 }

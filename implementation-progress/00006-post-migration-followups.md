@@ -70,7 +70,7 @@
 - Consumes: `PersistentMap<Integer>`, `GlobalClockSource.getEpochSeconds()` (unchanged).
 - Produces: no signature change. `SessionBlacklist`'s three methods keep their signatures; only the documented contract changes.
 
-- [ ] **Step 1: Write the failing concurrency test**
+- [x] **Step 1: Write the failing concurrency test**
 
 Create `oag/src/test/java/org/owasp/oag/services/blacklist/LocalPersistentBlacklistConcurrencyTest.java`. It must invalidate ids from several threads while `cleanup()` runs repeatedly, then assert every id is still reported invalidated:
 
@@ -99,7 +99,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LocalPersistentBlacklistConcurrencyTest {
 
     private static final int WRITER_THREADS = 4;
-    private static final int IDS_PER_WRITER = 250;
+    private static final int IDS_PER_WRITER = 5000;
 
     @Test
     void cleanupRunningConcurrentlyNeverLosesAnInvalidatedSession() throws Exception {
@@ -168,7 +168,7 @@ class LocalPersistentBlacklistConcurrencyTest {
 }
 ```
 
-- [ ] **Step 2: Run it and confirm it fails**
+- [x] **Step 2: Run it and confirm it fails**
 
 Run: `./gradlew test --tests 'org.owasp.oag.services.blacklist.LocalPersistentBlacklistConcurrencyTest' --console=plain`
 Expected: FAIL, with the assertion reporting some number of invalidated sessions read back as valid.
@@ -177,7 +177,11 @@ This test is inherently racy, so it may occasionally pass by luck. Run it three 
 `for i in 1 2 3; do ./gradlew test --tests '...LocalPersistentBlacklistConcurrencyTest' --console=plain --rerun-tasks 2>&1 | grep -E "PASSED|FAILED"; done`
 If it never fails, increase `IDS_PER_WRITER` until it does — do not proceed to Step 3 until you have seen it fail, or you cannot know the fix works.
 
-- [ ] **Step 3: Make the field `volatile` and repopulate after publishing**
+**Observed:** at `IDS_PER_WRITER = 250` the test passed 3/3 — too short a window. Raised to `5000`
+(20000 identifiers total), which failed 3/3 with e.g.
+`5727 of 20000 invalidated sessions were reported valid, e.g. [writer-2-id-3374, ...]`.
+
+- [x] **Step 3: Make the field `volatile` and repopulate after publishing**
 
 In `LocalPersistentBlacklist.java`, change the field declaration to `volatile` and replace `cleanup()`:
 
@@ -229,12 +233,16 @@ In `LocalPersistentBlacklist.java`, change the field declaration to `volatile` a
     }
 ```
 
-- [ ] **Step 4: Confirm the test now passes, repeatedly**
+- [x] **Step 4: Confirm the test now passes, repeatedly**
 
 Run the three-times loop from Step 2 again.
 Expected: PASS every time. Then mutation-check the fix: delete the second-pass line, confirm the test fails again, and restore it. Report both observations.
 
-- [ ] **Step 5: Document the contract on the interface**
+**Observed:** 8/8 runs PASSED after the fix. Mutation check (second-pass line deleted, `volatile`
+kept): 7 of 8 runs FAILED, e.g. `7645 of 20000 invalidated sessions were reported valid`. The line
+was restored.
+
+- [x] **Step 5: Document the contract on the interface**
 
 In `SessionBlacklist.java`, extend the `cleanup()` Javadoc so implementors know what is required of them:
 
@@ -249,10 +257,12 @@ In `SessionBlacklist.java`, extend the `cleanup()` Javadoc so implementors know 
     void cleanup();
 ```
 
-- [ ] **Step 6: Full build and commit**
+- [x] **Step 6: Full build and commit**
 
 Run: `./gradlew build --console=plain`
 Expected: `BUILD SUCCESSFUL`, 138 tests, 0 failures.
+
+**Observed:** `BUILD SUCCESSFUL` — 138 tests / 53 classes / 0 failures / 0 skipped.
 
 ```bash
 git add oag/src/main/java/org/owasp/oag/services/blacklist oag/src/test/java/org/owasp/oag/services/blacklist/LocalPersistentBlacklistConcurrencyTest.java
