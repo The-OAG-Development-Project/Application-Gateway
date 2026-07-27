@@ -18,6 +18,12 @@ spring:
   threads:
     virtual:
       enabled: true
+  mvc:
+    formcontent:
+      filter:
+        # The gateway must not consume a PUT/PATCH/DELETE form body to populate the parameter map,
+        # the body has to be forwarded to the downstream system untouched.
+        enabled: false
 
 ribbon:
   eureka:
