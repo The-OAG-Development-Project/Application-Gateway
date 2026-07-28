@@ -514,20 +514,20 @@ Its class Javadoc claims "the username is added as `X-OAG-USER: foobar`", and it
 **Interfaces:**
 - Produces: `X_OAG_PROVIDER` is **removed** (a public constant, so an API break — acceptable, `0.8.0-SNAPSHOT` is unreleased). `X_OAG_USER_PREFIX` **stays**; `RequestHeaderUserMapperTest:25` uses it.
 
-- [ ] **Step 1: Confirm which constant is actually unused**
+- [x] **Step 1: Confirm which constant is actually unused**
 
 Run: `grep -rn "X_OAG_PROVIDER\|X_OAG_USER_PREFIX" oag/src www`
 Expected: `X_OAG_PROVIDER` appears only at its declaration; `X_OAG_USER_PREFIX` appears at its declaration **and** in `RequestHeaderUserMapperTest`. If that is not what you see, stop and report — the plan's premise is wrong.
 
-- [ ] **Step 2: Rewrite the class Javadoc to describe actual behaviour**
+- [x] **Step 2: Rewrite the class Javadoc to describe actual behaviour**
 
 Replace the class Javadoc so it says what the class does: it adds the headers named in the security profile's `mappings`, each value rendered through the user-mapping templating engine, and adds nothing when there is no session. Keep the existing security warning — that this is weaker than the JWT mapping because a caller could forge the headers if OAG can be bypassed — since that is still true and still worth saying. Do not describe `X-OAG-USER` or `X-OAG-Provider` as things it emits.
 
-- [ ] **Step 3: Delete `X_OAG_PROVIDER`**
+- [x] **Step 3: Delete `X_OAG_PROVIDER`**
 
 Remove the constant and its Javadoc. Leave `X_OAG_USER_PREFIX` untouched.
 
-- [ ] **Step 4: Build and commit**
+- [x] **Step 4: Build and commit**
 
 Run: `./gradlew build --console=plain`
 Expected: `BUILD SUCCESSFUL`, test count unchanged, 0 failures. A failure here means something used the constant after all — go back to Step 1.
@@ -538,6 +538,8 @@ git commit -m "docs: describe what the request header user mapper actually emits
 ```
 
 ---
+
+**Outcome:** Step 1's re-verification confirmed the plan and contradicted the final review: `X_OAG_PROVIDER` appeared only at its own declaration and was deleted; `X_OAG_USER_PREFIX` is used by `RequestHeaderUserMapperTest:25` and was kept, with its Javadoc corrected to say it is a convention offered for the `mappings` configuration rather than something the mapper applies. The class Javadoc now describes what the mapper does - it emits exactly the configured `mappings`, rendered through the templating engine, and forwards unchanged when there is no session - and carries a real configuration example taken from `oag/src/test/resources/headerUserMappingConfig.yaml`, which uses `X-USER-PROVIDER`/`X-USER-ID` and so demonstrates that neither constant reflected actual behaviour. The existing security warning was kept, with `OAg` corrected to `OAG`. Suite unchanged at 142/54/0.
 
 ### Task 6: Build one `TraceContext` per request, and document the response-header boundary
 
