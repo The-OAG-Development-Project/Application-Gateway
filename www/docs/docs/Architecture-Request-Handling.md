@@ -47,6 +47,20 @@ resolvers still produce the response.
 changes thread, every log statement written while handling it carries the trace id — including statements in
 code that has no access to the request object. Use `%X{oag.CorrId}` in the log pattern to print it.
 
+## Request bodies
+
+Request bodies are forwarded to the downstream system unbuffered, with one exception.
+
+For a `POST` carrying `Content-Type: application/x-www-form-urlencoded`, the body is parsed to read the
+request's parameters and then re-encoded before being forwarded. Parameter order and repeated parameter
+names are preserved; the encoding of a space is not — a space sent as `%20` arrives downstream as `+`.
+Both forms decode to a space, so a downstream system that parses the form sees exactly the parameters
+the caller sent. The distinction only matters to a downstream system that computes a signature or hash
+over the raw body bytes rather than over the parsed parameters.
+
+Bodies of every other method and content type, including a `PUT`, `PATCH` or `DELETE` carrying form
+content, are passed through byte-for-byte.
+
 ## What is not supported
 
 WebSocket traffic is not proxied. Configure a separate route on a component that supports it if you need

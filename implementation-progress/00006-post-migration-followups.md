@@ -41,7 +41,6 @@
 | `oag/src/main/java/org/owasp/oag/services/blacklist/LocalPersistentBlacklist.java` | Modify (T1) | `cleanup()` safe to call concurrently with `invalidateSession`/`isInvalidated`. |
 | `oag/src/main/java/org/owasp/oag/services/blacklist/SessionBlacklist.java` | Modify (T1, T2) | Interface now documents the thread-safety contract and that OAG schedules `cleanup()`. |
 | `oag/src/main/java/org/owasp/oag/services/blacklist/SessionBlacklistCleanupTask.java` | Create (T2) | Schedules `cleanup()` on the existing `cleanupScheduler`. Keeps scheduling out of the blacklist itself. |
-| `oag/src/main/resources/application.yaml` | Modify (T3) | Adds `spring.cloud.gateway.mvc.form-filter.enabled: false`. |
 | `oag/src/main/java/org/owasp/oag/logging/TraceContextBridge.java` | Modify (T6) | One `TraceContext` per request; the two header-name accessors are gone. |
 | `oag/src/main/java/org/owasp/oag/filters/servlet/TraceContextFilter.java` | Modify (T6) | Passes a header-lookup function to the bridge. |
 | `oag/src/main/java/org/owasp/oag/gateway/GatewayRouterFunctionConfiguration.java` | Modify (T7) | Route assembly only. |
@@ -53,7 +52,7 @@
 | `www/docs/docs/Custom-(code)-extensions.md` | Modify (T2, T3) | Correct `cleanup()` contract; warn about `getParameter` consuming bodies. |
 | `www/docs/docs/Architecture-Request-Handling.md` | Modify (T3, T6) | Documents body passthrough and the response-header ownership boundary. |
 
-**New tests:** `LocalPersistentBlacklistConcurrencyTest` (T1), `SessionBlacklistCleanupTaskTest` (T2), a form-passthrough case in `ProxyTest` (T3), `RequestFailureLoggerIntegrationTest` (T4), a `Secure`-attribute assertion (T8).
+**New tests:** `LocalPersistentBlacklistConcurrencyTest` (T1), `SessionBlacklistCleanupTaskTest` (T2), `RequestFailureLoggerIntegrationTest` (T4), a `Secure`-attribute assertion (T8). Task 3 adds no test — its fix was abandoned, see that task.
 
 ---
 
@@ -394,101 +393,59 @@ git commit -m "feat: prune the session blacklist periodically instead of only at
 
 ---
 
-### Task 3: Forward form bodies byte-for-byte
+### Task 3: Document how form bodies are handled
 
-`PUT`/`PATCH`/`DELETE` form bodies are already fixed. `POST` form bodies are still parsed by the servlet container and **re-encoded** from the parameter map by SCG's `FormFilter`, so parameter order, duplicate-key grouping and `+` versus `%20` can differ from what the client sent. Disabling `FormFilter` makes OAG forward exactly what it received.
+**The original plan for this task was wrong and its fix was abandoned.** It proposed disabling Spring
+Cloud Gateway's `FormFilter` to get byte-for-byte `POST` form-body passthrough. Two facts, both verified
+against the 5.0.2 sources, invalidate that:
+
+1. `FormFilter` is load-bearing, not cosmetic. Its `FormContentRequestWrapper` masks `getParameter` and
+   `getParameterMap` down to **query-string parameters only**, and `ProxyExchangeHandlerFunction:92` calls
+   `serverRequest.params()` to build the downstream URI. Disabling the filter therefore makes body
+   parameters **leak into the downstream query string** and loses the body entirely — a `POST /foo` with
+   body `a=1&b=2` is forwarded as `POST /foo?a=1&b=2` with no body. Strictly worse than the problem.
+2. The property key is `spring.cloud.gateway.server.webmvc.form-filter.enabled`;
+   `GatewayMvcProperties.PREFIX` is `spring.cloud.gateway.server.webmvc`.
+
+The real defect is also much narrower than the plan claimed. Parameter order and duplicate keys **are**
+preserved. The only difference is the encoding of a space: `%20` sent, `+` received. Both decode to a
+space under `application/x-www-form-urlencoded`, so a downstream system parsing the form sees identical
+parameters. It matters only to a downstream computing a signature over the raw body bytes.
+
+A working fix does exist — a Tomcat-specific `TomcatConnectorCustomizer` setting `parseBodyMethods("")`
+**plus** the config property, where either half alone is a regression — and it was rejected: two coupled
+settings guarding a semantically neutral byte difference, tied to one servlet container, and globally
+disabling form parsing so `getParameter` on a `POST` silently returns nothing.
+
+**This task is therefore documentation only.**
 
 **Files:**
-- Modify: `oag/src/main/resources/application.yaml`
 - Modify: `www/docs/docs/Architecture-Request-Handling.md`
 - Modify: `www/docs/docs/Custom-(code)-extensions.md`
-- Test: `oag/src/test/java/org/owasp/oag/integration/mockserver/ProxyTest.java`
 
-**Interfaces:** none — configuration and documentation only.
+**Interfaces:** none.
 
-- [ ] **Step 1: Confirm the property prefix**
+- [x] **Step 1: Document the body-forwarding behaviour**
 
-Run: `javap -cp $(find ~/.gradle/caches -name 'spring-cloud-gateway-server-webmvc-5.0.2.jar' | head -1) org.springframework.cloud.gateway.server.mvc.config.GatewayMvcProperties | grep -i prefix`
-Then confirm the constant's value (decompile or check the sources jar). Expected: `spring.cloud.gateway.mvc`. Use whatever it actually is — do not assume.
+Added a "Request bodies" section to `Architecture-Request-Handling.md` stating that bodies are forwarded
+unbuffered except for a form-content `POST`, which is parsed and re-encoded; that order and repeated names
+survive while `%20` becomes `+`; that both decode to a space so parsed parameters are unaffected; and that
+`PUT`/`PATCH`/`DELETE` form bodies pass through byte-for-byte.
 
-- [ ] **Step 2: Write the failing passthrough test**
+- [x] **Step 2: Warn extension authors about consuming the body**
 
-Add to `ProxyTest` a test that sends a form body whose exact bytes `FormFilter` would not reproduce — duplicate keys, non-alphabetical order, and a space encoded as `%20`:
+Added a "Reading the request body in an extension" section to `Custom-(code)-extensions.md`: do not call
+`getParameter`/`getParameterMap` on a request with a body outside the form-`POST` case, because it consumes
+the body with nothing to rebuild it and the downstream system silently receives an empty one. Points at
+`CsrfDoubleSubmitCookieValidation` for the query-string pattern and at `MvcUtils.getOrCacheBody` plus
+`BeforeFilterFunctions.adaptCachedBody()` for the case where the body really is needed, with
+`CsrfValidationFilterWithBody` as the worked example.
 
-```java
-    /**
-     * The gateway must forward a form body exactly as received, not re-encode it from the parsed
-     * parameter map. Duplicate keys, ordering and %20-versus-+ encoding all have to survive.
-     */
-    @Test
-    void forwardsAFormBodyByteForByte() {
+- [x] **Step 3: Verify**
 
-        var body = "b=2&a=1&a=3&c=hello%20world";
+`./gradlew build` → `BUILD SUCCESSFUL`, 142 tests / 54 classes / 0 failures (unchanged — no code changed).
+`npm run docs:build` in `www/` → `build complete`.
 
-        stubFor(post(urlEqualTo(TEST_1_ENDPOINT)).willReturn(aResponse().withBody(TEST_1_RESPONSE)));
-
-        webClient.post().uri(TEST_1_ENDPOINT)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(body)
-                .exchange()
-                .expectStatus().isOk();
-
-        verify(postRequestedFor(urlEqualTo(TEST_1_ENDPOINT)).withRequestBody(equalTo(body)));
-    }
-```
-
-Check `ProxyTest`'s existing imports and the `RestTestClient` body-setting method name before writing this — use whatever `CsrfDoubleSubmitTest` uses for a form POST, since that file already does one successfully. Also confirm the route `TEST_1_ENDPOINT` maps to permits `POST` and that its CSRF profile does not block an unauthenticated POST; if it does, use `authenticatedRequest(...)` with `makeLogin()` as `CsrfDoubleSubmitTest` does, rather than weakening a profile.
-
-- [ ] **Step 3: Run it and confirm it fails**
-
-Run: `./gradlew test --tests 'org.owasp.oag.integration.mockserver.ProxyTest' --console=plain --rerun-tasks`
-Expected: FAIL. The WireMock diff should show the received body re-encoded — most likely `a=1&a=3&b=2&c=hello+world` or similar. Record the actual received body in your report; it is the evidence that the defect is real.
-
-- [ ] **Step 4: Disable `FormFilter`**
-
-In `oag/src/main/resources/application.yaml`, add inside the existing `spring:` block, alongside the `mvc.formcontent` entry already there:
-
-```yaml
-  cloud:
-    gateway:
-      mvc:
-        form-filter:
-          # Do not re-encode form bodies from the parsed parameter map. Combined with
-          # mvc.formcontent.filter.enabled=false above, no form body is parsed or rebuilt, so the
-          # gateway forwards exactly the bytes it received.
-          enabled: false
-```
-
-Run: `grep -c "^spring:" oag/src/main/resources/application.yaml`
-Expected: `1`.
-
-- [ ] **Step 5: Confirm the test passes**
-
-Run: `./gradlew test --tests 'org.owasp.oag.integration.mockserver.ProxyTest' --console=plain --rerun-tasks`
-Expected: PASS, and `CsrfDoubleSubmitTest` must still pass too — it reads a CSRF token out of a form body, which is the case most likely to break here. Run it explicitly:
-`./gradlew test --tests 'org.owasp.oag.integration.mockserver.csrf.CsrfDoubleSubmitTest' --console=plain`
-
-If `CsrfDoubleSubmitTest` fails, **stop and report** rather than adjusting it: it would mean the with-body CSRF path depended on `FormFilter` restoring the body, which changes this task's premise.
-
-- [ ] **Step 6: Document the consequence for extension authors**
-
-Two additions, both describing current behaviour:
-
-In `www/docs/docs/Architecture-Request-Handling.md`, state that request bodies are forwarded unparsed and unmodified, for every method.
-
-In `www/docs/docs/Custom-(code)-extensions.md`, warn that a custom extension must not call `HttpServletRequest.getParameter(...)` (or anything that triggers parameter parsing) on a request with a body: doing so consumes the body, and OAG deliberately has no filter that rebuilds it, so the downstream system would receive an empty body. Point readers at `CsrfDoubleSubmitCookieValidation`, which parses `getQueryString()` for exactly this reason, as the pattern to copy.
-
-- [ ] **Step 7: Full build and commit**
-
-Run: `./gradlew build --console=plain`
-Expected: `BUILD SUCCESSFUL`, 140+ tests, 0 failures.
-
-```bash
-git add oag/src/main/resources/application.yaml oag/src/test/java/org/owasp/oag/integration/mockserver/ProxyTest.java www/docs/docs
-git commit -m "fix: forward form bodies unmodified instead of re-encoding them"
-```
-
----
 
 ### Task 4: Prove the `errorReason` log line end to end
 

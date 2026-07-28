@@ -188,3 +188,28 @@ exposes `getKeyUsedToVerify()`, `getTypeString()` and `equalType(GeneratedKey)`.
 
 Selected through `keyManagementProfile.keyGeneratorProfile.type` and retrieved via
 `org.owasp.oag.infrastructure.factories.KeyManagementFactory.getKeyGenerator()`.
+
+## Reading the request body in an extension
+
+A custom extension must not call `HttpServletRequest.getParameter(...)`, `getParameterMap()` or anything
+else that triggers parameter parsing on a request that has a body.
+
+For a `POST` with form content the parameters are already available and reading them is harmless. For any
+other method, parameter parsing consumes the request body, and OAG has no filter that rebuilds it — the
+downstream system would receive an empty body, with nothing failing visibly to indicate why.
+
+Read the query string directly instead. `org.owasp.oag.services.csrf.CsrfDoubleSubmitCookieValidation`
+does exactly this to find its CSRF token, and is the pattern to copy:
+
+```java
+var queryParams = UriComponentsBuilder.fromUriString("?" + request.getQueryString())
+        .build()
+        .getQueryParams();
+var token = queryParams.getFirst("CSRFToken");
+```
+
+If an extension genuinely needs the body, use
+`org.springframework.cloud.gateway.server.mvc.common.MvcUtils.getOrCacheBody(ServerRequest)`, which caches
+the body so it can still be forwarded, and pair it with
+`BeforeFilterFunctions.adaptCachedBody()` on the route so the proxy re-reads the cached copy.
+`org.owasp.oag.filters.proxy.CsrfValidationFilterWithBody` shows the complete arrangement.
