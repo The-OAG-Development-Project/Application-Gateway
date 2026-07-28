@@ -81,8 +81,10 @@ void cleanup();
 
 `invalidateSession` is called on logout and must keep the identifier blacklisted for at least `ttl`
 seconds. `isInvalidated` is called by the session-extraction servlet filter for every request that presents
-a session cookie. `cleanup` may be called regularly by the runtime to drop expired entries. All three are
-blocking calls.
+a session cookie. `cleanup` drops expired entries; OAG schedules it on a background thread every two
+session durations (`sessionBehaviour.sessionDuration`), so an implementation must be safe to call
+concurrently with `invalidateSession` and `isInvalidated`, and must not lose an identifier that is
+invalidated while a cleanup pass is running. All three are blocking calls.
 
 ### `org.owasp.oag.services.login.drivers.LoginDriver`
 

@@ -286,7 +286,7 @@ The blacklist prunes only at restart today, so `session-blacklist.db` and its in
 - Consumes: `SessionBlacklist.cleanup()` (Task 1, now concurrency-safe), `MainConfig.getSessionBehaviour().getSessionDuration()`, and the `cleanupScheduler` bean (`ThreadPoolTaskScheduler`, defined in `infrastructure/SchedulerConfiguration`).
 - Produces: a `@Component` with no public API beyond its constructor; nothing else depends on it.
 
-- [ ] **Step 1: Read how the existing scheduled task is wired**
+- [x] **Step 1: Read how the existing scheduled task is wired**
 
 Run: `sed -n '40,60p;110,125p' oag/src/main/java/org/owasp/oag/services/keymgm/LocalRsaJwkStore.java`
 Expected: you can see the `@Qualifier("cleanupScheduler") ThreadPoolTaskScheduler` injection and its self-rescheduling one-shot `scheduler.schedule(...)` pattern.
@@ -294,7 +294,7 @@ Expected: you can see the `@Qualifier("cleanupScheduler") ThreadPoolTaskSchedule
 **Deliberately do not copy that pattern.** Use `scheduleAtFixedRate`, which cannot fail to re-arm — the one-shot pattern loses the schedule permanently if the re-arm throws. Confirm the method exists with:
 `javap -cp $(find ~/.gradle/caches -name 'spring-context-*.jar' | head -1) org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler | grep -i scheduleAtFixedRate`
 
-- [ ] **Step 2: Create the task**
+- [x] **Step 2: Create the task**
 
 Create `oag/src/main/java/org/owasp/oag/services/blacklist/SessionBlacklistCleanupTask.java`:
 
@@ -362,27 +362,27 @@ public class SessionBlacklistCleanupTask {
 
 The `try/catch` is load-bearing: `ScheduledExecutorService` cancels a fixed-rate task permanently if it throws, which would silently restore the unbounded growth this task exists to prevent.
 
-- [ ] **Step 3: Write the test**
+- [x] **Step 3: Write the test**
 
 Create `oag/src/test/java/org/owasp/oag/services/blacklist/SessionBlacklistCleanupTaskTest.java`. Assert two things: the interval is twice the session duration, and a throwing `cleanup()` does not propagate. Build a real `ThreadPoolTaskScheduler` and a stub `SessionBlacklist` that counts calls; for the interval, either capture it with a `ThreadPoolTaskScheduler` subclass overriding `scheduleAtFixedRate(Runnable, Duration)`, or set a small `sessionDuration` in the `MainConfig` fixture and assert the stub is called more than once within a bounded wait. Prefer capturing the interval — it asserts the requirement directly rather than by timing.
 
 Construct `MainConfig` the way `TraceContextBridgeTest` does (load a config through `TestFileConfigLoader`, or set the field with `ReflectionTestUtils`) — read that test first and reuse its approach rather than inventing one.
 
-- [ ] **Step 4: Run the test**
+- [x] **Step 4: Run the test**
 
 Run: `./gradlew test --tests 'org.owasp.oag.services.blacklist.SessionBlacklistCleanupTaskTest' --console=plain`
 Expected: PASS. Mutation-check both cases: change `2L *` to `1L *` and confirm the interval assertion fails; remove the `try/catch` and confirm the swallowing assertion fails. Revert both, report both observations.
 
-- [ ] **Step 5: Correct the documentation**
+- [x] **Step 5: Correct the documentation**
 
 `www/docs/docs/Custom-(code)-extensions.md` currently says `cleanup` "may be called regularly by the runtime". That was aspirational; now it is true, and it carries a requirement. Change it to state that OAG schedules `cleanup()` every two session durations on a background thread, and that an implementation must therefore be safe to call concurrently with the other two methods and must not lose an identifier invalidated while it runs.
 
-- [ ] **Step 6: Confirm it actually runs in a real context**
+- [x] **Step 6: Confirm it actually runs in a real context**
 
 Run: `./gradlew test --tests 'org.owasp.oag.integration.DefaultConfigurationTest' --console=plain -i 2>&1 | grep -i "Scheduled session blacklist cleanup"`
 Expected: the startup line appears, proving the bean is constructed in a real application context. If it does not, the component is not being scanned — check `OAGBeanConfiguration`'s explicit `@ComponentScan` list includes `org.owasp.oag.services`.
 
-- [ ] **Step 7: Full build and commit**
+- [x] **Step 7: Full build and commit**
 
 Run: `./gradlew build --console=plain`
 Expected: `BUILD SUCCESSFUL`, 139+ tests, 0 failures.
