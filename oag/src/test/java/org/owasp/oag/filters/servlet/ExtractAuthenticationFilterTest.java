@@ -1,8 +1,13 @@
 package org.owasp.oag.filters.servlet;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.services.blacklist.SessionBlacklist;
@@ -15,6 +20,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -52,10 +58,10 @@ class ExtractAuthenticationFilterTest {
 
         var request = new MockHttpServletRequest("GET", "/foo");
 
-        doFilter(request);
-
-        assertEquals(Optional.empty(), request.getAttribute(ExtractAuthenticationFilter.OAG_SESSION));
-        assertTrue(ExtractAuthenticationFilter.extractSessionFromRequest(request).isEmpty());
+        doFilter(request, () -> {
+            assertEquals(Optional.empty(), Session.REQUEST_SESSION.get());
+            assertTrue(Session.REQUEST_SESSION.get().isEmpty());
+        });
     }
 
     @Test
@@ -64,12 +70,12 @@ class ExtractAuthenticationFilterTest {
         var request = new MockHttpServletRequest("GET", "/foo");
         request.setCookies(loginCookie());
 
-        doFilter(request);
-
-        Optional<Session> session = ExtractAuthenticationFilter.extractSessionFromRequest(request);
-        assertTrue(session.isPresent(), "session was not published");
-        assertEquals(SESSION_ID, session.get().getId());
-        assertEquals(CSRF_TOKEN, request.getAttribute(ExtractAuthenticationFilter.OAG_SESSION_CSRF_TOKEN));
+        doFilter(request, () -> {
+            Optional<Session> session = Session.REQUEST_SESSION.get();
+            assertTrue(session.isPresent(), "session was not published");
+            assertEquals(SESSION_ID, session.get().getId());
+            assertEquals(CSRF_TOKEN, CsrfCookie.REQUEST_CSRF_TOKEN.get());
+        });
     }
 
     @Test
@@ -80,15 +86,19 @@ class ExtractAuthenticationFilterTest {
         var request = new MockHttpServletRequest("GET", "/foo");
         request.setCookies(loginCookie());
 
-        doFilter(request);
-
-        assertTrue(ExtractAuthenticationFilter.extractSessionFromRequest(request).isEmpty(),
-                "a blacklisted session must not be published");
+        doFilter(request, () -> assertTrue(Session.REQUEST_SESSION.get().isEmpty(),
+          "a blacklisted session must not be published"));
     }
 
-    private void doFilter(MockHttpServletRequest request) throws Exception {
+    private void doFilter(MockHttpServletRequest request, Runnable checkInFilter) throws Exception {
 
-        var chain = new MockFilterChain();
+        var chain = new MockFilterChain(){
+            @Override
+            public void doFilter(@NonNull ServletRequest request, @NonNull ServletResponse response) throws IOException, ServletException {
+                checkInFilter.run();
+                super.doFilter(request, response);
+            }
+        };
         filter.doFilter(request, new MockHttpServletResponse(), chain);
         assertNotNull(chain.getRequest(), "the filter did not continue the chain");
     }

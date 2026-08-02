@@ -11,8 +11,6 @@ import org.springframework.web.servlet.function.HandlerFunction;
 import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
 
-import static org.owasp.oag.utils.LoggingUtils.logTrace;
-
 /**
  * Filter that applies user mapping to downstream requests.
  * This filter maps user information from the authenticated session to the
@@ -32,7 +30,7 @@ public class UserMappingFilter extends RouteAwareFilter {
     public ServerResponse filter(ServerRequest request, HandlerFunction<ServerResponse> next,
                                  GatewayRouteContext routeContext) throws Exception {
 
-        logTrace(log, request.servletRequest(), "Execute DownstreamAuthenticationFilter");
+        log.trace("Execute DownstreamAuthenticationFilter.");
 
         var securityProfileName = routeContext.getRoute().getType();
         var userMapper = mappingFactory.getUserMapperForSecurityProfile(securityProfileName);

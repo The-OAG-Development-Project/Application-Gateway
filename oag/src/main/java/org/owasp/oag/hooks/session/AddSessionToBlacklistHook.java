@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.owasp.oag.utils.LoggingUtils.logDebug;
-
 /**
  * Session hook that adds a session to the blacklist upon destruction.
  */
@@ -69,11 +67,11 @@ public class AddSessionToBlacklistHook implements SessionHook {
     public void destroySession(Map<String, Object> filterContext, HttpServletRequest request,
                               HttpServletResponse response) {
 
-        Optional<Session> sessionOptional = ExtractAuthenticationFilter.extractSessionFromRequest(request);
+        Optional<Session> sessionOptional = Session.REQUEST_SESSION.get();
 
         sessionOptional.ifPresent(session -> {
             sessionBlacklist.invalidateSession(session.getId(), session.getRemainingTimeSeconds());
-            logDebug(log, request, "Session {} invalidated", session.getId());
+            log.debug("Session {} invalidated.", session.getId());
         });
     }
 }

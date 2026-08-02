@@ -19,7 +19,6 @@ import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.owasp.oag.services.login.drivers.LoginDriver;
 import org.owasp.oag.services.login.drivers.LoginDriverResult;
 import org.owasp.oag.session.Session;
-import org.owasp.oag.utils.LoggingUtils;
 import org.owasp.oag.utils.UrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,7 +145,7 @@ public class LoginController {
     public SessionInformation sessionInfo(HttpServletRequest request) {
 
         SessionInformation sessionInformation;
-        Optional<Session> sessionOptional = ExtractAuthenticationFilter.extractSessionFromRequest(request);
+        Optional<Session> sessionOptional = Session.REQUEST_SESSION.get();
 
         if (sessionOptional.isPresent()) {
             sessionInformation = new SessionInformation(SessionInformation.SESSION_STATE_AUTHENTICATED);
@@ -177,7 +176,7 @@ public class LoginController {
         }
 
         if (!isValidReturnUrl(returnUrl)) {
-            LoggingUtils.logInfo(log, request, "Received invalid returnUrl: " + URLEncoder.encode(returnUrl, StandardCharsets.UTF_8));
+            log.info("Received invalid returnUrl: {}.", URLEncoder.encode(returnUrl, StandardCharsets.UTF_8));
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid return url");
         }
 
@@ -321,7 +320,7 @@ public class LoginController {
         // Logout csrf prevention
         CsrfProtectionValidation csrfValidation = getCsrfValidationMethod();
         if (csrfValidation.shouldBlockRequest(request, null)) {
-            LoggingUtils.logInfo(log, request, "Blocked logout request due to csrf protection");
+            log.info("Blocked logout request due to csrf protection.");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
 
@@ -332,7 +331,7 @@ public class LoginController {
         String returnUrl = loadLogoutReturnUrl(request);
 
         // To load the federated logout url we need the instance of the login provider
-        Optional<Session> sessionOptional = ExtractAuthenticationFilter.extractSessionFromRequest(request);
+        Optional<Session> sessionOptional = Session.REQUEST_SESSION.get();
         if (sessionOptional.isPresent()) {
             var session = sessionOptional.get();
             var provider = session.getProvider();

@@ -1,26 +1,31 @@
 package org.owasp.oag.filters.servlet;
 
+import ch.qos.logback.classic.scoped.ScopedMDC;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.NonNull;
+import org.owasp.oag.exception.ApplicationException;
 import org.owasp.oag.logging.TraceContextBridge;
-import org.owasp.oag.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Map;
+
+import static org.owasp.oag.logging.TraceContext.REQUEST_TRACE_HEADERS;
 
 /**
  * Responsible to setup a trace id based on the configured trace mechanism.
  * <p>
  * The trace id is put into the request attributes and into the MDC, so every log statement written while
  * handling the request carries it.
+ * This should be the first filter in the chain.
  */
 @Order(-10)
 @Component
@@ -32,12 +37,6 @@ public class TraceContextFilter extends OncePerRequestFilter {
      */
     public static final String TRACE_ID_CONTEXT_KEY = "oag.CorrId";
 
-    /**
-     * The key where the {@link org.owasp.oag.logging.TraceHeaders} of the current request is stored in the
-     * request attributes.
-     */
-    public static final String TRACE_HEADERS_ATTRIBUTE = "oag.TraceHeaders";
-
     private static final Logger log = LoggerFactory.getLogger(TraceContextFilter.class);
 
     /**
@@ -47,8 +46,7 @@ public class TraceContextFilter extends OncePerRequestFilter {
     TraceContextBridge traceContext;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) {
 
         var mainHeaderName = traceContext.getMainRequestHeader();
         var secondaryHeaderName = traceContext.getSecondaryRequestHeader();
@@ -56,20 +54,26 @@ public class TraceContextFilter extends OncePerRequestFilter {
                 mainHeaderName == null ? null : request.getHeader(mainHeaderName),
                 secondaryHeaderName == null ? null : request.getHeader(secondaryHeaderName));
 
-        request.setAttribute(TRACE_ID_CONTEXT_KEY, traceHeaders.traceId());
-        request.setAttribute(TRACE_HEADERS_ATTRIBUTE, traceHeaders);
-        traceHeaders.responseHeaders().forEach(response::addHeader);
+        Map<String, String> logContextMap = Map.of(
+          TRACE_ID_CONTEXT_KEY, traceHeaders.traceId()
+        );
 
-        try (MDC.MDCCloseable cMdc = MDC.putCloseable(TRACE_ID_CONTEXT_KEY, traceHeaders.traceId())) {
+        ScopedValue.where(REQUEST_TRACE_HEADERS, traceHeaders).run(() ->
+            ScopedMDC.putAll(logContextMap).run( () -> {
+                log.debug("Tracing started.");
 
-            LoggingUtils.logDebug(log, request, "Tracing started.");
+                if (!traceHeaders.responseHeaders().isEmpty()) {
+                    traceHeaders.responseHeaders().forEach(response::addHeader);
+                    log.debug("Adding trace id to upstream response.");
+                }
 
-            if (!traceHeaders.responseHeaders().isEmpty()) {
-                LoggingUtils.logDebug(log, request, "Adding trace id to upstream response");
-            }
-
-            log.debug("Generated new request id.");
-            chain.doFilter(request, response);
-        }
+                log.debug("Generated new request id.");
+              try {
+                chain.doFilter(request, response);
+              } catch (IOException | ServletException e) {
+                  throw new ApplicationException("General Exception during request.", e);
+              }
+            })
+        );
     }
 }

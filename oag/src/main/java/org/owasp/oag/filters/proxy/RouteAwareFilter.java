@@ -4,6 +4,7 @@ import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.gateway.GatewayRouterFunctionConfiguration;
+import org.owasp.oag.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.server.mvc.common.MvcUtils;
 import org.springframework.web.servlet.function.HandlerFilterFunction;
@@ -35,7 +36,7 @@ public abstract class RouteAwareFilter implements HandlerFilterFunction<ServerRe
         var securityProfile = config.getSecurityProfiles().get(gatewayRoute.getType());
 
         // Load session from the request attributes
-        var sessionOptional = ExtractAuthenticationFilter.extractSessionFromRequest(request.servletRequest());
+        var sessionOptional = Session.REQUEST_SESSION.get();
 
         // Load additional request info
         Collection<URI> uris = MvcUtils.getAttribute(request, MvcUtils.GATEWAY_ORIGINAL_REQUEST_URL_ATTR);

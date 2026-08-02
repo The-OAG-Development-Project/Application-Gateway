@@ -22,9 +22,6 @@ import org.springframework.web.servlet.function.ServerResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-import static org.owasp.oag.utils.LoggingUtils.logInfo;
-import static org.owasp.oag.utils.LoggingUtils.logTrace;
-
 /**
  * Filter that validates CSRF tokens for requests that require examining the request body.
  * It only processes unsafe HTTP methods (non-GET/HEAD) for authenticated sessions and
@@ -52,7 +49,7 @@ public class CsrfValidationFilterWithBody extends RouteAwareFilter {
         if (!shouldRun(request, routeContext))
             return next.handle(request);
 
-        logTrace(log, request.servletRequest(), "Execute CsrfValidationFilterWithBody");
+        log.trace("Execute CsrfValidationFilterWithBody.");
 
         var contentLength = request.headers().firstHeader(HttpHeaders.CONTENT_LENGTH);
         String body = "";
@@ -69,8 +66,7 @@ public class CsrfValidationFilterWithBody extends RouteAwareFilter {
 
         if (csrfValidation.shouldBlockRequest(request.servletRequest(), body)) {
 
-            logInfo(log, request.servletRequest(),
-                    "Blocked request due to csrf protection, route={}, reqMethod={}, csrfMethod={}",
+            log.info("Blocked request due to csrf protection, route={}, reqMethod={}, csrfMethod={}",
                     routeContext.getRouteName(), request.method(), csrfProtectionMethod);
 
             return ServerResponse.status(HttpStatus.UNAUTHORIZED).build();
@@ -98,8 +94,8 @@ public class CsrfValidationFilterWithBody extends RouteAwareFilter {
         if (isSafeMethod)
             return false;
 
-        // Dont do the validation if there is no user session
-        Optional<Session> sessionOptional = ExtractAuthenticationFilter.extractSessionFromRequest(request.servletRequest());
+        // Don't do the validation if there is no user session
+        Optional<Session> sessionOptional = Session.REQUEST_SESSION.get();
         if (sessionOptional.isEmpty())
             return false;
 

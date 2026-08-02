@@ -4,7 +4,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.owasp.oag.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -34,15 +33,15 @@ public class SimpleLogFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        LoggingUtils.logTrace(log, request, "Execute SimpleLogFilter");
-        LoggingUtils.logDebug(log, request, "Request to {} {}", request.getMethod(), request.getRequestURL());
+        log.trace("Execute SimpleLogFilter.");
+        log.debug("Request to {} {}", request.getMethod(), request.getRequestURL());
 
         chain.doFilter(request, response);
 
         if (request.getAttribute(RequestFailureLogger.RESPONSE_LOGGED_ATTRIBUTE) != null)
             return;
 
-        LoggingUtils.logInfo(log, request, "Response status code {} for {} {}",
+        log.info("Response status code {} for {} {}",
                 renderStatus(response.getStatus()), request.getMethod(), request.getRequestURL());
     }
 

@@ -14,9 +14,6 @@ import org.springframework.web.servlet.function.HandlerFunction;
 import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
 
-import static org.owasp.oag.utils.LoggingUtils.logInfo;
-import static org.owasp.oag.utils.LoggingUtils.logTrace;
-
 /**
  * Filter that validates CSRF (Cross-Site Request Forgery) protection for non-safe HTTP methods.
  * This filter checks if the current request method is considered "safe" according to the security profile.
@@ -45,7 +42,7 @@ public class CsrfValidationFilter extends RouteAwareFilter {
     public ServerResponse filter(ServerRequest request, HandlerFunction<ServerResponse> next,
                                  GatewayRouteContext routeContext) throws Exception {
 
-        logTrace(log, request.servletRequest(), "Execute CsrfValidationFilter");
+        log.trace("Execute CsrfValidationFilter.");
         var securityProfile = routeContext.getSecurityProfile();
 
         HttpMethod reqMethod = request.method();
@@ -61,9 +58,7 @@ public class CsrfValidationFilter extends RouteAwareFilter {
 
             if (csrfValidation.shouldBlockRequest(request.servletRequest(), null)) {
 
-                logInfo(log, request.servletRequest(),
-                        "Blocked request due to csrf protection, route={}, reqMethod={}, csrfMethod={}",
-                        routeContext.getRouteName(), reqMethod, csrfProtectionMethod);
+                log.info("Blocked request due to csrf protection, route={}, reqMethod={}, csrfMethod={}", routeContext.getRouteName(), reqMethod, csrfProtectionMethod);
 
                 return ServerResponse.status(HttpStatus.UNAUTHORIZED).build();
             }

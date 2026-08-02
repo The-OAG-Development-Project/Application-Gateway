@@ -7,6 +7,7 @@ import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.cookies.LoginStateCookie;
 import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.filters.servlet.TraceContextFilter;
+import org.owasp.oag.logging.TraceContext;
 import org.owasp.oag.logging.TraceHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +20,6 @@ import org.springframework.web.servlet.function.ServerResponse;
 
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.owasp.oag.utils.LoggingUtils.logDebug;
-import static org.owasp.oag.utils.LoggingUtils.logTrace;
 
 /**
  * This gateway filter adds additional headers to the request
@@ -51,7 +49,7 @@ public class DownstreamHeaderFilter extends RouteAwareFilter {
     public ServerResponse filter(ServerRequest request, HandlerFunction<ServerResponse> next,
                                  GatewayRouteContext routeContext) throws Exception {
 
-        logTrace(log, request.servletRequest(), "Execute DownstreamHeaderFilter");
+        log.trace("Execute DownstreamHeaderFilter.");
 
         var builder = ServerRequest.from(request);
 
@@ -91,7 +89,7 @@ public class DownstreamHeaderFilter extends RouteAwareFilter {
      */
     protected ServerRequest.Builder addTraceHeaders(HttpServletRequest request, ServerRequest.Builder builder) {
 
-        TraceHeaders traceHeaders = (TraceHeaders) request.getAttribute(TraceContextFilter.TRACE_HEADERS_ATTRIBUTE);
+        TraceHeaders traceHeaders = TraceContext.REQUEST_TRACE_HEADERS.get();
         if (traceHeaders == null)
             return builder;
 
@@ -100,7 +98,7 @@ public class DownstreamHeaderFilter extends RouteAwareFilter {
 
         builder = builder.headers(headers -> traceHeaders.downstreamHeaders().forEach(headers::set));
 
-        logDebug(log, request, "Added trace id to downstream call.");
+        log.debug("Added trace id to downstream call.");
         return builder;
     }
 

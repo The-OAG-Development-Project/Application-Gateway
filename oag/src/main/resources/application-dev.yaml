@@ -1,9 +1,0 @@
-logging:
-  level:
-    root: INFO
-    org:
-      owasp: DEBUG
-      springframework:
-        web: DEBUG
-  file:
-    path: oag-dev.log

@@ -16,7 +16,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
 
-import static org.owasp.oag.utils.LoggingUtils.logInfo;
 import static org.owasp.oag.utils.SecureEncoder.encodeStringForLog;
 
 /**
@@ -56,14 +55,14 @@ public class CsrfSameSiteStrictCookieValidation implements CsrfProtectionValidat
     @Override
     public boolean shouldBlockRequest(HttpServletRequest request, String requestBody) {
 
-        Optional<Session> sessionOptional = ExtractAuthenticationFilter.extractSessionFromRequest(request);
+        Optional<Session> sessionOptional = Session.REQUEST_SESSION.get();
 
         if (sessionOptional.isPresent()) {
-            String csrfValueFromSession = (String) request.getAttribute(ExtractAuthenticationFilter.OAG_SESSION_CSRF_TOKEN);
+            String csrfValueFromSession = CsrfCookie.REQUEST_CSRF_TOKEN.get();
             String csrfValueFromCookie = extractCsrfToken(request);
 
             if (csrfValueFromCookie == null) {
-                logInfo(log, request, "Csrf cookie is missing");
+                log.info("Csrf cookie is missing.");
                 return true;
             }
 
@@ -73,7 +72,7 @@ public class CsrfSameSiteStrictCookieValidation implements CsrfProtectionValidat
             var targetOrigin = mainConfig.getHostUri();
             if (shouldBlockBasedOnOriginHeader(originHeader, refererHeader, targetOrigin)) {
 
-                logInfo(log, request, "Origin/Referer header does not match target origin: originHeader='{}' refererHeader='{}' targetOrigin='{}'",
+                log.info("Origin/Referer header does not match target origin: originHeader='{}' refererHeader='{}' targetOrigin='{}'",
                         encodeStringForLog(originHeader, 100), encodeStringForLog(refererHeader, 100), targetOrigin);
                 return true;
             }

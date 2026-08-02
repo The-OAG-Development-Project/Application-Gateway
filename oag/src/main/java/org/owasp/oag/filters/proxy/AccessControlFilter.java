@@ -10,9 +10,6 @@ import org.springframework.web.servlet.function.HandlerFunction;
 import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
 
-import static org.owasp.oag.utils.LoggingUtils.logInfo;
-import static org.owasp.oag.utils.LoggingUtils.logTrace;
-
 /**
  * Filter that controls access to routes based on authentication status.
  */
@@ -26,16 +23,12 @@ public class AccessControlFilter extends RouteAwareFilter {
     public ServerResponse filter(ServerRequest request, HandlerFunction<ServerResponse> next,
                                  GatewayRouteContext routeContext) throws Exception {
 
-        logTrace(log, request.servletRequest(), "Execute AccessControlFilter");
-
+        log.trace("Execute AccessControlFilter.");
         var onlyAuthenticated = !routeContext.getRoute().isAllowAnonymous();
         var isAnonymous = routeContext.getSessionOptional().isEmpty();
 
         if (onlyAuthenticated && isAnonymous) {
-
-            logInfo(log, request.servletRequest(), "Blocked unauthenticated request {} {}",
-                    request.method(), routeContext.getRequestUri());
-
+            log.info("Blocked unauthenticated request {} {}", request.method(), routeContext.getRequestUri());
             return ServerResponse.status(HttpStatus.UNAUTHORIZED).build();
         }
 

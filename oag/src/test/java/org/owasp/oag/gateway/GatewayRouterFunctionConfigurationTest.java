@@ -4,9 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.owasp.oag.config.configuration.GatewayRoute;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.config.configuration.PathRewriteConfig;
+import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.filters.proxy.RouteAwareFilter;
 import org.owasp.oag.integration.testInfrastructure.TestFileConfigLoader;
+import org.owasp.oag.session.Session;
 import org.springframework.core.annotation.Order;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -16,6 +18,7 @@ import org.springframework.web.servlet.function.ServerResponse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -42,10 +45,16 @@ class GatewayRouterFunctionConfigurationTest {
         var servletRequest = new MockHttpServletRequest("GET", "/api/v1/users");
         var request = ServerRequest.create(servletRequest, List.of());
 
-        var handler = routerFunction.route(request);
-        assertTrue(handler.isPresent(), "no route matched /api/v1/users");
-
-        handler.get().handle(request);
+        ScopedValue.where(Session.REQUEST_SESSION, Optional.empty()).
+          where(CsrfCookie.REQUEST_CSRF_TOKEN, "CSRF_TOKEN").run(() -> {
+              var handlerFunction = routerFunction.route(request);
+              assertTrue(handlerFunction.isPresent(), "no route matched /api/v1/users");
+            try {
+              ((HandlerFunction<ServerResponse>) (handlerFunction.get())).handle(request);
+            } catch (Exception e) {
+              throw new RuntimeException(e);
+            }
+          });
 
         // "first" short-circuits into "second", so seeing both in this order proves the @Order sequence:
         // had "second" run first it would have completed the request and "first" would never appear.

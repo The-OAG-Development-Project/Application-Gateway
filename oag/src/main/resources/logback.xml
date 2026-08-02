@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <property name="HOME_LOG" value="logs"/>
+
+  <conversionRule conversionWord="scopedContext" converterClass="ch.qos.logback.classic.scoped.ScopedMDCConverter"/>
+  <conversionRule conversionWord="Y" converterClass="ch.qos.logback.classic.scoped.ScopedMDCConverter"/>
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} %cyan(%scopedContext{oag.CorrId}) [%-22.22thread] %highlight(%-5level) %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="FILE-ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${HOME_LOG}/oag.log</file>
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>logs/oag.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+      <!-- each archived file, size max 10MB -->
+      <maxFileSize>10MB</maxFileSize>
+      <!-- total size of all archive files, if total size > 20GB, it will delete old archived file -->
+      <totalSizeCap>20GB</totalSizeCap>
+      <!-- 60 days to keep -->
+      <maxHistory>60</maxHistory>
+    </rollingPolicy>
+
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} %scopedContext{oag.CorrId} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- modify level when requiring debugging, or use your own logback.xml by specifying -Dlogback.configurationFile=/path/to/logback.xml -->
+  <!-- suggested for production use: root-level=WARN, org.owasp=info, no additional loggers configured. -->
+  <logger name="org.owasp" level="DEBUG"/>
+  <logger name="org.springframework.web" level="DEBUG"/>
+
+  <root level="INFO">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE-ROLLING"/>
+  </root>
+
+</configuration>

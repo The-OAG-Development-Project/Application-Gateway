@@ -10,9 +10,6 @@ import org.springframework.web.servlet.function.HandlerFunction;
 import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
 
-import static org.owasp.oag.utils.LoggingUtils.logInfo;
-import static org.owasp.oag.utils.LoggingUtils.logTrace;
-
 /**
  * Filter that ensures only whitelisted HTTP methods are allowed through the gateway.
  * This filter checks if the incoming request's HTTP method is in the list of allowed methods
@@ -28,15 +25,14 @@ public class MethodWhitelistFilter extends RouteAwareFilter {
     public ServerResponse filter(ServerRequest request, HandlerFunction<ServerResponse> next,
                                  GatewayRouteContext routeContext) throws Exception {
 
-        logTrace(log, request.servletRequest(), "Execute MethodWhitelistFilter");
+        log.trace("Execute MethodWhitelistFilter.");
 
         var reqMethod = request.method();
         var allowedMethods = routeContext.getSecurityProfile().getAllowedMethods();
 
         if (!allowedMethods.contains(reqMethod.name())) {
 
-            logInfo(log, request.servletRequest(),
-                    "Request to {} was blocked because method {} was not in list of allowed methods {}",
+            log.info("Request to {} was blocked because method {} was not in list of allowed methods {}",
                     routeContext.getRequestUri(), reqMethod, allowedMethods);
 
             return ServerResponse.status(HttpStatus.METHOD_NOT_ALLOWED).build();

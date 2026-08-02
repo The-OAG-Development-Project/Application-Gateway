@@ -1,6 +1,7 @@
 package org.owasp.oag.services.csrf;
 
 import org.junit.jupiter.api.Test;
+import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.session.Session;
 import org.owasp.oag.session.UserModel;
@@ -24,35 +25,39 @@ class CsrfDoubleSubmitCookieValidationTest {
     @Test
     void acceptsAMatchingTokenFromTheQueryString() {
 
-        var request = authenticatedRequest("CSRFToken=" + CSRF_TOKEN);
+        var request = createPostRequest("CSRFToken=" + CSRF_TOKEN);
 
-        assertFalse(validation.shouldBlockRequest(request, ""));
+
+        ScopedValue.where(Session.REQUEST_SESSION, Optional.of(session())).
+          where(CsrfCookie.REQUEST_CSRF_TOKEN, CSRF_TOKEN).run(() ->
+            assertFalse(validation.shouldBlockRequest(request, "")));
     }
 
     @Test
     void blocksARequestWhoseQueryStringHasAnInvalidPercentEscape() {
 
-        var request = authenticatedRequest("CSRFToken=%zz");
+        var request = createPostRequest("CSRFToken=%zz");
 
-        assertTrue(validation.shouldBlockRequest(request, ""),
-                "an unparseable token must be treated as absent, not raise an error");
+        ScopedValue.where(Session.REQUEST_SESSION, Optional.of(session())).
+          where(CsrfCookie.REQUEST_CSRF_TOKEN, CSRF_TOKEN).run(() ->
+            assertTrue(validation.shouldBlockRequest(request, ""),
+                "an unparseable token must be treated as absent, not raise an error"));
     }
 
     @Test
     void blocksARequestWhoseQueryStringHasATrailingPercentSign() {
 
-        var request = authenticatedRequest("CSRFToken=" + CSRF_TOKEN + "%");
+        var request = createPostRequest("CSRFToken=" + CSRF_TOKEN + "%");
 
-        assertTrue(validation.shouldBlockRequest(request, ""),
-                "an unparseable token must be treated as absent, not raise an error");
+        ScopedValue.where(Session.REQUEST_SESSION, Optional.of(session())).
+          where(CsrfCookie.REQUEST_CSRF_TOKEN, CSRF_TOKEN).run(() ->
+            assertTrue(validation.shouldBlockRequest(request, ""),
+                "an unparseable token must be treated as absent, not raise an error"));
     }
 
-    private MockHttpServletRequest authenticatedRequest(String queryString) {
-
+    private MockHttpServletRequest createPostRequest(String queryString) {
         var request = new MockHttpServletRequest("POST", "/foo");
         request.setQueryString(queryString);
-        request.setAttribute(ExtractAuthenticationFilter.OAG_SESSION, Optional.of(session()));
-        request.setAttribute(ExtractAuthenticationFilter.OAG_SESSION_CSRF_TOKEN, CSRF_TOKEN);
         return request;
     }
 

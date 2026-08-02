@@ -3,7 +3,6 @@ package org.owasp.oag.filters.servlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.Nullable;
-import org.owasp.oag.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -38,7 +37,7 @@ public class RequestFailureLogger implements HandlerExceptionResolver {
                                                    @Nullable Object handler, Exception ex) {
 
         if (ex instanceof ResponseStatusException responseStatusException) {
-            LoggingUtils.logInfo(log, request, "Response status code {} for {} {} errorReason: '{}'",
+            log.info("Response status code {} for {} {} errorReason: '{}'",
                     responseStatusException.getStatusCode(), request.getMethod(), request.getRequestURL(),
                     responseStatusException.getReason());
             request.setAttribute(RESPONSE_LOGGED_ATTRIBUTE, Boolean.TRUE);

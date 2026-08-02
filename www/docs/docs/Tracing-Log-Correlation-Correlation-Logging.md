@@ -67,5 +67,14 @@ Possible values: w3cTrace, simpleTrace, noTrace, \<Beanname of custom trace impl
 * Custom trace implementation: You can write your own trace implementation if you need. See [here](/docs/Tracing-Log-Correlation) for instructions.
 
 ## Configuring how the trace id is written to the log
-In the file `application.yaml` you can change the log-pattern to match your needs where and how the trace id is logged with each statement. The trace id is available in the variable `oag.CorrId`. In the log pattern you can therefore use `%X{oag.CorrId}` to print the trace id.
+In the file `logback.xml` you can change the log-pattern to match your needs where and how the trace id is logged with each statement. The trace id is available under the key `oag.CorrId`. In the log pattern you can therefore use `%scopedContext{oag.CorrId}` to print the trace id.
+
+The trace id lives in a scoped value, not in Logback's classic MDC, so `%X{oag.CorrId}` does not print it. The `scopedContext` conversion word has to be registered once in the configuration file that contains the pattern:
+
+```xml
+<conversionRule conversionWord="scopedContext"
+                converterClass="ch.qos.logback.classic.scoped.ScopedMDCConverter"/>
+```
+
+See [Logging](/docs/Logging) for the rest of the log configuration.
 

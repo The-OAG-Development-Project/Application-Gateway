@@ -8,6 +8,11 @@ package org.owasp.oag.cookies;
 public class CsrfCookie {
 
     /**
+     * The CSRF Token as available in the LoginCookie/Session.
+     */
+    public static ScopedValue<String> REQUEST_CSRF_TOKEN = ScopedValue.newInstance();
+
+    /**
      * The name of the CSRF cookie used in HTTP requests and responses.
      * This constant defines the standard name for CSRF cookies in the application.
      */

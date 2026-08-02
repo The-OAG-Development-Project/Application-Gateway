@@ -5,13 +5,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.NonNull;
+import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.cookies.LoginCookie;
+import org.owasp.oag.exception.ApplicationException;
 import org.owasp.oag.exception.CookieDecryptionException;
 import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.services.blacklist.SessionBlacklist;
 import org.owasp.oag.services.crypto.CookieEncryptor;
 import org.owasp.oag.session.Session;
-import org.owasp.oag.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -48,29 +51,6 @@ public class ExtractAuthenticationFilter extends OncePerRequestFilter {
     private SessionBlacklist sessionBlacklist;
 
     /**
-     * Extracts the session that this filter stored in the request attributes.
-     *
-     * @param request The current request
-     * @return An Optional containing the Session if found and valid, empty otherwise
-     */
-    @SuppressWarnings("unchecked")
-    public static Optional<Session> extractSessionFromRequest(HttpServletRequest request) {
-
-        Object sessionOptional = request.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
-
-        if (sessionOptional == null)
-            return Optional.empty();
-
-        if (sessionOptional instanceof Optional) {
-            //noinspection unchecked
-            return (Optional<Session>) sessionOptional;
-        } else {
-            LoggingUtils.logWarn(log, request, "oag-session attribute is of incompatible type!! Fix it.");
-            return Optional.empty();
-        }
-    }
-
-    /**
      * Reads the cookie with the given name from the request.
      *
      * @param request The current request
@@ -88,47 +68,38 @@ public class ExtractAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain)
             throws ServletException, java.io.IOException {
 
-        LoggingUtils.logTrace(log, request, "Execute ExtractAuthenticationFilter");
+        log.trace("Execute ExtractAuthenticationFilter");
+        Optional<Session> session = Optional.empty();
+        String csrfToken = null;
 
-        extractAndStoreAuthentication(request);
-        chain.doFilter(request, response);
-    }
+        Optional<LoginCookie> loginCookieOptional = extractLoginCookieFromRequest(request);
+        if (loginCookieOptional.isPresent()) {
+            var loginCookie = loginCookieOptional.get();
 
-    /**
-     * Extracts authentication from the login cookie and stores it in the request attributes.
-     * Also checks if the session has been invalidated.
-     *
-     * @param request The current request
-     */
-    protected void extractAndStoreAuthentication(HttpServletRequest request) {
-
-        request.setAttribute(OAG_SESSION, Optional.empty());
-
-        var loginCookieOptional = extractLoginCookieFromRequest(request);
-        if (loginCookieOptional.isEmpty())
-            return;
-
-        var loginCookie = loginCookieOptional.get();
-
-        if (sessionBlacklist.isInvalidated(loginCookie.getId())) {
-            LoggingUtils.logInfo(log, request, "Received invalidated session cookie with id: {} user-id: {}",
-                    loginCookie.getId(), loginCookie.getUserModel().getId());
-            return;
+            if (sessionBlacklist.isInvalidated(loginCookie.getId())) {
+                log.info("Received invalidated session cookie with id: {} user-id: {}",
+                  loginCookie.getId(), loginCookie.getUserModel().getId());
+                // do not accept session and csrf token
+            } else {
+                session = Session.fromSessionCookie(loginCookie, globalClockSource.getGlobalClock());
+                if (session.isEmpty()) {
+                    log.debug("Received invalid session cookie, maybe expired");
+                }
+                // Extract csrf token from session cookie
+                csrfToken = loginCookie.getCsrfToken();
+            }
         }
-
-        var sessionOptional = Session.fromSessionCookie(loginCookie, globalClockSource.getGlobalClock());
-
-        if (sessionOptional.isEmpty()) {
-            LoggingUtils.logDebug(log, request, "Received invalid session cookie, maybe expired");
-        }
-
-        // Extract csrf token from session cookie and store in the request
-        request.setAttribute(OAG_SESSION_CSRF_TOKEN, loginCookie.getCsrfToken());
-        // Store session optional in http request object
-        request.setAttribute(OAG_SESSION, sessionOptional);
+        ScopedValue.where(Session.REQUEST_SESSION, session).
+          where(CsrfCookie.REQUEST_CSRF_TOKEN, csrfToken).run(() -> {
+            try {
+                chain.doFilter(request, response);
+            } catch (IOException | ServletException e) {
+                throw new ApplicationException("General Exception during request.", e);
+            }
+        });
     }
 
     /**
@@ -148,10 +119,8 @@ public class ExtractAuthenticationFilter extends OncePerRequestFilter {
         try {
             // Decrypt cookie
             loginCookie = cookieEncryptor.decryptObject(cookieOptional.get().getValue(), LoginCookie.class);
-
         } catch (CookieDecryptionException e) {
-
-            LoggingUtils.logInfo(log, request, "Received invalid session cookie");
+            log.info("Received invalid session cookie (decrypt failed due to: {}).", e.getMessage());
         }
 
         return Optional.ofNullable(loginCookie);

@@ -1,6 +1,7 @@
 package org.owasp.oag.services.csrf;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.session.Session;
 import org.slf4j.Logger;
@@ -11,8 +12,6 @@ import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-
-import static org.owasp.oag.utils.LoggingUtils.logInfo;
 
 /**
  * Validates CSRF protection using the double-submit cookie method.
@@ -57,20 +56,20 @@ public class CsrfDoubleSubmitCookieValidation implements CsrfProtectionValidatio
     @Override
     public boolean shouldBlockRequest(HttpServletRequest request, String requestBody) {
 
-        Optional<Session> sessionOptional = ExtractAuthenticationFilter.extractSessionFromRequest(request);
+        Optional<Session> sessionOptional = Session.REQUEST_SESSION.get();
 
         if (sessionOptional.isPresent()) {
-            String csrfValueFromSession = (String) request.getAttribute(ExtractAuthenticationFilter.OAG_SESSION_CSRF_TOKEN);
+            String csrfValueFromSession = CsrfCookie.REQUEST_CSRF_TOKEN.get();
             String csrfValueFromDoubleSubmit = extractCsrfToken(request);
 
             if (csrfValueFromDoubleSubmit == null) {
-                logInfo(log, request, "No csrf double submit value present in request");
+                log.info("No csrf double submit value present in request.");
                 return true;
             }
 
             if (!csrfValueFromDoubleSubmit.equals(csrfValueFromSession)) {
 
-                logInfo(log, request, "Csrf value from double submit does not equal csrf token from cookie");
+                log.info("Csrf value from double submit does not equal csrf token from cookie.");
                 return true;
             }
         }
@@ -119,7 +118,7 @@ public class CsrfDoubleSubmitCookieValidation implements CsrfProtectionValidatio
         } catch (IllegalArgumentException e) {
             // A malformed percent escape cannot carry a valid token. Reporting the token as absent blocks
             // the request, whereas letting the exception escape would turn attacker input into a 500.
-            logInfo(log, request, "Could not parse the query string of the request, treating the csrf token as absent");
+            log.info("Could not parse the query string of the request, treating the csrf token as absent. (Reason: {})", e.getMessage());
             return null;
         }
     }

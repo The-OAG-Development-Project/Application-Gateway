@@ -28,16 +28,3 @@ spring:
 ribbon:
   eureka:
     enabled: false
-
-logging:
-  level:
-    root: WARN
-    org:
-      owasp: INFO
-
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} %cyan(%X{oag.CorrId}) [%-22.22thread] %highlight(%-5level) %logger{36} - %msg%n"
-    file:    "%d{yyyy-MM-dd HH:mm:ss} %X{oag.CorrId} [%thread] %-5level %logger{36} - %msg%n"
-  file:
-    path: oag.log
-

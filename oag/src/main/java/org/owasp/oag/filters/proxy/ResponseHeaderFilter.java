@@ -12,8 +12,6 @@ import org.springframework.web.servlet.function.ServerResponse;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static org.owasp.oag.utils.LoggingUtils.logTrace;
-
 /**
  * Filter that modifies response headers according to the security profile.
  * Can add, modify, or remove headers from the response.
@@ -30,7 +28,7 @@ public class ResponseHeaderFilter extends RouteAwareFilter {
 
         var response = next.handle(request);
 
-        logTrace(log, request.servletRequest(), "Execute ResponseHeaderFilter");
+        log.trace("Execute ResponseHeaderFilter.");
 
         var responseHeaders = response.headers();
 

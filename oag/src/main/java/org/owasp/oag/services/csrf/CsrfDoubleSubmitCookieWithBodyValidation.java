@@ -1,6 +1,7 @@
 package org.owasp.oag.services.csrf;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.session.Session;
 import org.springframework.stereotype.Component;
@@ -34,10 +35,10 @@ public class CsrfDoubleSubmitCookieWithBodyValidation extends CsrfDoubleSubmitCo
     @Override
     public boolean shouldBlockRequest(HttpServletRequest request, String requestBody) {
 
-        Optional<Session> sessionOptional = ExtractAuthenticationFilter.extractSessionFromRequest(request);
+        Optional<Session> sessionOptional = Session.REQUEST_SESSION.get();
 
         if (sessionOptional.isPresent()) {
-            String csrfValueFromSession = (String) request.getAttribute(ExtractAuthenticationFilter.OAG_SESSION_CSRF_TOKEN);
+            String csrfValueFromSession = CsrfCookie.REQUEST_CSRF_TOKEN.get();
             String csrfValueFromDoubleSubmit = extractCsrfToken(request);
 
             if (requestBody == null) {
