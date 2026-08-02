@@ -13,6 +13,28 @@ matching `type` is all the wiring that is needed. Some extension points are reso
 Extensions run on the request's virtual thread and use the servlet API (`jakarta.servlet.http`). They are
 plain sequential Java — blocking calls are fine and no reactive types appear in any signature.
 
+## Reading the state of the current request
+
+Some extension points receive everything they need as a parameter — a `UserMapper` gets the session through
+`GatewayRouteContext`, a `SessionHook` gets the shared `filterContext` map. Where that is not the case, the
+state of the current request is available in scoped values that OAG binds around the whole request:
+
+```java
+Optional<Session> session = Session.REQUEST_SESSION.get();     // org.owasp.oag.session.Session
+String csrfToken = CsrfCookie.REQUEST_CSRF_TOKEN.get();        // org.owasp.oag.cookies.CsrfCookie
+TraceHeaders traceHeaders = TraceContext.REQUEST_TRACE_HEADERS.get(); // org.owasp.oag.logging.TraceContext
+```
+
+`REQUEST_SESSION` is empty when the request carries no valid session, and `REQUEST_CSRF_TOKEN` is `null` in
+the same situation — both are bound for every request, whether authenticated or not.
+
+These values are only readable while a request is being handled. Calling `get()` from code that runs outside
+a request, such as a scheduled task, throws `NoSuchElementException`; use `isBound()` first if your class can
+run in both situations.
+
+There is no need to pass the request around for logging: the trace id of the request is bound for its whole
+duration, so a plain `log.info(...)` from anywhere in your extension is written with the correct trace id.
+
 ## Extension points
 
 ### `org.owasp.oag.services.csrf.CsrfProtectionValidation`
@@ -28,6 +50,10 @@ Called by the CSRF route filters for every proxied request whose method is not l
 profile's `csrfSafeMethods`. `needsRequestBody()` selects which of the two filters applies: when it returns
 `false` the request is validated before the body is read and `requestBody` is `null`; when it returns `true`
 the body is buffered first and passed in.
+
+The session and the CSRF token of the session cookie are not passed in; read them from `Session.REQUEST_SESSION`
+and `CsrfCookie.REQUEST_CSRF_TOKEN` as described above. The built-in implementations only block a request that
+has a session — an anonymous request cannot carry a session to abuse.
 
 Resolved by naming convention: the `csrfProtection` value `foo` loads the bean whose class is named
 `CsrfFooValidation` (see `org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory`).
