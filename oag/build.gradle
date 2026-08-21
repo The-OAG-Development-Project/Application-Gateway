@@ -123,7 +123,17 @@ tasks.register('setVersion') {
 
 tasks.register('generateCertificate', Exec) {
     workingDir '.'
-    commandLine 'keytool', '-genkeypair', '-alias', 'tls', '-keyalg', 'RSA', 
+    // 1. Locate the active Java Home directory being used by Gradle
+    def javaHome = System.getProperty('java.home')
+
+    // 2. Adjust the executable name dynamically for Windows compatibility (.exe)
+    def keytoolBin = org.gradle.internal.os.OperatingSystem.current().isWindows() ? 'keytool.exe' : 'keytool'
+
+    // 3. Build the absolute path to keytool
+    def keytoolPath = "${javaHome}/bin/${keytoolBin}"
+
+    // 4. Execute using the absolute path
+    commandLine keytoolPath, '-genkeypair', '-alias', 'tls', '-keyalg', 'RSA',
                 '-keystore', 'keystore.pkcs12', '-storetype', 'PKCS12',
                 '-keysize', '2048', '-keypass', 'password', '-storepass', 'password',
                 '-validity', '720',
