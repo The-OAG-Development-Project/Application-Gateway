@@ -59,6 +59,11 @@ public interface PersistentMap<V> extends Closeable {
     /**
      * Returns an immutable snapshot of the current entries that is safe to iterate while the
      * map is modified concurrently.
+     * <p>
+     * The snapshot must contain every entry whose {@link #put(String, Object)} completed before this
+     * call, including puts made by other threads. {@code SessionBlacklist} relies on that visibility
+     * to rebuild its bloom filter without losing a concurrently invalidated session, so an
+     * implementation backed by a map without those memory semantics would weaken a security control.
      *
      * @return a snapshot of the entries
      */

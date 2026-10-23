@@ -1,7 +1,5 @@
 package org.owasp.oag.services.blacklist;
 
-import reactor.core.publisher.Mono;
-
 import java.io.Closeable;
 
 /**
@@ -18,23 +16,23 @@ public interface SessionBlacklist extends Closeable {
      *
      * @param identifier The session identifier to invalidate
      * @param ttl The time to live in seconds for the invalidation
-     * @return A Mono that completes when the operation is done
      */
-    Mono<Void> invalidateSession(String identifier, int ttl);
+    void invalidateSession(String identifier, int ttl);
 
     /**
      * Checks if a session identifier was invalidated. Must return true if a identifier was not longer ago than the ttl.
      *
      * @param identifier The session identifier to check
-     * @return A Mono containing true if the identifier is invalidated, false otherwise
+     * @return true if the identifier is invalidated, false otherwise
      */
-    Mono<Boolean> isInvalidated(String identifier);
+    boolean isInvalidated(String identifier);
 
     /**
      * Should clean up obsolete entries in the blacklist (See expiration).
-     * Can be regularly called by the runtime.
-     * 
-     * @return A Mono that completes when the operation is done
+     * <p>
+     * OAG calls this periodically on a background thread, so an implementation must be safe to call
+     * concurrently with {@link #invalidateSession(String, int)} and {@link #isInvalidated(String)},
+     * and must not lose an identifier invalidated while it runs.
      */
-    Mono<Void> cleanup();
+    void cleanup();
 }

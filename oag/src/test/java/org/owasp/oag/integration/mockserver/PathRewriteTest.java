@@ -44,7 +44,7 @@ public class PathRewriteTest extends WiremockTest {
                 .get().uri("/rewrite1/message.txt")
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody().equals(msg);
+                .expectBody(String.class).isEqualTo(msg);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class PathRewriteTest extends WiremockTest {
                 .get().uri("/rewrite2/abc.txt")
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody().equals(msg);
+                .expectBody(String.class).isEqualTo(msg);
 
         webClient
                 .get().uri("/rewrite2/doesnotexist")
@@ -103,7 +103,7 @@ public class PathRewriteTest extends WiremockTest {
                 .get().uri("/rewrite3/anything.abc")
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody().equals(msg);
+                .expectBody(String.class).isEqualTo(msg);
     }
 
     @TestConfiguration

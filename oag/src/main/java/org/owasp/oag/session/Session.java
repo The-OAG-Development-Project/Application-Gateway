@@ -9,8 +9,16 @@ import java.util.Optional;
  * This class is the main representation of a user session within OAG.
  * The user session information is serialized in encrypted form in the session cookie and extracted
  * when a request is processed.
+ *
+ * The class also provides access to a requests session by means of the REQUEST_SESSION ScopedValue (that is setup in the ExtractAuthenticationFilter).
  */
 public class Session {
+
+    /**
+     * The session of a request.
+     */
+    public static final ScopedValue<Optional<Session>> REQUEST_SESSION = ScopedValue.newInstance();
+
     private final long sessionExpSeconds;
     private final long remainingTimeSeconds;
     private final String provider;

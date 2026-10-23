@@ -40,6 +40,12 @@ From now on you should also see the OAG logs with the log stream features:
 
 ![](./images/azure/7-aas-logs-2.png)
 
+Note that OAG additionally writes rolling log files inside the container, to `/app/logs`. Those files are lost
+when the container is recycled and they consume the container's disk (the shipped configuration retains up to
+60 days of archives, capped at 20 GB in total). If you rely on App Service Logs, as described above, you can
+either mount persistent storage at `/app/logs` or remove the `FILE-ROLLING` appender from your own
+`logback.xml` and keep only the console output. See [Logging](/docs/Logging) for how to do that.
+
 ### Visit your OAG instance :tada:
 
 Congratulations, you have a minimal running instance of OAG. Next step will be to upload you on custom configuration file.

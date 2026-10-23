@@ -13,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.client.RestTestClient;
 
 import java.io.ByteArrayInputStream;
 
@@ -28,13 +28,11 @@ import static org.owasp.oag.utils.SharedConstants.JWKS_BASE_URI;
 public class JwksControllerTest extends IntegrationTest {
 
     @Autowired
-    protected WebTestClient webClient;
-    @Autowired
     MainConfig mainConfig;
 
     @Test
     public void testJwksProvided() throws Exception {
-        WebTestClient.ResponseSpec resp = webClient.get().uri(JWKS_BASE_URI).exchange();
+        RestTestClient.ResponseSpec resp = webClient.get().uri(JWKS_BASE_URI).exchange();
         JWKSet jwks = JWKSet.load(new ByteArrayInputStream(resp.expectBody().returnResult().getResponseBody()));
 
         assertTrue(jwks.getKeys().size() >= 1);

@@ -1,7 +1,7 @@
 package org.owasp.oag.services.csrf;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
 
 /**
  * Implementation of CSRF protection validation that performs no validation.
@@ -19,7 +19,7 @@ public class CsrfNoneValidation implements CsrfProtectionValidation {
     }
 
     @Override
-    public boolean shouldBlockRequest(ServerWebExchange exchange, String requestBody) {
+    public boolean shouldBlockRequest(HttpServletRequest request, String requestBody) {
 
         return false;
     }

@@ -33,7 +33,7 @@ class SecurityConfigurationTest extends WiremockTest {
                 .willReturn(aResponse()
                         .withHeader("Server", "Secret Server")));
 
-        // Makes a request through zuul and check if the security headers are applied
+        // Makes a request through the gateway and checks that the security headers are applied
         webClient.get().uri("/securityHeader")
                 .exchange()
                 .expectHeader().doesNotExist("Server")

@@ -14,7 +14,13 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
-import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 
 /**
  * Integration tests for CSRF protection using the double submit cookie pattern.
@@ -61,7 +67,7 @@ class CsrfDoubleSubmitTest extends WiremockTest {
         LoginResult loginResult = makeLogin();
 
         // Act
-        var formData = BodyInserters.fromFormData(
+        var formData = formData(
                 CsrfDoubleSubmitCookieValidation.CSRF_TOKEN_PARAMETER_NAME, loginResult.csrfCookie.getValue());
 
         authenticatedRequest(HttpMethod.POST, CSRF_DOUBLE_SUBMIT + TEST_1_ENDPOINT, loginResult)
@@ -69,6 +75,11 @@ class CsrfDoubleSubmitTest extends WiremockTest {
                 .body(formData)
                 .exchange()
                 .expectStatus().isOk();
+
+        // Assert: the body the csrf filter had to read for the validation still reaches the downstream system
+        verify(postRequestedFor(urlEqualTo(TEST_1_ENDPOINT))
+                .withRequestBody(equalTo(CsrfDoubleSubmitCookieValidation.CSRF_TOKEN_PARAMETER_NAME
+                        + "=" + loginResult.csrfCookie.getValue())));
     }
 
     /**
@@ -85,7 +96,7 @@ class CsrfDoubleSubmitTest extends WiremockTest {
         // Act
         authenticatedRequest(HttpMethod.POST, CSRF_DOUBLE_SUBMIT + TEST_1_ENDPOINT, loginResult)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters.fromFormData(
+                .body(formData(
                         CsrfDoubleSubmitCookieValidation.CSRF_TOKEN_PARAMETER_NAME, "Foobar"))
                 .exchange()
                 .expectStatus().isUnauthorized();
@@ -123,6 +134,20 @@ class CsrfDoubleSubmitTest extends WiremockTest {
                 .header(CsrfDoubleSubmitCookieValidation.CSRF_TOKEN_HEADER_NAME, loginResult.csrfCookie.getValue())
                 .exchange()
                 .expectStatus().isUnauthorized();
+    }
+
+    /**
+     * Builds a single-entry form body, written as {@code name=value} by the form message converter.
+     *
+     * @param name  the form parameter name
+     * @param value the form parameter value
+     * @return the form body to send
+     */
+    private static MultiValueMap<String, String> formData(String name, String value) {
+
+        var formData = new LinkedMultiValueMap<String, String>();
+        formData.add(name, value);
+        return formData;
     }
 
     /**

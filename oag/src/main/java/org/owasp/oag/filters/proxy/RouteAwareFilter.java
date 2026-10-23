@@ -2,64 +2,62 @@ package org.owasp.oag.filters.proxy;
 
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.filters.GatewayRouteContext;
-import org.owasp.oag.filters.spring.ExtractAuthenticationFilter;
-import org.owasp.oag.gateway.SpringCloudGatewayConfiguration;
+import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
+import org.owasp.oag.gateway.GatewayRouterFunctionConfiguration;
+import org.owasp.oag.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
+import org.springframework.cloud.gateway.server.mvc.common.MvcUtils;
+import org.springframework.web.servlet.function.HandlerFilterFunction;
+import org.springframework.web.servlet.function.HandlerFunction;
+import org.springframework.web.servlet.function.ServerRequest;
+import org.springframework.web.servlet.function.ServerResponse;
 
 import java.net.URI;
-import java.util.Collections;
-
-import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ORIGINAL_REQUEST_URL_ATTR;
-import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
+import java.util.Collection;
 
 /**
- * Abstract base class for gateway filters that load the gateway route and security profile.
- * This class implements the GlobalFilter interface and provides common functionality
- * for filters that need access to route information and security profiles.
- * Subclasses must implement the abstract filter method to provide specific filtering behavior.
+ * Abstract base class for gateway filters that need the gateway route and its security profile.
+ * Subclasses implement the three-argument filter method.
  */
-public abstract class RouteAwareFilter implements GlobalFilter {
+public abstract class RouteAwareFilter implements HandlerFilterFunction<ServerResponse, ServerResponse> {
 
     /**
      * The main configuration of the application.
-     * Contains information about routes, security profiles, and other configuration settings.
      */
     @Autowired
     MainConfig config;
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    public ServerResponse filter(ServerRequest request, HandlerFunction<ServerResponse> next) throws Exception {
 
         // Load security profile
-        var routeName = (String) exchange.getAttribute(SpringCloudGatewayConfiguration.ATTRIBUTE_ROUTE_NAME);
+        String routeName = MvcUtils.getAttribute(request, GatewayRouterFunctionConfiguration.ATTRIBUTE_ROUTE_NAME);
         var gatewayRoute = config.getRoutes().get(routeName);
-        var type = gatewayRoute.getType();
-        var securityProfile = config.getSecurityProfiles().get(type);
+        var securityProfile = config.getSecurityProfiles().get(gatewayRoute.getType());
 
-        // Load session from exchange context
-        var sessionOptional = ExtractAuthenticationFilter.extractSessionFromExchange(exchange);
+        // Load session from the request attributes
+        var sessionOptional = Session.REQUEST_SESSION.get();
 
         // Load additional request info
-        var uris = exchange.getAttributeOrDefault(GATEWAY_ORIGINAL_REQUEST_URL_ATTR, Collections.emptySet());
-        var requestUri = (uris.isEmpty()) ? "Unknown" : uris.iterator().next().toString();
-        var upstreamUri = (URI) exchange.getAttribute(GATEWAY_REQUEST_URL_ATTR);
+        Collection<URI> uris = MvcUtils.getAttribute(request, MvcUtils.GATEWAY_ORIGINAL_REQUEST_URL_ATTR);
+        var requestUri = (uris == null || uris.isEmpty()) ? "Unknown" : uris.iterator().next().toString();
+        URI upstreamUri = MvcUtils.getAttribute(request, MvcUtils.GATEWAY_REQUEST_URL_ATTR);
 
-        var routeContext = new GatewayRouteContext(routeName, gatewayRoute, securityProfile, requestUri, upstreamUri.toString(), sessionOptional);
-        return filter(exchange, chain, routeContext);
+        var routeContext = new GatewayRouteContext(routeName, gatewayRoute, securityProfile,
+                requestUri, upstreamUri.toString(), sessionOptional);
+
+        return filter(request, next, routeContext);
     }
 
     /**
-     * Filters the web request using the provided route context.
-     * This method must be implemented by subclasses to provide specific filtering behavior.
+     * Filters the request using the provided route context.
      *
-     * @param exchange The server web exchange containing the request and response
-     * @param chain The gateway filter chain for executing the next filter
-     * @param routeContext The context containing route information, security profile, and session details
-     * @return A Mono that completes when the filter has been applied
+     * @param request The current request
+     * @param next The next handler in the chain
+     * @param routeContext The context containing route information, security profile and session details
+     * @return The response
+     * @throws Exception if the downstream handler fails
      */
-    public abstract Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain, GatewayRouteContext routeContext);
+    public abstract ServerResponse filter(ServerRequest request, HandlerFunction<ServerResponse> next,
+                                          GatewayRouteContext routeContext) throws Exception;
 }

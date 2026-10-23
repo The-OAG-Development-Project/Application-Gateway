@@ -3,15 +3,12 @@ package org.owasp.oag.filters.proxy;
 import org.owasp.oag.filters.GatewayRouteContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
-
-import static org.owasp.oag.utils.LoggingUtils.logInfo;
-import static org.owasp.oag.utils.LoggingUtils.logTrace;
+import org.springframework.web.servlet.function.HandlerFunction;
+import org.springframework.web.servlet.function.ServerRequest;
+import org.springframework.web.servlet.function.ServerResponse;
 
 /**
  * Filter that controls access to routes based on authentication status.
@@ -22,32 +19,19 @@ public class AccessControlFilter extends RouteAwareFilter {
 
     private static final Logger log = LoggerFactory.getLogger(AccessControlFilter.class);
 
-    /**
-     * Filters the incoming request based on access control rules.
-     *
-     * @param exchange    The current server web exchange.
-     * @param chain       The gateway filter chain.
-     * @param routeContext The gateway route context.
-     * @return A {@code Mono<Void>} that represents the filter processing.
-     */
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain, GatewayRouteContext routeContext) {
+    public ServerResponse filter(ServerRequest request, HandlerFunction<ServerResponse> next,
+                                 GatewayRouteContext routeContext) throws Exception {
 
-        logTrace(log, exchange, "Execute AccessControlFilter");
-
-        var request = exchange.getRequest();
+        log.trace("Execute AccessControlFilter.");
         var onlyAuthenticated = !routeContext.getRoute().isAllowAnonymous();
         var isAnonymous = routeContext.getSessionOptional().isEmpty();
 
         if (onlyAuthenticated && isAnonymous) {
-
-            logInfo(log, exchange, "Blocked unauthenticated request {} {}", request.getMethod(), routeContext.getRequestUri());
-            var response = exchange.getResponse();
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-
-            return response.setComplete();
+            log.info("Blocked unauthenticated request {} {}", request.method(), routeContext.getRequestUri());
+            return ServerResponse.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        return chain.filter(exchange);
+        return next.handle(request);
     }
 }

@@ -4,11 +4,8 @@ import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;
 import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.persistentmap.PersistentMap;
-import org.owasp.oag.utils.LoggingUtils;
-import org.owasp.oag.utils.ReactiveUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -39,8 +36,10 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
 
     /**
      * Bloom filter for efficient negative lookups.
+     * <p>
+     * Volatile because {@link #cleanup()} replaces the instance while request threads read it.
      */
-    protected BloomFilter<CharSequence> bloomFilter;
+    protected volatile BloomFilter<CharSequence> bloomFilter;
 
     /**
      * Clock source for time-based operations.
@@ -59,30 +58,44 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
         this.blacklist = blacklist;
 
         // Populate bloom filter with all entries from blacklist
-        cleanup().block();
+        cleanup();
     }
 
     /**
-     * Performs a cleanup operation in a blocking manner.
      * Removes expired entries from the blacklist and rebuilds the bloom filter.
+     * <p>
+     * Safe to run concurrently with {@link #invalidateSession(String, int)} and
+     * {@link #isInvalidated(String)}. The rebuild cannot lose a concurrently invalidated identifier:
+     * invalidateSession writes the map before the filter, and this method repopulates from the map
+     * *after* publishing the new filter. So an identifier whose map write landed before the second
+     * pass is picked up by that pass, and one whose map write landed after it is written by its own
+     * thread into the already-published new filter. A bloom filter only ever gains bits, so adding an
+     * identifier twice is harmless.
      */
-    public void cleanupBlocking() {
+    @Override
+    public void cleanup() {
 
         int currentTimeSeconds = clockSource.getEpochSeconds();
 
-        // Clean up expired entries
+        // Drop expired entries. Re-read before removing so an entry refreshed since the snapshot stays.
         blacklist.entrySet().stream()
                 .filter(e -> e.getValue() < currentTimeSeconds)
-                .forEach(e -> blacklist.remove(e.getKey()));
+                .forEach(e -> {
+                    Integer expiry = blacklist.get(e.getKey());
+                    if (expiry != null && expiry < currentTimeSeconds) {
+                        blacklist.remove(e.getKey());
+                    }
+                });
 
-        // Populate bloom filter
-        var size = blacklist.size();
-        var newFilter = BloomFilter.create(Funnels.stringFunnel(StandardCharsets.UTF_8), size + EXPECTED_INSERTIONS, EXPECTED_BLOOM_FILTER_FALSE_POSITIVES);
-        blacklist.entrySet()
-                .forEach(e -> newFilter.put(e.getKey()));
+        var newFilter = BloomFilter.create(Funnels.stringFunnel(StandardCharsets.UTF_8),
+                blacklist.size() + EXPECTED_INSERTIONS, EXPECTED_BLOOM_FILTER_FALSE_POSITIVES);
+        blacklist.entrySet().forEach(e -> newFilter.put(e.getKey()));
 
-        // set new filter
+        // Publish before the second pass, so a writer that reads the field from here on writes into it
         bloomFilter = newFilter;
+
+        // Second pass: catch identifiers whose map write landed while the filter was being built
+        blacklist.entrySet().forEach(e -> newFilter.put(e.getKey()));
     }
 
     /**
@@ -92,39 +105,22 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
     public void deleteAllEntries() {
 
         blacklist.clear();
-        cleanup().block();
+        cleanup();
     }
 
     /**
-     * Invalidates a session identifier by adding it to the blacklist.
+     * Invalidates a session identifier by adding it to the blacklist and the bloom filter.
      *
      * @param identifier The session identifier to invalidate
      * @param ttl The time to live in seconds for the invalidation
-     * @return A Mono that completes when the operation is done
      */
     @Override
-    public Mono<Void> invalidateSession(String identifier, int ttl) {
+    public void invalidateSession(String identifier, int ttl) {
 
-        return LoggingUtils.contextual(() -> log.trace("Invalidate identifier {}", identifier))
-                .then(ReactiveUtils.runBlockingProcedure(() -> invalidateSessionBlocking(identifier, ttl)));
-    }
+        log.trace("Invalidate identifier {}", identifier);
 
-    /**
-     * Invalidates a session identifier in a blocking manner.
-     * Adds the identifier to both the persistent database and the bloom filter.
-     *
-     * @param identifier The session identifier to invalidate
-     * @param ttl The time to live in seconds for the invalidation
-     */
-    private void invalidateSessionBlocking(String identifier, int ttl) {
-
-        // Put entry in db
         int currentTimeSeconds = clockSource.getEpochSeconds();
-        int expireTime = currentTimeSeconds + ttl;
-
-        blacklist.put(identifier, expireTime);
-
-        //Add to bloom filter
+        blacklist.put(identifier, currentTimeSeconds + ttl);
         bloomFilter.put(identifier);
 
         log.trace("Stored identifier {} in blacklist db", identifier);
@@ -132,48 +128,24 @@ public class LocalPersistentBlacklist implements SessionBlacklist {
 
     /**
      * Checks if a session identifier is invalidated (blacklisted).
-     * Uses a bloom filter for efficient negative lookups.
+     * Uses a bloom filter to answer negative lookups without touching the map.
      *
      * @param identifier The session identifier to check
-     * @return A Mono containing true if the identifier is invalidated, false otherwise
+     * @return true if the identifier is invalidated, false otherwise
      */
     @Override
-    public Mono<Boolean> isInvalidated(String identifier) {
+    public boolean isInvalidated(String identifier) {
 
-        // Very fast false if the identifier is not in the bloom filter
         if (!bloomFilter.mightContain(identifier)) {
-
-            return Mono.just(false)
-                    .doOnEach(LoggingUtils.logOnNext((u) -> log.trace("Identifier {} is not in bloom filter", identifier)));
+            log.trace("Identifier {} is not in bloom filter", identifier);
+            return false;
         }
 
-        return LoggingUtils.contextual(() -> log.trace("Identifier {} is in bloom filter, start db lookup asynchronously", identifier))
-                .then(ReactiveUtils.runBlockingProcedure(() -> checkIfInDbBlocking(identifier)));
-    }
+        log.trace("Identifier {} is in bloom filter, start db lookup", identifier);
 
-    /**
-     * Checks if a session identifier is in the database in a blocking manner.
-     *
-     * @param identifier The session identifier to check
-     * @return true if the identifier is in the database, false otherwise
-     */
-    private boolean checkIfInDbBlocking(String identifier) {
-
-        Integer o = blacklist.get(identifier);
-        var isInDb = o != null;
-
+        var isInDb = blacklist.get(identifier) != null;
         log.trace("Lookup for identifier {} returned {}", identifier, isInDb);
         return isInDb;
-    }
-
-    /**
-     * Performs a cleanup operation to remove expired entries from the blacklist.
-     *
-     * @return A Mono that completes when the operation is done
-     */
-    @Override
-    public Mono<Void> cleanup() {
-        return ReactiveUtils.runBlockingProcedure(() -> cleanupBlocking());
     }
 
     /**

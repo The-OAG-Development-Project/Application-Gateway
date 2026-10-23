@@ -42,6 +42,7 @@ module.exports = {
         base: '/docs',
         items: [
           {text: 'Overview', link: '/'},
+          {text: 'Request handling', link: '/Architecture-Request-Handling'},
           {text: 'Glossary', link: '/Glossary'}
         ]
       },

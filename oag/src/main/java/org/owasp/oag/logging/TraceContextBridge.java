@@ -1,15 +1,12 @@
 package org.owasp.oag.logging;
 
 import org.owasp.oag.exception.TraceException;
-import org.owasp.oag.filters.spring.TraceContextFilter;
 import org.owasp.oag.infrastructure.factories.TraceContextFactory;
-import org.owasp.oag.utils.LoggingUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
+
+import java.util.LinkedHashMap;
 
 /**
  * This class bridges to the concrete trace context implementation that was configured in the main config yaml (section traceProfile).
@@ -18,63 +15,80 @@ import org.springframework.web.server.ServerWebExchange;
 @Primary
 public class TraceContextBridge {
 
-    private static final Logger log = LoggerFactory.getLogger(TraceContextBridge.class);
-
-    @Autowired
     private TraceContextFactory traceContextFactory;
 
     /**
-     * Processes a ServerWebExchange by creating a trace context, applying or generating a trace ID,
-     * and adding it to the exchange, downstream requests, and responses as needed.
+     * Sets the factory used to create a fresh trace context for each request.
      *
-     * @param exchange The ServerWebExchange to process
-     * @return The processed ServerWebExchange with trace information added
+     * @param traceContextFactory the factory to use
      */
-    public ServerWebExchange processExchange(ServerWebExchange exchange) {
+    @Autowired
+    public void setTraceContextFactory(TraceContextFactory traceContextFactory) {
+        this.traceContextFactory = traceContextFactory;
+    }
+
+    /**
+     * Decides the tracing headers for one request: adopts a valid incoming trace when the trace profile
+     * allows it, otherwise generates a new trace id.
+     *
+     * @param incomingPrimary   value of the main trace request header, or null if absent
+     * @param incomingSecondary value of the secondary trace request header, or null if absent
+     * @return the trace id plus the headers to add downstream and to the response
+     */
+    public TraceHeaders createTraceHeaders(String incomingPrimary, String incomingSecondary) {
 
         final TraceContext requestContext = traceContextFactory.createContextForRequest();
 
         if (requestContext.forwardIncomingTrace()) {
-            // make sure we take over the passed in traceparent when it is valid
-            String primary = exchange.getRequest().getHeaders().getFirst(requestContext.getMainRequestHeader());
-            String secondary = null;
-            if (requestContext.acceptAdditionalTraceInfo()) {
-                // make sure we take over the trace state if it is valid
-                secondary = exchange.getRequest().getHeaders().getFirst(requestContext.getSecondaryRequestHeader());
-            }
-            try{
-                requestContext.applyExistingTrace(primary, secondary);
-            }
-            catch (TraceException e){
+            if (incomingPrimary == null || incomingPrimary.isEmpty()) {
+                // No inbound trace to adopt - the ordinary case for a first-hop request. It must not
+                // go through TraceException, or every such request logs. Note the header accessor
+                // yields "" rather than null for a header sent with an empty value.
                 requestContext.generateNewTraceId();
+            } else {
+                try {
+                    requestContext.applyExistingTrace(incomingPrimary,
+                            requestContext.acceptAdditionalTraceInfo() ? incomingSecondary : null);
+                } catch (TraceException e) {
+                    requestContext.generateNewTraceId();
+                }
             }
-        }
-        else {
+        } else {
             requestContext.generateNewTraceId();
         }
 
-        // Add TraceID to exchange
-        exchange.getAttributes().put(TraceContextFilter.TRACE_ID_CONTEXT_KEY, requestContext.getTraceString());
-        LoggingUtils.logDebug(log, exchange, "Tracing started.");
-
-        // Add trace id to downstream request
+        var downstreamHeaders = new LinkedHashMap<String, String>();
         if (requestContext.sendTraceDownstream()) {
-            LoggingUtils.logDebug(log, exchange, "Added trace id to downstream call.");
-            var mutatedRequest = exchange.getRequest().mutate();
-            mutatedRequest.header(requestContext.getMainRequestHeader(), requestContext.getTraceString());
-            if(requestContext.acceptAdditionalTraceInfo()) {
-                mutatedRequest.header(requestContext.getSecondaryRequestHeader(), requestContext.getSecondaryTraceInfoString());
+            downstreamHeaders.put(requestContext.getMainRequestHeader(), requestContext.getTraceString());
+            if (requestContext.acceptAdditionalTraceInfo()) {
+                // A freshly generated trace carries no secondary info, and a header with a null value
+                // is meaningless - omit it rather than forwarding an empty one.
+                var secondaryTraceInfo = requestContext.getSecondaryTraceInfoString();
+                if (secondaryTraceInfo != null) {
+                    downstreamHeaders.put(requestContext.getSecondaryRequestHeader(), secondaryTraceInfo);
+                }
             }
-
-            exchange = exchange.mutate().request(mutatedRequest.build()).build();
         }
 
-        // Add trace id to response
+        var responseHeaders = new LinkedHashMap<String, String>();
         if (requestContext.sendTraceResponse()) {
-            LoggingUtils.logDebug(log, exchange, "Adding trace id to upstream response");
-            exchange.getResponse().getHeaders().add(requestContext.getResponseHeader(), requestContext.getTraceResponseString());
+            responseHeaders.put(requestContext.getResponseHeader(), requestContext.getTraceResponseString());
         }
 
-        return exchange;
+        return new TraceHeaders(requestContext.getTraceString(), downstreamHeaders, responseHeaders);
+    }
+
+    /**
+     * @return the name of the main trace request header for the configured trace profile
+     */
+    public String getMainRequestHeader() {
+        return traceContextFactory.createContextForRequest().getMainRequestHeader();
+    }
+
+    /**
+     * @return the name of the secondary trace request header for the configured trace profile
+     */
+    public String getSecondaryRequestHeader() {
+        return traceContextFactory.createContextForRequest().getSecondaryRequestHeader();
     }
 }

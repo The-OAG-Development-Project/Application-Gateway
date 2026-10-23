@@ -11,11 +11,19 @@ import org.owasp.oag.services.tokenMapping.jwt.JwtTokenUserMappingSettings;
 import org.owasp.oag.session.Session;
 import org.owasp.oag.session.UserModel;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.servlet.function.ServerRequest;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JwtTokenUserMapperTest {
 
@@ -77,10 +85,35 @@ class JwtTokenUserMapperTest {
         var provider = "iam";
 
         // Act
-        var jwt1 = mapper.getTokenMono(model, routeUrl, provider, null, routeContext).block();
-        var jwt2 = mapper.getTokenMono(model, routeUrl, provider, null, routeContext).block();
+        var jwt1 = mapper.getToken(model, routeUrl, provider, routeContext);
+        var jwt2 = mapper.getToken(model, routeUrl, provider, routeContext);
 
         // Assert
         assertEquals(jwt1, jwt2, "Second jwt should be loaded from cache and therefore be equal");
+    }
+
+    /**
+     * The mapper must replace a client supplied value of the configured header rather than append to it.
+     * A downstream system reading the first Authorization header would otherwise see the attacker's token.
+     */
+    @Test
+    void replacesAClientSuppliedTokenHeaderInsteadOfAppendingToIt() {
+
+        // Arrange
+        var mappingSettings = new JwtTokenUserMappingSettings(HttpHeaders.AUTHORIZATION, "Bearer ", "<<route-url>>",
+                "<<hostUri>>", 30, "stub", new HashMap<>(), new HashMap<>());
+        var mapper = new JwtTokenUserMapper(new StubJwtSignerFactory(), new GlobalClockSource(), mappingSettings, hostUri);
+
+        var servletRequest = new MockHttpServletRequest("GET", "/api/foo");
+        servletRequest.addHeader(HttpHeaders.AUTHORIZATION, "Bearer client-supplied-token");
+        var request = ServerRequest.create(servletRequest, List.<HttpMessageConverter<?>>of(new StringHttpMessageConverter()));
+
+        // Act
+        var mapped = mapper.mapUserToRequest(request, routeContext);
+
+        // Assert
+        var values = mapped.headers().header(HttpHeaders.AUTHORIZATION);
+        assertEquals(1, values.size(), "the client supplied token must not survive next to OAG's: " + values);
+        assertTrue(values.getFirst().startsWith("Bearer eyJ"), "expected OAG's signed jwt, got: " + values.getFirst());
     }
 }

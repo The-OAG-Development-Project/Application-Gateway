@@ -4,7 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 - **OAG** The OWASP Application Gateway. 
-- **Tech-Stack:** SpringCloudGateway · Java 25 · Gradle 9 · docker · vitepress (for documentation) 
+- **Tech-Stack:** Spring Cloud Gateway Server MVC (`spring-cloud-starter-gateway-server-webmvc`) on Tomcat with
+  Java 25 virtual threads — servlet stack, no WebFlux/Reactor · Gradle 9 · docker · vitepress (for documentation)
 
 ## Build & Run Commands
 

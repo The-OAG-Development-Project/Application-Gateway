@@ -13,6 +13,11 @@ import org.owasp.oag.exception.TraceException;
 public interface TraceContext {
 
     /**
+     * The trace headers for a request. usually set by the TraceContextFilter.
+     */
+    public static final ScopedValue<TraceHeaders> REQUEST_TRACE_HEADERS = ScopedValue.newInstance();
+
+    /**
      * Establishes a new CorrelationId / traceId in the system. This is typically used when a new request hits the OAGW.
      * The framework calls this method when it figured out that no traceId can be taken over from the upstream system.
      * Implementations must ensure that they have setup/generated a valid new traceid/internal state.

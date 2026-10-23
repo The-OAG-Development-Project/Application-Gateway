@@ -1,15 +1,17 @@
 package org.owasp.oag.services.csrf;
 
-import org.owasp.oag.filters.spring.ExtractAuthenticationFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import org.owasp.oag.cookies.CsrfCookie;
+import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-
-import static org.owasp.oag.utils.LoggingUtils.logInfo;
 
 /**
  * Validates CSRF protection using the double-submit cookie method.
@@ -47,27 +49,27 @@ public class CsrfDoubleSubmitCookieValidation implements CsrfProtectionValidatio
     /**
      * Determines whether the request should be blocked based on CSRF validation.
      *
-     * @param exchange    The server web exchange.
+     * @param request     The current request.
      * @param requestBody The request body (not used in this implementation).
      * @return true if the request should be blocked, false otherwise.
      */
     @Override
-    public boolean shouldBlockRequest(ServerWebExchange exchange, String requestBody) {
+    public boolean shouldBlockRequest(HttpServletRequest request, String requestBody) {
 
-        Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
+        Optional<Session> sessionOptional = Session.REQUEST_SESSION.get();
 
-        if (sessionOptional != null && sessionOptional.isPresent()) {
-            String csrfValueFromSession = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION_CSRF_TOKEN);
-            String csrfValueFromDoubleSubmit = extractCsrfToken(exchange);
+        if (sessionOptional.isPresent()) {
+            String csrfValueFromSession = CsrfCookie.REQUEST_CSRF_TOKEN.get();
+            String csrfValueFromDoubleSubmit = extractCsrfToken(request);
 
             if (csrfValueFromDoubleSubmit == null) {
-                logInfo(log, exchange, "No csrf double submit value present in request");
+                log.info("No csrf double submit value present in request.");
                 return true;
             }
 
             if (!csrfValueFromDoubleSubmit.equals(csrfValueFromSession)) {
 
-                logInfo(log, exchange, "Csrf value from double submit does not equal csrf token from cookie");
+                log.info("Csrf value from double submit does not equal csrf token from cookie.");
                 return true;
             }
         }
@@ -78,19 +80,46 @@ public class CsrfDoubleSubmitCookieValidation implements CsrfProtectionValidatio
     /**
      * Extracts the CSRF token from the request.
      *
-     * @param exchange The server web exchange.
+     * @param request The current request.
      * @return The extracted CSRF token, or null if not found.
      */
-    protected String extractCsrfToken(ServerWebExchange exchange) {
-
-        var request = exchange.getRequest();
+    protected String extractCsrfToken(HttpServletRequest request) {
 
         // Return from header if present
-        String csrfTokenFromHeader = request.getHeaders().getFirst(CSRF_TOKEN_HEADER_NAME);
+        String csrfTokenFromHeader = request.getHeader(CSRF_TOKEN_HEADER_NAME);
         if (csrfTokenFromHeader != null)
             return csrfTokenFromHeader;
 
-        // Return token from parameter or null if not present
-        return request.getQueryParams().getFirst(CSRF_TOKEN_PARAMETER_NAME);
+        // Return token from query parameter or null if not present
+        return firstQueryParameter(request, CSRF_TOKEN_PARAMETER_NAME);
+    }
+
+    /**
+     * Reads a query parameter from the request's query string.
+     * <p>
+     * The query string is parsed instead of using {@code HttpServletRequest#getParameter}, because the
+     * servlet container consumes the request body of a form POST to populate its parameter map, which
+     * would drain the body the gateway still has to forward downstream.
+     *
+     * @param request The current request
+     * @param name    The name of the query parameter
+     * @return The decoded value of the first parameter with that name, or null when absent or unparseable
+     */
+    private static String firstQueryParameter(HttpServletRequest request, String name) {
+
+        var queryString = request.getQueryString();
+
+        if (queryString == null || queryString.isEmpty())
+            return null;
+
+        try {
+            var value = UriComponentsBuilder.fromUriString("?" + queryString).build().getQueryParams().getFirst(name);
+            return value == null ? null : UriUtils.decode(value, StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) {
+            // A malformed percent escape cannot carry a valid token. Reporting the token as absent blocks
+            // the request, whereas letting the exception escape would turn attacker input into a 500.
+            log.info("Could not parse the query string of the request, treating the csrf token as absent. (Reason: {})", e.getMessage());
+            return null;
+        }
     }
 }

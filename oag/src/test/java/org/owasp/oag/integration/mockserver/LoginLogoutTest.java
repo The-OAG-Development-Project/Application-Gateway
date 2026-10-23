@@ -13,6 +13,7 @@ import org.owasp.oag.integration.testInfrastructure.LocalServerTestConfig;
 import org.owasp.oag.integration.testInfrastructure.WiremockTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 
 import java.net.URI;
@@ -64,6 +65,18 @@ class LoginLogoutTest extends WiremockTest {
         assertNotNull(sessionCookie);
         var csrfCookie = callbackResult.getResponseCookies().getFirst(CsrfCookie.NAME);
         assertNotNull(csrfCookie);
+
+        // The Set-Cookie headers are asserted raw: SameSite is not part of jakarta.servlet.http.Cookie, so
+        // it only survives because the cookies are written as headers. Dropping that would silently lose it.
+        var setCookieHeaders = callbackResult.getResponseHeaders().get(HttpHeaders.SET_COOKIE);
+        assertNotNull(setCookieHeaders);
+        assertTrue(setCookieHeaders.stream()
+                        .anyMatch(header -> header.startsWith(CsrfCookie.NAME + "=") && header.contains("SameSite=Strict")),
+                "the csrf cookie must be sent with SameSite=Strict: " + setCookieHeaders);
+        assertTrue(setCookieHeaders.stream()
+                        .anyMatch(header -> header.startsWith(LoginCookie.NAME + "=") && header.contains("HttpOnly")),
+                "the login cookie must be sent with HttpOnly: " + setCookieHeaders);
+
         // ACT 3: Call the session endpoint
         webClient.get().uri("/auth/session").cookie(sessionCookie.getName(), sessionCookie.getValue())
                 .exchange()

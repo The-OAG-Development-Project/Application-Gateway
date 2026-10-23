@@ -1,23 +1,21 @@
 package org.owasp.oag.services.csrf;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.cookies.CookieConverter;
 import org.owasp.oag.cookies.CsrfCookie;
-import org.owasp.oag.filters.spring.ExtractAuthenticationFilter;
+import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpCookie;
-import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
 
-import static org.owasp.oag.utils.LoggingUtils.logInfo;
 import static org.owasp.oag.utils.SecureEncoder.encodeStringForLog;
 
 /**
@@ -55,26 +53,26 @@ public class CsrfSameSiteStrictCookieValidation implements CsrfProtectionValidat
     }
 
     @Override
-    public boolean shouldBlockRequest(ServerWebExchange exchange, String requestBody) {
+    public boolean shouldBlockRequest(HttpServletRequest request, String requestBody) {
 
-        Optional<Session> sessionOptional = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION);
+        Optional<Session> sessionOptional = Session.REQUEST_SESSION.get();
 
-        if (sessionOptional != null && sessionOptional.isPresent()) {
-            String csrfValueFromSession = exchange.getAttribute(ExtractAuthenticationFilter.OAG_SESSION_CSRF_TOKEN);
-            String csrfValueFromCookie = extractCsrfToken(exchange.getRequest());
+        if (sessionOptional.isPresent()) {
+            String csrfValueFromSession = CsrfCookie.REQUEST_CSRF_TOKEN.get();
+            String csrfValueFromCookie = extractCsrfToken(request);
 
             if (csrfValueFromCookie == null) {
-                logInfo(log, exchange, "Csrf cookie is missing");
+                log.info("Csrf cookie is missing.");
                 return true;
             }
 
             // As defense in-depth measure we also check the origin and referer header
-            var originHeader = exchange.getRequest().getHeaders().getOrigin();
-            var refererHeader = exchange.getRequest().getHeaders().getFirst("Referer");
+            var originHeader = request.getHeader(HttpHeaders.ORIGIN);
+            var refererHeader = request.getHeader(HttpHeaders.REFERER);
             var targetOrigin = mainConfig.getHostUri();
             if (shouldBlockBasedOnOriginHeader(originHeader, refererHeader, targetOrigin)) {
 
-                logInfo(log, exchange, "Origin/Referer header does not match target origin: originHeader='{}' refererHeader='{}' targetOrigin='{}'",
+                log.info("Origin/Referer header does not match target origin: originHeader='{}' refererHeader='{}' targetOrigin='{}'",
                         encodeStringForLog(originHeader, 100), encodeStringForLog(refererHeader, 100), targetOrigin);
                 return true;
             }
@@ -89,17 +87,17 @@ public class CsrfSameSiteStrictCookieValidation implements CsrfProtectionValidat
     /**
      * Extracts the CSRF token from the request cookies.
      *
-     * @param request The server HTTP request containing the cookies
+     * @param request The current request containing the cookies
      * @return The CSRF token if found, or null if not present or invalid
      */
-    private String extractCsrfToken(ServerHttpRequest request) {
+    private String extractCsrfToken(HttpServletRequest request) {
 
-        HttpCookie cookie = request.getCookies().getFirst(CsrfCookie.NAME);
+        var cookieOptional = ExtractAuthenticationFilter.findCookie(request, CsrfCookie.NAME);
 
-        if (cookie == null)
+        if (cookieOptional.isEmpty())
             return null;
 
-        CsrfCookie csrfCookie = cookieConverter.convertCsrfCookie(cookie);
+        CsrfCookie csrfCookie = cookieConverter.convertCsrfCookie(cookieOptional.get());
 
         if (csrfCookie == null)
             return null;

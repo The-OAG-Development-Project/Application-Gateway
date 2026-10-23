@@ -22,7 +22,7 @@
 
 * Start IntelliJ.
 * Open project: ../oag/Application-Gateway/oag
-  + This should trigger maven and download dependencies
+  + This should trigger Gradle and download dependencies
 
 # Build project
 ## Using IntelliJ
@@ -45,8 +45,10 @@
 ## Using Gradle
 * In the command line enter:
   ````bash
-  ./gradlew bootJar
+  ./gradlew bootRun
   ````
+* This starts the gateway on Tomcat with Java 25 virtual threads; every request is handled on its own
+  virtual thread, so debugging a request means following one plain sequential stack trace.
 ## Notes on client secrets / prerequisites
 * You need 3 client secrets (i.e. registered OAG as an application in Google, GitHub and oAuth0) to be
   fully functional with the default sample configuration.

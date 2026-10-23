@@ -17,7 +17,7 @@ import org.owasp.oag.services.login.drivers.LoginDriverBase;
 import org.owasp.oag.services.login.drivers.LoginDriverResult;
 import org.owasp.oag.session.UserModel;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.server.reactive.ServerHttpRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
@@ -126,21 +126,21 @@ public abstract class Oauth2Driver extends LoginDriverBase {
     /**
      * Processes the callback from the OAuth2 server.
      *
-     * @param request             The server HTTP request.
+     * @param request             The current request.
      * @param stateFromLoginStep  The state from the login step.
      * @param callbackUri         The callback URI.
      * @return A {@link UserModel} representing the authenticated user.
      * @throws AuthenticationException If authentication fails.
      */
     @Override
-    public UserModel processCallback(ServerHttpRequest request, String stateFromLoginStep, URI callbackUri) throws AuthenticationException {
+    public UserModel processCallback(HttpServletRequest request, String stateFromLoginStep, URI callbackUri) throws AuthenticationException {
         var settings = getSettings();
 
-        String authCode = request.getQueryParams().getFirst("code");
+        String authCode = request.getParameter("code");
         if (authCode == null)
             throw new AuthenticationException("No auth code");
 
-        String stateFromRequest = request.getQueryParams().getFirst("state");
+        String stateFromRequest = request.getParameter("state");
         if (stateFromRequest == null)
             throw new AuthenticationException("No state");
 

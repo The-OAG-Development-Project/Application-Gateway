@@ -3,7 +3,7 @@ package org.owasp.oag.services.login.drivers;
 import org.owasp.oag.config.configuration.LoginProviderSettings;
 import org.owasp.oag.exception.AuthenticationException;
 import org.owasp.oag.session.UserModel;
-import org.springframework.http.server.reactive.ServerHttpRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.net.URI;
 import java.net.URL;
@@ -35,7 +35,7 @@ public interface LoginDriver {
      * @return A UserModel containing authenticated user information
      * @throws AuthenticationException if authentication fails
      */
-    UserModel processCallback(ServerHttpRequest request, String state, URI callbackUri) throws AuthenticationException;
+    UserModel processCallback(HttpServletRequest request, String state, URI callbackUri) throws AuthenticationException;
 
     /**
      * This method is called when the user logs out.

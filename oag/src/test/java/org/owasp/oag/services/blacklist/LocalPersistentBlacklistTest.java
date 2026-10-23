@@ -4,75 +4,106 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.persistentmap.FilePersistentMap;
+import org.owasp.oag.persistentmap.InMemoryPersistentMap;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Clock;
-import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Tests the blocking contract of the local persistent session blacklist.
+ */
 class LocalPersistentBlacklistTest {
+
+    private static final Instant START = Instant.parse("2026-01-01T00:00:00Z");
 
     @TempDir
     Path tempDir;
 
-    private LocalPersistentBlacklist openBlacklist(GlobalClockSource clockSource) {
+    private GlobalClockSource clockSourceAt(Instant now) {
+
+        var clockSource = new GlobalClockSource();
+        clockSource.setGlobalClock(Clock.fixed(now, ZoneId.of("UTC")));
+        return clockSource;
+    }
+
+    private LocalPersistentBlacklist inMemoryBlacklist(GlobalClockSource clockSource) {
+        return new LocalPersistentBlacklist(clockSource, new InMemoryPersistentMap<>());
+    }
+
+    private LocalPersistentBlacklist fileBackedBlacklist(GlobalClockSource clockSource) {
         String file = tempDir.resolve("session-blacklist.db").toString();
         return new LocalPersistentBlacklist(clockSource, new FilePersistentMap<>(file, Integer.class));
     }
 
     @Test
-    public void testSessionBlacklist() throws IOException {
+    void invalidatedSessionsAreReportedAsInvalidated() {
 
-        var clockSource = new GlobalClockSource();
-        var blacklist = openBlacklist(clockSource);
-        // Store some values
+        var blacklist = inMemoryBlacklist(clockSourceAt(START));
 
-        blacklist.invalidateSession("1", 100).block();
-        blacklist.invalidateSession("2", 200).block();
+        blacklist.invalidateSession("1", 100);
+        blacklist.invalidateSession("2", 200);
 
-        assertTrue(blacklist.isInvalidated("1").block());
-        assertTrue(blacklist.isInvalidated("2").block());
-        assertFalse(blacklist.isInvalidated("3").block());
-
-        blacklist.close();
-
-        // Reopen
-        blacklist = openBlacklist(clockSource);
-        assertTrue(blacklist.isInvalidated("1").block());
-        assertTrue(blacklist.isInvalidated("2").block());
-        assertFalse(blacklist.isInvalidated("3").block());
-
-
-        blacklist.invalidateSession("3", 100).block();
-        assertTrue(blacklist.isInvalidated("3").block());
-
-        blacklist.close();
+        assertTrue(blacklist.isInvalidated("1"));
+        assertTrue(blacklist.isInvalidated("2"));
+        assertFalse(blacklist.isInvalidated("3"));
     }
 
     @Test
-    public void testSessionBlacklistExpiry() throws IOException {
+    void invalidatedSessionsSurviveReopeningTheBackingFile() throws IOException {
 
-        var clockSource = new GlobalClockSource();
-        var blacklist = openBlacklist(clockSource);
+        var clockSource = clockSourceAt(START);
 
-        // Store some values
-        blacklist.invalidateSession("1", 100).block();
-        blacklist.invalidateSession("2", 200).block();
-
-        timeTravelToFuture(clockSource, 120);
-
-        blacklist.cleanup().block();
-
-        assertFalse(blacklist.isInvalidated("1").block());
-        assertTrue(blacklist.isInvalidated("2").block());
-
+        var blacklist = fileBackedBlacklist(clockSource);
+        blacklist.invalidateSession("1", 100);
+        blacklist.invalidateSession("2", 200);
         blacklist.close();
+
+        // Reopen: the bloom filter is rebuilt from the persisted entries
+        blacklist = fileBackedBlacklist(clockSource);
+        try {
+            assertTrue(blacklist.isInvalidated("1"));
+            assertTrue(blacklist.isInvalidated("2"));
+            assertFalse(blacklist.isInvalidated("3"));
+
+            // The reopened instance is still writable
+            blacklist.invalidateSession("3", 100);
+            assertTrue(blacklist.isInvalidated("3"));
+        } finally {
+            blacklist.close();
+        }
     }
 
-    public static void timeTravelToFuture(GlobalClockSource clockSource, int seconds) {
-        clockSource.setGlobalClock(Clock.offset(clockSource.getGlobalClock(), Duration.ofSeconds(seconds)));
+    @Test
+    void cleanupRemovesEntriesWhoseTtlHasExpiredAndKeepsTheOthers() {
+
+        var clockSource = clockSourceAt(START);
+        var blacklist = inMemoryBlacklist(clockSource);
+
+        blacklist.invalidateSession("1", 100);
+        blacklist.invalidateSession("2", 200);
+
+        // Move past the ttl of "1" but not of "2"
+        clockSource.putClockForwardSeconds(150);
+        blacklist.cleanup();
+
+        assertFalse(blacklist.isInvalidated("1"));
+        assertTrue(blacklist.isInvalidated("2"));
+    }
+
+    @Test
+    void deleteAllEntriesClearsTheBlacklist() {
+
+        var blacklist = inMemoryBlacklist(clockSourceAt(START));
+        blacklist.invalidateSession("1", 100);
+
+        blacklist.deleteAllEntries();
+
+        assertFalse(blacklist.isInvalidated("1"));
     }
 }
