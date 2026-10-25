@@ -13,6 +13,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class CsrfNoneValidation implements CsrfProtectionValidation {
 
+    /**
+     * The {@code csrfProtection} value handled by this validation.
+     */
+    public static final String TYPE = "none";
+
+    @Override
+    public String type() {
+        return TYPE;
+    }
+
     @Override
     public boolean needsRequestBody() {
         return false;

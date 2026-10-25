@@ -15,6 +15,16 @@ import java.util.Optional;
 public class CsrfDoubleSubmitCookieWithBodyValidation extends CsrfDoubleSubmitCookieValidation {
 
     /**
+     * The {@code csrfProtection} value handled by this validation.
+     */
+    public static final String TYPE = "doubleSubmitCookieWithBody";
+
+    @Override
+    public String type() {
+        return TYPE;
+    }
+
+    /**
      * Indicates whether this validation needs the request body.
      *
      * @return true, as this validation needs the request body.

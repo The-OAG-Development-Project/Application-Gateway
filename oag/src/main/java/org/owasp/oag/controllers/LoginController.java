@@ -13,8 +13,9 @@ import org.owasp.oag.exception.AuthenticationException;
 import org.owasp.oag.exception.CookieDecryptionException;
 import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.hooks.session.SessionHookChain;
-import org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
+import org.owasp.oag.services.csrf.CsrfSameSiteStrictCookieValidation;
+import org.owasp.oag.services.csrf.CsrfValidationRegistry;
 import org.owasp.oag.services.login.drivers.LoginDriver;
 import org.owasp.oag.services.login.drivers.LoginDriverRegistry;
 import org.owasp.oag.services.login.drivers.LoginDriverResult;
@@ -84,7 +85,7 @@ public class LoginController {
      * Factory for creating CSRF validation implementations.
      */
     @Autowired
-    private CsrfValidationImplementationFactory csrfValidationImplementationFactory;
+    private CsrfValidationRegistry csrfValidationRegistry;
 
     /**
      * Initiates the login process for a given provider.
@@ -357,7 +358,7 @@ public class LoginController {
      */
     private CsrfProtectionValidation getCsrfValidationMethod() {
         // using the sameSiteStrictCookie protection for OWASP's own CSRF protection during logout
-        return csrfValidationImplementationFactory.loadCsrfValidationImplementation("sameSiteStrictCookie");
+        return csrfValidationRegistry.get(CsrfSameSiteStrictCookieValidation.TYPE);
     }
 
     /**

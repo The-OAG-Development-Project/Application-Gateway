@@ -1,9 +1,7 @@
 package org.owasp.oag.config.configuration;
 
 import org.owasp.oag.config.ErrorValidation;
-import org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory;
-import org.owasp.oag.services.csrf.CsrfProtectionValidation;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.owasp.oag.services.csrf.CsrfValidationRegistry;
 import org.springframework.context.ApplicationContext;
 
 import java.util.*;
@@ -146,12 +144,9 @@ public class SecurityProfile implements ErrorValidation {
         if (errors.size() > 0 || context == null)
             return errors;
 
-        var factory = CsrfValidationImplementationFactory.get(context);
-        try {
-            CsrfProtectionValidation implementation = factory.loadCsrfValidationImplementation(csrfProtection);
-        } catch (NoSuchBeanDefinitionException ex) {
-            errors.add("CsrfProtection: No csrf implementation found for '" + csrfProtection + "'");
-        }
+        var registry = context.getBean(CsrfValidationRegistry.class);
+        if (!registry.contains(csrfProtection))
+            errors.add("CsrfProtection: Unknown type '" + csrfProtection + "'. Known types: " + registry.types());
 
         return errors;
     }

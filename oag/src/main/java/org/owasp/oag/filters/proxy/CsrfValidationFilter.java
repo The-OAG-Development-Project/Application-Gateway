@@ -1,7 +1,7 @@
 package org.owasp.oag.filters.proxy;
 
 import org.owasp.oag.filters.GatewayRouteContext;
-import org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory;
+import org.owasp.oag.services.csrf.CsrfValidationRegistry;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ public class CsrfValidationFilter extends RouteAwareFilter {
      * Used to load the appropriate CSRF validation strategy based on the security profile.
      */
     @Autowired
-    private CsrfValidationImplementationFactory csrfValidationImplementationFactory;
+    private CsrfValidationRegistry csrfValidationRegistry;
 
     @Override
     public ServerResponse filter(ServerRequest request, HandlerFunction<ServerResponse> next,
@@ -51,7 +51,7 @@ public class CsrfValidationFilter extends RouteAwareFilter {
         if (!isSafeMethod) {
 
             String csrfProtectionMethod = securityProfile.getCsrfProtection();
-            CsrfProtectionValidation csrfValidation = csrfValidationImplementationFactory.loadCsrfValidationImplementation(csrfProtectionMethod);
+            CsrfProtectionValidation csrfValidation = csrfValidationRegistry.get(csrfProtectionMethod);
 
             if (csrfValidation.needsRequestBody())
                 return next.handle(request); // will be done by CsrfValidationFilterWithBody instead

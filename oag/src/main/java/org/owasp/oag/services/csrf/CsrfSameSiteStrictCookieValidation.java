@@ -29,6 +29,16 @@ import static org.owasp.oag.utils.SecureEncoder.encodeStringForLog;
 public class CsrfSameSiteStrictCookieValidation implements CsrfProtectionValidation {
 
     /**
+     * The {@code csrfProtection} value handled by this validation.
+     */
+    public static final String TYPE = "sameSiteStrictCookie";
+
+    @Override
+    public String type() {
+        return TYPE;
+    }
+
+    /**
      * Logger for this class.
      */
     private static final Logger log = LoggerFactory.getLogger(CsrfSameSiteStrictCookieValidation.class);

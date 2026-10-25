@@ -1,13 +1,16 @@
 package org.owasp.oag.services.csrf;
 
+import org.owasp.oag.extension.TypedExtension;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Interface for CSRF (Cross-Site Request Forgery) protection validation.
  * Implementations of this interface provide different strategies for validating
  * requests to protect against CSRF attacks.
+ * <p>
+ * The implementation is selected through the security profile's {@code csrfProtection} value, see {@link #type()}.
  */
-public interface CsrfProtectionValidation {
+public interface CsrfProtectionValidation extends TypedExtension {
 
     /**
      * Indicates whether this validation strategy requires access to the request body.

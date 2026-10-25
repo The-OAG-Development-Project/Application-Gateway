@@ -20,6 +20,16 @@ import java.util.Optional;
 public class CsrfDoubleSubmitCookieValidation implements CsrfProtectionValidation {
 
     /**
+     * The {@code csrfProtection} value handled by this validation.
+     */
+    public static final String TYPE = "doubleSubmitCookie";
+
+    @Override
+    public String type() {
+        return TYPE;
+    }
+
+    /**
      * The name of the HTTP header used to submit the CSRF token.
      * This header is checked during CSRF validation to verify that the token matches the one in the session.
      */

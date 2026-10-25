@@ -180,12 +180,12 @@ then commit.
 - [x] Tests: add `type()` to `StubJwtSignerFactory`; switch `RSAKeySignerTest` from bean name + postfix to `JwtSignerRegistry`.
 
 ### 5. CSRF
-- [ ] Unit: `type()` of the four validations; `CsrfValidationRegistryTest`. `CsrfDoubleSubmitCookieWithBodyValidation` extends `CsrfDoubleSubmitCookieValidation` and must override `type()` (`doubleSubmitCookieWithBody`). A test guards against the duplicate-type startup failure.
-- [ ] Replace the hard-coded `"sameSiteStrictCookie"` in `LoginController` with the type constant of `CsrfSameSiteStrictCookieValidation`.
-- [ ] `CsrfProtectionValidation extends TypedExtension`; add `CsrfValidationRegistry`.
-- [ ] Switch `CsrfValidationFilter`, `CsrfValidationFilterWithBody`, `LoginController` and `SecurityProfile.getErrors` (use `contains`, which fixes the wrong-exception bug).
-- [ ] Delete `CsrfValidationImplementationFactory` and `DefaultCsrfValidationImplementationFactory`.
-- [ ] Integration: unknown `csrfProtection` is reported as a validation error (not an exception); existing CSRF tests stay green.
+- [x] Unit: `type()` of the four validations; `CsrfValidationRegistryTest`. `CsrfDoubleSubmitCookieWithBodyValidation` extends `CsrfDoubleSubmitCookieValidation` and must override `type()` (`doubleSubmitCookieWithBody`). A test guards against the duplicate-type startup failure.
+- [x] Replace the hard-coded `"sameSiteStrictCookie"` in `LoginController` with the type constant of `CsrfSameSiteStrictCookieValidation`.
+- [x] `CsrfProtectionValidation extends TypedExtension`; add `CsrfValidationRegistry`.
+- [x] Switch `CsrfValidationFilter`, `CsrfValidationFilterWithBody`, `LoginController` and `SecurityProfile.getErrors` (use `contains`, which fixes the wrong-exception bug).
+- [x] Delete `CsrfValidationImplementationFactory` and `DefaultCsrfValidationImplementationFactory`.
+- [x] Integration: unknown `csrfProtection` is reported as a validation error (not an exception); existing CSRF tests stay green.
 
 ### 6. Key management
 - [ ] Unit: `type()` of `LocalRsaJwkStore` and `RsaKeyGenerator`; registry tests.

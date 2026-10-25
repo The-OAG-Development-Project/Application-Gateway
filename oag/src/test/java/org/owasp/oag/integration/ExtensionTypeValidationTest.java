@@ -2,12 +2,14 @@ package org.owasp.oag.integration;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.owasp.oag.config.configuration.SecurityProfile;
 import org.owasp.oag.config.configuration.UserMappingConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,5 +44,22 @@ class ExtensionTypeValidationTest {
         userMapping.setType("no");
 
         assertTrue(userMapping.getErrors(context).isEmpty());
+    }
+
+    @Test
+    void unknownCsrfProtectionIsReported() {
+        var userMapping = new UserMappingConfig();
+        userMapping.setType("no");
+        var profile = new SecurityProfile();
+        profile.setAllowedMethods(List.of("GET"));
+        profile.setCsrfProtection("doesnotexist");
+        profile.setCsrfSafeMethods(List.of("GET"));
+        profile.setUserMapping(userMapping);
+
+        var errors = profile.getErrors(context);
+
+        assertEquals(1, errors.size(), "Errors: " + errors);
+        assertTrue(errors.getFirst().contains("'doesnotexist'"), errors.getFirst());
+        assertTrue(errors.getFirst().contains("[doubleSubmitCookie, doubleSubmitCookieWithBody, none, sameSiteStrictCookie]"), errors.getFirst());
     }
 }
