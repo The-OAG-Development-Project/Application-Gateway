@@ -10,7 +10,17 @@ import org.springframework.stereotype.Component;
  * login drivers with the appropriate settings.
  */
 @Component
-public class GithubLoginDriverFactory implements LoginDriverFactory<GithubDriver> {
+public class GithubLoginDriverFactory implements LoginDriverFactory {
+
+    /**
+     * The login provider type handled by this factory.
+     */
+    public static final String TYPE = "github";
+
+    @Override
+    public String type() {
+        return TYPE;
+    }
 
     /**
      * Creates a new GitHub login driver with the provided settings.

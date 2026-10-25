@@ -62,6 +62,8 @@ class LoginProvidorValidationTest {
 
         // Assert
         assertEquals(1, errors.size());
+        assertTrue(errors.getFirst().contains("'doesnotexist'"), errors.getFirst());
+        assertTrue(errors.getFirst().contains("[github, oidc]"), errors.getFirst());
     }
 
     @Test

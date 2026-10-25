@@ -1,15 +1,13 @@
 package org.owasp.oag.services.login.drivers;
 
 import org.owasp.oag.config.configuration.LoginProviderSettings;
+import org.owasp.oag.extension.TypedExtension;
 
 /**
- * Factory interface for creating specific login driver instances.
- * This factory is responsible for loading and configuring a specific type of login driver
- * based on the provided settings.
- *
- * @param <T> The specific type of LoginDriver this factory creates
+ * Creates the login driver of one login provider type.
+ * The factory is selected through the login provider's {@code type} value, see {@link #type()}.
  */
-public interface LoginDriverFactory<T extends LoginDriver> {
+public interface LoginDriverFactory extends TypedExtension {
 
     /**
      * Creates and configures a login driver instance based on the provided settings.
@@ -18,6 +16,6 @@ public interface LoginDriverFactory<T extends LoginDriver> {
      * @return A new login driver instance configured with the provided settings
      * @throws InvalidProviderSettingsException If the settings are invalid or incomplete
      */
-    T load(LoginProviderSettings settings);
+    LoginDriver load(LoginProviderSettings settings);
 
 }

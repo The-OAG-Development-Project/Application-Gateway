@@ -1,9 +1,8 @@
 package org.owasp.oag.config.configuration;
 
 import org.owasp.oag.config.ErrorValidation;
-import org.owasp.oag.infrastructure.factories.LoginDriverFactory;
 import org.owasp.oag.services.login.drivers.InvalidProviderSettingsException;
-import org.owasp.oag.services.login.drivers.LoginDriver;
+import org.owasp.oag.services.login.drivers.LoginDriverRegistry;
 import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
@@ -100,15 +99,22 @@ public class LoginProvider implements ErrorValidation {
         if (!errors.isEmpty())
             return errors;
 
+        if (context == null)
+            return errors;
+
+        var registry = context.getBean(LoginDriverRegistry.class);
+        if (!registry.contains(type)) {
+            errors.add("LoginProvider: Unknown type '" + type + "'. Known types: " + registry.types());
+            return errors;
+        }
+
         // Check if we can load the driver
-        LoginDriverFactory factory = LoginDriverFactory.get(context);
         try {
-            LoginDriver loginDriver = factory.loadDriverByKey(type, with);
+            registry.load(type, with);
         } catch (InvalidProviderSettingsException e) {
-            var settingErrors = e.getSettingErrors();
-            errors.addAll(settingErrors);
-        } catch (Exception e) {
-            errors.add("LoginDriver: Could not load driver implementation for type '" + type + "'");
+            errors.addAll(e.getSettingErrors());
+        } catch (RuntimeException e) {
+            errors.add("LoginProvider: Could not create driver of type '" + type + "': " + e.getMessage());
         }
 
         return errors;

@@ -160,11 +160,11 @@ then commit.
 - [x] Implement `TypedExtension` and `TypeRegistry` in `org.owasp.oag.extension`.
 
 ### 2. Login drivers
-- [ ] Unit: `OidcLoginDriverFactory.type()` = `oidc`, `GithubLoginDriverFactory.type()` = `github`; `LoginDriverRegistryTest`.
-- [ ] Make `services.login.drivers.LoginDriverFactory` non-generic and extend `TypedExtension`; add `type()` to both factories.
-- [ ] Add `LoginDriverRegistry`; switch `LoginController` and `LoginProvider.getErrors` to it.
-- [ ] Delete `infrastructure.factories.LoginDriverFactory` and `DefaultLoginDriverFactory`.
-- [ ] Integration: extend the existing `LoginProvidorValidationTest.testInvalidProviderName` to assert that the error lists the known types.
+- [x] Unit: `OidcLoginDriverFactory.type()` = `oidc`, `GithubLoginDriverFactory.type()` = `github`; `LoginDriverRegistryTest`.
+- [x] Make `services.login.drivers.LoginDriverFactory` non-generic and extend `TypedExtension`; add `type()` to both factories.
+- [x] Add `LoginDriverRegistry`; switch `LoginController` and `LoginProvider.getErrors` to it.
+- [x] Delete `infrastructure.factories.LoginDriverFactory` and `DefaultLoginDriverFactory`.
+- [x] Integration: extend the existing `LoginProvidorValidationTest.testInvalidProviderName` to assert that the error lists the known types.
 
 ### 3. User mapping
 - [ ] Unit: `type()` of the three factories; `SecurityProfileUserMappersTest` (mapper per profile, unknown profile error).

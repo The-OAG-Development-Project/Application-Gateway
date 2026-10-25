@@ -14,9 +14,9 @@ import org.owasp.oag.exception.CookieDecryptionException;
 import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.hooks.session.SessionHookChain;
 import org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory;
-import org.owasp.oag.infrastructure.factories.LoginDriverFactory;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.owasp.oag.services.login.drivers.LoginDriver;
+import org.owasp.oag.services.login.drivers.LoginDriverRegistry;
 import org.owasp.oag.services.login.drivers.LoginDriverResult;
 import org.owasp.oag.session.Session;
 import org.owasp.oag.utils.UrlUtils;
@@ -63,10 +63,10 @@ public class LoginController {
     private MainConfig config;
 
     /**
-     * Factory for creating LoginDriver instances.
+     * Registry for creating LoginDriver instances.
      */
     @Autowired
-    private LoginDriverFactory loginDriverFactory;
+    private LoginDriverRegistry loginDriverRegistry;
 
     /**
      * Converter for handling cookies.
@@ -128,7 +128,7 @@ public class LoginController {
         String driverName = provider.getType();
 
         try {
-            return loginDriverFactory.loadDriverByKey(driverName, provider.getWith());
+            return loginDriverRegistry.load(driverName, provider.getWith());
         } catch (Exception e) {
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR, "could not find login driver", e);

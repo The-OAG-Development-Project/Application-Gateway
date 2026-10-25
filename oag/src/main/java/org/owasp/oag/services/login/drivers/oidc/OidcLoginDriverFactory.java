@@ -10,7 +10,17 @@ import org.springframework.stereotype.Component;
  * login drivers with the appropriate settings.
  */
 @Component
-public class OidcLoginDriverFactory implements LoginDriverFactory<OidcDriver> {
+public class OidcLoginDriverFactory implements LoginDriverFactory {
+
+    /**
+     * The login provider type handled by this factory.
+     */
+    public static final String TYPE = "oidc";
+
+    @Override
+    public String type() {
+        return TYPE;
+    }
 
     /**
      * Creates a new OIDC login driver with the provided settings.
