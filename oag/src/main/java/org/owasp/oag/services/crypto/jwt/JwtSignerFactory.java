@@ -1,16 +1,15 @@
 package org.owasp.oag.services.crypto.jwt;
 
+import org.owasp.oag.extension.TypedExtension;
+
 import java.util.Map;
 
 /**
  * Factory class for jwt singer objects.
+ * The factory is selected through the {@code signatureImplementation} setting of a JWT user mapping,
+ * see {@link #type()}.
  */
-public interface JwtSignerFactory {
-
-    /**
-     * Bean name postfix for beans of this class.
-     */
-    String JWT_SIGNER_FACTORY_BEAN_POSTFIX = JwtSignerFactory.class.getSimpleName();
+public interface JwtSignerFactory extends TypedExtension {
 
     /**
      * Should return a instance of a jwt signer object

@@ -174,10 +174,10 @@ then commit.
 - [x] Integration: existing `HeaderMappingTest` and JWT mapping tests stay green; unknown `userMapping.type` is reported by validation.
 
 ### 4. JWT signer
-- [ ] Unit: `type()` of `RsaJwtSignerFactory` (`rsa`) and `HmacJwtSignerFactory` (`hmac`).
-- [ ] `JwtSignerFactory extends TypedExtension`; remove `JWT_SIGNER_FACTORY_BEAN_POSTFIX`; add `JwtSignerRegistry`.
-- [ ] `JwtTokenUserMappingFactory` uses `JwtSignerRegistry`; unknown `signatureImplementation` gives a `ConfigurationException` listing known types.
-- [ ] Tests: add `type()` to `StubJwtSignerFactory`; switch `RSAKeySignerTest` from bean name + postfix to `JwtSignerRegistry`.
+- [x] Unit: `type()` of `RsaJwtSignerFactory` (`rsa`) and `HmacJwtSignerFactory` (`hmac`).
+- [x] `JwtSignerFactory extends TypedExtension`; remove `JWT_SIGNER_FACTORY_BEAN_POSTFIX`; add `JwtSignerRegistry`.
+- [x] `JwtTokenUserMappingFactory` uses `JwtSignerRegistry`; unknown `signatureImplementation` gives a `ConfigurationException` listing known types.
+- [x] Tests: add `type()` to `StubJwtSignerFactory`; switch `RSAKeySignerTest` from bean name + postfix to `JwtSignerRegistry`.
 
 ### 5. CSRF
 - [ ] Unit: `type()` of the four validations; `CsrfValidationRegistryTest`. `CsrfDoubleSubmitCookieWithBodyValidation` extends `CsrfDoubleSubmitCookieValidation` and must override `type()` (`doubleSubmitCookieWithBody`). A test guards against the duplicate-type startup failure.

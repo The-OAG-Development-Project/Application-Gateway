@@ -3,17 +3,13 @@ package org.owasp.oag.services.tokenMapping.jwt;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.exception.ConfigurationException;
 import org.owasp.oag.infrastructure.GlobalClockSource;
-import org.owasp.oag.services.crypto.jwt.JwtSignerFactory;
+import org.owasp.oag.services.crypto.jwt.JwtSignerRegistry;
 import org.owasp.oag.services.tokenMapping.UserMapper;
 import org.owasp.oag.services.tokenMapping.UserMappingFactory;
 import org.owasp.oag.utils.SettingsUtils;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-
-import static org.owasp.oag.services.crypto.jwt.JwtSignerFactory.JWT_SIGNER_FACTORY_BEAN_POSTFIX;
 
 /**
  * Factory for creating JWT token user mapping implementations.
@@ -33,19 +29,19 @@ public class JwtTokenUserMappingFactory implements UserMappingFactory {
         return TYPE;
     }
 
-    private final ApplicationContext context;
+    private final JwtSignerRegistry signerRegistry;
     private final GlobalClockSource clockSource;
     private final MainConfig mainConfig;
 
     /**
      * Creates the factory.
      *
-     * @param context     Application context for accessing beans
-     * @param clockSource Clock source for consistent time handling
-     * @param mainConfig  Main configuration for the application
+     * @param signerRegistry Registry of the JWT signer implementations
+     * @param clockSource    Clock source for consistent time handling
+     * @param mainConfig     Main configuration for the application
      */
-    public JwtTokenUserMappingFactory(ApplicationContext context, GlobalClockSource clockSource, MainConfig mainConfig) {
-        this.context = context;
+    public JwtTokenUserMappingFactory(JwtSignerRegistry signerRegistry, GlobalClockSource clockSource, MainConfig mainConfig) {
+        this.signerRegistry = signerRegistry;
         this.clockSource = clockSource;
         this.mainConfig = mainConfig;
     }
@@ -70,13 +66,7 @@ public class JwtTokenUserMappingFactory implements UserMappingFactory {
         jwtTokenUserMappingSettings.requireValidSettings();
 
         // Init jwt signer
-        var factoryName = jwtTokenUserMappingSettings.signatureImplementation + JWT_SIGNER_FACTORY_BEAN_POSTFIX;
-        try {
-            var factory = context.getBean(factoryName, JwtSignerFactory.class);
-            // Create user mapper
-            return new JwtTokenUserMapper(factory, clockSource, jwtTokenUserMappingSettings, mainConfig.getHostUri());
-        } catch (BeansException be) {
-            throw new ConfigurationException("No implementation found for signature implementation: " + jwtTokenUserMappingSettings.signatureImplementation+". The Bean is expected to be named: "+factoryName, be);
-        }
+        var signerFactory = signerRegistry.get(jwtTokenUserMappingSettings.signatureImplementation);
+        return new JwtTokenUserMapper(signerFactory, clockSource, jwtTokenUserMappingSettings, mainConfig.getHostUri());
     }
 }

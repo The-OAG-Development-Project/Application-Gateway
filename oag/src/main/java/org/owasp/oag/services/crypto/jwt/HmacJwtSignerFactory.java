@@ -14,6 +14,16 @@ import java.util.Map;
 public class HmacJwtSignerFactory implements JwtSignerFactory {
 
     /**
+     * The signature implementation handled by this factory.
+     */
+    public static final String TYPE = "hmac";
+
+    @Override
+    public String type() {
+        return TYPE;
+    }
+
+    /**
      * Creates a new HMAC-based JWT signer with the provided settings.
      * 
      * @param hostUri The URI of the host, used for identifying the token issuer
