@@ -2,12 +2,16 @@ package org.owasp.oag.integration;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.owasp.oag.config.FileConfigLoader;
 import org.owasp.oag.config.configuration.JwkStoreProfile;
 import org.owasp.oag.config.configuration.KeyGeneratorProfile;
 import org.owasp.oag.config.configuration.KeyRotationProfile;
 import org.owasp.oag.config.configuration.SecurityProfile;
 import org.owasp.oag.config.configuration.TraceProfile;
 import org.owasp.oag.config.configuration.UserMappingConfig;
+import org.owasp.oag.integration.testInfrastructure.TestFileConfigLoader;
 import org.owasp.oag.services.keymgm.JwkStoreRegistry;
 import org.owasp.oag.services.keymgm.KeyGeneratorRegistry;
 import org.owasp.oag.services.keymgm.KeyRotationRegistry;
@@ -16,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +37,23 @@ class ExtensionTypeValidationTest {
 
     @Autowired
     ApplicationContext context;
+
+    @Test
+    void sampleConfigurationIsValid() throws IOException {
+        var config = new FileConfigLoader("sample-config.yaml").loadConfiguration();
+
+        assertEquals(List.of(), config.getErrors(context));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/defaultKeyRotationConfiguration.yaml", "/headerUserMappingConfig.yaml",
+            "/localServerConfiguration.yaml", "/noTracingConfiguration.yaml", "/rewriteTestConfig.yaml",
+            "/simpleTracingConfiguration.yaml", "/W3CTracingConfiguration.yaml"})
+    void testConfigurationIsValid(String resource) throws IOException {
+        var config = new TestFileConfigLoader(resource).loadConfiguration();
+
+        assertEquals(List.of(), config.getErrors(context));
+    }
 
     @Test
     void unknownUserMappingTypeIsReported() {

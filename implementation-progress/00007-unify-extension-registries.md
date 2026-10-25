@@ -205,8 +205,8 @@ then commit.
 - [x] Integration: `W3CTracingTest`, `SimpleTracingTest` and `TracingTest` stay green; unknown `traceProfile.type` is reported at startup.
 
 ### 8. Configuration files
-- [ ] Verify every `type`, `csrfProtection` and `signatureImplementation` value in all repository YAML files (`oag/sample-config.yaml`, `oag/src/main/resources/*.yaml`, `oag/src/test/resources/*.yaml`) is a registered type; update any that is not.
-- [ ] Unit/integration: a test loads `default-config.yaml` and `sample-config.yaml` and asserts `getErrors(context)` is empty.
+- [x] Verify every `type`, `csrfProtection` and `signatureImplementation` value in all repository YAML files (`oag/sample-config.yaml`, `oag/src/main/resources/*.yaml`, `oag/src/test/resources/*.yaml`) is a registered type; update any that is not. (Result: all values were already registered types; no file needed a change.)
+- [x] Integration: `ExtensionTypeValidationTest` loads `sample-config.yaml` and every test-resource YAML (each merged with `default-config.yaml`) and asserts `getErrors(context)` is empty.
 
 ### 9. Documentation
 - [ ] `www/docs/docs/Custom-(code)-extensions.md`: rewrite "How an extension is selected" (implement `type()`; registry; factory only when settings or a fresh instance are needed; mermaid diagram). Update the "Selected by" line for each extension point.
