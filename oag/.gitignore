@@ -1,5 +1,6 @@
 *.key
 *.log
+*.log.gz
 *.db
 
 HELP.md
