@@ -1,6 +1,7 @@
 package org.owasp.oag.config.configuration;
 
 import org.owasp.oag.config.ErrorValidation;
+import org.owasp.oag.services.keymgm.KeyRotationRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -135,7 +136,7 @@ public class KeyRotationProfile implements ErrorValidation {
      * Validates the key rotation profile configuration and returns a list of validation errors.
      * This method checks that all required settings are present and valid.
      *
-     * @param context The Spring application context, used to verify that the specified type exists
+     * @param context The Spring application context, used to look up the registered types
      * @return A list of error messages, empty if the configuration is valid
      */
     @Override
@@ -154,12 +155,14 @@ public class KeyRotationProfile implements ErrorValidation {
             errors.add("'cleanupFrequencySeconds' not specified in section keyManagementProfile. Recommended to be at least 10 minutes, up to a few days, consider signingKeyRotation to be a 'reasonable upper bound'.");
 
         if (type == null)
-            errors.add("'type' not specified. Must be the bean name of a bean that initializes the signing key on creation. Usually you should use 'defaultKeyRotation'.");
+            errors.add("'type' not specified. Usually you should use 'defaultKeyRotation'.");
 
-        if (context != null && !context.containsBean(type)) {
-            errors.add("Specified type '" + type + "' does not match a bean. Must be the bean name of a bean that initializes the signing key on creation. Usually you should use 'defaultKeyRotation'.");
-        } else {
-            log.info("Using key rotation implementation of bean {}.", type);
+        if (context != null && type != null) {
+            var registry = context.getBean(KeyRotationRegistry.class);
+            if (!registry.contains(type))
+                errors.add("KeyRotation: Unknown type '" + type + "'. Known types: " + registry.types());
+            else
+                log.info("Using KeyRotation implementation of {}.", type);
         }
 
         if (!errors.isEmpty())

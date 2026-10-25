@@ -15,6 +15,11 @@ import java.security.NoSuchAlgorithmException;
 @Component
 public class RsaKeyGenerator implements KeyGenerator {
 
+    /**
+     * The {@code keyGeneratorProfile.type} value handled by this generator.
+     */
+    public static final String TYPE = "rsaKeyGenerator";
+
     private final MainConfig config;
 
     /**
@@ -42,5 +47,10 @@ public class RsaKeyGenerator implements KeyGenerator {
             throw new ConfigurationException("Configured keySize in KeyGeneratorProfile of MainConfig is not working for algorithm RSA. Configured size: " + keySize, e);
         }
 
+    }
+
+    @Override
+    public String type() {
+        return TYPE;
     }
 }

@@ -1,6 +1,7 @@
 package org.owasp.oag.config.configuration;
 
 import org.owasp.oag.config.ErrorValidation;
+import org.owasp.oag.services.keymgm.KeyGeneratorRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -109,7 +110,7 @@ public class KeyGeneratorProfile implements ErrorValidation {
     /**
      * Validates the key generator profile configuration and returns a list of validation errors.
      *
-     * @param context The Spring application context, used to verify that the specified type exists
+     * @param context The Spring application context, used to look up the registered types
      * @return A list of error messages, empty if the configuration is valid
      */
     @Override
@@ -117,15 +118,17 @@ public class KeyGeneratorProfile implements ErrorValidation {
         var errors = new ArrayList<String>();
 
         if (type == null)
-            errors.add("'type' not specified. Must be the bean name of a KeyGenerator implementation such as rsaKeyGenerator.");
+            errors.add("'type' not specified. Use e.g. 'rsaKeyGenerator'.");
 
         if (keySize == null || keySize < 64)
             errors.add("'keySize' not specified or way to short.");
 
-        if (context != null && type != null && !context.containsBean(type)) {
-            errors.add("Specified type '" + type + "' does not match a KeyGenerator implementation. Must be the bean name of a KeyGenerator implementation such as rsaKeyGenerator.");
-        } else {
-            log.info("Using KeyGenerator implementation of {}.", type);
+        if (context != null && type != null) {
+            var registry = context.getBean(KeyGeneratorRegistry.class);
+            if (!registry.contains(type))
+                errors.add("KeyGenerator: Unknown type '" + type + "'. Known types: " + registry.types());
+            else
+                log.info("Using KeyGenerator implementation of {}.", type);
         }
 
         return errors;

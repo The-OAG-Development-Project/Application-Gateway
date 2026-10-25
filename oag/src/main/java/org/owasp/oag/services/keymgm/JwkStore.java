@@ -1,5 +1,6 @@
 package org.owasp.oag.services.keymgm;
 
+import org.owasp.oag.extension.TypedExtension;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 
@@ -7,8 +8,10 @@ import java.security.Key;
 
 /**
  * Defines the interface for JWK based key management / storage.
+ * <p>
+ * The implementation is selected through {@code keyManagementProfile.jwkStoreProfile.type}, see {@link #type()}.
  */
-public interface JwkStore {
+public interface JwkStore extends TypedExtension {
 
     /**
      * Gets the JWT signing pub-key with passed in kid.

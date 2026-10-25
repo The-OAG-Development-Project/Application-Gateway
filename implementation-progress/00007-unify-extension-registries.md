@@ -188,12 +188,12 @@ then commit.
 - [x] Integration: unknown `csrfProtection` is reported as a validation error (not an exception); existing CSRF tests stay green.
 
 ### 6. Key management
-- [ ] Unit: `type()` of `LocalRsaJwkStore` and `RsaKeyGenerator`; registry tests.
-- [ ] `JwkStore` and `KeyGenerator` extend `TypedExtension`; add `JwkStoreRegistry` and `KeyGeneratorRegistry`.
-- [ ] Switch `JwksController` and `DefaultKeyRotation`. Switch the existing `containsBean` checks in `JwkStoreProfile.getErrors` and `KeyGeneratorProfile.getErrors` to the registries (null-context guard).
-- [ ] Delete `KeyManagementFactory` and `DefaultKeyManagementFactory`.
-- [ ] Key rotation: introduce `KeyRotation extends TypedExtension` (implemented by `DefaultKeyRotation`, type `defaultKeyRotation`) and `KeyRotationRegistry`; switch `KeyRotationProfile.getErrors` from `containsBean` to the registry and fix its messages.
-- [ ] Integration: JWKS endpoint and key rotation tests stay green.
+- [x] Unit: `type()` of `LocalRsaJwkStore` and `RsaKeyGenerator`; registry tests.
+- [x] `JwkStore` and `KeyGenerator` extend `TypedExtension`; add `JwkStoreRegistry` and `KeyGeneratorRegistry`.
+- [x] Switch `JwksController` and `DefaultKeyRotation`. Switch the existing `containsBean` checks in `JwkStoreProfile.getErrors` and `KeyGeneratorProfile.getErrors` to the registries (null-context guard).
+- [x] Delete `KeyManagementFactory` and `DefaultKeyManagementFactory`.
+- [x] Key rotation: `KeyRotation` (formerly a marker interface) extends `TypedExtension` and gets `start()`. `DefaultKeyRotation` (type `defaultKeyRotation`) no longer generates keys in its constructor; `KeyRotationStarter` (`SmartInitializingSingleton`) starts only the configured rotation, before the web server serves requests. Add `KeyRotationRegistry`; switch `KeyRotationProfile.getErrors` from `containsBean` to the registry and fix its messages.
+- [x] Integration: JWKS endpoint and key rotation tests stay green.
 
 ### 7. Trace
 - [ ] Unit: each new `*TraceContextFactory` returns a new instance per call with the right `type()`. Adapt `TraceContextBridgeTest` (it uses `new W3cTraceContext()` plus `ReflectionTestUtils.setField(…"config"…)`) and `SimpleTraceContextTest` (no-arg constructor) to constructor injection.
