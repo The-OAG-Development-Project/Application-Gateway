@@ -209,15 +209,16 @@ then commit.
 - [x] Integration: `ExtensionTypeValidationTest` loads `sample-config.yaml` and every test-resource YAML (each merged with `default-config.yaml`) and asserts `getErrors(context)` is empty.
 
 ### 9. Documentation
-- [ ] `www/docs/docs/Custom-(code)-extensions.md`: rewrite "How an extension is selected" (implement `type()`; registry; factory only when settings or a fresh instance are needed; mermaid diagram). Update the "Selected by" line for each extension point.
-- [ ] `www/docs/docs/JWT-Signer-(add-custom-new-signature-type-to-JWT).md`: `type()` instead of the bean-name postfix.
-- [ ] `www/docs/docs/Tracing-Log-Correlation.md` ("Define class and bean name"): custom trace via a `TraceContextFactory`.
-- [ ] `Tracing-Log-Correlation-Correlation-Logging.md:61-62`: correct values (`w3cTraceContext`, `simpleTraceContext`, `noTraceContext`); replace "Beanname of custom trace" with "`type()` of a custom `TraceContextFactory`".
-- [ ] `Csrf-Protection.md:5-13`: rewrite the `Csrf<Name>Validation` naming rule as `type()`.
-- [ ] Fix wrong CSRF values: `Configuration-SecurityProfiles.md:11,138` (`samesite-strict-cookie`), `Glossary.md:43,100` (`double-submit-cookie`/`samesite-strict-cookie`), and the `csrfProtection: samesite` example. Use the real values.
-- [ ] Check `Configuration-User-Mapping.md`, `Configuration-Login-Providers.md` and `Key-management-and-JWT-signer.md` for bean-name wording.
-- [ ] Glossary (`www/docs/docs/Glossary.md` and `implementation-progress/00002-glossary.md`): add *Extension type*, *Type registry*, *Extension factory*; adjust `type`. Rewrite "Bean name" (`Glossary.md:35`, `00002-glossary.md:88`) and "Custom (code) extension" (`Glossary.md:45`): selection is by `type()`, including key rotation; update `Automatic-Key-Rotation.md` accordingly.
-- [ ] Every YAML example in `www/docs/docs/*.md` uses registered type values.
+- [x] `www/docs/docs/Custom-(code)-extensions.md`: rewrite "How an extension is selected" (implement `type()`; registry; factory only when settings or a fresh instance are needed; mermaid diagram). Update the "Selected by" line for each extension point.
+- [x] `www/docs/docs/JWT-Signer-(add-custom-new-signature-type-to-JWT).md`: `type()` instead of the bean-name postfix.
+- [x] `www/docs/docs/Tracing-Log-Correlation.md` ("Define class and bean name"): custom trace via a `TraceContextFactory`.
+- [x] `Tracing-Log-Correlation-Correlation-Logging.md:61-62`: correct values (`w3cTraceContext`, `simpleTraceContext`, `noTraceContext`); replace "Beanname of custom trace" with "`type()` of a custom `TraceContextFactory`".
+- [x] `Csrf-Protection.md:5-13`: rewrite the `Csrf<Name>Validation` naming rule as `type()`.
+- [x] `Configuration-SecurityProfiles.md`: document `doubleSubmitCookieWithBody` and `none`, which were missing.
+- [x] Fix wrong CSRF values: `Configuration-SecurityProfiles.md:11,138` (`samesite-strict-cookie`), `Glossary.md:43,100` (`double-submit-cookie`/`samesite-strict-cookie`), and the `csrfProtection: samesite` example. Use the real values.
+- [x] Check `Configuration-User-Mapping.md`, `Configuration-Login-Providers.md` and `Key-management-and-JWT-signer.md` for bean-name wording. (None found.)
+- [x] Glossary (`www/docs/docs/Glossary.md` and `implementation-progress/00002-glossary.md`): add *Extension type*, *Type registry*, *Extension factory*; adjust `type`. Rewrite "Bean name" (`Glossary.md:35`, `00002-glossary.md:88`) and "Custom (code) extension" (`Glossary.md:45`): selection is by `type()`, including key rotation; update `Automatic-Key-Rotation.md` accordingly.
+- [x] Every YAML example in `www/docs/docs/*.md` uses registered type values.
 
 ### 10. Review & finish
 - [ ] Review against the CLAUDE.md checklist (cycles, naming, packages, class size, tests, docs, glossary). Verify no `containsBean`/`getBean(<String>` lookups of extensions remain.

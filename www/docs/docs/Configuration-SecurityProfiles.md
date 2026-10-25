@@ -8,7 +8,7 @@ Example :
 securityProfiles:
   webapplication:
     allowedMethods: [ "GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD" ]
-    csrfProtection: samesite-strict-cookie
+    csrfProtection: sameSiteStrictCookie
     csrfSafeMethods: [ "GET", "OPTIONS", "HEAD" ]
     responseHeaders:
       Server: <<remove>>
@@ -92,9 +92,10 @@ file: https://github.com/The-OAG-Development-Project/Application-Gateway/blob/ma
 
 ## CSRF Protections
 
-OAG implements the following strategies for csrf protection.
+OAG implements the following strategies for csrf protection. The heading is the value to use for `csrfProtection`.
+Use `none` to disable CSRF protection. You can add your own strategy, see [CsrfProtection](/docs/Csrf-Protection).
 
-### `double-submit-cookie`
+### `doubleSubmitCookie`
 
 With this mode OAG requires the `csrf` cookie in the `X-CSRF-TOKEN` header. This method of csrf protection in only
 applicable for XHR requests and recommened when you have a singe page application. If you use form posts you can also
@@ -135,7 +136,14 @@ request:
 
 ***
 
-### `samesite-strict-cookie`
+### `doubleSubmitCookieWithBody`
+
+Like `doubleSubmitCookie`, but OAG also accepts the request when the csrf token appears anywhere in the request body.
+Use it for form posts that cannot set the `X-CSRF-TOKEN` header. OAG buffers the request body to check it.
+
+***
+
+### `sameSiteStrictCookie`
 
 With this mode, OAG uses a same-site strict cookie to protect your users from csrf attacks.
 

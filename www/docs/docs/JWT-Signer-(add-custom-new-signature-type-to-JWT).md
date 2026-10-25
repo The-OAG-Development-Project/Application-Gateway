@@ -13,13 +13,18 @@ Note: As of now OAG only supports one JWT signer for an asymmetric signature and
 
 ## JwtSignerFactory
 When you want to use automatic key rotation, take a look at the RSAJwtSignerFactory. When using a keystore or another configuration option to pass in the key, you may want to look at the HmacJwtSignerFactory.
-Your component needs to be named as follows: \<uniqueName\>JwtSignerFactory
+Your factory declares the value used as `signatureImplementation` in its `type()` method.
 ````java
 @Component
 public class MyJwtSignerFactory implements JwtSignerFactory {
 
     @Autowired
     CurrentSigningKeyHolder keyHolder;
+
+    @Override
+    public String type() {
+        return "signerAlgoName";
+    }
 
     public JwtSigner create(String hostUri, Map<String, Object> settings) {
         //...
@@ -70,10 +75,15 @@ public class MyJwtSigner extends JwtSigner {
 ## JwkStore
 The JwkStore provides the storage for the keys available with the JWKS Endpoint and is automatically updated by the key rotation.
 If you need to distribute keys between multiple instances of OAG, you could consider implementing this in a dedicated JwkStore too.
-You will have to implement JwkStore interface and give your component a unique name. See `LocalRsaJwkStore`for an example.
+You will have to implement the JwkStore interface and return the configured type from `type()`. See `LocalRsaJwkStore` for an example.
 ```Java
 @Component
 public class MyJwkStore implements JwkStore {
+
+    @Override
+    public String type() {
+        return "myJwkStore";
+    }
   // ...
 }
 ```
@@ -89,15 +99,20 @@ keyManagementProfile:
 ```
 
 ## KeyGenerator
-The key generator creates new keys and is invoked by the automatic key rotation. It is responsible to generate the "right" key for the Jwt signing algorithm you want to provide. You should give the component a unique name. See `RsaKeyGenerator`for an example.
+The key generator creates new keys and is invoked by the automatic key rotation. It is responsible to generate the "right" key for the Jwt signing algorithm you want to provide. Return the configured type from `type()`. See `RsaKeyGenerator` for an example.
 ```Java
 @Component
 public class MyKeyGenerator implements KeyGenerator {
+
+    @Override
+    public String type() {
+        return "myKeyGenerator";
+    }
   // ...
 }
 ```
 
-You configure the JwkStore in the KeyManagementProfile:
+You configure the KeyGenerator in the KeyManagementProfile:
 ```yaml
 keyManagementProfile:
   # ...

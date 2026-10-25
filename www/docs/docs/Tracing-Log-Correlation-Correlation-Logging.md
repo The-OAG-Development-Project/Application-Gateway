@@ -58,8 +58,8 @@ Possible values: true, false\
 Defines if OAG should send the used trace id to upstream systems. This may be useful to simply debugging from the client side.
 
 ### `type`
-Default: w3cTrace\
-Possible values: w3cTrace, simpleTrace, noTrace, \<Beanname of custom trace implementation see [here](/docs/Tracing-Log-Correlation)\>
+Default: w3cTraceContext\
+Possible values: w3cTraceContext, simpleTraceContext, noTraceContext, \<`type()` of a custom `TraceContextFactory`, see [here](/docs/Tracing-Log-Correlation)\>
 * `w3cTraceContext`: Uses http-headers for upstream and downstream trace id communication as specified by [W3C Trace Context](https://w3c.github.io/trace-context/). Ignores `maxLengthIncomingTrace`as the length of a trace id is specified. Supports all other configuration options. Does not need any `traceImplSpecificSettings`.
 * `simpleTraceContext`: Creates a random UUID as trace id. Ignores the following configuration settings: `acceptAdditionalTraceInfo`,`maxLengthAdditionalTraceInfo` because it does not support any additional trace information beside the trace id. Uses as a default http-header X-Correlation-Id to communicate the trace id to upstream (depending on setting `sendTraceResponse`) and downstream systems. This can be customized by providing the following `traceImplSpecificSettings`:
   * `headerName: <X-your-header>`
