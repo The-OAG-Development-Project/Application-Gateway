@@ -6,6 +6,7 @@ import org.owasp.oag.config.configuration.JwkStoreProfile;
 import org.owasp.oag.config.configuration.KeyGeneratorProfile;
 import org.owasp.oag.config.configuration.KeyRotationProfile;
 import org.owasp.oag.config.configuration.SecurityProfile;
+import org.owasp.oag.config.configuration.TraceProfile;
 import org.owasp.oag.config.configuration.UserMappingConfig;
 import org.owasp.oag.services.keymgm.JwkStoreRegistry;
 import org.owasp.oag.services.keymgm.KeyGeneratorRegistry;
@@ -86,6 +87,13 @@ class ExtensionTypeValidationTest {
         assertUnknownTypeReported(jwkStore.getErrors(context), "[localRsaJwkStore]");
         assertUnknownTypeReported(keyGenerator.getErrors(context), "[rsaKeyGenerator]");
         assertUnknownTypeReported(keyRotation.getErrors(context), "[defaultKeyRotation]");
+    }
+
+    @Test
+    void unknownTraceTypeIsReported() {
+        var traceProfile = new TraceProfile(true, 128, true, 512, true, "doesnotexist", Map.of());
+
+        assertUnknownTypeReported(traceProfile.getErrors(context), "[noTraceContext, simpleTraceContext, w3cTraceContext]");
     }
 
     private static void assertUnknownTypeReported(List<String> errors, String knownTypes) {

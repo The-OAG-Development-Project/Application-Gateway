@@ -4,9 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.config.configuration.TraceProfile;
 import org.owasp.oag.exception.TraceException;
-import org.owasp.oag.infrastructure.factories.TraceContextFactory;
 import org.owasp.oag.logging.w3ctrace.W3cTraceContext;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Map;
 
@@ -111,10 +109,7 @@ class TraceContextBridgeTest {
     private RecordingTraceContext runBridgeWith(String primary, String secondary) {
 
         var traceContext = new RecordingTraceContext();
-        TraceContextFactory factory = () -> traceContext;
-
-        var bridge = new TraceContextBridge();
-        bridge.setTraceContextFactory(factory);
+        var bridge = new TraceContextBridge(() -> traceContext);
 
         bridge.createTraceHeaders(primary, secondary);
         return traceContext;
@@ -157,8 +152,7 @@ class TraceContextBridgeTest {
         var traceContext = new RecordingTraceContext();
         traceContext.rejectAppliedTrace = true;
 
-        var bridge = new TraceContextBridge();
-        bridge.setTraceContextFactory(() -> traceContext);
+        var bridge = new TraceContextBridge(() -> traceContext);
 
         bridge.createTraceHeaders("malformed", null);
 
@@ -177,15 +171,12 @@ class TraceContextBridgeTest {
         var config = new MainConfig();
         config.setTraceProfile(traceProfile);
 
-        var traceContext = new W3cTraceContext();
-        ReflectionTestUtils.setField(traceContext, "config", config);
-        return traceContext;
+        return new W3cTraceContext(config);
     }
 
     private TraceHeaders createTraceHeaders(TraceContext traceContext, String primary, String secondary) {
 
-        var bridge = new TraceContextBridge();
-        bridge.setTraceContextFactory(() -> traceContext);
+        var bridge = new TraceContextBridge(() -> traceContext);
         return bridge.createTraceHeaders(primary, secondary);
     }
 
@@ -241,8 +232,7 @@ class TraceContextBridgeTest {
     @Test
     void producesNoHeadersWhenTracingIsOff() {
 
-        var bridge = new TraceContextBridge();
-        bridge.setTraceContextFactory(NoTraceContext::new);
+        var bridge = new TraceContextBridge(NoTraceContext::new);
 
         var traceHeaders = bridge.createTraceHeaders(null, null);
 

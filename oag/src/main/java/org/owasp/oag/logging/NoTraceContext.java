@@ -1,8 +1,5 @@
 package org.owasp.oag.logging;
 
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
@@ -16,8 +13,6 @@ import java.util.UUID;
  * </code>
  * It does not support any traceImplSpecificSettings and ignores all other settings in the traceProfile.
  */
-@Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class NoTraceContext implements TraceContext {
 
     private final String traceId = UUID.randomUUID().toString();

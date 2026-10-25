@@ -1,6 +1,7 @@
 package org.owasp.oag.config.configuration;
 
 import org.owasp.oag.config.ErrorValidation;
+import org.owasp.oag.logging.TraceContextRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -206,12 +207,14 @@ public class TraceProfile implements ErrorValidation {
             errors.add("'sendTraceResponse' not specified");
 
         if (type == null)
-            errors.add("'type' not specified. Must be the bean name of a TraceContext implementation such as w3cTrace. Specify 'noTrace' to disable correlation Logging.");
+            errors.add("'type' not specified. Use e.g. 'w3cTraceContext'. Specify 'noTraceContext' to disable correlation Logging.");
 
-        if (context != null && !context.containsBean(type)) {
-            errors.add("Specified type '" + type + "' does not match a trace/correlation log implementation. Must be the bean name of a TraceContext implementation such as w3cTrace. Specify 'noTrace' to disable correlation Logging.");
-        } else {
-            log.info("Using log trace / correlation implementation of {}.", type);
+        if (context != null && type != null) {
+            var registry = context.getBean(TraceContextRegistry.class);
+            if (!registry.contains(type))
+                errors.add("TraceProfile: Unknown type '" + type + "'. Known types: " + registry.types() + ". Specify 'noTraceContext' to disable correlation Logging.");
+            else
+                log.info("Using log trace / correlation implementation of {}.", type);
         }
 
         return errors;

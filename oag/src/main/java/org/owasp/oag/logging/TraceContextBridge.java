@@ -1,12 +1,13 @@
 package org.owasp.oag.logging;
 
+import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.exception.TraceException;
-import org.owasp.oag.infrastructure.factories.TraceContextFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
+import java.util.function.Supplier;
 
 /**
  * This class bridges to the concrete trace context implementation that was configured in the main config yaml (section traceProfile).
@@ -15,16 +16,27 @@ import java.util.LinkedHashMap;
 @Primary
 public class TraceContextBridge {
 
-    private TraceContextFactory traceContextFactory;
+    private final Supplier<TraceContext> traceContexts;
 
     /**
-     * Sets the factory used to create a fresh trace context for each request.
+     * Creates the bridge for the trace type configured in {@code traceProfile.type}.
      *
-     * @param traceContextFactory the factory to use
+     * @param config   The main configuration
+     * @param registry The trace context registry
+     * @throws org.owasp.oag.exception.ConfigurationException If the configured trace type is unknown
      */
     @Autowired
-    public void setTraceContextFactory(TraceContextFactory traceContextFactory) {
-        this.traceContextFactory = traceContextFactory;
+    public TraceContextBridge(MainConfig config, TraceContextRegistry registry) {
+        this(registry.get(config.getTraceProfile().getType())::create);
+    }
+
+    /**
+     * Creates the bridge with the given source of trace contexts.
+     *
+     * @param traceContexts Supplies a fresh trace context for each request
+     */
+    public TraceContextBridge(Supplier<TraceContext> traceContexts) {
+        this.traceContexts = traceContexts;
     }
 
     /**
@@ -37,7 +49,7 @@ public class TraceContextBridge {
      */
     public TraceHeaders createTraceHeaders(String incomingPrimary, String incomingSecondary) {
 
-        final TraceContext requestContext = traceContextFactory.createContextForRequest();
+        final TraceContext requestContext = traceContexts.get();
 
         if (requestContext.forwardIncomingTrace()) {
             if (incomingPrimary == null || incomingPrimary.isEmpty()) {
@@ -82,13 +94,13 @@ public class TraceContextBridge {
      * @return the name of the main trace request header for the configured trace profile
      */
     public String getMainRequestHeader() {
-        return traceContextFactory.createContextForRequest().getMainRequestHeader();
+        return traceContexts.get().getMainRequestHeader();
     }
 
     /**
      * @return the name of the secondary trace request header for the configured trace profile
      */
     public String getSecondaryRequestHeader() {
-        return traceContextFactory.createContextForRequest().getSecondaryRequestHeader();
+        return traceContexts.get().getSecondaryRequestHeader();
     }
 }

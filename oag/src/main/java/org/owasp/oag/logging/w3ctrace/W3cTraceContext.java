@@ -5,10 +5,6 @@ import org.owasp.oag.logging.TraceContext;
 import org.owasp.oag.utils.SecureEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  * Implements the W3C Trace Context specification.
@@ -22,8 +18,6 @@ import org.springframework.stereotype.Component;
  * </code>
  * It does not support any traceImplSpecificSettings in the configuration and ignores the maxLengthIncomingTrace setting as this is defined by the specification.
  */
-@Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class W3cTraceContext implements TraceContext {
     private static final String W3C_MAIN_RESPONSE_HEADER_NAME = "traceresponse";
     private static final String W3C_MAIN_HEADER_NAME = "traceparent";
@@ -33,8 +27,16 @@ public class W3cTraceContext implements TraceContext {
 
     private W3cTraceContextState state;
 
-    @Autowired
-    private MainConfig config;
+    private final MainConfig config;
+
+    /**
+     * Creates a trace context.
+     *
+     * @param config The main configuration providing the trace profile
+     */
+    public W3cTraceContext(MainConfig config) {
+        this.config = config;
+    }
 
     @Override
     public void generateNewTraceId() {

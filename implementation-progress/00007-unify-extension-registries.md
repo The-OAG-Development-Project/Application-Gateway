@@ -196,13 +196,13 @@ then commit.
 - [x] Integration: JWKS endpoint and key rotation tests stay green.
 
 ### 7. Trace
-- [ ] Unit: each new `*TraceContextFactory` returns a new instance per call with the right `type()`. Adapt `TraceContextBridgeTest` (it uses `new W3cTraceContext()` plus `ReflectionTestUtils.setField(…"config"…)`) and `SimpleTraceContextTest` (no-arg constructor) to constructor injection.
-- [ ] Add per-type `TraceContextFactory` (in `org.owasp.oag.logging`) and the three factories; remove `@Component`/`@Scope` from contexts.
-- [ ] Delete the `traceContext` bean in `PostConfigBeanConfiguration` (it looks up a context by bean name). Delete the class if it is then empty.
-- [ ] Switch `TraceProfile.getErrors` from `containsBean` to `TraceContextRegistry.contains` and correct its messages (`w3cTraceContext`/`noTraceContext`, not `w3cTrace`/`noTrace`).
-- [ ] Add `TraceContextRegistry`; `TraceContextBridge` uses a `Supplier<TraceContext>`.
-- [ ] Delete `infrastructure.factories.TraceContextFactory` and `DefaultTraceContextFactory`, and the now-empty package `infrastructure.factories`.
-- [ ] Integration: `W3CTracingTest`, `SimpleTracingTest` and `TracingTest` stay green; unknown `traceProfile.type` is reported at startup.
+- [x] Unit: each new `*TraceContextFactory` returns a new instance per call with the right `type()`. Adapt `TraceContextBridgeTest` (it uses `new W3cTraceContext()` plus `ReflectionTestUtils.setField(…"config"…)`) and `SimpleTraceContextTest` (no-arg constructor) to constructor injection.
+- [x] Add per-type `TraceContextFactory` (in `org.owasp.oag.logging`) and the three factories; remove `@Component`/`@Scope` from contexts.
+- [x] Delete the `traceContext` bean in `PostConfigBeanConfiguration` (it looks up a context by bean name). The class is then empty: delete it and its `@Import` in `EnableOWASPApplicationGateway`.
+- [x] Switch `TraceProfile.getErrors` from `containsBean` to `TraceContextRegistry.contains` and correct its messages (`w3cTraceContext`/`noTraceContext`, not `w3cTrace`/`noTrace`).
+- [x] Add `TraceContextRegistry`; `TraceContextBridge` uses a `Supplier<TraceContext>`.
+- [x] Delete `infrastructure.factories.TraceContextFactory` and `DefaultTraceContextFactory`, and the now-empty package `infrastructure.factories`.
+- [x] Integration: `W3CTracingTest`, `SimpleTracingTest` and `TracingTest` stay green; unknown `traceProfile.type` is reported at startup.
 
 ### 8. Configuration files
 - [ ] Verify every `type`, `csrfProtection` and `signatureImplementation` value in all repository YAML files (`oag/sample-config.yaml`, `oag/src/main/resources/*.yaml`, `oag/src/test/resources/*.yaml`) is a registered type; update any that is not.
