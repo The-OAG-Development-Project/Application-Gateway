@@ -18,7 +18,7 @@ RUN cd /home/app && ./gradlew clean assemble --no-daemon
 #
 # Package stage
 #
-FROM amazoncorretto:25.0.4-alpine3.24
+FROM amazoncorretto:25.0.5-alpine3.24
 
 # for regular linux 
 # RUN useradd --user-group --system --create-home --no-log-init app
