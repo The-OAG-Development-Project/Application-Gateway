@@ -1,6 +1,6 @@
 # Unify extension lookup into type registries
 
-**Status:** in progress
+**Status:** finished (one review finding open, see Follow-ups)
 
 **Goal:** Replace the six inconsistent "factory" lookups in `org.owasp.oag.infrastructure.factories` with one
 pattern: every extension declares the configuration `type` it handles, and a `TypeRegistry` per extension
@@ -221,6 +221,17 @@ then commit.
 - [x] Every YAML example in `www/docs/docs/*.md` uses registered type values.
 
 ### 10. Review & finish
-- [ ] Review against the CLAUDE.md checklist (cycles, naming, packages, class size, tests, docs, glossary). Verify no `containsBean`/`getBean(<String>` lookups of extensions remain.
-- [ ] `./gradlew build` green; test count ≥ baseline.
-- [ ] Mark the plan as finished.
+- [x] Review against the CLAUDE.md checklist (cycles, naming, packages, class size, tests, docs, glossary). Verify no `containsBean`/`getBean(<String>` lookups of extensions remain.
+- [x] `./gradlew build` green; test count ≥ baseline — 173 tests, 0 failures (baseline 142).
+- [x] Mark the plan as finished.
+
+## Follow-ups
+
+- **Package cycles through configuration validation.** The new `org.owasp.oag.extension` package is cycle-free,
+  and the cycles over `infrastructure.factories` (with `config.configuration`, `logging` and `services.keymgm`)
+  are gone. The config POJOs validate their types through the registries in `ErrorValidation.getErrors(context)`,
+  while those packages import `MainConfig`. This leaves `config.configuration` ↔ `logging`, `services.keymgm` and
+  `services.tokenMapping`, next to the already existing `config.configuration` ↔ `services.csrf` and
+  `services.login.drivers`. Removing them means moving extension-type validation out of the config classes into
+  a validator that depends on both sides. Needs a user decision.
+- The docs site build (`npm run docs:build`) was not run: npm is not installed in this environment.
