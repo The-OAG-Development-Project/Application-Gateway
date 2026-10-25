@@ -8,7 +8,6 @@ import org.owasp.oag.services.tokenMapping.UserMapper;
 import org.owasp.oag.services.tokenMapping.UserMappingFactory;
 import org.owasp.oag.utils.SettingsUtils;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -25,22 +24,31 @@ import static org.owasp.oag.services.crypto.jwt.JwtSignerFactory.JWT_SIGNER_FACT
 public class JwtTokenUserMappingFactory implements UserMappingFactory {
 
     /**
-     * Application context for accessing beans.
+     * The user mapping type handled by this factory.
      */
-    @Autowired
-    ApplicationContext context;
+    public static final String TYPE = "jwtToken";
+
+    @Override
+    public String type() {
+        return TYPE;
+    }
+
+    private final ApplicationContext context;
+    private final GlobalClockSource clockSource;
+    private final MainConfig mainConfig;
 
     /**
-     * Clock source for consistent time handling.
+     * Creates the factory.
+     *
+     * @param context     Application context for accessing beans
+     * @param clockSource Clock source for consistent time handling
+     * @param mainConfig  Main configuration for the application
      */
-    @Autowired
-    GlobalClockSource clockSource;
-
-    /**
-     * Main configuration for the application.
-     */
-    @Autowired
-    MainConfig mainConfig;
+    public JwtTokenUserMappingFactory(ApplicationContext context, GlobalClockSource clockSource, MainConfig mainConfig) {
+        this.context = context;
+        this.clockSource = clockSource;
+        this.mainConfig = mainConfig;
+    }
 
     /**
      * Creates a new JWT token user mapper from the provided settings.

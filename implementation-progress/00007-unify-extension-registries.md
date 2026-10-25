@@ -167,11 +167,11 @@ then commit.
 - [x] Integration: extend the existing `LoginProvidorValidationTest.testInvalidProviderName` to assert that the error lists the known types.
 
 ### 3. User mapping
-- [ ] Unit: `type()` of the three factories; `SecurityProfileUserMappersTest` (mapper per profile, unknown profile error).
-- [ ] `UserMappingFactory extends TypedExtension`; remove `USER_MAPPER_TYPE_POSTFIX`.
-- [ ] Add `UserMappingRegistry` and `SecurityProfileUserMappers` (passes `ConfigurationException`s from factories through unchanged); switch `UserMappingFilter` and `UserMappingConfig.getErrors`.
-- [ ] Delete `infrastructure.factories.UserMappingFactory` and `DefaultUserMappingFactory`.
-- [ ] Integration: existing `HeaderMappingTest` and JWT mapping tests stay green; unknown `userMapping.type` is reported by validation.
+- [x] Unit: `type()` of the three factories; `SecurityProfileUserMappersTest` (mapper per profile, unknown profile error).
+- [x] `UserMappingFactory extends TypedExtension`; remove `USER_MAPPER_TYPE_POSTFIX`.
+- [x] Add `UserMappingRegistry` and `SecurityProfileUserMappers` (passes `ConfigurationException`s from factories through unchanged); switch `UserMappingFilter` and `UserMappingConfig.getErrors`.
+- [x] Delete `infrastructure.factories.UserMappingFactory` and `DefaultUserMappingFactory`.
+- [x] Integration: existing `HeaderMappingTest` and JWT mapping tests stay green; unknown `userMapping.type` is reported by validation.
 
 ### 4. JWT signer
 - [ ] Unit: `type()` of `RsaJwtSignerFactory` (`rsa`) and `HmacJwtSignerFactory` (`hmac`).

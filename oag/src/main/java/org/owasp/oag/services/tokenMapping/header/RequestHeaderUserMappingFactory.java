@@ -15,6 +15,16 @@ import java.util.Map;
 @Component
 public class RequestHeaderUserMappingFactory implements UserMappingFactory {
 
+    /**
+     * The user mapping type handled by this factory.
+     */
+    public static final String TYPE = "requestHeader";
+
+    @Override
+    public String type() {
+        return TYPE;
+    }
+
     @Override
     public UserMapper load(Map<String, Object> settings) {
 

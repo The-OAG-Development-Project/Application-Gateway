@@ -1,6 +1,7 @@
 package org.owasp.oag.config.configuration;
 
 import org.owasp.oag.config.ErrorValidation;
+import org.owasp.oag.services.tokenMapping.UserMappingRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -8,8 +9,6 @@ import org.springframework.context.ApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static org.owasp.oag.services.tokenMapping.UserMappingFactory.USER_MAPPER_TYPE_POSTFIX;
 
 /**
  * Configuration class for user mapping.
@@ -70,9 +69,9 @@ public class UserMappingConfig implements ErrorValidation {
         if (this.type == null)
             errors.add("Config: tokenMapping implementation is not defined");
 
-        // Check if we can load the token mapping implementation
-        if (!context.containsBean(this.type + USER_MAPPER_TYPE_POSTFIX)) {
-            errors.add("Specified type '" + this.type + "' does not match a user mapping implementation. Must be the bean name of a TokenMapper implementation such as jwt-mapping.");
+        var registry = context.getBean(UserMappingRegistry.class);
+        if (!registry.contains(this.type)) {
+            errors.add("UserMapping: Unknown type '" + this.type + "'. Known types: " + registry.types());
         } else {
             log.debug("Using token mapping implementation of {}.", this.type);
         }

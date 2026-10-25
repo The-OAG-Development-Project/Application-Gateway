@@ -14,6 +14,16 @@ import java.util.Map;
 public class NoUserMappingFactory implements UserMappingFactory {
 
     /**
+     * The user mapping type handled by this factory.
+     */
+    public static final String TYPE = "no";
+
+    @Override
+    public String type() {
+        return TYPE;
+    }
+
+    /**
      * Creates a new NoUserMapper instance with the specified settings.
      *
      * @param settings Configuration settings for the user mapper
