@@ -1,10 +1,11 @@
-package org.owasp.oag.infrastructure;
+package org.owasp.oag;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.owasp.oag.config.ConfigLoader;
 import org.owasp.oag.config.FileConfigLoader;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.exception.ConfigurationException;
+import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.persistentmap.FilePersistentMap;
 import org.owasp.oag.services.blacklist.LocalPersistentBlacklist;
 import org.owasp.oag.services.blacklist.SessionBlacklist;

@@ -1,6 +1,5 @@
 package org.owasp.oag;
 
-import org.owasp.oag.infrastructure.OAGBeanConfiguration;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.Retention;

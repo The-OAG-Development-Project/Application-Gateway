@@ -1,5 +1,5 @@
 /**
- * This package contains classes supporting the overall application architecture such as
- * bean configuration classes and factory classes
+ * Application infrastructure used across OAG: the global clock source, the task schedulers and the
+ * configuration validation at startup.
  */
 package org.owasp.oag.infrastructure;

@@ -27,7 +27,6 @@ class PackageCycleTest {
 
     /** Back edges of existing cycles. Remove an entry as soon as its cycle is resolved. */
     static final List<KnownBackEdge> KNOWN_BACK_EDGES = List.of(
-            new KnownBackEdge("services.blacklist", "infrastructure", "todo.md D: move GlobalClockSource"),
             new KnownBackEdge("session", "cookies", "todo.md E: split session and cookie"));
 
     /** No package cycles apart from the known back edges. */
