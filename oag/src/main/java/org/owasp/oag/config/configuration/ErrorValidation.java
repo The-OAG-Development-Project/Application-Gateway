@@ -1,4 +1,4 @@
-package org.owasp.oag.config;
+package org.owasp.oag.config.configuration;
 
 import org.springframework.context.ApplicationContext;
 

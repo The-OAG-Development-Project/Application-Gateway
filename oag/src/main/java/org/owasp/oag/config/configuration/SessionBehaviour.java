@@ -1,6 +1,5 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.config.ErrorValidation;
 import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;

@@ -1,6 +1,5 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.config.ErrorValidation;
 import org.owasp.oag.exception.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
