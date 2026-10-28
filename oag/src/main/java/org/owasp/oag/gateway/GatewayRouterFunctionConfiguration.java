@@ -3,6 +3,7 @@ package org.owasp.oag.gateway;
 import org.owasp.oag.config.configuration.GatewayRoute;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.filters.proxy.RouteAwareFilter;
+import org.owasp.oag.utils.SharedConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -30,11 +31,6 @@ import java.util.List;
  */
 @Configuration
 public class GatewayRouterFunctionConfiguration {
-
-    /**
-     * Attribute name under which the name of the matched route is stored in the request attributes.
-     */
-    public final static String ATTRIBUTE_ROUTE_NAME = "RouteName";
 
     private static final Logger log = LoggerFactory.getLogger(GatewayRouterFunctionConfiguration.class);
 
@@ -110,7 +106,7 @@ public class GatewayRouterFunctionConfiguration {
                 .route(request -> matches(routeName, route, request), HandlerFunctions.http())
                 .before(BeforeFilterFunctions.routeId(routeName))
                 .before(request -> {
-                    MvcUtils.putAttribute(request, ATTRIBUTE_ROUTE_NAME, routeName);
+                    MvcUtils.putAttribute(request, SharedConstants.ATTRIBUTE_ROUTE_NAME, routeName);
                     return request;
                 })
                 .before(BeforeFilterFunctions.uri(route.getUrl()))

@@ -1,6 +1,5 @@
 package org.owasp.oag.infrastructure;
 
-import org.owasp.oag.OWASPApplicationGatewayApplication;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.exception.ConfigurationException;
 import org.slf4j.Logger;
@@ -25,7 +24,7 @@ public class StartupEventListeners {
     /**
      * Logger for this class.
      */
-    private static final Logger log = LoggerFactory.getLogger(OWASPApplicationGatewayApplication.class);
+    private static final Logger log = LoggerFactory.getLogger(StartupEventListeners.class);
 
     /**
      * The main configuration of the application.

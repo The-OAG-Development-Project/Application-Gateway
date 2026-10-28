@@ -44,7 +44,6 @@ cycles 3–5. Cycles 1 and 2 follow the same pattern and already existed on `mai
     responsibilities). Recommended: separate validators. **Needs a decision.**
 - **B. `config` ↔ `config.configuration`.** Move `ErrorValidation` into `config.configuration`, the only
   package that implements it.
-- **C. root ↔ `infrastructure`.** Use `StartupEventListeners.class` as the logger name.
 - **D. `infrastructure` ↔ `services.blacklist`.** Move `GlobalClockSource` (a leaf utility used by
   `filters.servlet`, `hooks.session`, `services.blacklist`, `services.tokenMapping.jwt`) to a dependency-free
   package such as `org.owasp.oag.clock` or `utils`. Alternative: move the `sessionBlacklist` bean into a
@@ -56,7 +55,6 @@ cycles 3–5. Cycles 1 and 2 follow the same pattern and already existed on `mai
 - **F. `filters.servlet` ↔ `hooks.session`.** Delete the unused import in `AddSessionToBlacklistHook`.
   Implement `00006` Task 7: move `findCookie` to `cookies.CookieReader`, which unhooks `services.csrf` from the
   filters.
-- **G. `filters.proxy` ↔ `gateway`.** Move `ATTRIBUTE_ROUTE_NAME` to `RouteAwareFilter`, the package that reads it.
 - **H. Keep it fixed.** Add an ArchUnit test (test dependency only):
   `slices().matching("org.owasp.oag.(**)").should().beFreeOfCycles()`. It blocks new cycles in CI.
 

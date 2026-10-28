@@ -12,4 +12,9 @@ public final class SharedConstants {
      * following the standard convention for JWKS endpoints.
      */
     public static final String JWKS_BASE_URI = "/.well-known/jwks";
+
+    /**
+     * Attribute name under which the name of the matched route is stored in the request attributes.
+     */
+    public final static String ATTRIBUTE_ROUTE_NAME = "RouteName";
 }
