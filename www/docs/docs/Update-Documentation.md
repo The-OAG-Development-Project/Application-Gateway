@@ -11,6 +11,14 @@ And most importantly we also want to have proper Javadoc documentation in the co
 | All other documenation pages:       | `www/docs/docs`                                                                                     |
 | Logo of OAG:                        | `www/docs/public`                                                                                   |
 
+# Local Building and update
+Install nodejs and make sure you have npm available.
+Change to the www folder.
+```
+npm add -D vitepress@next
+npm run docs:dev
+```
+
 # Building Documentation
 The whole documentation is built with VitePress to folder `www/docs/.vitepress/dist`.
 This is done with the Workflow defined in `gh-pages-deploy.yml`.
