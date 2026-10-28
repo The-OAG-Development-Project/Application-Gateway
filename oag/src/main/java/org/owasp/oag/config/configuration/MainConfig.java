@@ -3,7 +3,6 @@ package org.owasp.oag.config.configuration;
 import org.owasp.oag.exception.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -277,11 +276,10 @@ public class MainConfig implements ErrorValidation {
     /**
      * Validates the configuration and returns any errors found.
      *
-     * @param context The application context
      * @return A list of validation error messages, empty if no errors are found
      */
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors() {
 
         var errors = new ArrayList<String>();
 
@@ -329,12 +327,12 @@ public class MainConfig implements ErrorValidation {
             return errors;
 
         // Recursive validation
-        loginProviders.values().forEach(s -> errors.addAll(s.getErrors(context)));
-        securityProfiles.values().forEach(s -> errors.addAll(s.getErrors(context)));
-        routes.values().forEach(s -> errors.addAll(s.getErrors(context)));
-        errors.addAll(sessionBehaviour.getErrors(context));
-        errors.addAll(traceProfile.getErrors(context));
-        errors.addAll(keyManagementProfile.getErrors(context));
+        loginProviders.values().forEach(s -> errors.addAll(s.getErrors()));
+        securityProfiles.values().forEach(s -> errors.addAll(s.getErrors()));
+        routes.values().forEach(s -> errors.addAll(s.getErrors()));
+        errors.addAll(sessionBehaviour.getErrors());
+        errors.addAll(traceProfile.getErrors());
+        errors.addAll(keyManagementProfile.getErrors());
 
         if (!errors.isEmpty())
             return errors;

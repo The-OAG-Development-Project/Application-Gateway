@@ -1,10 +1,5 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.services.keymgm.KeyGeneratorRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,10 +11,8 @@ import java.util.Map;
  */
 public class KeyGeneratorProfile implements ErrorValidation {
 
-    private static final Logger log = LoggerFactory.getLogger(KeyGeneratorProfile.class);
-
     /**
-     * The type of key generator to use. Must match a bean name of a KeyGenerator implementation.
+     * The type of key generator to use. Must match the type of a registered KeyGenerator.
      */
     private String type;
     
@@ -109,11 +102,10 @@ public class KeyGeneratorProfile implements ErrorValidation {
     /**
      * Validates the key generator profile configuration and returns a list of validation errors.
      *
-     * @param context The Spring application context, used to look up the registered types
      * @return A list of error messages, empty if the configuration is valid
      */
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors() {
         var errors = new ArrayList<String>();
 
         if (type == null)
@@ -121,14 +113,6 @@ public class KeyGeneratorProfile implements ErrorValidation {
 
         if (keySize == null || keySize < 64)
             errors.add("'keySize' not specified or way to short.");
-
-        if (context != null && type != null) {
-            var registry = context.getBean(KeyGeneratorRegistry.class);
-            if (!registry.contains(type))
-                errors.add("KeyGenerator: Unknown type '" + type + "'. Known types: " + registry.types());
-            else
-                log.info("Using KeyGenerator implementation of {}.", type);
-        }
 
         return errors;
     }

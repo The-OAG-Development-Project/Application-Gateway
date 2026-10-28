@@ -5,12 +5,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.owasp.oag.config.FileConfigLoader;
-import org.owasp.oag.config.configuration.JwkStoreProfile;
-import org.owasp.oag.config.configuration.KeyGeneratorProfile;
-import org.owasp.oag.config.configuration.KeyRotationProfile;
-import org.owasp.oag.config.configuration.SecurityProfile;
-import org.owasp.oag.config.configuration.TraceProfile;
-import org.owasp.oag.config.configuration.UserMappingConfig;
+import org.owasp.oag.config.MainConfigValidator;
+import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.integration.testInfrastructure.TestFileConfigLoader;
 import org.owasp.oag.services.keymgm.JwkStoreRegistry;
 import org.owasp.oag.services.keymgm.KeyGeneratorRegistry;
@@ -38,11 +34,18 @@ class ExtensionTypeValidationTest {
     @Autowired
     ApplicationContext context;
 
+    @Autowired
+    MainConfigValidator validator;
+
+    private static MainConfig sampleConfig() throws IOException {
+        return new FileConfigLoader("sample-config.yaml").loadConfiguration();
+    }
+
     @Test
     void sampleConfigurationIsValid() throws IOException {
         var config = new FileConfigLoader("sample-config.yaml").loadConfiguration();
 
-        assertEquals(List.of(), config.getErrors(context));
+        assertEquals(List.of(), validator.validate(config));
     }
 
     @ParameterizedTest
@@ -52,43 +55,31 @@ class ExtensionTypeValidationTest {
     void testConfigurationIsValid(String resource) throws IOException {
         var config = new TestFileConfigLoader(resource).loadConfiguration();
 
-        assertEquals(List.of(), config.getErrors(context));
+        assertEquals(List.of(), validator.validate(config));
     }
 
     @Test
-    void unknownUserMappingTypeIsReported() {
-        var userMapping = new UserMappingConfig();
-        userMapping.setType("doesnotexist");
-        userMapping.setSettings(Map.of());
+    void unknownUserMappingTypeIsReported() throws IOException {
+        var config = sampleConfig();
+        config.getSecurityProfiles().get("webapplication").getUserMapping().setType("doesnotexist");
 
-        var errors = userMapping.getErrors(context);
+        var errors = validator.validate(config);
 
         assertEquals(1, errors.size(), "Errors: " + errors);
+        assertTrue(errors.getFirst().contains("'webapplication'"), errors.getFirst());
         assertTrue(errors.getFirst().contains("'doesnotexist'"), errors.getFirst());
         assertTrue(errors.getFirst().contains("[jwtToken, no, requestHeader]"), errors.getFirst());
     }
 
     @Test
-    void knownUserMappingTypeIsValid() {
-        var userMapping = new UserMappingConfig();
-        userMapping.setType("no");
+    void unknownCsrfProtectionIsReported() throws IOException {
+        var config = sampleConfig();
+        config.getSecurityProfiles().get("webapplication").setCsrfProtection("doesnotexist");
 
-        assertTrue(userMapping.getErrors(context).isEmpty());
-    }
-
-    @Test
-    void unknownCsrfProtectionIsReported() {
-        var userMapping = new UserMappingConfig();
-        userMapping.setType("no");
-        var profile = new SecurityProfile();
-        profile.setAllowedMethods(List.of("GET"));
-        profile.setCsrfProtection("doesnotexist");
-        profile.setCsrfSafeMethods(List.of("GET"));
-        profile.setUserMapping(userMapping);
-
-        var errors = profile.getErrors(context);
+        var errors = validator.validate(config);
 
         assertEquals(1, errors.size(), "Errors: " + errors);
+        assertTrue(errors.getFirst().contains("'webapplication'"), errors.getFirst());
         assertTrue(errors.getFirst().contains("'doesnotexist'"), errors.getFirst());
         assertTrue(errors.getFirst().contains("[doubleSubmitCookie, doubleSubmitCookieWithBody, none, sameSiteStrictCookie]"), errors.getFirst());
     }
@@ -101,21 +92,27 @@ class ExtensionTypeValidationTest {
     }
 
     @Test
-    void unknownKeyManagementTypesAreReported() {
-        var jwkStore = new JwkStoreProfile("doesnotexist", Map.of());
-        var keyGenerator = new KeyGeneratorProfile("doesnotexist", 2048, Map.of());
-        var keyRotation = new KeyRotationProfile("doesnotexist", false, 3600, 3600);
+    void unknownKeyManagementTypesAreReported() throws IOException {
+        var config = sampleConfig();
+        var keyManagement = config.getKeyManagementProfile();
+        keyManagement.getJwkStoreProfile().setType("doesnotexist");
+        keyManagement.getKeyGeneratorProfile().setType("doesnotexist");
+        keyManagement.getKeyRotationProfile().setType("doesnotexist");
 
-        assertUnknownTypeReported(jwkStore.getErrors(context), "[localRsaJwkStore]");
-        assertUnknownTypeReported(keyGenerator.getErrors(context), "[rsaKeyGenerator]");
-        assertUnknownTypeReported(keyRotation.getErrors(context), "[defaultKeyRotation]");
+        var errors = validator.validate(config);
+
+        assertEquals(3, errors.size(), "Errors: " + errors);
+        assertTrue(errors.get(0).contains("[localRsaJwkStore]"), errors.get(0));
+        assertTrue(errors.get(1).contains("[rsaKeyGenerator]"), errors.get(1));
+        assertTrue(errors.get(2).contains("[defaultKeyRotation]"), errors.get(2));
     }
 
     @Test
-    void unknownTraceTypeIsReported() {
-        var traceProfile = new TraceProfile(true, 128, true, 512, true, "doesnotexist", Map.of());
+    void unknownTraceTypeIsReported() throws IOException {
+        var config = sampleConfig();
+        config.getTraceProfile().setType("doesnotexist");
 
-        assertUnknownTypeReported(traceProfile.getErrors(context), "[noTraceContext, simpleTraceContext, w3cTraceContext]");
+        assertUnknownTypeReported(validator.validate(config), "[noTraceContext, simpleTraceContext, w3cTraceContext]");
     }
 
     private static void assertUnknownTypeReported(List<String> errors, String knownTypes) {

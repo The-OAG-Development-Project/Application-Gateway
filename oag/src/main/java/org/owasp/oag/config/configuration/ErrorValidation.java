@@ -1,20 +1,17 @@
 package org.owasp.oag.config.configuration;
 
-import org.springframework.context.ApplicationContext;
-
 import java.util.List;
 
 /**
- * Interface for components that can validate their configuration and report errors.
- * Implementing classes should provide validation logic to check for configuration errors.
+ * Implemented by configuration classes that validate their own structure, for example missing fields or values
+ * out of range. Checks against registered extensions are done by {@link ConfigValidator}s.
  */
 public interface ErrorValidation {
 
     /**
-     * Gets a list of validation errors for the current configuration.
-     * 
-     * @param context The application context, which may be used to validate against other components
+     * Gets a list of structural validation errors of this configuration.
+     *
      * @return A list of error messages, or an empty list if no errors are found
      */
-    List<String> getErrors(ApplicationContext context);
+    List<String> getErrors();
 }

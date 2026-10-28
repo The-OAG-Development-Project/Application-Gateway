@@ -18,7 +18,7 @@ class GatewayRouteValidationTest {
                 null);
 
         // Act
-        var errors = route.getErrors(null);
+        var errors = route.getErrors();
 
         // Assert
         assertEquals(0, errors.size());
@@ -36,7 +36,7 @@ class GatewayRouteValidationTest {
                 null);
 
         // Act
-        var errors = route.getErrors(null);
+        var errors = route.getErrors();
 
         // Assert
         assertEquals(3, errors.size());
@@ -54,7 +54,7 @@ class GatewayRouteValidationTest {
                 null);
 
         // Act
-        var errors = route.getErrors(null);
+        var errors = route.getErrors();
 
         // Assert
         assertEquals(1, errors.size());

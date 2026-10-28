@@ -1,7 +1,5 @@
 package org.owasp.oag.config.configuration;
 
-import org.springframework.context.ApplicationContext;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -142,11 +140,10 @@ public class SessionBehaviour implements ErrorValidation {
     /**
      * Validates the session behavior configuration and returns any errors.
      *
-     * @param context The application context
      * @return A list of validation error messages, empty if no errors are found
      */
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors() {
         var errors = new ArrayList<String>();
 
         if (sessionDuration < 60)

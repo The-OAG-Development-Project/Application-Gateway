@@ -1,8 +1,5 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.services.csrf.CsrfValidationRegistry;
-import org.springframework.context.ApplicationContext;
-
 import java.util.*;
 
 /**
@@ -112,11 +109,10 @@ public class SecurityProfile implements ErrorValidation {
     /**
      * Validates the security profile configuration and returns any errors found.
      * 
-     * @param context The application context
      * @return A list of validation error messages, empty if no errors are found
      */
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors() {
 
         var errors = new ArrayList<String>();
 
@@ -138,14 +134,7 @@ public class SecurityProfile implements ErrorValidation {
         if (errors.size() > 0)
             return errors;
 
-        errors.addAll(userMapping.getErrors(context));
-
-        if (errors.size() > 0 || context == null)
-            return errors;
-
-        var registry = context.getBean(CsrfValidationRegistry.class);
-        if (!registry.contains(csrfProtection))
-            errors.add("CsrfProtection: Unknown type '" + csrfProtection + "'. Known types: " + registry.types());
+        errors.addAll(userMapping.getErrors());
 
         return errors;
     }

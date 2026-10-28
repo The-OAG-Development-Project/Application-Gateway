@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.owasp.oag.exception.ConfigurationException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,5 +58,20 @@ class TypeRegistryTest {
         assertFalse(registry.contains("x"));
         assertFalse(registry.contains(null));
         assertEquals(Set.of("a", "b"), registry.types());
+    }
+
+    @Test
+    void unknownTypeErrorNamesEntryTypeAndKnownTypes() {
+        var registry = new ExtRegistry(List.of(new Ext("b"), new Ext("a")));
+
+        assertEquals(Optional.of("Entry 'x': Unknown type 'y'. Known types: [a, b]"),
+                registry.unknownTypeError("Entry 'x'", "y"));
+    }
+
+    @Test
+    void unknownTypeErrorIsEmptyForRegisteredType() {
+        var registry = new ExtRegistry(List.of(new Ext("a")));
+
+        assertEquals(Optional.empty(), registry.unknownTypeError("Entry", "a"));
     }
 }

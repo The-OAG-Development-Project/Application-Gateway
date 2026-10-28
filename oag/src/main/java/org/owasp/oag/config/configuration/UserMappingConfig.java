@@ -1,10 +1,5 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.services.tokenMapping.UserMappingRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,8 +10,6 @@ import java.util.Map;
  * Implements ErrorValidation to validate the configuration.
  */
 public class UserMappingConfig implements ErrorValidation {
-
-    private static final Logger log = LoggerFactory.getLogger(UserMappingConfig.class);
 
     private String type;
     private Map<String, Object> settings;
@@ -58,22 +51,12 @@ public class UserMappingConfig implements ErrorValidation {
     }
 
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors() {
 
         var errors = new ArrayList<String>();
 
-        if (context == null)
-            return errors;
-
         if (this.type == null)
             errors.add("Config: tokenMapping implementation is not defined");
-
-        var registry = context.getBean(UserMappingRegistry.class);
-        if (!registry.contains(this.type)) {
-            errors.add("UserMapping: Unknown type '" + this.type + "'. Known types: " + registry.types());
-        } else {
-            log.debug("Using token mapping implementation of {}.", this.type);
-        }
 
         return errors;
     }

@@ -5,6 +5,7 @@ import org.owasp.oag.exception.ConfigurationException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -68,5 +69,18 @@ public abstract class TypeRegistry<T extends TypedExtension> {
      */
     public Set<String> types() {
         return Collections.unmodifiableSet(extensions.keySet());
+    }
+
+    /**
+     * Returns an error message if the given type is not registered.
+     *
+     * @param configEntry The configuration entry that declares the type, used as message prefix
+     * @param type        The configured type
+     * @return The error message, or empty if an extension is registered for the type
+     */
+    public Optional<String> unknownTypeError(String configEntry, String type) {
+        if (contains(type))
+            return Optional.empty();
+        return Optional.of(configEntry + ": Unknown type '" + type + "'. Known types: " + types());
     }
 }

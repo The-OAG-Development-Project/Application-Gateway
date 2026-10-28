@@ -37,7 +37,7 @@ class MainConfigurationValidationTest {
                 defaultKeyManagementProfile);
 
         // Act
-        var errors = config.getErrors(null);
+        var errors = config.getErrors();
 
         // Assert
         assertEquals(0, errors.size());
@@ -64,7 +64,7 @@ class MainConfigurationValidationTest {
                 defaultKeyManagementProfile);
 
         // Act
-        var errors = config.getErrors(null);
+        var errors = config.getErrors();
 
         // Assert
         assertEquals(1, errors.size());
@@ -94,7 +94,7 @@ class MainConfigurationValidationTest {
                 defaultKeyManagementProfile);
 
         // Act
-        var errors = config.getErrors(null);
+        var errors = config.getErrors();
 
         // Assert
         assertEquals(1, errors.size());
@@ -116,7 +116,7 @@ class MainConfigurationValidationTest {
                 null);
 
         // Act
-        var errors = config.getErrors(null);
+        var errors = config.getErrors();
 
         // Assert
         assertEquals(8, errors.size());

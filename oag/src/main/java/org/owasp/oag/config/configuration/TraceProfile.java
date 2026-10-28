@@ -1,10 +1,5 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.logging.TraceContextRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,8 +13,6 @@ import java.util.Map;
  * It also implements validation to ensure all required settings are provided.
  */
 public class TraceProfile implements ErrorValidation {
-
-    private static final Logger log = LoggerFactory.getLogger(TraceProfile.class);
 
     private Boolean forwardIncomingTrace;
     private Integer maxLengthIncomingTrace;
@@ -186,7 +179,7 @@ public class TraceProfile implements ErrorValidation {
     }
 
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors() {
 
         var errors = new ArrayList<String>();
 
@@ -207,14 +200,6 @@ public class TraceProfile implements ErrorValidation {
 
         if (type == null)
             errors.add("'type' not specified. Use e.g. 'w3cTraceContext'. Specify 'noTraceContext' to disable correlation Logging.");
-
-        if (context != null && type != null) {
-            var registry = context.getBean(TraceContextRegistry.class);
-            if (!registry.contains(type))
-                errors.add("TraceProfile: Unknown type '" + type + "'. Known types: " + registry.types() + ". Specify 'noTraceContext' to disable correlation Logging.");
-            else
-                log.info("Using log trace / correlation implementation of {}.", type);
-        }
 
         return errors;
     }

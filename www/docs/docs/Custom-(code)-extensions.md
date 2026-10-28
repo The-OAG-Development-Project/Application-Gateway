@@ -56,8 +56,41 @@ public class MyCsrfValidation implements CsrfProtectionValidation {
 
 `SessionHook` and `SessionBlacklist` are not selected by type; this is noted per interface below.
 
+### How configured types are validated
+
+Configuration validation runs in two stages when the application context is ready
+(`org.owasp.oag.config.MainConfigValidator`):
+
+1. **Structure.** Each configuration class (`org.owasp.oag.config.configuration`) implements `ErrorValidation`
+   and reports missing or invalid values of its own fields. It knows nothing about registered extensions.
+2. **Extension types.** Only if the structure is valid, every `ConfigValidator` bean checks its part of the
+   configuration against its registry and reports unknown types with the configuration entry and the known
+   types, for example `LoginProvider 'github': Unknown type 'githb'. Known types: [github, oidc]`.
+
+```mermaid
+flowchart LR
+    start[context ready] --> mcv[MainConfigValidator]
+    mcv -->|1| ev["MainConfig.getErrors()<br/>structure"]
+    mcv -->|"2, if no errors"| cv["ConfigValidator beans<br/>one per extension point"]
+    cv --> reg[registries]
+```
+
+| Validator | Checks |
+|---|---|
+| `LoginProviderValidator` | `loginProviders.<name>.type`, and that a driver can be created from the settings |
+| `UserMappingValidator` | `securityProfiles.<name>.userMapping.type` |
+| `CsrfProtectionValidator` | `securityProfiles.<name>.csrfProtection` |
+| `TraceProfileValidator` | `traceProfile.type` |
+| `KeyManagementValidator` | the `type` of `jwkStoreProfile`, `keyGeneratorProfile` and `keyRotationProfile` |
+
+A new implementation of an existing extension point only declares its `type()`; it is validated
+automatically. A new extension point adds a `ConfigValidator` next to its registry, so that configuration
+classes never depend on extension packages. Extension points whose beans resolve their type while they are
+created (user mapping, JWT signer, key management, trace) can fail with the registry's error message before
+this validation runs.
+
 Extensions run on the request's virtual thread and use the servlet API (`jakarta.servlet.http`). They are
-plain sequential Java — blocking calls are fine and no reactive types appear in any signature.
+plain sequential Java — blocking calls are fine.
 
 ## Reading the state of the current request
 
