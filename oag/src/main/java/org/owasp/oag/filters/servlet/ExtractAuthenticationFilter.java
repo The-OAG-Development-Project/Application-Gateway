@@ -84,7 +84,7 @@ public class ExtractAuthenticationFilter extends OncePerRequestFilter {
                   loginCookie.getId(), loginCookie.getUserModel().getId());
                 // do not accept session and csrf token
             } else {
-                session = Session.fromSessionCookie(loginCookie, globalClockSource.getGlobalClock());
+                session = loginCookie.toSession(globalClockSource.getGlobalClock());
                 if (session.isEmpty()) {
                     log.debug("Received invalid session cookie, maybe expired");
                 }

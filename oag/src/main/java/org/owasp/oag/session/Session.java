@@ -1,8 +1,5 @@
 package org.owasp.oag.session;
 
-import org.owasp.oag.cookies.LoginCookie;
-
-import java.time.Clock;
 import java.util.Optional;
 
 /**
@@ -23,7 +20,7 @@ public class Session {
     private final long remainingTimeSeconds;
     private final String provider;
     private final UserModel userModel;
-    private final LoginCookie loginCookie;
+    private final String csrfToken;
     private final String id;
 
     /**
@@ -33,47 +30,16 @@ public class Session {
      * @param remainingTimeSeconds The remaining time until session expiration in seconds
      * @param provider The name of the login provider that authenticated the user
      * @param userModel The user model containing user information
-     * @param loginCookie The login cookie associated with this session
+     * @param csrfToken The CSRF token bound to this session, may be {@code null}
      * @param id The unique identifier for this session
      */
-    public Session(long sessionExpSeconds, long remainingTimeSeconds, String provider, UserModel userModel, LoginCookie loginCookie, String id) {
+    public Session(long sessionExpSeconds, long remainingTimeSeconds, String provider, UserModel userModel, String csrfToken, String id) {
         this.sessionExpSeconds = sessionExpSeconds;
         this.remainingTimeSeconds = remainingTimeSeconds;
         this.provider = provider;
         this.userModel = userModel;
-        this.loginCookie = loginCookie;
+        this.csrfToken = csrfToken;
         this.id = id;
-    }
-
-    /**
-     * Converts a decrypted login cookie into a user session object.
-     * Returns an empty optional is the session is expired.
-     *
-     * @param cookie The login cookie to convert into a session
-     * @param clock The clock used to determine if the session is expired
-     * @return An Optional containing the Session if valid, or empty if expired or null cookie
-     */
-    public static Optional<Session> fromSessionCookie(LoginCookie cookie, Clock clock) {
-
-        if (cookie == null)
-            return Optional.empty();
-
-        long remainingTimeSeconds = cookie.getSessionExpSeconds() - (clock.millis() / 1000);
-        if (remainingTimeSeconds < 0) {
-            return Optional.empty();
-        }
-
-
-        Session session = new Session(
-                cookie.getSessionExpSeconds(),
-                remainingTimeSeconds,
-                cookie.getProviderKey(),
-                cookie.getUserModel(),
-                cookie,
-                cookie.getId()
-        );
-
-        return Optional.of(session);
     }
 
     /**
@@ -113,12 +79,12 @@ public class Session {
     }
 
     /**
-     * Returns the login cookie that represents this session
+     * Returns the CSRF token bound to this session
      *
-     * @return The login cookie associated with this session
+     * @return The CSRF token, or {@code null} if none is bound
      */
-    public LoginCookie getLoginCookie() {
-        return loginCookie;
+    public String getCsrfToken() {
+        return csrfToken;
     }
 
     /**

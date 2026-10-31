@@ -35,7 +35,7 @@ public class CsrfCookieCreationHook implements SessionHook {
     public void renewSession(Map<String, Object> filterContext, HttpServletResponse response) {
 
         Session session = (Session) filterContext.get("old-session");
-        filterContext.put("csrfToken", session.getLoginCookie().getCsrfToken());
+        filterContext.put("csrfToken", session.getCsrfToken());
     }
 
     /**

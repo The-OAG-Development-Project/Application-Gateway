@@ -107,6 +107,9 @@ TraceHeaders traceHeaders = TraceContext.REQUEST_TRACE_HEADERS.get(); // org.owa
 `REQUEST_SESSION` is empty when the request carries no valid session, and `REQUEST_CSRF_TOKEN` is `null` in
 the same situation — both are bound for every request, whether authenticated or not.
 
+A `Session` holds the values of the decrypted session cookie: user model, login provider, session id, expiry
+and the CSRF token bound to the session.
+
 These values are only readable while a request is being handled. Calling `get()` from code that runs outside
 a request, such as a scheduled task, throws `NoSuchElementException`; use `isBound()` first if your class can
 run in both situations.

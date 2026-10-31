@@ -74,6 +74,7 @@ class ExtractAuthenticationFilterTest {
             Optional<Session> session = Session.REQUEST_SESSION.get();
             assertTrue(session.isPresent(), "session was not published");
             assertEquals(SESSION_ID, session.get().getId());
+            assertEquals(CSRF_TOKEN, session.get().getCsrfToken());
             assertEquals(CSRF_TOKEN, CsrfCookie.REQUEST_CSRF_TOKEN.get());
         });
     }

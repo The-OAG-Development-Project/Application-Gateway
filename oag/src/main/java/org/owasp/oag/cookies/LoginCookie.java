@@ -1,6 +1,10 @@
 package org.owasp.oag.cookies;
 
+import org.owasp.oag.session.Session;
 import org.owasp.oag.session.UserModel;
+
+import java.time.Clock;
+import java.util.Optional;
 
 /**
  * Represents the content of the login cookie used to maintain user sessions.
@@ -148,5 +152,18 @@ public class LoginCookie {
      */
     public void setId(String id) {
         this.id = id;
+    }
+
+    /**
+     * Converts this decrypted login cookie into a user session.
+     *
+     * @param clock The clock used to determine whether the session is expired
+     * @return The session, or empty if the session is expired
+     */
+    public Optional<Session> toSession(Clock clock) {
+        long remainingTimeSeconds = sessionExpSeconds - (clock.millis() / 1000);
+        if (remainingTimeSeconds < 0)
+            return Optional.empty();
+        return Optional.of(new Session(sessionExpSeconds, remainingTimeSeconds, providerKey, userModel, csrfToken, id));
     }
 }
