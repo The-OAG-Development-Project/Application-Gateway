@@ -6,7 +6,6 @@ import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.cookies.LoginStateCookie;
 import org.owasp.oag.filters.GatewayRouteContext;
-import org.owasp.oag.filters.servlet.TraceContextFilter;
 import org.owasp.oag.logging.TraceContext;
 import org.owasp.oag.logging.TraceHeaders;
 import org.slf4j.Logger;

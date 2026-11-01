@@ -22,9 +22,8 @@ package-level import graph.
 | 10 | `filters.servlet` ↔ `hooks.session` | `SessionRenewalFilter → SessionHookChain` | `AddSessionToBlacklistHook` imports `ExtractAuthenticationFilter` but never uses it |
 | 11 | `filters.proxy` ↔ `gateway` | `RouteAwareFilter` reads `GatewayRouterFunctionConfiguration.ATTRIBUTE_ROUTE_NAME` | The gateway configuration collects all `RouteAwareFilter`s |
 
-Additional edge: `CsrfSameSiteStrictCookieValidation` calls `ExtractAuthenticationFilter.findCookie`, so a
-service depends on a servlet filter. Moving it to `cookies.CookieReader` was planned as Task 7 of iteration
-`00006` but was not implemented.
+Additional edge: `CsrfSameSiteStrictCookieValidation` called `ExtractAuthenticationFilter.findCookie`, so a
+service depended on a servlet filter. Resolved by F.
 
 Compared with `main`, iteration `00007` removed three cycles (all through `infrastructure.factories`) and added
 cycles 3–5. Cycles 1 and 2 follow the same pattern and already existed on `main`.
@@ -35,15 +34,17 @@ cycles 3–5. Cycles 1 and 2 follow the same pattern and already existed on `mai
   `LoginCookie`, and `LoginCookie.toSession(Clock)` replaces `Session.fromSessionCookie`. No package cycle is
   left; `PackageCycleTest` runs the plain rule without exceptions. Details:
   [E in detail](#e-in-detail-separate-session-and-login-cookie).
-- F. ?? what was this:
-  Implement `00006` Task 7: move `findCookie` to `cookies.CookieReader`, which unhooks `services.csrf` from the
-  filters.
+- **F. `findCookie` in a servlet filter.** Done (iteration `00013`): `cookies.CookieReader.findCookie` replaces
+  `ExtractAuthenticationFilter.findCookie`; `LayeringTest` forbids dependencies on `filters.servlet` from outside.
+- **G. Handler-mapping order.** Open (other half of `00006` Task 7): move the `static` `BeanPostProcessor`
+  `routerFunctionMappingAfterControllers` out of `GatewayRouterFunctionConfiguration` into its own
+  configuration class, so that class only assembles routes. Keep its explanatory comment.
 
 ### Suggested order
 
 | Step | Content | Effort | Risk |
 |---|---|---|---|
-| 2 | F (`CookieReader`) | small | low |
+| 2 | ~~F (`CookieReader`)~~ done | small | — |
 | 3 | ~~E (session/cookie split)~~ done | small | — |
 
 

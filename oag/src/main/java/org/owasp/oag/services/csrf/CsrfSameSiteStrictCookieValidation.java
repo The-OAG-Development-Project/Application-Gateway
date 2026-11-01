@@ -3,8 +3,8 @@ package org.owasp.oag.services.csrf;
 import jakarta.servlet.http.HttpServletRequest;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.cookies.CookieConverter;
+import org.owasp.oag.cookies.CookieReader;
 import org.owasp.oag.cookies.CsrfCookie;
-import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,7 +102,7 @@ public class CsrfSameSiteStrictCookieValidation implements CsrfProtectionValidat
      */
     private String extractCsrfToken(HttpServletRequest request) {
 
-        var cookieOptional = ExtractAuthenticationFilter.findCookie(request, CsrfCookie.NAME);
+        var cookieOptional = CookieReader.findCookie(request, CsrfCookie.NAME);
 
         if (cookieOptional.isEmpty())
             return null;

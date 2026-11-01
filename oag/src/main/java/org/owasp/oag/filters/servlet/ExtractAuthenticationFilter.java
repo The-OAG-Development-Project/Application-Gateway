@@ -2,10 +2,10 @@ package org.owasp.oag.filters.servlet;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
+import org.owasp.oag.cookies.CookieReader;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.exception.ApplicationException;
 import org.owasp.oag.exception.CookieDecryptionException;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -42,23 +41,6 @@ public class ExtractAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private SessionBlacklist sessionBlacklist;
-
-    /**
-     * Reads the cookie with the given name from the request.
-     *
-     * @param request The current request
-     * @param name    The name of the cookie
-     * @return An Optional containing the first cookie with that name, empty when the request has none
-     */
-    public static Optional<Cookie> findCookie(HttpServletRequest request, String name) {
-
-        var cookies = request.getCookies();
-
-        if (cookies == null)
-            return Optional.empty();
-
-        return Arrays.stream(cookies).filter(cookie -> name.equals(cookie.getName())).findFirst();
-    }
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain)
@@ -100,7 +82,7 @@ public class ExtractAuthenticationFilter extends OncePerRequestFilter {
     protected Optional<LoginCookie> extractLoginCookieFromRequest(HttpServletRequest request) {
 
         LoginCookie loginCookie = null;
-        var cookieOptional = findCookie(request, LoginCookie.NAME);
+        var cookieOptional = CookieReader.findCookie(request, LoginCookie.NAME);
 
         if (cookieOptional.isEmpty())
             return Optional.empty();

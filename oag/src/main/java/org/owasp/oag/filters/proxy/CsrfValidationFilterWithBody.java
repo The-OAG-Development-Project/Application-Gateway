@@ -1,7 +1,6 @@
 package org.owasp.oag.filters.proxy;
 
 import org.owasp.oag.filters.GatewayRouteContext;
-import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.services.csrf.CsrfValidationRegistry;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.owasp.oag.session.Session;

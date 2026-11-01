@@ -7,11 +7,11 @@ import org.owasp.oag.config.configuration.LoginProvider;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.controllers.dto.SessionInformation;
 import org.owasp.oag.cookies.CookieConverter;
+import org.owasp.oag.cookies.CookieReader;
 import org.owasp.oag.cookies.CookieWriter;
 import org.owasp.oag.cookies.LoginStateCookie;
 import org.owasp.oag.exception.AuthenticationException;
 import org.owasp.oag.exception.CookieDecryptionException;
-import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.hooks.session.SessionHookChain;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
 import org.owasp.oag.services.csrf.CsrfSameSiteStrictCookieValidation;
@@ -292,7 +292,7 @@ public class LoginController {
      */
     private LoginStateCookie loadLoginState(HttpServletRequest request) {
 
-        Optional<Cookie> oidcCookie = ExtractAuthenticationFilter.findCookie(request, LoginStateCookie.NAME);
+        Optional<Cookie> oidcCookie = CookieReader.findCookie(request, LoginStateCookie.NAME);
 
         if (oidcCookie.isEmpty())
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No login state");
