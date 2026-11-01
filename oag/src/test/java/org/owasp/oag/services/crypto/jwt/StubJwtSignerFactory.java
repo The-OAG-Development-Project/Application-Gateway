@@ -7,6 +7,11 @@ import java.util.Map;
 
 public class StubJwtSignerFactory implements JwtSignerFactory {
 
+    @Override
+    public String type() {
+        return "stub";
+    }
+
     public JwtSigner create(String hostUri, Map<String, Object> settings) {
 
         // Generate a new random in-memory key

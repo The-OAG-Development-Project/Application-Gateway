@@ -1,7 +1,7 @@
 package org.owasp.oag.filters.proxy;
 
 import org.owasp.oag.filters.GatewayRouteContext;
-import org.owasp.oag.infrastructure.factories.UserMappingFactory;
+import org.owasp.oag.services.tokenMapping.SecurityProfileUserMappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class UserMappingFilter extends RouteAwareFilter {
     private static final Logger log = LoggerFactory.getLogger(UserMappingFilter.class);
 
     @Autowired
-    private UserMappingFactory mappingFactory;
+    private SecurityProfileUserMappers userMappers;
 
     @Override
     public ServerResponse filter(ServerRequest request, HandlerFunction<ServerResponse> next,
@@ -33,7 +33,7 @@ public class UserMappingFilter extends RouteAwareFilter {
         log.trace("Execute DownstreamAuthenticationFilter.");
 
         var securityProfileName = routeContext.getRoute().getType();
-        var userMapper = mappingFactory.getUserMapperForSecurityProfile(securityProfileName);
+        var userMapper = userMappers.get(securityProfileName);
 
         return next.handle(userMapper.mapUserToRequest(request, routeContext));
     }

@@ -2,7 +2,6 @@ package org.owasp.oag.services.keymgm;
 
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.exception.ConsistencyException;
-import org.owasp.oag.infrastructure.factories.KeyManagementFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,35 +14,45 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * Default mechanism to rotate keys.
- * If you want to use another implementation, you may be so by writing your own key rotation mechanism.
- * Note that in that case you must make sure that when the bean is loaded:
- * - you generate a first signing key and assign it in the CurrentSigningKeyHolder
+ * Default mechanism to rotate keys: generates a new signing key with the configured {@link KeyGenerator},
+ * publishes it in the configured {@link JwkStore} and repeats this in the configured interval.
  */
 @Component
 public class DefaultKeyRotation implements KeyRotation {
 
+    /**
+     * The {@code keyRotationProfile.type} value handled by this key rotation.
+     */
+    public static final String TYPE = "defaultKeyRotation";
+
     private static final Logger log = LoggerFactory.getLogger(DefaultKeyRotation.class);
 
     private final MainConfig config;
-    private final KeyManagementFactory keyMgmFactory;
+    private final JwkStoreRegistry jwkStores;
+    private final KeyGeneratorRegistry keyGenerators;
     private final CurrentSigningKeyHolder sigKeyHolder;
     private final ThreadPoolTaskScheduler scheduler;
 
     /**
-     * Constructs a DefaultKeyRotation instance and initializes the key rotation mechanism.
+     * Constructs a DefaultKeyRotation instance. The rotation begins with {@link #start()}.
      *
      * @param config The main configuration for the application
-     * @param keyMgmFactory Factory for creating key management components
+     * @param jwkStores Registry of the JWK stores
+     * @param keyGenerators Registry of the key generators
      * @param sigKeyHolder Holder for the current signing key
      * @param scheduler Scheduler for key rotation tasks
      */
     @Autowired
-    public DefaultKeyRotation(MainConfig config, KeyManagementFactory keyMgmFactory, CurrentSigningKeyHolder sigKeyHolder, @Qualifier("keyRotationScheduler") ThreadPoolTaskScheduler scheduler) {
+    public DefaultKeyRotation(MainConfig config, JwkStoreRegistry jwkStores, KeyGeneratorRegistry keyGenerators, CurrentSigningKeyHolder sigKeyHolder, @Qualifier("keyRotationScheduler") ThreadPoolTaskScheduler scheduler) {
         this.config = config;
-        this.keyMgmFactory = keyMgmFactory;
+        this.jwkStores = jwkStores;
+        this.keyGenerators = keyGenerators;
         this.sigKeyHolder = sigKeyHolder;
         this.scheduler = scheduler;
+    }
+
+    @Override
+    public void start() {
         generateNewKey();
         startScheduler();
     }
@@ -63,7 +72,7 @@ public class DefaultKeyRotation implements KeyRotation {
 
     // synchronized to keep the order of the statements
     private synchronized void generateNewKey() {
-        KeyGenerator.GeneratedKey newKey = keyMgmFactory.getKeyGenerator().generateJWTSigningKey();
+        KeyGenerator.GeneratedKey newKey = keyGenerators.get(config.getKeyManagementProfile().getKeyGeneratorProfile().getType()).generateJWTSigningKey();
         String kid = UUID.randomUUID().toString();
         long expiry = System.currentTimeMillis();
         if (config.getKeyManagementProfile().getKeyRotationProfile().getUseSigningKeyRotation()) {
@@ -71,7 +80,7 @@ public class DefaultKeyRotation implements KeyRotation {
         } else {
             expiry = Integer.MAX_VALUE;
         }
-        keyMgmFactory.getJWKStore().addRawKey(kid, newKey.getKeyUsedToVerify(), expiry);
+        jwkStores.get(config.getKeyManagementProfile().getJwkStoreProfile().getType()).addRawKey(kid, newKey.getKeyUsedToVerify(), expiry);
         sigKeyHolder.setCurrentSigningKey(kid, newKey);
         log.info("Signing key rotated. New signing key has kid {}.", kid);
     }
@@ -102,5 +111,10 @@ public class DefaultKeyRotation implements KeyRotation {
         public void run() {
             startScheduler();
         }
+    }
+
+    @Override
+    public String type() {
+        return TYPE;
     }
 }

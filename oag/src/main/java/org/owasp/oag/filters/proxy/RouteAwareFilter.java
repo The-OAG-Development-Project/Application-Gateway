@@ -2,9 +2,8 @@ package org.owasp.oag.filters.proxy;
 
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.filters.GatewayRouteContext;
-import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
-import org.owasp.oag.gateway.GatewayRouterFunctionConfiguration;
 import org.owasp.oag.session.Session;
+import org.owasp.oag.utils.SharedConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.server.mvc.common.MvcUtils;
 import org.springframework.web.servlet.function.HandlerFilterFunction;
@@ -31,7 +30,7 @@ public abstract class RouteAwareFilter implements HandlerFilterFunction<ServerRe
     public ServerResponse filter(ServerRequest request, HandlerFunction<ServerResponse> next) throws Exception {
 
         // Load security profile
-        String routeName = MvcUtils.getAttribute(request, GatewayRouterFunctionConfiguration.ATTRIBUTE_ROUTE_NAME);
+        String routeName = MvcUtils.getAttribute(request, SharedConstants.ATTRIBUTE_ROUTE_NAME);
         var gatewayRoute = config.getRoutes().get(routeName);
         var securityProfile = config.getSecurityProfiles().get(gatewayRoute.getType());
 

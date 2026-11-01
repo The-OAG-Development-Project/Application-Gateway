@@ -1,13 +1,12 @@
 package org.owasp.oag.infrastructure;
 
-import org.owasp.oag.OWASPApplicationGatewayApplication;
+import org.owasp.oag.config.MainConfigValidator;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.exception.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -25,7 +24,7 @@ public class StartupEventListeners {
     /**
      * Logger for this class.
      */
-    private static final Logger log = LoggerFactory.getLogger(OWASPApplicationGatewayApplication.class);
+    private static final Logger log = LoggerFactory.getLogger(StartupEventListeners.class);
 
     /**
      * The main configuration of the application.
@@ -35,11 +34,10 @@ public class StartupEventListeners {
     MainConfig config;
 
     /**
-     * The Spring application context.
-     * Used to access beans and validate configuration.
+     * Validates the configuration, including the types of all extension points.
      */
     @Autowired
-    ApplicationContext context;
+    MainConfigValidator mainConfigValidator;
 
     /**
      * Validates the application configuration after the Spring context is initialized.
@@ -51,7 +49,7 @@ public class StartupEventListeners {
     @EventListener(ContextRefreshedEvent.class)
     public void validateConfigurationAfterContextInitialized() {
 
-        var configErrors = config.getErrors(context);
+        var configErrors = mainConfigValidator.validate(config);
         if (!configErrors.isEmpty()) {
             String message = "Configuration file contains errors: " + configErrors;
             throw new ConfigurationException(message);

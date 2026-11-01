@@ -5,10 +5,6 @@ import org.owasp.oag.logging.TraceContext;
 import org.owasp.oag.utils.SecureEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
@@ -25,8 +21,6 @@ import java.util.UUID;
  * </code>
  * It does not support additional trace info and ignores these configured values.
  */
-@Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class SimpleTraceContext implements TraceContext {
     /**
      * Name of the traceImplSpecificSettings setting that contains the header name that should be used instead of  the default.
@@ -43,8 +37,16 @@ public class SimpleTraceContext implements TraceContext {
 
     private String traceId;
 
-    @Autowired
-    private MainConfig config;
+    private final MainConfig config;
+
+    /**
+     * Creates a trace context.
+     *
+     * @param config The main configuration providing the trace profile
+     */
+    public SimpleTraceContext(MainConfig config) {
+        this.config = config;
+    }
 
     @Override
     public void generateNewTraceId() {

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.jspecify.annotations.NonNull;
-import org.owasp.oag.OWASPApplicationGatewayApplication;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.config.customDeserializer.StringEnvironmentVariableDeserializer;
 import org.owasp.oag.exception.ConfigurationException;
@@ -79,7 +78,7 @@ public class FileConfigLoader implements ConfigLoader {
             userConfigInputStream = loadConfigFromFile();
         }
 
-        InputStream defaultConfigStream = OWASPApplicationGatewayApplication.class.getResourceAsStream("/default-config.yaml");
+        InputStream defaultConfigStream = FileConfigLoader.class.getResourceAsStream("/default-config.yaml");
         MainConfig config = mergeConfiguration(defaultConfigStream, userConfigInputStream);
 
         log.debug("Configuration successfully loaded");

@@ -35,6 +35,14 @@
   ./gradlew build
   ````
 
+## Package cycles
+`PackageCycleTest` (ArchUnit, `oag/src/test/java/org/owasp/oag/architecture`) fails the build when the production
+code contains a package cycle. Every package below `org.owasp.oag` is its own slice. The root package
+`org.owasp.oag` holds only the application entry points, so no other package may depend on it.
+
+`LayeringTest` (same package) guards the layering: no class outside `org.owasp.oag.filters.servlet` depends on the
+servlet filters. They are wired by component scan; shared helpers such as `cookies.CookieReader` live outside them.
+
 # Run project
 ## Using IntelliJ
 * Verify tests are green: Right click on the top level of the project ("oag" in the Project window) and select "Run All

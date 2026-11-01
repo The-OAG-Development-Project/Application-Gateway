@@ -1,10 +1,5 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.config.ErrorValidation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,11 +9,9 @@ import java.util.List;
  * to limit the amount of data encrypted with the same key and to reduce the impact of key compromise.
  */
 public class KeyRotationProfile implements ErrorValidation {
-    private static final Logger log = LoggerFactory.getLogger(KeyRotationProfile.class);
-
     /**
      * The type of key rotation implementation to use.
-     * Must match a bean name of a key rotation implementation.
+     * Must match the type of a registered KeyRotation.
      */
     private String type;
     
@@ -135,11 +128,10 @@ public class KeyRotationProfile implements ErrorValidation {
      * Validates the key rotation profile configuration and returns a list of validation errors.
      * This method checks that all required settings are present and valid.
      *
-     * @param context The Spring application context, used to verify that the specified type exists
      * @return A list of error messages, empty if the configuration is valid
      */
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors() {
 
         var errors = new ArrayList<String>();
 
@@ -154,16 +146,7 @@ public class KeyRotationProfile implements ErrorValidation {
             errors.add("'cleanupFrequencySeconds' not specified in section keyManagementProfile. Recommended to be at least 10 minutes, up to a few days, consider signingKeyRotation to be a 'reasonable upper bound'.");
 
         if (type == null)
-            errors.add("'type' not specified. Must be the bean name of a bean that initializes the signing key on creation. Usually you should use 'defaultKeyRotation'.");
-
-        if (context != null && !context.containsBean(type)) {
-            errors.add("Specified type '" + type + "' does not match a bean. Must be the bean name of a bean that initializes the signing key on creation. Usually you should use 'defaultKeyRotation'.");
-        } else {
-            log.info("Using key rotation implementation of bean {}.", type);
-        }
-
-        if (!errors.isEmpty())
-            return errors;
+            errors.add("'type' not specified. Usually you should use 'defaultKeyRotation'.");
 
         return errors;
     }

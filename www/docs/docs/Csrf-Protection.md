@@ -2,14 +2,20 @@
 
 If you need a different CSRF protection mechanism, you can implement this by providing your own component.
 
-1. Implement the CsrfProtectionValidation interface
-2. Give your component a unique name that follows this pattern: Csrf\<NameUsedInConfig>Validation
+1. Implement the `CsrfProtectionValidation` interface as a Spring `@Component`.
+2. Return the value used in the configuration from `type()`. It must differ from the built-in types
+   `none`, `sameSiteStrictCookie`, `doubleSubmitCookie` and `doubleSubmitCookieWithBody`.
 3. Configure it in the securityProfile section of the settings.
 
 ```Java
 
 @Component
-public class CsrfMySpecialValidation implements CsrfProtectionValidation {
+public class MySpecialCsrfValidation implements CsrfProtectionValidation {
+
+    @Override
+    public String type() {
+        return "mySpecial";
+    }
 ...
 }
 ```

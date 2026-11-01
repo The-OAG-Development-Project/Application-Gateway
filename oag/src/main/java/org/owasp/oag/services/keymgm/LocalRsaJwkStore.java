@@ -28,6 +28,11 @@ import java.util.*;
  */
 @Component
 public class LocalRsaJwkStore implements JwkStore {
+
+    /**
+     * The {@code jwkStoreProfile.type} value handled by this store.
+     */
+    public static final String TYPE = "localRsaJwkStore";
     private static final Logger log = LoggerFactory.getLogger(LocalRsaJwkStore.class);
     private static final Algorithm DEFAULT_JWK_ALGORITHM = Algorithm.parse("RS256");;
 
@@ -159,5 +164,10 @@ public class LocalRsaJwkStore implements JwkStore {
                 startScheduler();
             }
         }
+    }
+
+    @Override
+    public String type() {
+        return TYPE;
     }
 }

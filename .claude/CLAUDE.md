@@ -90,6 +90,14 @@ A task is done when:
 - The task's requirements are implemented.
 - All documentation is updated
 
+## Documentation requirements
+- Documentation is for human readers. The idea is to provide enough information to understand how something works. But no implementation details.
+- The glossary should be kept up-tpo-date, but not be to complex.
+- Every task requires validation if the documentation already contains the aspect.
+  - If it does: update to match the changes.
+  - If it does not: add a new md file or extend an existing md file.
+  - validate if abstraction is fine, short and concise and not to detailed.
+
 ## Configuration Notes
 
 - **Single `spring:` block per YAML file** — SnakeYAML merges duplicate keys unpredictably; keep all Spring config under one top-level `spring:` key.

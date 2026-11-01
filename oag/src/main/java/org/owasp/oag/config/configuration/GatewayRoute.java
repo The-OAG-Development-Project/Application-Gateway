@@ -1,8 +1,6 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.config.ErrorValidation;
 import org.owasp.oag.utils.UrlUtils;
-import org.springframework.context.ApplicationContext;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -140,11 +138,10 @@ public class GatewayRoute implements ErrorValidation {
     /**
      * Validates the gateway route configuration and returns any errors found.
      *
-     * @param context The application context
      * @return A list of validation error messages, empty if no errors are found
      */
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors() {
         var errors = new ArrayList<String>();
 
         if (path == null)
@@ -163,7 +160,7 @@ public class GatewayRoute implements ErrorValidation {
         if (!errors.isEmpty())
             return errors;
 
-        errors.addAll(rewrite.getErrors(context));
+        errors.addAll(rewrite.getErrors());
 
         try {
             new URL(url);

@@ -2,7 +2,6 @@ package org.owasp.oag.hooks.session;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.services.blacklist.SessionBlacklist;
 import org.owasp.oag.session.Session;
 import org.slf4j.Logger;

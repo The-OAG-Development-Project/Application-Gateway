@@ -7,7 +7,6 @@ import jakarta.servlet.http.Cookie;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.infrastructure.GlobalClockSource;
 import org.owasp.oag.services.blacklist.SessionBlacklist;
@@ -28,8 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Verifies that the filter publishes the session and the csrf token of a login cookie in the request
- * attributes, and that a blacklisted session is not published.
+ * Verifies that the filter publishes the session of a valid login cookie, including its csrf token, and that
+ * neither a blacklisted nor an expired session is published.
  */
 class ExtractAuthenticationFilterTest {
 
@@ -65,7 +64,7 @@ class ExtractAuthenticationFilterTest {
     }
 
     @Test
-    void publishesTheSessionAndCsrfTokenOfAValidLoginCookie() throws Exception {
+    void publishesTheSessionOfAValidLoginCookieWithItsCsrfToken() throws Exception {
 
         var request = new MockHttpServletRequest("GET", "/foo");
         request.setCookies(loginCookie());
@@ -74,7 +73,7 @@ class ExtractAuthenticationFilterTest {
             Optional<Session> session = Session.REQUEST_SESSION.get();
             assertTrue(session.isPresent(), "session was not published");
             assertEquals(SESSION_ID, session.get().getId());
-            assertEquals(CSRF_TOKEN, CsrfCookie.REQUEST_CSRF_TOKEN.get());
+            assertEquals(CSRF_TOKEN, session.get().getCsrfToken());
         });
     }
 
@@ -88,6 +87,16 @@ class ExtractAuthenticationFilterTest {
 
         doFilter(request, () -> assertTrue(Session.REQUEST_SESSION.get().isEmpty(),
           "a blacklisted session must not be published"));
+    }
+
+    @Test
+    void publishesNoSessionWhenTheLoginCookieIsExpired() throws Exception {
+
+        var request = new MockHttpServletRequest("GET", "/foo");
+        request.setCookies(loginCookie(clockSource.getEpochSeconds() - 1));
+
+        doFilter(request, () -> assertTrue(Session.REQUEST_SESSION.get().isEmpty(),
+          "an expired session must not be published"));
     }
 
     private void doFilter(MockHttpServletRequest request, Runnable checkInFilter) throws Exception {
@@ -104,8 +113,11 @@ class ExtractAuthenticationFilterTest {
     }
 
     private Cookie loginCookie() {
+        return loginCookie(clockSource.getEpochSeconds() + 3600);
+    }
 
-        int sessionExp = clockSource.getEpochSeconds() + 3600;
+    private Cookie loginCookie(int sessionExp) {
+
         var loginCookie = new LoginCookie(sessionExp, "local", new UserModel("user-1"), SESSION_ID);
         loginCookie.setCsrfToken(CSRF_TOKEN);
 

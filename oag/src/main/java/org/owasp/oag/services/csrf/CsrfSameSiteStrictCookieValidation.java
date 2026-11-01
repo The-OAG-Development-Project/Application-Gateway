@@ -3,8 +3,8 @@ package org.owasp.oag.services.csrf;
 import jakarta.servlet.http.HttpServletRequest;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.cookies.CookieConverter;
+import org.owasp.oag.cookies.CookieReader;
 import org.owasp.oag.cookies.CsrfCookie;
-import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +27,16 @@ import static org.owasp.oag.utils.SecureEncoder.encodeStringForLog;
  */
 @Component
 public class CsrfSameSiteStrictCookieValidation implements CsrfProtectionValidation {
+
+    /**
+     * The {@code csrfProtection} value handled by this validation.
+     */
+    public static final String TYPE = "sameSiteStrictCookie";
+
+    @Override
+    public String type() {
+        return TYPE;
+    }
 
     /**
      * Logger for this class.
@@ -58,7 +68,7 @@ public class CsrfSameSiteStrictCookieValidation implements CsrfProtectionValidat
         Optional<Session> sessionOptional = Session.REQUEST_SESSION.get();
 
         if (sessionOptional.isPresent()) {
-            String csrfValueFromSession = CsrfCookie.REQUEST_CSRF_TOKEN.get();
+            String csrfValueFromSession = sessionOptional.get().getCsrfToken();
             String csrfValueFromCookie = extractCsrfToken(request);
 
             if (csrfValueFromCookie == null) {
@@ -92,7 +102,7 @@ public class CsrfSameSiteStrictCookieValidation implements CsrfProtectionValidat
      */
     private String extractCsrfToken(HttpServletRequest request) {
 
-        var cookieOptional = ExtractAuthenticationFilter.findCookie(request, CsrfCookie.NAME);
+        var cookieOptional = CookieReader.findCookie(request, CsrfCookie.NAME);
 
         if (cookieOptional.isEmpty())
             return null;

@@ -74,6 +74,7 @@ dependencies {
     // is it still required?
     testImplementation 'org.springframework.cloud:spring-cloud-contract-wiremock:5.0.3'
     testImplementation 'org.wiremock.integrations:wiremock-spring-boot:4.4.3'
+    testImplementation 'com.tngtech.archunit:archunit-junit5:1.5.1'
 }
 
 dependencyManagement {

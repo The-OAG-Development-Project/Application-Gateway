@@ -5,15 +5,30 @@ In this section we explain how you can hook your own trace implementation into t
 If you need, you can write your own implementation for tracing / log correlation.\
 As a good point to start you may take a look at class `...logging.simpleTrace.SimpleTraceContext`.
 
-## Define class and bean name
-Your trace implementation must implement interface `...logging.TraceContext` and declared to be a named component with prototype scope.\
-The name you provide for the component must then be configured in the master configuration file.\
+## Define the context and its factory
+Your trace implementation implements interface `...logging.TraceContext`. OAG needs a fresh instance for every request, so the
+context is a plain class and a `...logging.TraceContextFactory` component creates it. The factory's `type()` is the value
+configured in the master configuration file.\
 Example:
 ```java
-@Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class MyTraceContext implements TraceContext {/*...*/}
+
+@Component
+public class MyTraceContextFactory implements TraceContextFactory {
+
+    @Override
+    public String type() {
+        return "myTraceContext";
+    }
+
+    @Override
+    public TraceContext create() {
+        return new MyTraceContext();
+    }
+}
 ```
+If the context needs the configuration, inject `MainConfig` into the factory and pass it to the context's constructor
+(see `...logging.simpleTrace.SimpleTraceContextFactory`).
 ## Implement methods
 Study the Javadoc of `...logging.TraceContext` to understand under what conditions the methods are invoked by OAG. Implement them accordingly.\
 If you do not support some of the common configuration settings in the `traceProfile`:
@@ -21,7 +36,7 @@ If you do not support some of the common configuration settings in the `tracePro
 * Document this in Javadoc of your class (recommended)
 
 ## Configure your custom implementation to be used by OAG
-The name you provided for the component must be configured in the master configuration file, section `traceProfile`, attribute `type` in order to be used by OAG.\
+The value returned by your factory's `type()` must be configured in the master configuration file, section `traceProfile`, attribute `type` in order to be used by OAG.\
 For the example provided above, the required configuration is:
 ```yaml
 traceProfile:

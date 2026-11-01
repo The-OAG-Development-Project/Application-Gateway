@@ -2,7 +2,7 @@ package org.owasp.oag.controllers;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import org.owasp.oag.config.configuration.MainConfig;
-import org.owasp.oag.infrastructure.factories.KeyManagementFactory;
+import org.owasp.oag.services.keymgm.JwkStoreRegistry;
 import org.owasp.oag.services.keymgm.JwkStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +31,12 @@ public class JwksController {
     /**
      * Creates a new JwksController
      * @param config The main config of OAG
-     * @param keyManagementFactory The key factory that should be used
+     * @param jwkStores The registry of the JWK stores
      */
     @Autowired
-    JwksController(MainConfig config, KeyManagementFactory keyManagementFactory) {
+    JwksController(MainConfig config, JwkStoreRegistry jwkStores) {
         this.config = config;
-        jwkStore = keyManagementFactory.getJWKStore();
+        jwkStore = jwkStores.get(config.getKeyManagementProfile().getJwkStoreProfile().getType());
     }
 
     /**

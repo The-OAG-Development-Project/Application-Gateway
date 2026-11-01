@@ -1,8 +1,5 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.config.ErrorValidation;
-import org.springframework.context.ApplicationContext;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -104,11 +101,10 @@ public class PathRewriteConfig implements ErrorValidation {
     /**
      * Validates the path rewrite configuration and returns any errors found.
      *
-     * @param context The application context
      * @return A list of validation error messages, empty if no errors are found
      */
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors() {
 
         var errors = new LinkedList<String>();
 

@@ -2,11 +2,10 @@ package org.owasp.oag.filters.servlet;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
-import org.owasp.oag.cookies.CsrfCookie;
+import org.owasp.oag.cookies.CookieReader;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.exception.ApplicationException;
 import org.owasp.oag.exception.CookieDecryptionException;
@@ -22,22 +21,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Optional;
 
 /**
- * This filter extracts authentication information from login cookies and makes it available in the request attributes.
- * It validates sessions and handles CSRF token extraction.
+ * This filter reads the login cookie and binds the session of a valid, not blacklisted cookie to
+ * {@link Session#REQUEST_SESSION}. The session also carries the CSRF token of the cookie.
  */
 @Order(40)
 @Component
 public class ExtractAuthenticationFilter extends OncePerRequestFilter {
-
-    /** Key for the session in the request */
-    public final static String OAG_SESSION = "oag-session";
-
-    /** Key for the CSRF token in the request */
-    public final static String OAG_SESSION_CSRF_TOKEN = "oag-session-csrf-token";
 
     private static final Logger log = LoggerFactory.getLogger(ExtractAuthenticationFilter.class);
 
@@ -50,30 +42,12 @@ public class ExtractAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private SessionBlacklist sessionBlacklist;
 
-    /**
-     * Reads the cookie with the given name from the request.
-     *
-     * @param request The current request
-     * @param name    The name of the cookie
-     * @return An Optional containing the first cookie with that name, empty when the request has none
-     */
-    public static Optional<Cookie> findCookie(HttpServletRequest request, String name) {
-
-        var cookies = request.getCookies();
-
-        if (cookies == null)
-            return Optional.empty();
-
-        return Arrays.stream(cookies).filter(cookie -> name.equals(cookie.getName())).findFirst();
-    }
-
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain)
             throws ServletException, java.io.IOException {
 
         log.trace("Execute ExtractAuthenticationFilter");
         Optional<Session> session = Optional.empty();
-        String csrfToken = null;
 
         Optional<LoginCookie> loginCookieOptional = extractLoginCookieFromRequest(request);
         if (loginCookieOptional.isPresent()) {
@@ -82,18 +56,15 @@ public class ExtractAuthenticationFilter extends OncePerRequestFilter {
             if (sessionBlacklist.isInvalidated(loginCookie.getId())) {
                 log.info("Received invalidated session cookie with id: {} user-id: {}",
                   loginCookie.getId(), loginCookie.getUserModel().getId());
-                // do not accept session and csrf token
+                // do not accept the session
             } else {
-                session = Session.fromSessionCookie(loginCookie, globalClockSource.getGlobalClock());
+                session = loginCookie.toSession(globalClockSource.getGlobalClock());
                 if (session.isEmpty()) {
                     log.debug("Received invalid session cookie, maybe expired");
                 }
-                // Extract csrf token from session cookie
-                csrfToken = loginCookie.getCsrfToken();
             }
         }
-        ScopedValue.where(Session.REQUEST_SESSION, session).
-          where(CsrfCookie.REQUEST_CSRF_TOKEN, csrfToken).run(() -> {
+        ScopedValue.where(Session.REQUEST_SESSION, session).run(() -> {
             try {
                 chain.doFilter(request, response);
             } catch (IOException | ServletException e) {
@@ -111,7 +82,7 @@ public class ExtractAuthenticationFilter extends OncePerRequestFilter {
     protected Optional<LoginCookie> extractLoginCookieFromRequest(HttpServletRequest request) {
 
         LoginCookie loginCookie = null;
-        var cookieOptional = findCookie(request, LoginCookie.NAME);
+        var cookieOptional = CookieReader.findCookie(request, LoginCookie.NAME);
 
         if (cookieOptional.isEmpty())
             return Optional.empty();

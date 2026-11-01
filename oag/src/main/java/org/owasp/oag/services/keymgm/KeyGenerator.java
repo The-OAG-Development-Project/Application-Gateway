@@ -1,5 +1,6 @@
 package org.owasp.oag.services.keymgm;
 
+import org.owasp.oag.extension.TypedExtension;
 import org.owasp.oag.exception.ConsistencyException;
 
 import java.security.Key;
@@ -7,8 +8,10 @@ import java.security.KeyPair;
 
 /**
  * Generates new keys that can be used for signing JWT.
+ * <p>
+ * The implementation is selected through {@code keyManagementProfile.keyGeneratorProfile.type}, see {@link #type()}.
  */
-public interface KeyGenerator {
+public interface KeyGenerator extends TypedExtension {
 
     /**
      * Generates a new JWT signing key.

@@ -16,6 +16,16 @@ import java.util.Map;
 @Component
 public class RsaJwtSignerFactory implements JwtSignerFactory {
 
+    /**
+     * The signature implementation handled by this factory.
+     */
+    public static final String TYPE = "rsa";
+
+    @Override
+    public String type() {
+        return TYPE;
+    }
+
     @Autowired
     private CurrentSigningKeyHolder keyHolder;
 

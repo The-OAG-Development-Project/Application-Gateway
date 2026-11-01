@@ -1,10 +1,5 @@
 package org.owasp.oag.config.configuration;
 
-import org.owasp.oag.config.ErrorValidation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,8 +13,6 @@ import java.util.Map;
  * It also implements validation to ensure all required settings are provided.
  */
 public class TraceProfile implements ErrorValidation {
-
-    private static final Logger log = LoggerFactory.getLogger(TraceProfile.class);
 
     private Boolean forwardIncomingTrace;
     private Integer maxLengthIncomingTrace;
@@ -186,7 +179,7 @@ public class TraceProfile implements ErrorValidation {
     }
 
     @Override
-    public List<String> getErrors(ApplicationContext context) {
+    public List<String> getErrors() {
 
         var errors = new ArrayList<String>();
 
@@ -206,13 +199,7 @@ public class TraceProfile implements ErrorValidation {
             errors.add("'sendTraceResponse' not specified");
 
         if (type == null)
-            errors.add("'type' not specified. Must be the bean name of a TraceContext implementation such as w3cTrace. Specify 'noTrace' to disable correlation Logging.");
-
-        if (context != null && !context.containsBean(type)) {
-            errors.add("Specified type '" + type + "' does not match a trace/correlation log implementation. Must be the bean name of a TraceContext implementation such as w3cTrace. Specify 'noTrace' to disable correlation Logging.");
-        } else {
-            log.info("Using log trace / correlation implementation of {}.", type);
-        }
+            errors.add("'type' not specified. Use e.g. 'w3cTraceContext'. Specify 'noTraceContext' to disable correlation Logging.");
 
         return errors;
     }

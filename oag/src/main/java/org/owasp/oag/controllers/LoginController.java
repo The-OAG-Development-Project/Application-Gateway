@@ -7,16 +7,17 @@ import org.owasp.oag.config.configuration.LoginProvider;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.controllers.dto.SessionInformation;
 import org.owasp.oag.cookies.CookieConverter;
+import org.owasp.oag.cookies.CookieReader;
 import org.owasp.oag.cookies.CookieWriter;
 import org.owasp.oag.cookies.LoginStateCookie;
 import org.owasp.oag.exception.AuthenticationException;
 import org.owasp.oag.exception.CookieDecryptionException;
-import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.hooks.session.SessionHookChain;
-import org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory;
-import org.owasp.oag.infrastructure.factories.LoginDriverFactory;
 import org.owasp.oag.services.csrf.CsrfProtectionValidation;
+import org.owasp.oag.services.csrf.CsrfSameSiteStrictCookieValidation;
+import org.owasp.oag.services.csrf.CsrfValidationRegistry;
 import org.owasp.oag.services.login.drivers.LoginDriver;
+import org.owasp.oag.services.login.drivers.LoginDriverRegistry;
 import org.owasp.oag.services.login.drivers.LoginDriverResult;
 import org.owasp.oag.session.Session;
 import org.owasp.oag.utils.UrlUtils;
@@ -63,10 +64,10 @@ public class LoginController {
     private MainConfig config;
 
     /**
-     * Factory for creating LoginDriver instances.
+     * Registry for creating LoginDriver instances.
      */
     @Autowired
-    private LoginDriverFactory loginDriverFactory;
+    private LoginDriverRegistry loginDriverRegistry;
 
     /**
      * Converter for handling cookies.
@@ -84,7 +85,7 @@ public class LoginController {
      * Factory for creating CSRF validation implementations.
      */
     @Autowired
-    private CsrfValidationImplementationFactory csrfValidationImplementationFactory;
+    private CsrfValidationRegistry csrfValidationRegistry;
 
     /**
      * Initiates the login process for a given provider.
@@ -128,7 +129,7 @@ public class LoginController {
         String driverName = provider.getType();
 
         try {
-            return loginDriverFactory.loadDriverByKey(driverName, provider.getWith());
+            return loginDriverRegistry.load(driverName, provider.getWith());
         } catch (Exception e) {
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR, "could not find login driver", e);
@@ -291,7 +292,7 @@ public class LoginController {
      */
     private LoginStateCookie loadLoginState(HttpServletRequest request) {
 
-        Optional<Cookie> oidcCookie = ExtractAuthenticationFilter.findCookie(request, LoginStateCookie.NAME);
+        Optional<Cookie> oidcCookie = CookieReader.findCookie(request, LoginStateCookie.NAME);
 
         if (oidcCookie.isEmpty())
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No login state");
@@ -357,7 +358,7 @@ public class LoginController {
      */
     private CsrfProtectionValidation getCsrfValidationMethod() {
         // using the sameSiteStrictCookie protection for OWASP's own CSRF protection during logout
-        return csrfValidationImplementationFactory.loadCsrfValidationImplementation("sameSiteStrictCookie");
+        return csrfValidationRegistry.get(CsrfSameSiteStrictCookieValidation.TYPE);
     }
 
     /**

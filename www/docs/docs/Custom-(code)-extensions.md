@@ -5,13 +5,92 @@ This section introduces you to how you can create and hook in your code for the 
 
 ## How an extension is selected
 
-An extension is a Spring bean. OAG resolves most extension points by **bean name** from a `type` value in the
-configuration file, so annotating your implementation with `@Component("myImplementation")` and setting the
-matching `type` is all the wiring that is needed. Some extension points are resolved by naming convention
-(CSRF) or by collecting every bean of the type (session hooks); this is noted per interface below.
+An extension is a Spring bean that declares the configuration value selecting it. Every selectable extension
+implements `org.owasp.oag.extension.TypedExtension`:
+
+```java
+String type();
+```
+
+At startup OAG collects all beans of an extension point into a type registry
+(`org.owasp.oag.extension.TypeRegistry`). The registry maps each `type()` to its implementation and resolves
+the `type` value from the configuration file through it. The bean name plays no role. Two implementations
+declaring the same type, or a configured type that no implementation declares, stop OAG at startup with an
+error that lists the known types.
+
+Where creating the extension needs configuration settings or a fresh instance per request, the registered
+bean is a factory that declares the type and creates the extension. Stateless extensions register
+themselves.
+
+```mermaid
+flowchart LR
+    cfg["configuration<br/>type: foo"] --> reg[TypeRegistry]
+    reg -->|"type() == foo"| impl["extension or factory<br/>@Component"]
+    impl -.->|factory only| ext[created extension]
+```
+
+| Extension point | Registered bean (declares `type()`) | Registry | Configuration value |
+|---|---|---|---|
+| `LoginDriver` | `LoginDriverFactory` | `LoginDriverRegistry` | `loginProviders.<name>.type` |
+| `UserMapper` | `UserMappingFactory` | `UserMappingRegistry` | `securityProfiles.<name>.userMapping.type` |
+| `JwtSigner` | `JwtSignerFactory` | `JwtSignerRegistry` | `userMapping.settings.signatureImplementation` |
+| `CsrfProtectionValidation` | the validation itself | `CsrfValidationRegistry` | `securityProfiles.<name>.csrfProtection` |
+| `TraceContext` | `TraceContextFactory` | `TraceContextRegistry` | `traceProfile.type` |
+| `JwkStore` | the store itself | `JwkStoreRegistry` | `keyManagementProfile.jwkStoreProfile.type` |
+| `KeyGenerator` | the generator itself | `KeyGeneratorRegistry` | `keyManagementProfile.keyGeneratorProfile.type` |
+| `KeyRotation` | the rotation itself | `KeyRotationRegistry` | `keyManagementProfile.keyRotationProfile.type` |
+
+A minimal custom extension therefore looks like this:
+
+```java
+@Component
+public class MyCsrfValidation implements CsrfProtectionValidation {
+
+    @Override
+    public String type() {
+        return "mySpecial";             // csrfProtection: mySpecial
+    }
+    // ...
+}
+```
+
+`SessionHook` and `SessionBlacklist` are not selected by type; this is noted per interface below.
+
+### How configured types are validated
+
+Configuration validation runs in two stages when the application context is ready
+(`org.owasp.oag.config.MainConfigValidator`):
+
+1. **Structure.** Each configuration class (`org.owasp.oag.config.configuration`) implements `ErrorValidation`
+   and reports missing or invalid values of its own fields. It knows nothing about registered extensions.
+2. **Extension types.** Only if the structure is valid, every `ConfigValidator` bean checks its part of the
+   configuration against its registry and reports unknown types with the configuration entry and the known
+   types, for example `LoginProvider 'github': Unknown type 'githb'. Known types: [github, oidc]`.
+
+```mermaid
+flowchart LR
+    start[context ready] --> mcv[MainConfigValidator]
+    mcv -->|1| ev["MainConfig.getErrors()<br/>structure"]
+    mcv -->|"2, if no errors"| cv["ConfigValidator beans<br/>one per extension point"]
+    cv --> reg[registries]
+```
+
+| Validator | Checks |
+|---|---|
+| `LoginProviderValidator` | `loginProviders.<name>.type`, and that a driver can be created from the settings |
+| `UserMappingValidator` | `securityProfiles.<name>.userMapping.type` |
+| `CsrfProtectionValidator` | `securityProfiles.<name>.csrfProtection` |
+| `TraceProfileValidator` | `traceProfile.type` |
+| `KeyManagementValidator` | the `type` of `jwkStoreProfile`, `keyGeneratorProfile` and `keyRotationProfile` |
+
+A new implementation of an existing extension point only declares its `type()`; it is validated
+automatically. A new extension point adds a `ConfigValidator` next to its registry, so that configuration
+classes never depend on extension packages. Extension points whose beans resolve their type while they are
+created (user mapping, JWT signer, key management, trace) can fail with the registry's error message before
+this validation runs.
 
 Extensions run on the request's virtual thread and use the servlet API (`jakarta.servlet.http`). They are
-plain sequential Java — blocking calls are fine and no reactive types appear in any signature.
+plain sequential Java — blocking calls are fine.
 
 ## Reading the state of the current request
 
@@ -21,12 +100,14 @@ state of the current request is available in scoped values that OAG binds around
 
 ```java
 Optional<Session> session = Session.REQUEST_SESSION.get();     // org.owasp.oag.session.Session
-String csrfToken = CsrfCookie.REQUEST_CSRF_TOKEN.get();        // org.owasp.oag.cookies.CsrfCookie
 TraceHeaders traceHeaders = TraceContext.REQUEST_TRACE_HEADERS.get(); // org.owasp.oag.logging.TraceContext
 ```
 
-`REQUEST_SESSION` is empty when the request carries no valid session, and `REQUEST_CSRF_TOKEN` is `null` in
-the same situation — both are bound for every request, whether authenticated or not.
+`REQUEST_SESSION` is bound for every request, whether authenticated or not; it is empty when the request
+carries no valid session.
+
+A `Session` holds the values of the decrypted session cookie: user model, login provider, session id, expiry
+and the CSRF token bound to the session (`getCsrfToken()`).
 
 These values are only readable while a request is being handled. Calling `get()` from code that runs outside
 a request, such as a scheduled task, throws `NoSuchElementException`; use `isBound()` first if your class can
@@ -51,12 +132,12 @@ profile's `csrfSafeMethods`. `needsRequestBody()` selects which of the two filte
 `false` the request is validated before the body is read and `requestBody` is `null`; when it returns `true`
 the body is buffered first and passed in.
 
-The session and the CSRF token of the session cookie are not passed in; read them from `Session.REQUEST_SESSION`
-and `CsrfCookie.REQUEST_CSRF_TOKEN` as described above. The built-in implementations only block a request that
+The session is not passed in; read it from `Session.REQUEST_SESSION` as described above and compare the
+submitted token with `session.getCsrfToken()`. The built-in implementations only block a request that
 has a session — an anonymous request cannot carry a session to abuse.
 
-Resolved by naming convention: the `csrfProtection` value `foo` loads the bean whose class is named
-`CsrfFooValidation` (see `org.owasp.oag.infrastructure.factories.CsrfValidationImplementationFactory`).
+Selected through the security profile's `csrfProtection` value, which must match `type()`. Built-in types:
+`none`, `sameSiteStrictCookie`, `doubleSubmitCookie`, `doubleSubmitCookieWithBody`.
 
 ### `org.owasp.oag.services.tokenMapping.UserMapper`
 
@@ -75,7 +156,9 @@ Called by the user-mapping route filter once per proxied request, after access c
 `ServerRequest` is immutable, so an implementation returns a new request built with
 `ServerRequest.from(request)`; returning the argument unchanged adds no user information.
 
-Selected per security profile through the `userMapping` `type` value.
+Created by a `org.owasp.oag.services.tokenMapping.UserMappingFactory` (`UserMapper load(Map<String, Object> settings)`)
+once per security profile at startup. The factory is selected through the `userMapping` `type` value, which
+must match the factory's `type()`. Built-in types: `jwtToken`, `requestHeader`, `no`.
 
 ### `org.owasp.oag.hooks.session.SessionHook`
 
@@ -131,8 +214,9 @@ plus the generated `state`. `processCallback` is called when the provider redire
 and may return a URL to redirect to so the session also ends at the provider, or `null` to use
 `redirectLogout`. `getSettingsErrors` is called at startup to validate the configuration.
 
-A driver is created by a `org.owasp.oag.services.login.drivers.LoginDriverFactory<T>`, selected through the
-login provider's `type` value.
+A driver is created by a `org.owasp.oag.services.login.drivers.LoginDriverFactory`
+(`LoginDriver load(LoginProviderSettings settings)`), selected through the login provider's `type` value,
+which must match the factory's `type()`. Built-in types: `oidc`, `github`.
 
 ### `org.owasp.oag.logging.TraceContext`
 
@@ -153,21 +237,21 @@ String getSecondaryTraceInfoString();
 String getTraceResponseString();
 ```
 
-A new instance is created per request by
-`org.owasp.oag.infrastructure.factories.TraceContextFactory.createContextForRequest()`. The tracing servlet
+A new instance is created per request by a `org.owasp.oag.logging.TraceContextFactory`
+(`TraceContext create()`), so a trace context is a plain object, not a bean. The tracing servlet
 filter then calls either `applyExistingTrace` (when a trace header arrives and `forwardIncomingTrace` is
 set) or `generateNewTraceId`, and reads the header names and values from the remaining methods to propagate
 the trace downstream and, optionally, back upstream. The getters throw
 `org.owasp.oag.exception.TraceException` when no trace has been set up.
 
-Selected through the `traceProfile` `type` value.
+The factory is selected through the `traceProfile` `type` value, which must match its `type()`. Built-in
+types: `w3cTraceContext`, `simpleTraceContext`, `noTraceContext`.
 
 ### `org.owasp.oag.services.crypto.jwt.JwtSignerFactory`
 
 Creates the signer that signs downstream user-mapping JWTs.
 
 ```java
-String JWT_SIGNER_FACTORY_BEAN_POSTFIX = JwtSignerFactory.class.getSimpleName();
 JwtSigner create(String hostUri, Map<String, Object> settings);
 ```
 
@@ -176,8 +260,8 @@ user-mapping settings map from the configuration file. The returned
 `org.owasp.oag.services.crypto.jwt.JwtSigner` is an abstract class responsible for signing and for its own
 key handling.
 
-The bean name is the `signatureImplementation` value plus `JWT_SIGNER_FACTORY_BEAN_POSTFIX`, so
-`signatureImplementation: rsa` resolves the bean named `rsaJwtSignerFactory`.
+Selected through the `signatureImplementation` setting of a JWT user mapping, which must match `type()`.
+Built-in types: `rsa`, `hmac`.
 
 ### `org.owasp.oag.services.keymgm.JwkStore`
 
@@ -196,8 +280,8 @@ void removeKey(String kid);
 has expired, and the two getters back the `/.well-known/jwks` and `/.well-known/jwks/{kid}` endpoints.
 `expiry` is a Unix timestamp.
 
-Selected through `keyManagementProfile.jwkStoreProfile.type` and retrieved via
-`org.owasp.oag.infrastructure.factories.KeyManagementFactory.getJWKStore()`.
+Selected through `keyManagementProfile.jwkStoreProfile.type`, which must match `type()`. Built-in type:
+`localRsaJwkStore`.
 
 ### `org.owasp.oag.services.keymgm.KeyGenerator`
 
@@ -212,8 +296,21 @@ Called by key rotation at startup and on every rotation interval. `GeneratedKey`
 (asymmetric signing, e.g. RS256) or a single `java.security.Key` (symmetric signing, e.g. HS256), and
 exposes `getKeyUsedToVerify()`, `getTypeString()` and `equalType(GeneratedKey)`.
 
-Selected through `keyManagementProfile.keyGeneratorProfile.type` and retrieved via
-`org.owasp.oag.infrastructure.factories.KeyManagementFactory.getKeyGenerator()`.
+Selected through `keyManagementProfile.keyGeneratorProfile.type`, which must match `type()`. Built-in
+type: `rsaKeyGenerator`.
+
+### `org.owasp.oag.services.keymgm.KeyRotation`
+
+Rotates the JWT signing keys.
+
+```java
+void start();
+```
+
+Called once at startup, after all beans are created and before the gateway serves requests, and only on the
+implementation selected through `keyManagementProfile.keyRotationProfile.type`. It must generate the first
+signing key, assign it in `org.owasp.oag.services.keymgm.CurrentSigningKeyHolder`, publish it in the
+`JwkStore`, and schedule further rotations itself. Built-in type: `defaultKeyRotation`.
 
 ## Reading the request body in an extension
 

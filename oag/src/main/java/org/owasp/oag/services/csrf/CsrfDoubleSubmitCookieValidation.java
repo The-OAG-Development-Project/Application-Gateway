@@ -1,8 +1,6 @@
 package org.owasp.oag.services.csrf;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.owasp.oag.cookies.CsrfCookie;
-import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +16,16 @@ import java.util.Optional;
  */
 @Component
 public class CsrfDoubleSubmitCookieValidation implements CsrfProtectionValidation {
+
+    /**
+     * The {@code csrfProtection} value handled by this validation.
+     */
+    public static final String TYPE = "doubleSubmitCookie";
+
+    @Override
+    public String type() {
+        return TYPE;
+    }
 
     /**
      * The name of the HTTP header used to submit the CSRF token.
@@ -59,7 +67,7 @@ public class CsrfDoubleSubmitCookieValidation implements CsrfProtectionValidatio
         Optional<Session> sessionOptional = Session.REQUEST_SESSION.get();
 
         if (sessionOptional.isPresent()) {
-            String csrfValueFromSession = CsrfCookie.REQUEST_CSRF_TOKEN.get();
+            String csrfValueFromSession = sessionOptional.get().getCsrfToken();
             String csrfValueFromDoubleSubmit = extractCsrfToken(request);
 
             if (csrfValueFromDoubleSubmit == null) {

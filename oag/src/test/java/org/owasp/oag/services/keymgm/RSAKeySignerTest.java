@@ -9,6 +9,7 @@ import org.owasp.oag.integration.testInfrastructure.IntegrationTestConfig;
 import org.owasp.oag.integration.testInfrastructure.TestFileConfigLoader;
 import org.owasp.oag.services.crypto.jwt.JwtSigner;
 import org.owasp.oag.services.crypto.jwt.JwtSignerFactory;
+import org.owasp.oag.services.crypto.jwt.JwtSignerRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +21,6 @@ import java.text.ParseException;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.owasp.oag.services.crypto.jwt.JwtSignerFactory.JWT_SIGNER_FACTORY_BEAN_POSTFIX;
 
 public class RSAKeySignerTest extends IntegrationTest {
 
@@ -32,7 +32,7 @@ public class RSAKeySignerTest extends IntegrationTest {
 
     @Test
     public void testBasicSigning() throws ParseException {
-        JwtSignerFactory factory = (JwtSignerFactory) context.getBean("rsa" + JWT_SIGNER_FACTORY_BEAN_POSTFIX);
+        JwtSignerFactory factory = context.getBean(JwtSignerRegistry.class).get("rsa");
         JwtSigner rsaSigner = factory.create("https://fake.oag.owasp.org", null);
 
         assertTrue(rsaSigner.supportsJku());
