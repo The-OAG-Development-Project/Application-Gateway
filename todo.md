@@ -103,8 +103,7 @@ classDiagram
    - Alternative: put the conversion in `CookieConverter`, next to the other cookie conversions. It is a
      Spring bean and needs the clock as well, so `LoginCookie.toSession` is the simpler choice.
 3. **`CsrfCookieCreationHook.renewSession`** reads `session.getCsrfToken()`.
-4. **`ExtractAuthenticationFilter`** calls `loginCookie.toSession(clock)`. Everything else stays as it is,
-   including how `CsrfCookie.REQUEST_CSRF_TOKEN` is bound.
+4. **`ExtractAuthenticationFilter`** calls `loginCookie.toSession(clock)`. Everything else stays as it is.
 
 Afterwards `session` imports nothing from OAG apart from its own package. `cookies → session` stays and is
 the intended direction.
@@ -141,11 +140,3 @@ extensions that use them. None of the built-in extensions do, and the documentat
 
 Effort: small. Two main classes change (`Session`, `LoginCookie`), plus two callers and four tests that only
 change a constructor argument.
-
-### Found on the way (not part of E)
-
-- The docs say `CsrfCookie.REQUEST_CSRF_TOKEN` is `null` whenever `Session.REQUEST_SESSION` is empty.
-  However, `ExtractAuthenticationFilter` also binds the token of an **expired** but not blacklisted cookie.
-  The built-in CSRF validations only act when a session exists, so there is no security impact today. Once
-  `Session` carries the token, `REQUEST_CSRF_TOKEN` duplicates `Session.getCsrfToken()` and could be removed in
-  a later step. Validations would then read the token from the session, which also makes the docs correct.

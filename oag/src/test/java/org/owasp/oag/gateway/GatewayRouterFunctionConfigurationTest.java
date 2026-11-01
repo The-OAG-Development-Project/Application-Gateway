@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.owasp.oag.config.configuration.GatewayRoute;
 import org.owasp.oag.config.configuration.MainConfig;
 import org.owasp.oag.config.configuration.PathRewriteConfig;
-import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.filters.GatewayRouteContext;
 import org.owasp.oag.filters.proxy.RouteAwareFilter;
 import org.owasp.oag.integration.testInfrastructure.TestFileConfigLoader;
@@ -45,8 +44,7 @@ class GatewayRouterFunctionConfigurationTest {
         var servletRequest = new MockHttpServletRequest("GET", "/api/v1/users");
         var request = ServerRequest.create(servletRequest, List.of());
 
-        ScopedValue.where(Session.REQUEST_SESSION, Optional.empty()).
-          where(CsrfCookie.REQUEST_CSRF_TOKEN, "CSRF_TOKEN").run(() -> {
+        ScopedValue.where(Session.REQUEST_SESSION, Optional.empty()).run(() -> {
               var handlerFunction = routerFunction.route(request);
               assertTrue(handlerFunction.isPresent(), "no route matched /api/v1/users");
             try {

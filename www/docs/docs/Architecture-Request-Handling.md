@@ -51,8 +51,7 @@ without being handed the request object:
 | Scoped value | Bound by | Holds |
 | ------------ | -------- | ----- |
 | `TraceContext.REQUEST_TRACE_HEADERS` | `TraceContextFilter` | The `TraceHeaders` of the request: trace id, headers to send downstream, headers to return upstream. |
-| `Session.REQUEST_SESSION` | `ExtractAuthenticationFilter` | The `Optional<Session>` of the request; empty when there is no valid session. |
-| `CsrfCookie.REQUEST_CSRF_TOKEN` | `ExtractAuthenticationFilter` | The CSRF token taken from the session cookie, or `null` when there is no usable session cookie. |
+| `Session.REQUEST_SESSION` | `ExtractAuthenticationFilter` | The `Optional<Session>` of the request, including its CSRF token; empty when there is no valid session. |
 
 A scoped value is only readable inside the binding. This is what fixes the position of the two filters in the
 pipeline: `TraceContextFilter` runs first and `ExtractAuthenticationFilter` before anything that needs the

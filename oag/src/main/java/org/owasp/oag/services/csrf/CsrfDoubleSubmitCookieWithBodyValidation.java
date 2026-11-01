@@ -1,8 +1,6 @@
 package org.owasp.oag.services.csrf;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.owasp.oag.cookies.CsrfCookie;
-import org.owasp.oag.filters.servlet.ExtractAuthenticationFilter;
 import org.owasp.oag.session.Session;
 import org.springframework.stereotype.Component;
 
@@ -48,7 +46,7 @@ public class CsrfDoubleSubmitCookieWithBodyValidation extends CsrfDoubleSubmitCo
         Optional<Session> sessionOptional = Session.REQUEST_SESSION.get();
 
         if (sessionOptional.isPresent()) {
-            String csrfValueFromSession = CsrfCookie.REQUEST_CSRF_TOKEN.get();
+            String csrfValueFromSession = sessionOptional.get().getCsrfToken();
             String csrfValueFromDoubleSubmit = extractCsrfToken(request);
 
             if (requestBody == null) {

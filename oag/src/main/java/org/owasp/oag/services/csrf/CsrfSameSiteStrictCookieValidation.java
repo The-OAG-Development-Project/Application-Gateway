@@ -68,7 +68,7 @@ public class CsrfSameSiteStrictCookieValidation implements CsrfProtectionValidat
         Optional<Session> sessionOptional = Session.REQUEST_SESSION.get();
 
         if (sessionOptional.isPresent()) {
-            String csrfValueFromSession = CsrfCookie.REQUEST_CSRF_TOKEN.get();
+            String csrfValueFromSession = sessionOptional.get().getCsrfToken();
             String csrfValueFromCookie = extractCsrfToken(request);
 
             if (csrfValueFromCookie == null) {

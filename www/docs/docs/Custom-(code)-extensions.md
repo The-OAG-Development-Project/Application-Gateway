@@ -100,15 +100,14 @@ state of the current request is available in scoped values that OAG binds around
 
 ```java
 Optional<Session> session = Session.REQUEST_SESSION.get();     // org.owasp.oag.session.Session
-String csrfToken = CsrfCookie.REQUEST_CSRF_TOKEN.get();        // org.owasp.oag.cookies.CsrfCookie
 TraceHeaders traceHeaders = TraceContext.REQUEST_TRACE_HEADERS.get(); // org.owasp.oag.logging.TraceContext
 ```
 
-`REQUEST_SESSION` is empty when the request carries no valid session, and `REQUEST_CSRF_TOKEN` is `null` in
-the same situation — both are bound for every request, whether authenticated or not.
+`REQUEST_SESSION` is bound for every request, whether authenticated or not; it is empty when the request
+carries no valid session.
 
 A `Session` holds the values of the decrypted session cookie: user model, login provider, session id, expiry
-and the CSRF token bound to the session.
+and the CSRF token bound to the session (`getCsrfToken()`).
 
 These values are only readable while a request is being handled. Calling `get()` from code that runs outside
 a request, such as a scheduled task, throws `NoSuchElementException`; use `isBound()` first if your class can
@@ -133,8 +132,8 @@ profile's `csrfSafeMethods`. `needsRequestBody()` selects which of the two filte
 `false` the request is validated before the body is read and `requestBody` is `null`; when it returns `true`
 the body is buffered first and passed in.
 
-The session and the CSRF token of the session cookie are not passed in; read them from `Session.REQUEST_SESSION`
-and `CsrfCookie.REQUEST_CSRF_TOKEN` as described above. The built-in implementations only block a request that
+The session is not passed in; read it from `Session.REQUEST_SESSION` as described above and compare the
+submitted token with `session.getCsrfToken()`. The built-in implementations only block a request that
 has a session — an anonymous request cannot carry a session to abuse.
 
 Selected through the security profile's `csrfProtection` value, which must match `type()`. Built-in types:

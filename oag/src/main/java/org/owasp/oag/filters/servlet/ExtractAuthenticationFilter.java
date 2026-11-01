@@ -6,7 +6,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
-import org.owasp.oag.cookies.CsrfCookie;
 import org.owasp.oag.cookies.LoginCookie;
 import org.owasp.oag.exception.ApplicationException;
 import org.owasp.oag.exception.CookieDecryptionException;
@@ -26,8 +25,8 @@ import java.util.Arrays;
 import java.util.Optional;
 
 /**
- * This filter extracts authentication information from login cookies and makes it available in the request attributes.
- * It validates sessions and handles CSRF token extraction.
+ * This filter reads the login cookie and binds the session of a valid, not blacklisted cookie to
+ * {@link Session#REQUEST_SESSION}. The session also carries the CSRF token of the cookie.
  */
 @Order(40)
 @Component
@@ -73,7 +72,6 @@ public class ExtractAuthenticationFilter extends OncePerRequestFilter {
 
         log.trace("Execute ExtractAuthenticationFilter");
         Optional<Session> session = Optional.empty();
-        String csrfToken = null;
 
         Optional<LoginCookie> loginCookieOptional = extractLoginCookieFromRequest(request);
         if (loginCookieOptional.isPresent()) {
@@ -82,18 +80,15 @@ public class ExtractAuthenticationFilter extends OncePerRequestFilter {
             if (sessionBlacklist.isInvalidated(loginCookie.getId())) {
                 log.info("Received invalidated session cookie with id: {} user-id: {}",
                   loginCookie.getId(), loginCookie.getUserModel().getId());
-                // do not accept session and csrf token
+                // do not accept the session
             } else {
                 session = loginCookie.toSession(globalClockSource.getGlobalClock());
                 if (session.isEmpty()) {
                     log.debug("Received invalid session cookie, maybe expired");
                 }
-                // Extract csrf token from session cookie
-                csrfToken = loginCookie.getCsrfToken();
             }
         }
-        ScopedValue.where(Session.REQUEST_SESSION, session).
-          where(CsrfCookie.REQUEST_CSRF_TOKEN, csrfToken).run(() -> {
+        ScopedValue.where(Session.REQUEST_SESSION, session).run(() -> {
             try {
                 chain.doFilter(request, response);
             } catch (IOException | ServletException e) {
