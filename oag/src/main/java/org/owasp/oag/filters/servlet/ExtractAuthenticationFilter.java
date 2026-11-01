@@ -32,12 +32,6 @@ import java.util.Optional;
 @Component
 public class ExtractAuthenticationFilter extends OncePerRequestFilter {
 
-    /** Key for the session in the request */
-    public final static String OAG_SESSION = "oag-session";
-
-    /** Key for the CSRF token in the request */
-    public final static String OAG_SESSION_CSRF_TOKEN = "oag-session-csrf-token";
-
     private static final Logger log = LoggerFactory.getLogger(ExtractAuthenticationFilter.class);
 
     @Autowired
