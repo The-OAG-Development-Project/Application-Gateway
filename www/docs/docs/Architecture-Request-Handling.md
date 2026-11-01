@@ -27,6 +27,9 @@ flowchart TD
     Q --> R[Downstream system]
 ```
 
+OAG's own endpoints (`/auth/**`, `/.well-known/jwks`) take precedence over the configured routes, even over a
+catch-all route `/**`.
+
 The two tiers differ in scope:
 
 - **Servlet filters** (`org.owasp.oag.filters.servlet`) run for every request before routing, including

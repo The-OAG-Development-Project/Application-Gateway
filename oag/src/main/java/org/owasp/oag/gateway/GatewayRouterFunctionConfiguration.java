@@ -6,7 +6,6 @@ import org.owasp.oag.filters.proxy.RouteAwareFilter;
 import org.owasp.oag.utils.SharedConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.cloud.gateway.server.mvc.common.MvcUtils;
 import org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions;
@@ -18,7 +17,6 @@ import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.RouterFunctions;
 import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
-import org.springframework.web.servlet.function.support.RouterFunctionMapping;
 
 import java.util.List;
 
@@ -27,7 +25,8 @@ import java.util.List;
  * <p>
  * Spring Cloud Gateway does not order routes itself, so the routes are added most-specific-path-first
  * using the {@link ProxyPathMatcher} pattern comparator. OAG's route filters are attached to every route
- * in {@code @Order} sequence.
+ * in {@code @Order} sequence. How the routes rank against OAG's own endpoints is set by
+ * {@link HandlerMappingOrderConfiguration}.
  */
 @Configuration
 public class GatewayRouterFunctionConfiguration {
@@ -67,31 +66,6 @@ public class GatewayRouterFunctionConfiguration {
                 .map(entry -> routeFor(entry.getKey(), entry.getValue()))
                 .reduce(RouterFunction::and)
                 .orElseGet(GatewayRouterFunctionConfiguration::noRoutes);
-    }
-
-    /**
-     * Moves the router function mapping behind the annotated controllers.
-     * <p>
-     * Spring MVC registers {@code RouterFunctionMapping} at order -1, ahead of the
-     * {@code RequestMappingHandlerMapping} that serves OAG's own endpoints. A configured route such as
-     * {@code /**} would therefore proxy {@code /auth/...} downstream instead of letting the login
-     * controller handle it. Order 1 restores the intended precedence: OAG's own endpoints first, then
-     * the configured gateway routes, then static resources.
-     *
-     * @return The post processor that reorders the mapping
-     */
-    @Bean
-    public static BeanPostProcessor routerFunctionMappingAfterControllers() {
-
-        return new BeanPostProcessor() {
-            @Override
-            public Object postProcessAfterInitialization(Object bean, String beanName) {
-                if (bean instanceof RouterFunctionMapping mapping) {
-                    mapping.setOrder(1);
-                }
-                return bean;
-            }
-        };
     }
 
     private RouterFunction<ServerResponse> routeFor(String routeName, GatewayRoute route) {
